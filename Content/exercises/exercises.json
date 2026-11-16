@@ -1,0 +1,982 @@
+{
+  "schemaVersion": 0,
+  "note": "Provisional shape from M0-08. The Planner Engineer owns the schema and may rename fields. Callout text is written in M1.",
+  "mediaSource": {
+    "provider": "exercisedb-v1",
+    "owner": "AscendAPI (formerly ExerciseDB)",
+    "format": "GIF, 180x180",
+    "licence": "See docs/spikes/s4-gifs.md. Personal, single-user use only."
+  },
+  "exercises": [
+    {
+      "id": "dumbbell-bench-press",
+      "name": "Dumbbell bench press",
+      "group": "push",
+      "equipment": [
+        "dumbbells",
+        "bench"
+      ],
+      "usedIn": "Upper A, all phases",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "SpYC0Kp",
+        "providerName": "dumbbell bench press",
+        "url": "https://static.exercisedb.dev/media/SpYC0Kp.gif",
+        "angle": "front"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "dumbbell-incline-bench-press",
+      "name": "Dumbbell incline bench press",
+      "group": "push",
+      "equipment": [
+        "dumbbells",
+        "bench"
+      ],
+      "usedIn": "Upper B, all phases",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "ns0SIbU",
+        "providerName": "dumbbell incline bench press",
+        "url": "https://static.exercisedb.dev/media/ns0SIbU.gif",
+        "angle": "front"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "push-up",
+      "name": "Push-up",
+      "group": "push",
+      "equipment": [
+        "bodyweight"
+      ],
+      "usedIn": "Warm-up set, finisher, travel",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "I4hDWkc",
+        "providerName": "push-up",
+        "url": "https://static.exercisedb.dev/media/I4hDWkc.gif",
+        "angle": "side"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "decline-push-up",
+      "name": "Feet-on-bench push-up",
+      "group": "push",
+      "equipment": [
+        "bench"
+      ],
+      "usedIn": "Phase 2–3 finisher",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "i5cEhka",
+        "providerName": "decline push-up",
+        "url": "https://static.exercisedb.dev/media/i5cEhka.gif",
+        "angle": "side"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "dumbbell-fly",
+      "name": "Dumbbell fly",
+      "group": "push",
+      "equipment": [
+        "dumbbells",
+        "bench"
+      ],
+      "usedIn": "Upper A, Phase 2–3",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "yz9nUhF",
+        "providerName": "dumbbell fly",
+        "url": "https://static.exercisedb.dev/media/yz9nUhF.gif",
+        "angle": "front"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "dumbbell-seated-shoulder-press",
+      "name": "Seated dumbbell shoulder press",
+      "group": "push",
+      "equipment": [
+        "dumbbells",
+        "bench"
+      ],
+      "usedIn": "Upper B, all phases",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "znQUdHY",
+        "providerName": "dumbbell seated shoulder press",
+        "url": "https://static.exercisedb.dev/media/znQUdHY.gif",
+        "angle": "front"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "dumbbell-arnold-press",
+      "name": "Arnold press",
+      "group": "push",
+      "equipment": [
+        "dumbbells",
+        "bench"
+      ],
+      "usedIn": "Upper B, Phase 3 variation",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "Xy4jlWA",
+        "providerName": "dumbbell arnold press",
+        "url": "https://static.exercisedb.dev/media/Xy4jlWA.gif",
+        "angle": "front"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "dumbbell-lateral-raise",
+      "name": "Lateral raise",
+      "group": "shoulders",
+      "equipment": [
+        "dumbbells"
+      ],
+      "usedIn": "Upper A and B, all phases",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "DsgkuIt",
+        "providerName": "dumbbell lateral raise",
+        "url": "https://static.exercisedb.dev/media/DsgkuIt.gif",
+        "angle": "front"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "dumbbell-reverse-fly",
+      "name": "Bent-over reverse fly",
+      "group": "shoulders",
+      "equipment": [
+        "dumbbells"
+      ],
+      "usedIn": "Upper A and B, all phases",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "EAs3xL9",
+        "providerName": "dumbbell reverse fly",
+        "url": "https://static.exercisedb.dev/media/EAs3xL9.gif",
+        "angle": "front"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "dumbbell-external-rotation",
+      "name": "Standing external rotation",
+      "group": "shoulders",
+      "equipment": [
+        "dumbbells"
+      ],
+      "usedIn": "Warm-up, all phases",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "x306lCW",
+        "providerName": "dumbbell upright shoulder external rotation",
+        "url": "https://static.exercisedb.dev/media/x306lCW.gif",
+        "angle": "front"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "dumbbell-lying-triceps-extension",
+      "name": "Lying triceps extension",
+      "group": "arms",
+      "equipment": [
+        "dumbbells",
+        "bench"
+      ],
+      "usedIn": "Upper A, all phases",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "mpKZGWz",
+        "providerName": "dumbbell lying triceps extension",
+        "url": "https://static.exercisedb.dev/media/mpKZGWz.gif",
+        "angle": "side"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "dumbbell-overhead-triceps-extension",
+      "name": "Seated overhead triceps extension",
+      "group": "arms",
+      "equipment": [
+        "dumbbells",
+        "bench"
+      ],
+      "usedIn": "Upper B, all phases",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "kont8Ut",
+        "providerName": "dumbbell seated triceps extension",
+        "url": "https://static.exercisedb.dev/media/kont8Ut.gif",
+        "angle": "front"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "bench-dip",
+      "name": "Bench dip",
+      "group": "arms",
+      "equipment": [
+        "bench"
+      ],
+      "usedIn": "Finisher, Phase 2–3",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "RrLske5",
+        "providerName": "bench dip (knees bent)",
+        "url": "https://static.exercisedb.dev/media/RrLske5.gif",
+        "angle": "side"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "pull-up",
+      "name": "Pull-up",
+      "group": "pull",
+      "equipment": [
+        "pull-up bar"
+      ],
+      "usedIn": "Upper A and B, once able",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "lBDjFxJ",
+        "providerName": "pull-up",
+        "url": "https://static.exercisedb.dev/media/lBDjFxJ.gif",
+        "angle": "rear-three-quarter"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "chin-up",
+      "name": "Chin-up",
+      "group": "pull",
+      "equipment": [
+        "pull-up bar"
+      ],
+      "usedIn": "Upper A and B, all phases",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "T2mxWqc",
+        "providerName": "chin-up",
+        "url": "https://static.exercisedb.dev/media/T2mxWqc.gif",
+        "angle": "rear-three-quarter"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "negative-pull-up",
+      "name": "Negative pull-up (slow lower)",
+      "group": "pull",
+      "equipment": [
+        "pull-up bar"
+      ],
+      "usedIn": "Upper A and B, Phase 1 regression",
+      "media": null,
+      "substitute": "pull-up",
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "band-assisted-pull-up",
+      "name": "Band-assisted pull-up",
+      "group": "pull",
+      "equipment": [
+        "pull-up bar",
+        "band"
+      ],
+      "usedIn": "Fallback if no bar or for extra reps",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "r1XNRYB",
+        "providerName": "band assisted pull-up",
+        "url": "https://static.exercisedb.dev/media/r1XNRYB.gif",
+        "angle": "rear-three-quarter"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "scapular-pull-up",
+      "name": "Scapular pull-up",
+      "group": "pull",
+      "equipment": [
+        "pull-up bar"
+      ],
+      "usedIn": "Warm-up, all phases",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "uTBt1HV",
+        "providerName": "scapular pull-up",
+        "url": "https://static.exercisedb.dev/media/uTBt1HV.gif",
+        "angle": "rear-three-quarter"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "dumbbell-one-arm-row",
+      "name": "One-arm dumbbell row",
+      "group": "pull",
+      "equipment": [
+        "dumbbells",
+        "bench"
+      ],
+      "usedIn": "Upper A, all phases",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "C0MA9bC",
+        "providerName": "dumbbell one arm bent-over row",
+        "url": "https://static.exercisedb.dev/media/C0MA9bC.gif",
+        "angle": "front"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "dumbbell-incline-row",
+      "name": "Chest-supported incline row",
+      "group": "pull",
+      "equipment": [
+        "dumbbells",
+        "bench"
+      ],
+      "usedIn": "Upper B, all phases",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "7vG5o25",
+        "providerName": "dumbbell incline row",
+        "url": "https://static.exercisedb.dev/media/7vG5o25.gif",
+        "angle": "side"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "dumbbell-pullover",
+      "name": "Dumbbell pullover",
+      "group": "pull",
+      "equipment": [
+        "dumbbell",
+        "bench"
+      ],
+      "usedIn": "Upper B, Phase 2–3",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "9XjtHvS",
+        "providerName": "dumbbell pullover",
+        "url": "https://static.exercisedb.dev/media/9XjtHvS.gif",
+        "angle": "side"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "dumbbell-biceps-curl",
+      "name": "Dumbbell curl",
+      "group": "arms",
+      "equipment": [
+        "dumbbells"
+      ],
+      "usedIn": "Upper A, all phases",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "NbVPDMW",
+        "providerName": "dumbbell biceps curl",
+        "url": "https://static.exercisedb.dev/media/NbVPDMW.gif",
+        "angle": "front"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "dumbbell-hammer-curl",
+      "name": "Hammer curl",
+      "group": "arms",
+      "equipment": [
+        "dumbbells"
+      ],
+      "usedIn": "Upper B, all phases",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "slDvUAU",
+        "providerName": "dumbbell hammer curl",
+        "url": "https://static.exercisedb.dev/media/slDvUAU.gif",
+        "angle": "front"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "dumbbell-incline-curl",
+      "name": "Incline curl",
+      "group": "arms",
+      "equipment": [
+        "dumbbells",
+        "bench"
+      ],
+      "usedIn": "Upper A, Phase 2–3",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "ae9UoXQ",
+        "providerName": "dumbbell incline curl",
+        "url": "https://static.exercisedb.dev/media/ae9UoXQ.gif",
+        "angle": "front"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "dumbbell-goblet-squat",
+      "name": "Goblet squat",
+      "group": "legs",
+      "equipment": [
+        "dumbbell"
+      ],
+      "usedIn": "Full body, all phases",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "yn8yg1r",
+        "providerName": "dumbbell goblet squat",
+        "url": "https://static.exercisedb.dev/media/yn8yg1r.gif",
+        "angle": "front"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "split-squat",
+      "name": "Split squat",
+      "group": "legs",
+      "equipment": [
+        "dumbbells"
+      ],
+      "usedIn": "Full body, Phase 1",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "9E25EOx",
+        "providerName": "split squats",
+        "url": "https://static.exercisedb.dev/media/9E25EOx.gif",
+        "angle": "front"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "dumbbell-bulgarian-split-squat",
+      "name": "Bulgarian split squat",
+      "group": "legs",
+      "equipment": [
+        "dumbbells",
+        "bench"
+      ],
+      "usedIn": "Full body, Phase 2–3",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "qx4fgX7",
+        "providerName": "dumbbell single leg split squat",
+        "url": "https://static.exercisedb.dev/media/qx4fgX7.gif",
+        "angle": "front"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "dumbbell-romanian-deadlift",
+      "name": "Romanian deadlift",
+      "group": "legs",
+      "equipment": [
+        "dumbbells"
+      ],
+      "usedIn": "Full body, all phases",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "rR0LJzx",
+        "providerName": "dumbbell romanian deadlift",
+        "url": "https://static.exercisedb.dev/media/rR0LJzx.gif",
+        "angle": "front"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "dumbbell-reverse-lunge",
+      "name": "Reverse lunge",
+      "group": "legs",
+      "equipment": [
+        "dumbbells"
+      ],
+      "usedIn": "Full body, swap for split squat",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "SSsBDwB",
+        "providerName": "dumbbell rear lunge",
+        "url": "https://static.exercisedb.dev/media/SSsBDwB.gif",
+        "angle": "side"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "dumbbell-step-up",
+      "name": "Step-up",
+      "group": "legs",
+      "equipment": [
+        "dumbbells",
+        "bench"
+      ],
+      "usedIn": "Full body, Phase 2–3",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "aXtJhlg",
+        "providerName": "dumbbell step-up",
+        "url": "https://static.exercisedb.dev/media/aXtJhlg.gif",
+        "angle": "side"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "glute-bridge",
+      "name": "Glute bridge",
+      "group": "legs",
+      "equipment": [
+        "bodyweight"
+      ],
+      "usedIn": "Warm-up, Phase 1",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "u0cNiij",
+        "providerName": "low glute bridge on floor",
+        "url": "https://static.exercisedb.dev/media/u0cNiij.gif",
+        "angle": "side"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "glute-bridge-feet-on-bench",
+      "name": "Feet-on-bench glute bridge",
+      "group": "legs",
+      "equipment": [
+        "bench"
+      ],
+      "usedIn": "Full body, Phase 2–3",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "aWedzZX",
+        "providerName": "glute bridge two legs on bench (male)",
+        "url": "https://static.exercisedb.dev/media/aWedzZX.gif",
+        "angle": "side"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "dumbbell-calf-raise",
+      "name": "Standing calf raise",
+      "group": "legs",
+      "equipment": [
+        "dumbbells"
+      ],
+      "usedIn": "Full body, all phases",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "dPmaUaU",
+        "providerName": "dumbbell standing calf raise",
+        "url": "https://static.exercisedb.dev/media/dPmaUaU.gif",
+        "angle": "side"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "dumbbell-single-leg-calf-raise",
+      "name": "Single-leg calf raise",
+      "group": "legs",
+      "equipment": [
+        "dumbbell"
+      ],
+      "usedIn": "Full body, Phase 2–3",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "1kB3Wmk",
+        "providerName": "dumbbell single leg calf raise",
+        "url": "https://static.exercisedb.dev/media/1kB3Wmk.gif",
+        "angle": "side"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "plank",
+      "name": "Front plank",
+      "group": "core",
+      "equipment": [
+        "bodyweight"
+      ],
+      "usedIn": "Core block, all phases",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "VBAWRPG",
+        "providerName": "weighted front plank",
+        "url": "https://static.exercisedb.dev/media/VBAWRPG.gif",
+        "angle": "side"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "side-plank",
+      "name": "Side plank",
+      "group": "core",
+      "equipment": [
+        "bodyweight"
+      ],
+      "usedIn": "Core block, all phases",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "RKjH6Lt",
+        "providerName": "side bridge v. 2",
+        "url": "https://static.exercisedb.dev/media/RKjH6Lt.gif",
+        "angle": "side"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "dead-bug",
+      "name": "Dead bug",
+      "group": "core",
+      "equipment": [
+        "bodyweight"
+      ],
+      "usedIn": "Core block, Phase 1",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "iny3m5y",
+        "providerName": "dead bug",
+        "url": "https://static.exercisedb.dev/media/iny3m5y.gif",
+        "angle": "side"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "hollow-hold",
+      "name": "Hollow hold",
+      "group": "core",
+      "equipment": [
+        "bodyweight"
+      ],
+      "usedIn": "Core block, Phase 3",
+      "media": null,
+      "substitute": "dead-bug",
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "reverse-crunch",
+      "name": "Reverse crunch",
+      "group": "core",
+      "equipment": [
+        "bodyweight or bench"
+      ],
+      "usedIn": "Core block, Phase 1–2",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "nCU1Ekp",
+        "providerName": "reverse crunch",
+        "url": "https://static.exercisedb.dev/media/nCU1Ekp.gif",
+        "angle": "side"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "hanging-knee-raise",
+      "name": "Hanging knee raise",
+      "group": "core",
+      "equipment": [
+        "pull-up bar"
+      ],
+      "usedIn": "Core block, Phase 2–3",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "I3tsCnC",
+        "providerName": "hanging leg raise",
+        "url": "https://static.exercisedb.dev/media/I3tsCnC.gif",
+        "angle": "front"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "hanging-leg-raise",
+      "name": "Hanging leg raise",
+      "group": "core",
+      "equipment": [
+        "pull-up bar"
+      ],
+      "usedIn": "Core block, Phase 3",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "4Ml7QFO",
+        "providerName": "hanging straight leg raise",
+        "url": "https://static.exercisedb.dev/media/4Ml7QFO.gif",
+        "angle": "front"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "farmers-carry",
+      "name": "Farmer's carry",
+      "group": "core",
+      "equipment": [
+        "dumbbells"
+      ],
+      "usedIn": "Full body finisher, all phases",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "qPEzJjA",
+        "providerName": "farmers walk",
+        "url": "https://static.exercisedb.dev/media/qPEzJjA.gif",
+        "angle": "front"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "worlds-greatest-stretch",
+      "name": "World's greatest stretch",
+      "group": "warm-up",
+      "equipment": [
+        "bodyweight"
+      ],
+      "usedIn": "Warm-up, every session",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "DFGXwZr",
+        "providerName": "world greatest stretch",
+        "url": "https://static.exercisedb.dev/media/DFGXwZr.gif",
+        "angle": "side"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    },
+    {
+      "id": "scapular-push-up",
+      "name": "Scapular push-up",
+      "group": "warm-up",
+      "equipment": [
+        "bodyweight"
+      ],
+      "usedIn": "Warm-up, upper days",
+      "media": {
+        "provider": "exercisedb-v1",
+        "mediaId": "jV65tKx",
+        "providerName": "scapula push-up",
+        "url": "https://static.exercisedb.dev/media/jV65tKx.gif",
+        "angle": "side"
+      },
+      "substitute": null,
+      "callouts": {
+        "setup": null,
+        "movement": null,
+        "commonMistake": null
+      }
+    }
+  ]
+}
