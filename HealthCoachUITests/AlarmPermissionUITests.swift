@@ -24,17 +24,29 @@ final class AlarmPermissionUITests: XCTestCase {
         app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", text)).firstMatch
     }
 
-    /// Taps Allow on the AlarmKit prompt wherever the system shows it. The
-    /// interruption monitor covers the app-hosted case; Springboard the rest.
+    /// Every "Result: …" line on the Spike tests screen, for failure messages.
     @MainActor
-    private func allowAlarmsIfAsked(_ app: XCUIApplication) {
+    private func results(_ app: XCUIApplication) -> String {
+        app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'Result:'"))
+            .allElementsBoundByIndex.map(\.label).joined(separator: " | ")
+    }
+
+    /// Waits up to `timeout` for `text` in a result line, tapping Allow on the
+    /// AlarmKit prompt wherever the system shows it (Springboard or the app).
+    @MainActor
+    private func waitForResult(_ app: XCUIApplication, containing text: String, timeout: TimeInterval) -> Bool {
         let springboardAllow = XCUIApplication(bundleIdentifier: "com.apple.springboard").alerts.buttons["Allow"]
-        if springboardAllow.waitForExistence(timeout: 5) {
-            springboardAllow.tap()
-            return
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if result(app, containing: text).exists { return true }
+            if springboardAllow.exists {
+                springboardAllow.tap()
+            } else if app.alerts.buttons["Allow"].exists {
+                app.alerts.buttons["Allow"].tap()
+            }
+            _ = result(app, containing: text).waitForExistence(timeout: 1)
         }
-        let appAllow = app.alerts.buttons["Allow"]
-        if appAllow.exists { appAllow.tap() }
+        return result(app, containing: text).exists
     }
 
     @MainActor
@@ -51,16 +63,13 @@ final class AlarmPermissionUITests: XCTestCase {
         let set = app.buttons["Set test alarms"]
         XCTAssertTrue(set.waitForExistence(timeout: 10))
         set.tap()
-        allowAlarmsIfAsked(app)
         app.swipeUp() // any interaction lets the interruption monitor run
-        XCTAssertTrue(result(app, containing: "14 alarms set").waitForExistence(timeout: 20),
-                      app.debugDescription)
+        XCTAssertTrue(waitForResult(app, containing: "14 alarms set", timeout: 30), results(app))
         add(XCTAttachment(screenshot: app.screenshot()))
 
         app.terminate()
         app = openSpikeTests()
-        XCTAssertTrue(result(app, containing: "All alarms set (14)").waitForExistence(timeout: 20),
-                      app.debugDescription)
+        XCTAssertTrue(waitForResult(app, containing: "All alarms set (14)", timeout: 20), results(app))
         let shot = XCTAttachment(screenshot: app.screenshot())
         shot.name = "alarms-after-relaunch"
         shot.lifetime = .keepAlways
