@@ -5,45 +5,45 @@ QA label: **core** = full end-to-end round (CoachCore, alarm scheduling, Health,
 
 **🙋 CEO hands** marks steps that need the owner's hands. Engineers never ask the CEO; the Setup Desk batches every 🙋 step into one checklist, verifies the result and tells the owner.
 
-## Roadmap (re-sequenced 2026-11-16: paid Apple account on hold)
+## Roadmap to Gate 2 (standing order, 2026-11-16 21:10)
 
-The CEO is training from the paper Week 1 plan meanwhile. Until the paid account, nothing reaches the phone. Work is proven by CI builds, tests and simulator screenshots.
+The CEO is training from paper and will not be asked anything until Gate 2. The team decides, records the decision in `docs/decisions.md` and carries on. CEO time is 0 h a week until Gate 2. Work is proven by CI, CoachCore tests, simulator UI tests and screenshots. Anything that needs the paid account or the phone is built, flagged under **Deferred to payment**, and never asked about.
 
-| Step | Purpose | Needs from the CEO |
-|---|---|---|
-| **M0a** · Setup and spikes, free | Repo, CI that compiles the app and runs every test, spike code checked in the simulator | Nothing. Optional: allow `download.swift.org` in the cloud environment (M0-09) |
-| **Gate 0a** | Approve building on: app compiles, tests green, spike screens shown in simulator screenshots | ~5 min to read the Gate 0 pack and say go |
-| **M1** · Workout | Onboarding confirm, Phase 1 programme, Today screen, workout player, one-tap logging, progression | Nothing until the gate |
-| **Pay trigger** | When M1 runs end to end in the simulator, that is the "material product". Join the Apple Developer Program (~£79) | ~45 min once: Setup Desk Parts A–C |
-| **M0b** · Phone spikes | Pipeline to the phone; alarms fire locked, on Silent and in Focus; they survive an update; lock-screen timer with voice | ~15 min: Setup Desk Part D |
-| **Gate 0b** | Approve that alarms and the timer work on the real phone, or accept fallbacks | ~5 min |
-| **M2** · Planner | Sunday prompt, wake times, 14-day alarms, weather swap, notifications, Health weight and steps | Allow Health on the phone |
-| **Gate 1** | Stop using paper; the app runs the week | ~5 min; the stop rule applies if not by end of week 4 |
-| **M3** · Meals | Meals around the box, breakfasts, Sunday cook, top-up list, office lunch list | Default shop and delivery slot (one question) |
-| **M4** · Coach | Rules engine, stall flag, Claude summary and import, progress view, photos | Nothing |
-| **Gate 2** | Checkpoint 1 at week 6: first live Claude review | ~10 min |
-| Checkpoints | Weeks 14 and 20; Phases 2 and 3 are content updates | ~10 min each |
+| Step | Purpose | Sign-off | Target |
+|---|---|---|---|
+| **M0a** | CI compiles everything, spike code checked in the simulator | Head of Engineering | 20 Nov |
+| **Gate 0a** (internal) | Simulator proof of spikes; deferred list agreed | Head of QA + Advisor | 21 Nov |
+| **M1** · Workout | Phase 1 programme, onboarding confirm, Today, workout player, run-walk, one-tap logging, progression | Head of Engineering | 4 Dec |
+| **M2** · Planner | Sunday prompt, placement, wake times, 14-day alarms, weather swap, notifications, Health trend | Head of Engineering | 11 Dec |
+| **Gate 1** (internal) | A simulated week runs from the app with no paper, judged against the guiding rule | Head of QA + Advisor | 12 Dec |
+| **M3** · Meals | Box nights, breakfasts, Sunday cook, top-up list, office lunch list | Head of Engineering | 18 Dec |
+| **M4** · Coach | Rules engine, stall flag, Claude summary and import, progress, photos, Ask the coach now | Head of Engineering | 23 Dec |
+| **Gate 2 pack** | Full QA round, a release-ready simulator build, a demo walkthrough, the deferred list, and one recommendation on payment | Head of Engineering | 27 Dec (end of week 6) |
+| **Gate 2** | CEO reviews and decides how to move | **CEO** | after 27 Dec |
+| Run | Phase 2 and 3 programmes as data | Researcher | before weeks 7 and 15 |
 
-Risk of the hold: alarms are the product's riskiest part and stay unproven on a real phone until M0b. M1 doesn't depend on them, and M2 does, so payment must land before M2 starts.
+**Cut rule:** if any milestone slips more than a week, cut M3 extras first (in-store mode, delivery reminder, lunch swipe), then M4 photos.
 
-## Current mode: build cycle · M0a → Gate 0a
+**Deferred to payment (built, not provable until the CEO says when):** S0 pipeline to the phone (M0-03). S1 alarms ringing locked, on Silent and in Focus. S1b alarms surviving an update. S3 lock-screen timer and voice through headphones while locked. Real Health scale data. Backup Clock alarm for the first week on the app. All need ~45 min of setup and ~15 min of on-phone tests once paid; the Setup Desk checklist already covers them (Parts A–D). **Risk:** alarm and timer code ship unproven on a device; M2's wake alarms depend on it. If the device tests fail later, only the AlarmKit and ActivityKit layer is reworked, because CoachCore is device-independent.
+
+## Current mode: build cycle · M0a → Gate 0a (internal)
 
 | ID | Item | Owner | Branch | Areas | Label | Status | 🙋 CEO hands |
 |---|---|---|---|---|---|---|---|
 | M0-01 | Repository layout, board, decisions | Head of Engineering | `claude/project-thread-cl2ypb` | repo root, docs/ | docs | done (PR #1) | — |
 | M0-02 | Xcode project: app + Live Activity targets linking CoachCore | Planner Engineer | `claude/project-thread-3n9z3c` | App/, LiveActivity/, Shared/, ci_scripts/ | core | done (PR #2) | — |
 | M0-12 | GitHub Actions CI: build for the iOS 26 simulator, run CoachCore tests, save spike-screen screenshots | Planner Engineer | — | .github/workflows/ | core | todo | — |
-| M0-04 | S1 · Alarms (code and simulator now; on-phone in M0b) | Planner Engineer | `claude/project-thread-3n9z3c` | App/, CoachCore/Planner | core | in progress (part 1 PR #8) | M0b |
-| M0-05 | S1b · Reconcile on open (code now; TestFlight update test in M0b) | Planner Engineer | `claude/project-thread-3n9z3c` | CoachCore/Planner, App/ | core | in progress | M0b |
-| M0-06 | S3 · Live Activity timer with voice cues (simulator now; on-phone in M0b) | iOS Interface Engineer | `claude/project-thread-buqy8y` | LiveActivity/, App/ | interface | in progress (code PR #7) | M0b |
+| M0-04 | S1 · Alarms (code and simulator now; on-phone in M0b) | Planner Engineer | `claude/project-thread-3n9z3c` | App/, CoachCore/Planner | core | code done (PR #8, #10); simulator check pending; device test deferred | — |
+| M0-05 | S1b · Reconcile on open (code now; TestFlight update test in M0b) | Planner Engineer | `claude/project-thread-3n9z3c` | CoachCore/Planner, App/ | core | code done (PR #10); simulator check pending; device test deferred | — |
+| M0-06 | S3 · Live Activity timer with voice cues (simulator now; on-phone in M0b) | iOS Interface Engineer | `claude/project-thread-buqy8y` | LiveActivity/, App/ | interface | code done (PR #7); simulator check pending; device test deferred | — |
 | M0-07 | S2 · Calendar route chosen | Head of Engineering | `claude/project-thread-cl2ypb` | docs/decisions.md | docs | done (PR #1) | — |
 | M0-08 | S4 · GIFs found for all ~40 exercises | Training and Nutrition Researcher | Researcher thread (PR #3) | Content/exercises/, docs/ | docs | done (PR #3) | — |
-| M0-09 | Cloud sessions can run `swift test` | Head of Engineering | — | project environment | docs | blocked (optional) | yes |
-| M0-10 | Gate 0a pack for the CEO | Head of Engineering | — | docs/spikes/ | docs | todo | — |
+| M0-09 | Cloud sessions can run `swift test` | Head of Engineering | — | project environment | docs | deferred to Gate 2 (needs CEO settings change; CI covers it) | — |
+| M0-10 | Gate 0a pack (internal: QA + Advisor sign-off) | Head of Engineering | — | docs/spikes/ | docs | todo | — |
 | M0-11 | In-app "Spike tests" screen (one-tap buttons for S1, S1b, S3) | iOS Interface Engineer | `claude/project-thread-buqy8y` | App/ | interface | done (PR #7) | — |
-| M0-03 | S0 · Pipeline: push → Xcode Cloud → TestFlight → phone | Planner Engineer | `claude/project-thread-3n9z3c` | ci_scripts/, Xcode Cloud | core | **on hold until paid** (hook merged PR #5) | M0b |
+| M0-03 | S0 · Pipeline: push → Xcode Cloud → TestFlight → phone | Planner Engineer | `claude/project-thread-3n9z3c` | ci_scripts/, Xcode Cloud | core | **deferred to payment** (hook merged PR #5) | — |
 
-Order now: M0-12 (first real compile) → M0-04/05 part 2 → simulator checks of M0-04, M0-05 and M0-06 → M0-10 → Gate 0a. M0-03 and the on-phone halves of M0-04, M0-05 and M0-06 move to M0b after payment. M1 items are written up at Gate 0a.
+Order now: M0-12 (first real compile) → simulator checks of M0-04, M0-05 and M0-06 → M0-10 → Gate 0a. M1 design and content (M1-01 to M1-03) start now in parallel, so code can follow Gate 0a straight away.
 
 ## Done when
 
@@ -118,6 +118,59 @@ Order now: M0-12 (first real compile) → M0-04/05 part 2 → simulator checks o
 ### M0-10 · Gate 0a pack
 - [ ] One page in `docs/spikes/gate-0.md`: what the simulator proved and what waits for the phone (M0b), with screenshots.
 - [ ] The CEO can approve Gate 0 from that page in under 5 minutes, with one recommendation marked.
+
+
+## M1–M4 items
+
+Device-only Done when lines from plan §7 are rewritten as simulator or UI-test checks; the device version joins the deferred list.
+
+| ID | Item | Owner | Label | Status |
+|---|---|---|---|---|
+| M1-01 | Data model: versioned profile record (SwiftData), programme and exercise JSON schemas, content validation tests | Planner Engineer | core | todo |
+| M1-02 | Phase 1 programme (`phase-1.json`, weeks 1–6 ramp) and callout text for all 44 exercises | Researcher (Advisor reviews) | docs | todo |
+| M1-03 | Design: Today, workout player, run-walk, onboarding confirm | Product Designer (Advisor critiques, max 2 rounds) | interface | todo |
+| M1-04 | Onboarding confirm, pre-filled with decision E6 defaults | iOS Interface Engineer | interface | todo |
+| M1-05 | Today screen: today's session and timeline | iOS Interface Engineer | interface | todo |
+| M1-06 | Workout player: GIF, three callouts, rest timer Live Activity, voice countdown, tap rep counter, one-tap "done as prescribed" | iOS Interface Engineer | interface | todo |
+| M1-07 | Run-walk player: guided intervals with voice cues, building to 5 km | iOS Interface Engineer | interface | todo |
+| M1-08 | Progression: reps → sets → tempo → weight, dumbbell-limit flag, drop to 2 strength sessions after two low recovery checks | Planner Engineer | core | todo |
+| M2-01 | Week planner: Sunday prompt answers, session placement around basketball and office days, wake time | Planner Engineer | core | todo |
+| M2-02 | 14-day alarm schedule through the reconcile, "tomorrow changed" re-plan, missing-alarm warning on Today | Planner Engineer | core | todo |
+| M2-03 | Weather swap (Open-Meteo, no key) when the morning brief opens | Planner Engineer | core | todo |
+| M2-04 | Health: weight 7-day trend and steps (read-only) | Planner Engineer | core | todo |
+| M2-05 | Sunday prompt screen, full Today timeline, local notifications with quiet hours 22:30–06:00 | iOS Interface Engineer | interface | todo |
+| M3-01 | Recipes (box nights, breakfasts, home lunches, Sunday cook; 2 portions, no raw fish, no batch cooking) and office lunch list | Researcher (Advisor reviews) | docs | todo |
+| M3-02 | Meal plan and tracking: pre-ticked meals, evening "anything different?", 2 untracked social meals | Planner Engineer | core | todo |
+| M3-03 | Top-up list: merged quantities, aisle order, staples, search links to the default shop | Planner Engineer | core | todo |
+| M3-04 | Meals, shopping and lunch screens | iOS Interface Engineer | interface | todo |
+| M4-01 | Rules engine: calories from trend, load from logs, volume from recovery, stall flag | Planner Engineer | core | todo |
+| M4-02 | Claude summary and share; clipboard import of a versioned block, rejected safely when bad | Planner Engineer | core | todo |
+| M4-03 | Progress view, photos every 2 weeks with a ghost outline, optional mood check, "Ask the coach now" | iOS Interface Engineer | interface | todo |
+| G2-01 | Gate 2 pack | Head of Engineering | docs | todo |
+
+### Done when (M1–M4)
+
+**M1-01** · Profile record and content files decode with a version; a newer or broken file is rejected with a plain message · every file in `Content/` is validated by a CoachCore test · `exercises.json` moves from schemaVersion 0 to 1.
+**M1-02** · Weeks 1–6 match plan §2 (3 strength + run-walk + basketball; second run from week 4; light legs until week 4; nothing on Wednesday) · every exercise has its three callouts · Advisor's points answered as accepted, changed or rejected in the PR.
+**M1-03** · Mock-ups for the four screens, each usable one-handed with a big next and done · Advisor critique folded in within 2 rounds · open taste decisions listed for Gate 2, not asked.
+**M1-04** · A simulator UI test confirms onboarding in under 5 minutes of taps, with every default pre-filled · the result is stored in the profile record.
+**M1-05** · Today shows the right session for any date in weeks 1–6 (UI test across 7 days).
+**M1-06** · A UI test completes a full Phase 1 session touching only "next" and "done" · the GIFs are bundled (no network) · the Live Activity starts and ends with each rest (simulator screenshot).
+**M1-07** · The week 1 run-walk (1 min jog, 1 min walk × 10) plays with voice cues in the simulator, and later weeks build towards 5 km.
+**M1-08** · CoachCore tests prove the next session's loads change correctly after logging, including the dumbbell-limit flag at 24 kg and the drop to 2 sessions.
+**M2-01** · CoachCore tests place sessions correctly for at least 6 office-day patterns, never on Wednesday · wake time = first commitment − commute − shower − session − buffer, protecting 7.5 h of sleep.
+**M2-02** · The reconcile keeps 7–14 days of alarms registered across simulated app opens, with no owner action · "tomorrow changed" re-plans one day only · the empty-plan guard holds.
+**M2-03** · A bad-weather forecast swaps an outdoor run for an indoor session of the same length, without moving the wake time · works offline (no swap, no error).
+**M2-04** · The 7-day weight average reads from Health in the simulator (sample data) · no health data leaves the phone.
+**M2-05** · The Sunday prompt takes under 20 seconds of taps in a UI test · no notification fires in quiet hours (unit-tested).
+**M3-01** · The box-night calories and protein entry · 3–4 breakfasts, home lunches and 1 Sunday cook, all 2 portions, with calories and protein · 5–6 lunch orders within 8 minutes' walk of St James's Market.
+**M3-02** · A simulated week of eating needs only the evening question · daily protein is planned at about 160 g, and calories match the phase target.
+**M3-03** · One merged weekly list sorted by aisle · staples are ticked once · each item has a search link to the default shop (E5).
+**M3-04** · Screens walked in the simulator; the lunch card suggests one order on office days.
+**M4-01** · A simulated 2-week stall raises a flag · calories adjust from the 7-day trend within safe bounds (Advisor-reviewed).
+**M4-02** · An imported Claude block changes next week's plan · a malformed or wrong-version block is rejected with a plain message, and last week's plan stays (CoachCore tests).
+**M4-03** · Photo day every 2 weeks with a ghost outline (simulator camera roll) · skipping mood changes nothing · "Ask the coach now" builds a summary and opens the share sheet.
+**G2-01** · Full end-to-end QA round clean on one fixed build · a demo walkthrough (screenshots or recording) of a typical week · the deferred list, with the open taste decisions · one recommendation on payment.
 
 ## Done
 
