@@ -45,7 +45,7 @@ One record, stored by the app in SwiftData as this JSON (`ProfileRecord.payload`
 | top | `schemaVersion` 1, `confirmed` false (true after "Looks right") |
 | `about` | `name`, `heightCm`, `weightKg` (all optional), `painAreas[]` (empty = nothing hurts) |
 | `goal` | `target` lean-and-strong, `phaseWeeks` 6 |
-| `schedule` | `sleepHours` 7.5, `fallAsleepMinutes` 15, `windDownMinutes` 30, `latestBedtime` 23:30, `earliestWake` 05:45, `workStart` 09:00, `workEnd` 18:00, `trainingWindows` both, `longSessionDay` sunday |
+| `schedule` | `sleepHours` 7.5, `fallAsleepMinutes` 15, `windDownMinutes` 30, `latestBedtime` 23:30, `earliestWake` 05:45, `workStart` 09:00, `workEnd` 18:00, `trainingWindows` both, `longSessionDay` sunday, `commuteMinutes` 25, `showerMinutes` 15, `wakeBufferMinutes` 15, `eveningEndBy` 20:30, `dayOffSessionStart` 09:00 |
 | `training` | `maxSessionMinutes` 45, `dumbbellMaxKg` 24, `hasBench`, `hasPullUpBar`, `voiceCues` true, `counting` tap |
 | `coach` | `checkInDay` sunday, `checkInTime` 18:00, `moodCheck` true, `quietFrom` 22:30, `quietUntil` 06:00 |
 | `programme` | `programmeID` phase-1, `startDate` (Monday of week 1; set at onboarding) |

@@ -58,6 +58,16 @@ public struct Profile: VersionedFormat, Codable, Sendable, Equatable {
         public var workEnd = TimeOfDay(hour: 18, minute: 0)
         public var trainingWindows: TrainingWindows = .both
         public var longSessionDay: Weekday = .sunday
+        /// Door to desk (requirements §2: about 25 min).
+        public var commuteMinutes: Int = 25
+        /// After a session, at home.
+        public var showerMinutes: Int = 15
+        /// Alarm to session start: up, water, kit on.
+        public var wakeBufferMinutes: Int = 15
+        /// An evening session (and its shower) ends by this, to leave dinner and wind-down.
+        public var eveningEndBy = TimeOfDay(hour: 20, minute: 30)
+        /// Session start on days with no work (weekends).
+        public var dayOffSessionStart = TimeOfDay(hour: 9, minute: 0)
         public init() {}
 
         public enum TrainingWindows: String, Codable, Sendable, CaseIterable {
