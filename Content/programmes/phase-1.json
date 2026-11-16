@@ -919,7 +919,17 @@
               "startKg": null,
               "tempo": "2-0-1",
               "progression": "reps-tempo",
-              "note": "Bodyweight. Fewer than 6 clean reps: swap to dumbbell bench press at 10 kg."
+              "autoSwap": {
+                "whenFirstSetRepsBelow": 6,
+                "to": "dumbbell-bench-press",
+                "startKg": 10,
+                "reps": {
+                  "min": 8,
+                  "max": 12
+                },
+                "from": "next set",
+                "note": "Automatic: the app switches; the owner is never asked."
+              }
             }
           ]
         },
@@ -987,7 +997,6 @@
         {
           "label": "C",
           "restSeconds": 60,
-          "fromWeek": 4,
           "items": [
             {
               "exercise": "split-squat",
@@ -1020,8 +1029,8 @@
               "exercise": "dumbbell-calf-raise",
               "sets": [
                 0,
-                0,
-                0,
+                2,
+                2,
                 2,
                 2,
                 2
@@ -1108,8 +1117,8 @@
       ],
       "durationMinutes": [
         28,
-        33,
-        33,
+        38,
+        38,
         42,
         42,
         42
