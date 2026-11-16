@@ -82,6 +82,21 @@ private func alarms(_ hoursAhead: [Double]) -> [PlannedAlarm] {
         #expect(await fake.cancelCalls == [stray])
     }
 
+    @Test func emptyPlanNeverCancelsRegisteredAlarms() async throws {
+        let registered: Set<UUID> = [UUID(), UUID()]
+        let fake = FakeRegistrar(ids: registered)
+        let outcome = try await AlarmReconciler.reconcile(planned: [], using: fake, now: now)
+        #expect(outcome.cancelled == 0)
+        #expect(await fake.cancelCalls.isEmpty)
+        #expect(await fake.ids == registered)
+    }
+
+    @Test func planWithOnlyPastAlarmsNeverCancels() {
+        let changes = AlarmReconciler.plan(planned: alarms([-2, -1]), registered: [UUID()], now: now)
+        #expect(changes.toCancel.isEmpty)
+        #expect(changes.toRegister.isEmpty)
+    }
+
     @Test func emptyPlanReportsNothingNext() async throws {
         let outcome = try await AlarmReconciler.reconcile(planned: [], using: FakeRegistrar(), now: now)
         #expect(outcome == ReconcileOutcome(total: 0, reSet: 0, cancelled: 0, next: nil))
@@ -120,6 +135,14 @@ private func alarms(_ hoursAhead: [Double]) -> [PlannedAlarm] {
             calendar.dateComponents([.day], from: plan[0].fireDate, to: $0.fireDate).day
         }
         #expect(days == Array(21...33))
+    }
+
+    @Test func clearingKeepsTheNearAlarmAndDropsTheLaterThirteen() {
+        let start = Date(timeIntervalSince1970: 1_800_000_000)
+        let plan = TestAlarmSchedule.make(now: start, calendar: calendar)
+        let split = TestAlarmSchedule.splitForClearing(plan, now: start)
+        #expect(split.keep.map(\.id) == [plan[0].id])
+        #expect(split.drop.map(\.id) == plan.dropFirst().map(\.id))
     }
 
     @Test func zeroCountMakesNothing() {

@@ -23,6 +23,11 @@ public struct ReconcileOutcome: Equatable, Sendable {
 public enum AlarmReconciler {
     /// Pure comparison. Alarms due at or before `now` are ignored: they have
     /// fired or are firing, and AlarmKit no longer lists them as scheduled.
+    ///
+    /// Safety rule: a plan with nothing upcoming never cancels anything. An
+    /// empty plan almost always means a failed or missing load, and wiping the
+    /// owner's alarms on that is the worst failure this app can have. Clearing
+    /// alarms on purpose goes through `AlarmRegistering.cancel` directly.
     public static func plan(planned: [PlannedAlarm], registered: Set<UUID>, now: Date) -> ReconcilePlan {
         let upcoming = planned
             .filter { $0.fireDate > now }
@@ -30,7 +35,9 @@ public enum AlarmReconciler {
         let wanted = Set(upcoming.map(\.id))
         return ReconcilePlan(
             toRegister: upcoming.filter { !registered.contains($0.id) },
-            toCancel: registered.subtracting(wanted).sorted { $0.uuidString < $1.uuidString },
+            toCancel: upcoming.isEmpty
+                ? []
+                : registered.subtracting(wanted).sorted { $0.uuidString < $1.uuidString },
             upcoming: upcoming
         )
     }
