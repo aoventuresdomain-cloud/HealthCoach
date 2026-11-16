@@ -11,7 +11,8 @@ final class AlarmPermissionUITests: XCTestCase {
     @MainActor
     private func openSpikeTests() -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = ["-uitest", "-realAlarms"]
+        // A confirmed profile, so the app opens on Today, where the Spike tests link lives.
+        app.launchArguments = ["-uitest", "-realAlarms", "-fixture", "week1-monday"]
         app.launch()
         let link = app.buttons["home.spikeTests"]
         XCTAssertTrue(link.waitForExistence(timeout: 10))
