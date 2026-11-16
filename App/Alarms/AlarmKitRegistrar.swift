@@ -21,6 +21,9 @@ nonisolated struct AlarmKitRegistrar: AlarmRegistering {
         }
     }
 
+    /// Permission already granted; never prompts.
+    var isAuthorized: Bool { manager.authorizationState == .authorized }
+
     func registeredAlarmIDs() async throws -> Set<UUID> {
         Set(try manager.alarms.map(\.id))
     }

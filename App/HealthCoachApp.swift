@@ -33,7 +33,15 @@ struct HealthCoachApp: App {
             // Plan §4.1: every open checks registered alarms against the plan
             // and re-sets any that are missing (spike S1b). No background job.
             guard phase == .active else { return }
-            Task { _ = await AlarmKitSpike.shared.reconcileStatus() }
+            let profile = try? ProfileStore(context: container.mainContext).load()
+            Task {
+                if let profile, WakeAlarms.shared.isActive(profile: profile) {
+                    // Board M2-02: the planner's 14 days of wake alarms.
+                    await WakeAlarms.shared.reconcile(profile: profile)
+                } else {
+                    _ = await AlarmKitSpike.shared.reconcileStatus()
+                }
+            }
         }
     }
 }
