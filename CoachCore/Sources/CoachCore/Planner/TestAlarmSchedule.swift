@@ -28,6 +28,17 @@ public enum TestAlarmSchedule {
         return alarms
     }
 
+    /// Splits a test plan for "Clear later test alarms": keeps anything due
+    /// within `keepWithin` of `now` (the near test alarm), drops the rest.
+    public static func splitForClearing(
+        _ plan: [PlannedAlarm],
+        now: Date,
+        keepWithin: TimeInterval = 24 * 3600
+    ) -> (keep: [PlannedAlarm], drop: [PlannedAlarm]) {
+        let cutoff = now.addingTimeInterval(keepWithin)
+        return (plan.filter { $0.fireDate <= cutoff }, plan.filter { $0.fireDate > cutoff })
+    }
+
     /// Whole minutes read cleanly on screen ("next at 07:02").
     static func roundedUpToMinute(_ date: Date, calendar: Calendar) -> Date {
         let floored = calendar.dateInterval(of: .minute, for: date)?.start ?? date

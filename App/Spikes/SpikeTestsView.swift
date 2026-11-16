@@ -7,8 +7,7 @@ enum SpikeTests {
 }
 
 struct SpikeTestsView: View {
-    /// Swap for the real AlarmKit runner when M0-04 lands.
-    var alarms: any AlarmSpikeRunning = PlaceholderAlarmSpike()
+    var alarms: any AlarmSpikeRunning = AlarmKitSpike.shared
 
     @State private var timer = RestTimerSpike()
     @State private var alarmResult = "Not run yet."
@@ -32,6 +31,14 @@ struct SpikeTestsView: View {
             Section("S1b · Alarms after an update") {
                 ResultText(reconcileResult)
                 Button("Check again") { Task { await refreshReconcile() } }
+            }
+
+            Section {
+                Button("Clear later test alarms", role: .destructive) {
+                    Task { await clearLater() }
+                }
+            } footer: {
+                Text("Removes the 13 test alarms set three weeks out. Use it if the real alarm planner isn't in by then.")
             }
 
             Section {
@@ -65,7 +72,15 @@ struct SpikeTestsView: View {
         await refreshReconcile()
     }
 
-    private func refreshReconcile() async {
+    private func clearLater() async {
+        do {
+            alarmResult = "Cleared later alarms. " + Self.describe(try await alarms.clearLaterTestAlarms())
+        } catch {
+            alarmResult = "Failed: \(error.localizedDescription)"
+        }
+    }
+
+        private func refreshReconcile() async {
         reconcileResult = Self.describe(await alarms.reconcileStatus())
     }
 

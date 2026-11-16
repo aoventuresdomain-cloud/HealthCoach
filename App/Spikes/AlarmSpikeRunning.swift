@@ -10,6 +10,8 @@ protocol AlarmSpikeRunning {
     func setTestAlarms() async throws -> AlarmSpikeSummary
     /// Result of the on-open reconcile (registered alarms vs the plan).
     func reconcileStatus() async -> AlarmReconcileStatus
+    /// Cancels the test alarms set 21+ days out, keeping the near one.
+    func clearLaterTestAlarms() async throws -> AlarmSpikeSummary
 }
 
 struct AlarmSpikeSummary: Equatable {
@@ -32,4 +34,5 @@ struct PlaceholderAlarmSpike: AlarmSpikeRunning {
 
     func setTestAlarms() async throws -> AlarmSpikeSummary { throw NotBuilt() }
     func reconcileStatus() async -> AlarmReconcileStatus { .notYetRun }
+    func clearLaterTestAlarms() async throws -> AlarmSpikeSummary { throw NotBuilt() }
 }
