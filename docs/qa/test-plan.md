@@ -60,7 +60,7 @@ The board label sets the depth. Unlabelled means core.
 | Change | QA does |
 |---|---|
 | Every PR (sanity) | CI **Build and test** green on the PR's last commit; Done when lines answered in the PR; diff has no secrets, health data, photos or network calls to anything but Open-Meteo; Advisor's points answered where the item needed the Advisor. Red blocks merge |
-| After each merged batch (sanity) | `main` CI green; screenshots artefact present |
+| After each merged batch (sanity) | `main` Linux CoachCore tests green; the merged PRs' macOS build was green on their head |
 | **interface** | Sanity, plus a walk of the changed screens' screenshots against the mock-ups and the guiding rule (one hand, big next and done, no thinking) |
 | **core** | Sanity, then a full round before the next gate or release-ready batch |
 | **docs** | Sanity only (CI is skipped for docs; QA reads the diff) |
@@ -91,8 +91,8 @@ GitHub Free can't enforce required checks on a private repo, so the Head of Engi
 
 The free plan gives about 200 macOS minutes a month (10× multiplier, £0 limit). The PR #13 estimate is 8–10 minutes a run, so about 20 runs. UI tests will add 5–8 minutes. To stay inside it:
 
-- **Move `swift test` to an `ubuntu-latest` job** (CoachCore is Foundation-only by design). It runs on every push at 1× and costs ~2 minutes of the 2,000; CoachCore-only PRs then need no macOS run at all. Recommended to the Planner Engineer as a follow-up to M0-12.
-- UI tests run on `main`, on `workflow_dispatch` and on PRs labelled core or interface that touch `App/`, not on every push.
+- `swift test` runs on `ubuntu-latest` (swift 6.2) on PRs and pushes to `main`, at 1× minutes. The macOS build and screenshots run on PRs (path-filtered) and manual runs only (PR #13).
+- UI tests run on `workflow_dispatch` and on PRs labelled core or interface that touch `App/`, not on every push.
 - A full round costs one dispatched run (~15 minutes). Budget: Gate 0a, Gate 1, Gate 2 and up to three re-runs ≈ 90 minutes.
 - QA logs measured minutes in `docs/spikes/m0-12-ci.md` and warns the Head of Engineering at 70% used in a month.
 

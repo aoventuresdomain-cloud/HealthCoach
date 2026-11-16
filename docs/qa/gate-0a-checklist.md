@@ -27,8 +27,8 @@ Round SHA: `________` · CI run: `________` · Date: `________`
 - [ ] No certificates or provisioning profiles committed.
 
 ### M0-12 · CI
-- [ ] A PR push and a push to `main` both trigger **Build and test**.
-- [ ] `swift test` runs in the same run; a deliberately failing test on a throwaway branch turns the run red (then delete the branch).
+- [ ] A PR push triggers the Linux CoachCore tests and the macOS app build; a push to `main` triggers the Linux CoachCore tests only (the macOS build ran on the PR head, merged only on green).
+- [ ] A deliberately failing CoachCore test on a throwaway PR turns the run red (then close the PR and delete the branch).
 - [ ] Screenshots artefact holds the Spike tests screen and Live Activity layouts.
 - [ ] Measured minutes per run written in `docs/spikes/m0-12-ci.md`; monthly estimate within ~200 macOS minutes.
 
