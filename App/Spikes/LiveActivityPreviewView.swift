@@ -3,7 +3,7 @@ import SwiftUI
 /// Draws the rest-timer Live Activity layouts in-app for CI screenshots
 /// (`-screenshot live-activity`). Same views as the widget, counting live.
 struct LiveActivityPreviewView: View {
-    @State private var endsAt = Date.now.addingTimeInterval(TimeInterval(RestTimerSpike.restSeconds))
+    @State private var endsAt = Date.now.addingTimeInterval(TimeInterval(RestTimerSpike.defaultRestSeconds))
 
     var body: some View {
         ScrollView {

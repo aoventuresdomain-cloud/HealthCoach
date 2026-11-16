@@ -7,7 +7,10 @@ import Observation
 @MainActor
 @Observable
 final class RestTimerSpike {
-    static let restSeconds = 90
+    static let defaultRestSeconds = 90
+
+    /// Length of the test rest. Screenshot runs pass a shorter one (`-restSeconds`).
+    let restSeconds: Int
 
     private(set) var status = "Not run yet."
     private(set) var isRunning = false
@@ -20,6 +23,11 @@ final class RestTimerSpike {
     @ObservationIgnored private var run: Task<Void, Never>?
     @ObservationIgnored private var voiceOn = false
 
+    init(restSeconds: Int = RestTimerSpike.defaultRestSeconds) {
+        // At least 5 s, so the 3-2-1 cues fit.
+        self.restSeconds = max(5, restSeconds)
+    }
+
     func start() {
         guard !isRunning else { return }
         guard ActivityAuthorizationInfo().areActivitiesEnabled else {
@@ -27,7 +35,7 @@ final class RestTimerSpike {
             return
         }
 
-        let endsAt = Date.now.addingTimeInterval(TimeInterval(Self.restSeconds))
+        let endsAt = Date.now.addingTimeInterval(TimeInterval(restSeconds))
         // A timer without voice beats no timer (e.g. a CI simulator with no audio output).
         var voiceProblem: String?
         do {
@@ -51,7 +59,7 @@ final class RestTimerSpike {
         }
 
         isRunning = true
-        status = "Running: \(Self.restSeconds) s rest, ends at \(endsAt.formatted(date: .omitted, time: .standard)). Lock the phone."
+        status = "Running: \(restSeconds) s rest, ends at \(endsAt.formatted(date: .omitted, time: .standard)). Lock the phone."
         if let voiceProblem { status += " Voice cues off: \(voiceProblem)" }
         run = Task { await self.countdown(to: endsAt) }
     }
@@ -86,7 +94,7 @@ final class RestTimerSpike {
             try await sleep(until: endsAt)
             if voiceOn { await voice.say("Go") }
             let cues = voiceOn ? "cues played" : "no voice cues"
-            await finish(message: "Finished: \(Self.restSeconds) s rest, \(cues), lock screen cleared.")
+            await finish(message: "Finished: \(restSeconds) s rest, \(cues), lock screen cleared.")
         } catch {
             // Cancelled; cancel() handles teardown.
         }

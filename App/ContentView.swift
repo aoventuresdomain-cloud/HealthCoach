@@ -6,12 +6,10 @@ import SwiftUI
 struct ContentView: View {
     var body: some View {
         switch ScreenshotMode.current {
-        case .spikes:
-            NavigationStack { SpikeTestsView() }
-        case .spikesTimer:
-            NavigationStack { SpikeTestsView(autostartTimer: true) }
         case .liveActivity:
             NavigationStack { LiveActivityPreviewView() }
+        case let mode?:
+            NavigationStack { SpikeTestsView(screenshot: mode) }
         case nil:
             home
         }
