@@ -13,9 +13,9 @@ Gate 0 (CEO approves): spikes S0, S1, S1b and S3 pass or their fallbacks are acc
 |---|---|---|---|---|---|---|---|
 | M0-01 | Repository layout, board, decisions | Head of Engineering | `claude/project-thread-cl2ypb` | repo root, docs/ | docs | done (PR #1) | — |
 | M0-02 | Xcode project: app + Live Activity targets linking CoachCore | Planner Engineer | `claude/project-thread-3n9z3c` | App/, LiveActivity/, Shared/, ci_scripts/ | core | done (PR #2) | — |
-| M0-03 | S0 · Pipeline: push → Xcode Cloud → TestFlight → phone | Planner Engineer | — | ci_scripts/, Xcode Cloud | core | todo | yes |
-| M0-04 | S1 · Alarms fire locked, on Silent and in Focus | Planner Engineer | — | App/, CoachCore/Planner | core | todo | yes |
-| M0-05 | S1b · Alarms survive a TestFlight update, or are re-set on open | Planner Engineer | — | CoachCore/Planner, App/ | core | todo | yes |
+| M0-03 | S0 · Pipeline: push → Xcode Cloud → TestFlight → phone | Planner Engineer | `claude/project-thread-3n9z3c` | ci_scripts/, Xcode Cloud | core | in progress | yes |
+| M0-04 | S1 · Alarms fire locked, on Silent and in Focus | Planner Engineer | `claude/project-thread-3n9z3c` | App/, CoachCore/Planner | core | in progress | yes |
+| M0-05 | S1b · Alarms survive a TestFlight update, or are re-set on open | Planner Engineer | `claude/project-thread-3n9z3c` | CoachCore/Planner, App/ | core | in progress | yes |
 | M0-06 | S3 · Live Activity rest timer with voice cues | iOS Interface Engineer | — | LiveActivity/, App/ | interface | todo | yes |
 | M0-07 | S2 · Calendar route chosen | Head of Engineering | `claude/project-thread-cl2ypb` | docs/decisions.md | docs | done (PR #1) | — |
 | M0-08 | S4 · GIFs found for all ~40 exercises | Training and Nutrition Researcher | `claude/project-thread-buqy8y` | Content/exercises/, docs/ | docs | done (PR #3) | — |
@@ -94,6 +94,7 @@ Order: M0-01 → M0-02 (merge to `main` first, then tell the Setup Desk: it hold
 
 ## Done
 
+- 2026-11-16 · M0-03 (part) · PR #5 (CoachCore tests run before every archive; pipeline itself waits on Setup Desk Part B)
 - 2026-11-16 · M0-08 · PR #3 (44 exercises; GIFs personal-use only, bundle in M1, clear licence before any wider release; rear three-quarter angle on bar exercises accepted)
 - 2026-11-16 · M0-02 · PR #2 (not compiled yet: first Xcode Cloud build is the compile check)
 - 2026-11-16 · M0-01, M0-07 · PR #1 (Head of Engineering reviewed against Done when; `swift test` not yet run, see M0-09)
