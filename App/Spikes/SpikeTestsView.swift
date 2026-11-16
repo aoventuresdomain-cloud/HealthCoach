@@ -8,6 +8,8 @@ enum SpikeTests {
 
 struct SpikeTestsView: View {
     var alarms: any AlarmSpikeRunning = AlarmKitSpike.shared
+    /// Starts the rest timer on appear; CI screenshots only (`-screenshot spikes-timer`).
+    var autostartTimer = false
 
     @State private var timer = RestTimerSpike()
     @State private var alarmResult = "Not run yet."
@@ -57,6 +59,7 @@ struct SpikeTestsView: View {
         .navigationTitle("Spike tests")
         .task {
             await timer.endLeftovers()
+            if autostartTimer { timer.start() }
             await refreshReconcile()
         }
     }
@@ -80,7 +83,7 @@ struct SpikeTestsView: View {
         }
     }
 
-        private func refreshReconcile() async {
+    private func refreshReconcile() async {
         reconcileResult = Self.describe(await alarms.reconcileStatus())
     }
 

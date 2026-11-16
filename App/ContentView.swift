@@ -5,6 +5,19 @@ import SwiftUI
 /// screen (board M0-11) hangs off it until Gate 1.
 struct ContentView: View {
     var body: some View {
+        switch ScreenshotMode.current {
+        case .spikes:
+            NavigationStack { SpikeTestsView() }
+        case .spikesTimer:
+            NavigationStack { SpikeTestsView(autostartTimer: true) }
+        case .liveActivity:
+            NavigationStack { LiveActivityPreviewView() }
+        case nil:
+            home
+        }
+    }
+
+    private var home: some View {
         NavigationStack {
             VStack(spacing: 12) {
                 Text("HealthCoach")
