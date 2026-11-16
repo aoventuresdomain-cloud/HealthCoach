@@ -38,6 +38,6 @@ All 11 shots are in [`gate-0a/`](gate-0a/).
 
 | Role | Verdict |
 |---|---|
-| Head of QA | Pass (round 1, 2026-11-16) |
-| Fitness and Nutrition Advisor | see QA report |
+| Head of QA | Pass (round 1, 2026-11-16, closed) |
+| Fitness and Nutrition Advisor | Co-signed, with two conditions on M1-06 (rest per block from the data; a 10 s voice heads-up naming the next exercise and weight) |
 | Head of Engineering | Pass; recommend starting M1 code |
