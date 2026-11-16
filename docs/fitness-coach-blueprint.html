@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fitness Coach Blueprint</title>
+<style>
+:root{--bg:#fafaf7;--card:#fff;--ink:#1d1d1b;--muted:#6b6b66;--line:#dcdcd5;--a:#2f6f5e;--a2:#e6f0ec;--b:#8a5a1f;--b2:#f6ecdd;--c:#3b5b8c;--c2:#e5ecf6;--d:#7a3b6b;--d2:#f3e5ef}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141413;--card:#1e1e1c;--ink:#ecebe6;--muted:#a3a29b;--line:#383834;--a:#7cc4ad;--a2:#1f302b;--b:#e0b47a;--b2:#33291c;--c:#93b2e3;--c2:#1e2736;--d:#d79ac8;--d2:#2f1f2b}}
+:root[data-theme="dark"]{--bg:#141413;--card:#1e1e1c;--ink:#ecebe6;--muted:#a3a29b;--line:#383834;--a:#7cc4ad;--a2:#1f302b;--b:#e0b47a;--b2:#33291c;--c:#93b2e3;--c2:#1e2736;--d:#d79ac8;--d2:#2f1f2b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+main{max-width:1100px;margin:0 auto;padding:24px 16px 64px}h1{font-size:26px;margin:0 0 4px}h2{font-size:19px;margin:36px 0 10px}.sub{color:var(--muted);margin:0 0 20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+.scroll{overflow-x:auto}
+table.sw{border-collapse:collapse;min-width:900px;width:100%;font-size:13px}
+table.sw th,table.sw td{border:1px solid var(--line);padding:8px;vertical-align:top}
+table.sw th{background:var(--bg);text-align:left}
+td.lane{font-weight:600;white-space:nowrap}
+.o{background:var(--b2)}.p{background:var(--a2)}.s{background:var(--c2)}.x{background:var(--d2)}
+.legend span{display:inline-block;margin:0 12px 6px 0;font-size:13px}.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.arch{display:grid;gap:12px;grid-template-columns:1fr}
+@media(min-width:760px){.arch{grid-template-columns:1fr 1.3fr 1fr}}
+.col h3{margin:0 0 8px;font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.box{border-radius:10px;padding:10px 12px;margin-bottom:10px;border:1px solid var(--line)}
+.box b{display:block}.box small{color:var(--muted)}
+.flow{margin-top:14px;font-size:13px;color:var(--muted)}
+ul{margin:6px 0 0 18px;padding:0}
+pre{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;overflow-x:auto;font-size:13px}
+.phases{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+.ph{border-radius:10px;padding:10px;font-size:13px}
+</style>
+</head>
+<body><main>
+<h1>Fitness Coach blueprint</h1>
+<p class="sub">Version 2.1, final (Advisor confirmed) · 16 Nov 2026 · The companion to fitness-coach-project-plan.md</p>
+
+<h2>Phases to the goal (16–20 weeks)</h2>
+<div class="phases">
+<div class="ph p"><b>Phase 1 · wk 1–6</b><br>Cut and rebuild, −3 to −4 kg. Ramp: wk 1–3 = 3 strength + 1 run + basketball</div>
+<div class="ph s"><b>Checkpoint 1</b><br>Claude review</div>
+<div class="ph p"><b>Phase 2 · wk 7–12</b><br>Cut, calories from the weight trend</div>
+<div class="ph o"><b>Break · wk 13–14</b><br>Maintenance, ~2,400–2,500 kcal</div>
+<div class="ph p"><b>Phase 3 · wk 15–20</b><br>Final cut to ~10–12% body fat</div>
+<div class="ph s"><b>Checkpoint 3</b><br>Maintain, keep going or build</div>
+</div>
+
+<h2>Swimlane: a normal week</h2>
+<div class="legend"><span><i class="o"></i>You</span><span><i class="p"></i>Coach app</span><span><i class="s"></i>iPhone system</span><span><i class="x"></i>Outside services</span></div>
+<div class="card scroll">
+<table class="sw">
+<tr><th></th><th>Sunday evening</th><th>Any app open</th><th>Morning</th><th>Session</th><th>Day and meals</th><th>Checkpoint or stall</th></tr>
+<tr><td class="lane o">You</td>
+<td class="o">Answer the 20-second prompt: office days, early or late. Photos every 2nd week</td>
+<td class="o">Nothing</td>
+<td class="o">Wake to the alarm, step on the scale, glance at the brief</td>
+<td class="o">Press play, follow the cues, tap "done"</td>
+<td class="o">Eat the plan; in the evening answer "anything different?" (usually no)</td>
+<td class="o">Tap "Share", read Claude's reply, copy it, tap "Import"</td></tr>
+<tr><td class="lane p">Coach app</td>
+<td class="p">Places the week's sessions, works out wake times, builds the top-up list</td>
+<td class="p">Re-registers the next 7–14 days of alarms, and fills any gaps after an update</td>
+<td class="p">Checks the weather and swaps an outdoor run for indoor if needed (same length); shows today</td>
+<td class="p">Plays GIFs, callouts, rest timer and voice cues; logs; sets the next loads</td>
+<td class="p">Suggests the office lunch order; pre-ticks meals; rules engine updates calories weekly</td>
+<td class="p">Builds the summary, validates the imported block, applies it from tomorrow</td></tr>
+<tr><td class="lane s">iPhone system</td>
+<td class="s">Notification for the prompt</td>
+<td class="s">AlarmKit holds the alarms; they fire even if the app never runs</td>
+<td class="s">Alarm rings through Silent and Focus; Health gives weight and steps</td>
+<td class="s">Live Activity on the lock screen and Dynamic Island</td>
+<td class="s">Local notifications: leave now, delivery slot, wind-down</td>
+<td class="s">Clipboard, share sheet</td></tr>
+<tr><td class="lane x">Outside</td>
+<td class="x">Recipe box delivers 3–4 dinners; top-up shop delivery</td>
+<td class="x">—</td>
+<td class="x">Open-Meteo weather</td>
+<td class="x">—</td>
+<td class="x">Smart scale writes to Health</td>
+<td class="x">Claude app (existing subscription)</td></tr>
+</table>
+</div>
+
+<h2>Architecture</h2>
+<div class="arch">
+<div class="col"><h3>Build and delivery</h3>
+<div class="box x"><b>Claude build team</b><small>writes code and content in the private GitHub repo</small></div>
+<div class="box x"><b>Xcode Cloud</b><small>builds and runs tests on every change; monthly scheduled build</small></div>
+<div class="box x"><b>TestFlight</b><small>updates the app on your phone automatically</small></div>
+</div>
+<div class="col"><h3>On the iPhone</h3>
+<div class="box p"><b>SwiftUI app</b><small>Today, workout player, meals, shopping, progress, onboarding, settings</small></div>
+<div class="box p"><b>Live Activity extension</b><small>lock-screen and Dynamic Island timer</small></div>
+<div class="box p"><b>CoachCore (Swift package)</b><small>planner · rules engine · progression · stall flag · import parser. No iOS dependencies; fully tested</small></div>
+<div class="box p"><b>Data</b><small>SwiftData: one versioned profile, logs, photos. Content files: programmes, exercises, recipes, lunch orders</small></div>
+<div class="box s"><b>iOS services</b><small>AlarmKit · Health (weight, steps) · Calendar (only if IT allows) · local notifications · iCloud backup with Advanced Data Protection</small></div>
+</div>
+<div class="col"><h3>Outside services (all £0)</h3>
+<div class="box x"><b>Open-Meteo</b><small>hourly weather, no key</small></div>
+<div class="box x"><b>Claude app</b><small>checkpoint and stall reviews via share and import; no API</small></div>
+<div class="box x"><b>Shops and recipe box</b><small>a search link per item; no API</small></div>
+<div class="box x"><b>ExerciseDB V1</b><small>GIFs bundled at build time</small></div>
+</div>
+</div>
+<p class="flow">No server and no AWS in v1. Nothing leaves the phone except the summary you choose to share with Claude, and the iCloud backup.</p>
+
+<h2>Project layout</h2>
+<pre>fitness-coach/                 private GitHub repo
+├── App/                       SwiftUI app
+├── LiveActivity/              widget extension
+├── CoachCore/                 Swift package: Planner/ Rules/ Import/ Tests/
+├── Content/                   programmes/ exercises/ recipes/ lunch-orders.json
+├── ci_scripts/                Xcode Cloud hooks
+└── docs/                      plan, board.md, decisions.md, handoffs/</pre>
+
+<h2>Milestones and gates</h2>
+<div class="card"><ul>
+<li><b>M0 (3–4 days):</b> pipeline to the phone; 14 alarms fire locked, on Silent and in Focus, and survive an app update (re-set on next open if not); calendar route; Live Activity timer; GIFs. <b>Gate 0</b></li>
+<li><b>M1 (weeks 1–2):</b> onboarding, Phase 1 programme, Today screen, workout player, one-tap logging, progression</li>
+<li><b>M2 (week 2):</b> Sunday prompt, wake times, 14-day alarms, weather swap, notifications, Health. <b>Gate 1: the app replaces paper</b></li>
+<li><b>M3 (week 3):</b> meals around the box, top-up list, lunch orders</li>
+<li><b>M4 (week 4):</b> rules engine, stall flag, Claude import, progress view. <b>Gate 2: Checkpoint 1 at week 6</b></li>
+</ul></div>
+</main></body></html>
