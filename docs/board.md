@@ -33,9 +33,9 @@ The CEO is training from paper and will not be asked anything until Gate 2. The 
 | M0-01 | Repository layout, board, decisions | Head of Engineering | `claude/project-thread-cl2ypb` | repo root, docs/ | docs | done (PR #1) | — |
 | M0-02 | Xcode project: app + Live Activity targets linking CoachCore | Planner Engineer | `claude/project-thread-3n9z3c` | App/, LiveActivity/, Shared/, ci_scripts/ | core | done (PR #2) | — |
 | M0-12 | GitHub Actions CI: build for the iOS 26 simulator, run CoachCore tests, save spike-screen screenshots | Planner Engineer | — | .github/workflows/ | core | todo | — |
-| M0-04 | S1 · Alarms (code and simulator now; on-phone in M0b) | Planner Engineer | `claude/project-thread-3n9z3c` | App/, CoachCore/Planner | core | code done (PR #8, #10); simulator check pending; device test deferred | — |
-| M0-05 | S1b · Reconcile on open (code now; TestFlight update test in M0b) | Planner Engineer | `claude/project-thread-3n9z3c` | CoachCore/Planner, App/ | core | code done (PR #10); simulator check pending; device test deferred | — |
-| M0-06 | S3 · Live Activity timer with voice cues (simulator now; on-phone in M0b) | iOS Interface Engineer | `claude/project-thread-buqy8y` | LiveActivity/, App/ | interface | code done (PR #7); simulator check pending; device test deferred | — |
+| M0-04 | S1 · Alarms (code and simulator now; on-phone deferred to payment) | Planner Engineer | `claude/project-thread-3n9z3c` | App/, CoachCore/Planner | core | code done (PR #8, #10); simulator check pending; device test deferred | — |
+| M0-05 | S1b · Reconcile on open (code now; TestFlight update test deferred to payment) | Planner Engineer | `claude/project-thread-3n9z3c` | CoachCore/Planner, App/ | core | code done (PR #10); simulator check pending; device test deferred | — |
+| M0-06 | S3 · Live Activity timer with voice cues (simulator now; on-phone deferred to payment) | iOS Interface Engineer | `claude/project-thread-buqy8y` | LiveActivity/, App/ | interface | code done (PR #7); simulator check pending; device test deferred | — |
 | M0-07 | S2 · Calendar route chosen | Head of Engineering | `claude/project-thread-cl2ypb` | docs/decisions.md | docs | done (PR #1) | — |
 | M0-08 | S4 · GIFs found for all ~40 exercises | Training and Nutrition Researcher | Researcher thread (PR #3) | Content/exercises/, docs/ | docs | done (PR #3) | — |
 | M0-09 | Cloud sessions can run `swift test` | Head of Engineering | — | project environment | docs | deferred to Gate 2 (needs CEO settings change; CI covers it) | — |
@@ -116,7 +116,7 @@ Order now: M0-12 (first real compile) → simulator checks of M0-04, M0-05 and M
 - [ ] Monthly macOS minutes are estimated against the free private-repo allowance; there is no paid plan and the spending limit stays £0.
 
 ### M0-10 · Gate 0a pack
-- [ ] One page in `docs/spikes/gate-0.md`: what the simulator proved and what waits for the phone (M0b), with screenshots.
+- [ ] One page in `docs/spikes/gate-0.md`: what the simulator proved and what is deferred to payment, with screenshots.
 - [ ] The CEO can approve Gate 0 from that page in under 5 minutes, with one recommendation marked.
 
 
