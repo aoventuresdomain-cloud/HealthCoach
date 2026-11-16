@@ -39,7 +39,7 @@ The CEO is training from paper and will not be asked anything until Gate 2. The 
 | M0-07 | S2 · Calendar route chosen | Head of Engineering | `claude/project-thread-cl2ypb` | docs/decisions.md | docs | done (PR #1) | — |
 | M0-08 | S4 · GIFs found for all ~40 exercises | Training and Nutrition Researcher | Researcher thread (PR #3) | Content/exercises/, docs/ | docs | done (PR #3) | — |
 | M0-09 | Cloud sessions can run `swift test` | Head of Engineering | — | project environment | docs | deferred to Gate 2 (needs CEO settings change; CI covers it) | — |
-| M0-10 | Gate 0a pack (internal: QA + Advisor sign-off) | Head of Engineering | — | docs/spikes/ | docs | todo | — |
+| M0-10 | Gate 0a pack (internal: QA + Advisor sign-off) | Head of Engineering | — | docs/spikes/ | docs | done (gate-0.md) | — |
 | M0-11 | In-app "Spike tests" screen (one-tap buttons for S1, S1b, S3) | iOS Interface Engineer | `claude/project-thread-buqy8y` | App/ | interface | done (PR #7) | — |
 | M0-03 | S0 · Pipeline: push → Xcode Cloud → TestFlight → phone | Planner Engineer | `claude/project-thread-3n9z3c` | ci_scripts/, Xcode Cloud | core | **deferred to payment** (hook merged PR #5) | — |
 
@@ -150,7 +150,7 @@ Device-only Done when lines from plan §7 are rewritten as simulator or UI-test 
 
 ### Done when (M1–M4)
 
-**M1-01** · Profile record and content files decode with a version; a newer or broken file is rejected with a plain message · every file in `Content/` is validated by a CoachCore test · `exercises.json` moves from schemaVersion 0 to 1.
+**M1-01** · The app never crashes when the store won't open: it recovers and shows a one-line notice. SwiftData is versioned (review of PR #21) · Profile record and content files decode with a version; a newer or broken file is rejected with a plain message · every file in `Content/` is validated by a CoachCore test · `exercises.json` moves from schemaVersion 0 to 1.
 **M1-02** · Weeks 1–6 match plan §2 (3 strength + run-walk + basketball; second run from week 4; light legs until week 4; nothing on Wednesday) · every exercise has its three callouts · Advisor's points answered as accepted, changed or rejected in the PR.
 **M1-03** · Mock-ups for the four screens, each usable one-handed with a big next and done · Advisor critique folded in within 2 rounds · open taste decisions listed for Gate 2, not asked.
 **M1-04** · A simulator UI test confirms onboarding in under 5 minutes of taps, with every default pre-filled · the result is stored in the profile record.
@@ -159,7 +159,7 @@ Device-only Done when lines from plan §7 are rewritten as simulator or UI-test 
 **M1-07** · The week 1 run-walk (1 min jog, 1 min walk × 10) plays with voice cues in the simulator, and later weeks build towards 5 km.
 **M1-08** · CoachCore tests prove the next session's loads change correctly after logging, including the dumbbell-limit flag at 24 kg and the drop to 2 sessions.
 **M2-01** · CoachCore tests place sessions correctly for at least 6 office-day patterns, never on Wednesday · wake time = first commitment − commute − shower − session − buffer, protecting 7.5 h of sleep.
-**M2-02** · The reconcile keeps 7–14 days of alarms registered across simulated app opens, with no owner action · "tomorrow changed" re-plans one day only · the empty-plan guard holds.
+**M2-02** · The reconcile keeps 7–14 days of alarms registered across simulated app opens, with no owner action · "tomorrow changed" re-plans one day only · the empty-plan guard holds · zero upcoming alarms always shows a warning on Today, never "all set" (QA-1) · an XCUITest taps Allow, registers 14 alarms and sees "All alarms set (14)" after relaunch (QA-2).
 **M2-03** · A bad-weather forecast swaps an outdoor run for an indoor session of the same length, without moving the wake time · works offline (no swap, no error).
 **M2-04** · The 7-day weight average reads from Health in the simulator (sample data) · no health data leaves the phone.
 **M2-05** · The Sunday prompt takes under 20 seconds of taps in a UI test · no notification fires in quiet hours (unit-tested).
