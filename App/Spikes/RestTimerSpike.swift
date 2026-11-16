@@ -15,6 +15,7 @@ final class RestTimerSpike {
     @ObservationIgnored private let voice = VoiceCuePlayer()
     @ObservationIgnored private var activity: Activity<RestTimerAttributes>?
     @ObservationIgnored private var run: Task<Void, Never>?
+    @ObservationIgnored private var voiceOn = false
 
     func start() {
         guard !isRunning else { return }
@@ -24,8 +25,16 @@ final class RestTimerSpike {
         }
 
         let endsAt = Date.now.addingTimeInterval(TimeInterval(Self.restSeconds))
+        // A timer without voice beats no timer (e.g. a CI simulator with no audio output).
+        var voiceProblem: String?
         do {
             try voice.beginHolding()
+        } catch {
+            voiceProblem = error.localizedDescription
+        }
+        voiceOn = voiceProblem == nil
+
+        do {
             let state = RestTimerAttributes.ContentState(endsAt: endsAt, nextUp: "Spike test: lock the phone now")
             activity = try Activity.request(
                 attributes: RestTimerAttributes(title: "Rest"),
@@ -40,6 +49,7 @@ final class RestTimerSpike {
 
         isRunning = true
         status = "Running: \(Self.restSeconds) s rest, ends at \(endsAt.formatted(date: .omitted, time: .standard)). Lock the phone."
+        if let voiceProblem { status += " Voice cues off: \(voiceProblem)" }
         run = Task { await self.countdown(to: endsAt) }
     }
 
@@ -62,15 +72,18 @@ final class RestTimerSpike {
     private func countdown(to endsAt: Date) async {
         do {
             // Cues land on the last three seconds, then "go" at zero.
-            try await sleep(until: endsAt.addingTimeInterval(-3.5))
-            voice.duckOthers()
-            for (offset, word) in [(-3.0, "3"), (-2.0, "2"), (-1.0, "1")] {
-                try await sleep(until: endsAt.addingTimeInterval(offset))
-                await voice.say(word)
+            if voiceOn {
+                try await sleep(until: endsAt.addingTimeInterval(-3.5))
+                voice.duckOthers()
+                for (offset, word) in [(-3.0, "3"), (-2.0, "2"), (-1.0, "1")] {
+                    try await sleep(until: endsAt.addingTimeInterval(offset))
+                    await voice.say(word)
+                }
             }
             try await sleep(until: endsAt)
-            await voice.say("Go")
-            await finish(message: "Finished: \(Self.restSeconds) s rest, cues played, lock screen cleared.")
+            if voiceOn { await voice.say("Go") }
+            let cues = voiceOn ? "cues played" : "no voice cues"
+            await finish(message: "Finished: \(Self.restSeconds) s rest, \(cues), lock screen cleared.")
         } catch {
             // Cancelled; cancel() handles teardown.
         }
