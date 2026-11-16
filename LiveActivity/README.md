@@ -1,5 +1,7 @@
 # LiveActivity
 
-Widget extension for the lock-screen and Dynamic Island workout timer (ActivityKit).
+Widget extension `LiveActivity` (bundle ID `com.aoventures.healthcoach.LiveActivity`) for the lock-screen and Dynamic Island workout timer (ActivityKit), embedded in the app.
 
-Empty until board items **M0-02** (target) and **M0-06** (S3 spike). Owner: iOS Interface Engineer.
+Folder-synced group: files added here join the extension target. `Info.plist` and this README are excluded from the bundle. Shared ActivityKit types live in `../Shared/`, which both targets compile.
+
+The current `RestTimerLiveActivity` is an M0-02 placeholder so the target builds; spike S3 (board **M0-06**, iOS Interface Engineer) replaces it.

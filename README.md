@@ -11,8 +11,10 @@ A personal iPhone fitness and nutrition coach. Native SwiftUI (iOS 26+), built b
 ## Layout
 
 ```
-App/            SwiftUI app target (Xcode project lands in M0-02)
+HealthCoach.xcodeproj  app + LiveActivity targets, shared scheme "HealthCoach"
+App/            SwiftUI app target (folder-synced: new files join the target)
 LiveActivity/   widget extension: lock-screen and Dynamic Island timer
+Shared/         compiled into both App and LiveActivity (ActivityKit types)
 CoachCore/      Swift package, Foundation only, no iOS dependencies
   Sources/CoachCore/Planner/   week placement, wake times, alarm schedule
   Sources/CoachCore/Rules/     calories from trend, progression, recovery, stall flag
@@ -30,6 +32,8 @@ CoachCore uses the standard SwiftPM `Sources/` and `Tests/` layout rather than t
 ```
 cd CoachCore && swift test
 ```
+
+In Xcode, the `HealthCoach` scheme's Test action (⌘U) runs `CoachCoreTests` too.
 
 ## Rules for every change
 
