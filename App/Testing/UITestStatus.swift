@@ -3,7 +3,8 @@ import SwiftData
 import SwiftUI
 
 /// One line under `-uitest` that proves the launch flags took effect: the
-/// injected clock and the stored profile's state. Never shown otherwise.
+/// injected clock, the stored profile's state and the bundled content.
+/// Never shown otherwise.
 struct UITestStatus: View {
     @Environment(\.modelContext) private var context
 
@@ -26,6 +27,12 @@ struct UITestStatus: View {
         } catch {
             profile = "error"
         }
-        return "now=\(now) profile=\(profile)"
+        let content: String
+        if let library = try? BundledContent.load() {
+            content = "ok(\(library.exercises.exercises.count) exercises, \(library.programmes.count) programmes)"
+        } else {
+            content = "error"
+        }
+        return "now=\(now) profile=\(profile) content=\(content)"
     }
 }

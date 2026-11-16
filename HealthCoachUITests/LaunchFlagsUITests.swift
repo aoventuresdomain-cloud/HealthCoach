@@ -31,6 +31,7 @@ final class LaunchFlagsUITests: XCTestCase {
         XCTAssertTrue(status.waitForExistence(timeout: 5))
         XCTAssertTrue(status.label.contains("now=2026-11-23T06:30:00Z"), status.label)
         XCTAssertTrue(status.label.contains("profile=confirmed"), status.label)
+        XCTAssertTrue(status.label.contains("content=ok("), status.label)
         attachScreenshot(app, named: "week1-monday")
     }
 

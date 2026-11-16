@@ -6,6 +6,8 @@
 # squash), docs/Content/Markdown-only changes skip it, a newer push cancels
 # the older run, and screenshots only run when screens change or on demand.
 # CoachCore tests run on Linux (core-tests.yml). Estimate: docs/spikes/m0-12-ci.md.
+# Manual runs can build an older commit (`ref`) and, with `publish_shots`, push
+# the screenshots to the throwaway branch qa/gate-0a-shots for review.
 name: App build
 
 on:
@@ -17,6 +19,14 @@ on:
         description: "Take simulator screenshots"
         type: boolean
         default: true
+      ref:
+        description: "Commit or branch to build (blank: the branch you run from). Its own scripts are used."
+        type: string
+        default: ""
+      publish_shots:
+        description: "Also commit the screenshots to the throwaway branch qa/gate-0a-shots (never main)"
+        type: boolean
+        default: false
 
 concurrency:
   group: app-build-${{ github.ref }}
@@ -33,7 +43,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ inputs.ref || '' }}
           fetch-depth: 0
+
+      - name: Record the commit built
+        run: git rev-parse HEAD | tee built-sha.txt
 
       - name: Select the newest Xcode 26
         run: |
@@ -58,9 +72,15 @@ jobs:
             | tee xcodebuild.log | grep -E "error:|warning:|\*\* .* (SUCCEEDED|FAILED) \*\*" || true
           grep -q "TEST BUILD SUCCEEDED" xcodebuild.log
           test -d build/Build/Products/Debug-iphonesimulator/HealthCoach.app/PlugIns/LiveActivity.appex
+          if [ -d Content/programmes ] && grep -q "Content in Resources" HealthCoach.xcodeproj/project.pbxproj; then
+            test -f build/Build/Products/Debug-iphonesimulator/HealthCoach.app/Content/exercises/exercises.json
+            test -f build/Build/Products/Debug-iphonesimulator/HealthCoach.app/Content/programmes/phase-1.json
+          fi
 
       - name: UI tests (HealthCoachUITests)
         # CoachCore unit tests run on Linux (core-tests.yml), so only the UI tests run here.
+        # Older commits built with the `ref` input may predate the UI test target.
+        if: hashFiles('HealthCoachUITests/**') != ''
         run: |
           set -o pipefail
           xcodebuild test-without-building \
@@ -104,7 +124,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: simulator-screenshots
-          path: screenshots/
+          path: |
+            screenshots/
+            built-sha.txt
           retention-days: 30
           if-no-files-found: warn
 
@@ -118,3 +140,44 @@ jobs:
             uitests.log
           retention-days: 7
           if-no-files-found: ignore
+
+  # Manual runs with publish_shots only: put the screenshots on a throwaway
+  # branch so reviewers can open them in the browser. Only this job can write,
+  # and it only ever pushes qa/gate-0a-shots.
+  publish-shots:
+    name: Publish screenshots to qa/gate-0a-shots
+    needs: build
+    if: github.event_name == 'workflow_dispatch' && inputs.publish_shots && inputs.screenshots
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: simulator-screenshots
+          path: shots
+
+      - name: Commit to qa/gate-0a-shots
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -eu
+          sha="$(cat shots/built-sha.txt)"
+          git init -q pub && cd pub
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -q --orphan qa/gate-0a-shots
+          mkdir screenshots && cp ../shots/screenshots/*.png screenshots/
+          {
+            echo "# Gate 0a screenshots"
+            echo
+            echo "Built from \`$sha\` by run ${{ github.run_id }}. Throwaway branch: never merge it."
+            echo
+            for f in screenshots/*.png; do echo "## $(basename "$f" .png)"; echo; echo "![]($f)"; echo; done
+          } > README.md
+          git add -A
+          git commit -q -m "Gate 0a screenshots from $sha (run ${{ github.run_id }})"
+          git push -f "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git" HEAD:refs/heads/qa/gate-0a-shots
+          echo "https://github.com/${REPO}/tree/qa/gate-0a-shots" >> "$GITHUB_STEP_SUMMARY"
