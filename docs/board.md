@@ -5,25 +5,45 @@ QA label: **core** = full end-to-end round (CoachCore, alarm scheduling, Health,
 
 **🙋 CEO hands** marks steps that need the owner's hands. Engineers never ask the CEO; the Setup Desk batches every 🙋 step into one checklist, verifies the result and tells the owner.
 
-## Current mode: build cycle · Milestone M0 (setup and spikes) → Gate 0
+## Roadmap (re-sequenced 2026-11-16: paid Apple account on hold)
 
-Gate 0 (CEO approves): spikes S0, S1, S1b and S3 pass or their fallbacks are accepted; S2 and S4 closed.
+The CEO is training from the paper Week 1 plan meanwhile. Until the paid account, nothing reaches the phone. Work is proven by CI builds, tests and simulator screenshots.
+
+| Step | Purpose | Needs from the CEO |
+|---|---|---|
+| **M0a** · Setup and spikes, free | Repo, CI that compiles the app and runs every test, spike code checked in the simulator | Nothing. Optional: allow `download.swift.org` in the cloud environment (M0-09) |
+| **Gate 0a** | Approve building on: app compiles, tests green, spike screens shown in simulator screenshots | ~5 min to read the Gate 0 pack and say go |
+| **M1** · Workout | Onboarding confirm, Phase 1 programme, Today screen, workout player, one-tap logging, progression | Nothing until the gate |
+| **Pay trigger** | When M1 runs end to end in the simulator, that is the "material product". Join the Apple Developer Program (~£79) | ~45 min once: Setup Desk Parts A–C |
+| **M0b** · Phone spikes | Pipeline to the phone; alarms fire locked, on Silent and in Focus; they survive an update; lock-screen timer with voice | ~15 min: Setup Desk Part D |
+| **Gate 0b** | Approve that alarms and the timer work on the real phone, or accept fallbacks | ~5 min |
+| **M2** · Planner | Sunday prompt, wake times, 14-day alarms, weather swap, notifications, Health weight and steps | Allow Health on the phone |
+| **Gate 1** | Stop using paper; the app runs the week | ~5 min; the stop rule applies if not by end of week 4 |
+| **M3** · Meals | Meals around the box, breakfasts, Sunday cook, top-up list, office lunch list | Default shop and delivery slot (one question) |
+| **M4** · Coach | Rules engine, stall flag, Claude summary and import, progress view, photos | Nothing |
+| **Gate 2** | Checkpoint 1 at week 6: first live Claude review | ~10 min |
+| Checkpoints | Weeks 14 and 20; Phases 2 and 3 are content updates | ~10 min each |
+
+Risk of the hold: alarms are the product's riskiest part and stay unproven on a real phone until M0b. M1 doesn't depend on them, and M2 does, so payment must land before M2 starts.
+
+## Current mode: build cycle · M0a → Gate 0a
 
 | ID | Item | Owner | Branch | Areas | Label | Status | 🙋 CEO hands |
 |---|---|---|---|---|---|---|---|
 | M0-01 | Repository layout, board, decisions | Head of Engineering | `claude/project-thread-cl2ypb` | repo root, docs/ | docs | done (PR #1) | — |
 | M0-02 | Xcode project: app + Live Activity targets linking CoachCore | Planner Engineer | `claude/project-thread-3n9z3c` | App/, LiveActivity/, Shared/, ci_scripts/ | core | done (PR #2) | — |
-| M0-03 | S0 · Pipeline: push → Xcode Cloud → TestFlight → phone | Planner Engineer | `claude/project-thread-3n9z3c` | ci_scripts/, Xcode Cloud | core | in progress | yes |
-| M0-04 | S1 · Alarms fire locked, on Silent and in Focus | Planner Engineer | `claude/project-thread-3n9z3c` | App/, CoachCore/Planner | core | in progress | yes |
-| M0-05 | S1b · Alarms survive a TestFlight update, or are re-set on open | Planner Engineer | `claude/project-thread-3n9z3c` | CoachCore/Planner, App/ | core | in progress | yes |
-| M0-06 | S3 · Live Activity rest timer with voice cues | iOS Interface Engineer | — | LiveActivity/, App/ | interface | todo | yes |
+| M0-12 | GitHub Actions CI: build for the iOS 26 simulator, run CoachCore tests, save spike-screen screenshots | Planner Engineer | — | .github/workflows/ | core | todo | — |
+| M0-04 | S1 · Alarms (code and simulator now; on-phone in M0b) | Planner Engineer | `claude/project-thread-3n9z3c` | App/, CoachCore/Planner | core | in progress (part 1 PR #8) | M0b |
+| M0-05 | S1b · Reconcile on open (code now; TestFlight update test in M0b) | Planner Engineer | `claude/project-thread-3n9z3c` | CoachCore/Planner, App/ | core | in progress | M0b |
+| M0-06 | S3 · Live Activity timer with voice cues (simulator now; on-phone in M0b) | iOS Interface Engineer | `claude/project-thread-buqy8y` | LiveActivity/, App/ | interface | in progress (code PR #7) | M0b |
 | M0-07 | S2 · Calendar route chosen | Head of Engineering | `claude/project-thread-cl2ypb` | docs/decisions.md | docs | done (PR #1) | — |
-| M0-08 | S4 · GIFs found for all ~40 exercises | Training and Nutrition Researcher | `claude/project-thread-buqy8y` | Content/exercises/, docs/ | docs | done (PR #3) | — |
-| M0-09 | Cloud sessions can run `swift test` | Head of Engineering | — | project environment | docs | blocked | yes |
-| M0-10 | Gate 0 pack for the CEO | Head of Engineering | — | docs/spikes/ | docs | todo | — |
-| M0-11 | In-app "Spike tests" screen (one-tap buttons for S1, S1b, S3) | iOS Interface Engineer | — | App/ | interface | todo | — |
+| M0-08 | S4 · GIFs found for all ~40 exercises | Training and Nutrition Researcher | Researcher thread (PR #3) | Content/exercises/, docs/ | docs | done (PR #3) | — |
+| M0-09 | Cloud sessions can run `swift test` | Head of Engineering | — | project environment | docs | blocked (optional) | yes |
+| M0-10 | Gate 0a pack for the CEO | Head of Engineering | — | docs/spikes/ | docs | todo | — |
+| M0-11 | In-app "Spike tests" screen (one-tap buttons for S1, S1b, S3) | iOS Interface Engineer | `claude/project-thread-buqy8y` | App/ | interface | done (PR #7) | — |
+| M0-03 | S0 · Pipeline: push → Xcode Cloud → TestFlight → phone | Planner Engineer | `claude/project-thread-3n9z3c` | ci_scripts/, Xcode Cloud | core | **on hold until paid** (hook merged PR #5) | M0b |
 
-Order: M0-01 → M0-02 (merge to `main` first, then tell the Setup Desk: it holds checklist Part B until the skeleton is in) → M0-03 → (M0-04, M0-06, M0-11 in parallel) → M0-05 → M0-10. M0-08 runs alongside from now. M0-09 is independent.
+Order now: M0-12 (first real compile) → M0-04/05 part 2 → simulator checks of M0-04, M0-05 and M0-06 → M0-10 → Gate 0a. M0-03 and the on-phone halves of M0-04, M0-05 and M0-06 move to M0b after payment. M1 items are written up at Gate 0a.
 
 ## Done when
 
@@ -59,6 +79,7 @@ Order: M0-01 → M0-02 (merge to `main` first, then tell the Setup Desk: it hold
 - [ ] With alarms registered by build N, installing build N+1 through TestFlight leaves them registered, or the gap is recorded in `docs/spikes/s1-alarms.md`.
 - [ ] On every app open the app compares registered alarms against the plan and re-sets any that are missing (CoachCore reconcile logic, unit-tested for none missing, some missing, all missing).
 - [ ] The Spike tests screen (M0-11) shows a warning until the reconcile has run, then "all alarms set".
+- [ ] Planned alarm IDs persist across launches and updates, and an empty or failed plan load never cancels registered alarms (CoachCore unit test). The spike screen can clear the test alarms.
 - 🙋 Setup Desk Part D2.
 
 ### M0-06 · S3 Live Activity timer
@@ -88,12 +109,20 @@ Order: M0-01 → M0-02 (merge to `main` first, then tell the Setup Desk: it hold
 - [ ] Each test is one tap, and the result is shown on screen in plain words (for example "14 alarms set, next at 07:02").
 - [ ] The screen is debug-only scaffolding, removed or hidden behind Settings before Gate 1.
 
-### M0-10 · Gate 0 pack
-- [ ] One page in `docs/spikes/gate-0.md`: each spike as pass or fail, with the fallback for any fail.
+### M0-12 · GitHub Actions CI
+- [ ] Every push to a PR and to `main` builds the app and Live Activity for an iOS 26 simulator on a GitHub-hosted macOS runner, with signing off.
+- [ ] The same run executes `swift test` for CoachCore; a red build or failing test blocks merge.
+- [ ] The run uploads simulator screenshots of the Spike tests screen and the Live Activity as artefacts.
+- [ ] Monthly macOS minutes are estimated against the free private-repo allowance; there is no paid plan and the spending limit stays £0.
+
+### M0-10 · Gate 0a pack
+- [ ] One page in `docs/spikes/gate-0.md`: what the simulator proved and what waits for the phone (M0b), with screenshots.
 - [ ] The CEO can approve Gate 0 from that page in under 5 minutes, with one recommendation marked.
 
 ## Done
 
+- 2026-11-16 · M0-06 (code), M0-11 · PR #7 (Spike tests screen, Live Activity timer, voice cues; not compiled yet)
+- 2026-11-16 · M0-04/05 part 1 · PR #8 (CoachCore reconcile + S1 schedule, unit-tested; AlarmKit registrar)
 - 2026-11-16 · M0-03 (part) · PR #5 (CoachCore tests run before every archive; pipeline itself waits on Setup Desk Part B)
 - 2026-11-16 · M0-08 · PR #3 (44 exercises; GIFs personal-use only, bundle in M1, clear licence before any wider release; rear three-quarter angle on bar exercises accepted)
 - 2026-11-16 · M0-02 · PR #2 (not compiled yet: first Xcode Cloud build is the compile check)
