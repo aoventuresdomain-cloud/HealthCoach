@@ -165,6 +165,9 @@ public enum Progression: String, Codable, Sendable, CaseIterable {
 
     /// Time-based rules use `seconds`; the rest use `reps`.
     public var isTimed: Bool { self == .time || self == .timeThenLoad }
+
+    /// Rules whose last step is one more load step (and so can hit the dumbbell limit).
+    public var addsLoad: Bool { self == .double || self == .repsTempoLoad || self == .timeThenLoad }
 }
 
 public struct StrengthItem: Codable, Sendable, Equatable {
