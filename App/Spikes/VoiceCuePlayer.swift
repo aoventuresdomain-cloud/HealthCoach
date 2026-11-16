@@ -16,6 +16,7 @@ final class VoiceCuePlayer: NSObject {
     private let synthesizer = AVSpeechSynthesizer()
     private var isHolding = false
     private var speechFinished: CheckedContinuation<Void, Never>?
+    private var speechToken: UUID?
 
     override init() {
         super.init()
@@ -61,17 +62,43 @@ final class VoiceCuePlayer: NSObject {
         }
     }
 
+    /// Back to mixing after a cue, so music comes up again between cues.
+    func mixAgain() {
+        guard isHolding else { return }
+        try? session.setCategory(.playback, mode: .voicePrompt, options: [.mixWithOthers])
+        try? session.setActive(true)
+    }
+
+    /// One cue with music ducked under it, then music back up.
+    func announce(_ text: String) async {
+        duckOthers()
+        await say(text)
+        mixAgain()
+    }
+
     /// Speaks one cue and waits until it has finished.
     func say(_ text: String) async {
         let utterance = AVSpeechUtterance(string: text)
         utterance.voice = AVSpeechSynthesisVoice(language: "en-GB")
         utterance.rate = AVSpeechUtteranceDefaultSpeechRate
+        let token = UUID()
+        speechToken = token
+        // A synthesiser with no audio route may never call back; don't let a
+        // hung cue block the rest clock or the warm-up from advancing.
+        let timeout = Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .seconds(Self.speechTimeoutSeconds))
+            guard let self, self.speechToken == token else { return }
+            self.resumeSpeech()
+        }
         await withCheckedContinuation { continuation in
             speechFinished?.resume()
             speechFinished = continuation
             synthesizer.speak(utterance)
         }
+        timeout.cancel()
     }
+
+    private static let speechTimeoutSeconds: Double = 5
 
     /// Stops everything and hands audio back to other apps (music un-ducks).
     func endHolding() {

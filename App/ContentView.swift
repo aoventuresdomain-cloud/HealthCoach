@@ -20,6 +20,7 @@ struct ContentView: View {
 private struct RootView: View {
     @Environment(\.modelContext) private var context
     @State private var state = LoadState.loading
+    @State private var playing: SessionLaunch?
 
     private enum LoadState {
         case loading
@@ -39,9 +40,20 @@ private struct RootView: View {
                 if profile.confirmed {
                     NavigationStack {
                         TodayView(content: content, programme: programme, profile: profile) { slot, week, recovery in
-                            // The workout player (M1-06) takes over from here.
-                            _ = (slot, week, recovery)
+                            playing = SessionLaunch.make(slot: slot, week: week, recovery: recovery,
+                                                         content: content, programme: programme, profile: profile)
                         }
+                    }
+                    .fullScreenCover(item: $playing) { launch in
+                        launch.view { log in
+                            do {
+                                try SessionLogStore(context: context).save(log)
+                            } catch {
+                                // Logging failed: the session still ends; nothing else depends on it in M1.
+                            }
+                            playing = nil
+                        }
+                        .preferredColorScheme(.dark)
                     }
                 } else {
                     OnboardingFlow(profile: profile, programme: programme,

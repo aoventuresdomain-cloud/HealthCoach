@@ -50,6 +50,6 @@ enum AppStore {
     /// On disk normally; in memory under `-uitest`, so every test starts clean.
     static func makeContainer(options: LaunchOptions = .current) throws -> ModelContainer {
         let configuration = ModelConfiguration(isStoredInMemoryOnly: options.isUITest)
-        return try ModelContainer(for: ProfileRecord.self, configurations: configuration)
+        return try ModelContainer(for: ProfileRecord.self, SessionLogRecord.self, configurations: configuration)
     }
 }
