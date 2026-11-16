@@ -26,7 +26,7 @@ The CEO is training from paper and will not be asked anything until Gate 2. The 
 
 **Deferred to payment (built, not provable until the CEO says when):** S0 pipeline to the phone (M0-03). S1 alarms ringing locked, on Silent and in Focus. S1b alarms surviving an update. S3 lock-screen timer and voice through headphones while locked. Real Health scale data. Backup Clock alarm for the first week on the app. All need ~45 min of setup and ~15 min of on-phone tests once paid; the Setup Desk checklist already covers them (Parts A–D). **Risk:** alarm and timer code ship unproven on a device; M2's wake alarms depend on it. If the device tests fail later, only the AlarmKit and ActivityKit layer is reworked, because CoachCore is device-independent.
 
-## Current mode: build cycle · M0a → Gate 0a (internal)
+## Current mode: build cycle · M1 (Gate 0a passed 2026-11-16: QA round 1 on `be49d2f`, Advisor co-signed; pack in `docs/spikes/gate-0.md`)
 
 | ID | Item | Owner | Branch | Areas | Label | Status | 🙋 CEO hands |
 |---|---|---|---|---|---|---|---|
@@ -126,7 +126,7 @@ Device-only Done when lines from plan §7 are rewritten as simulator or UI-test 
 
 | ID | Item | Owner | Label | Status |
 |---|---|---|---|---|
-| M1-01 | Data model: versioned profile record (SwiftData), programme and exercise JSON schemas, content validation tests | Planner Engineer | core | in progress |
+| M1-01 | Data model: versioned profile record (SwiftData), programme and exercise JSON schemas, content validation tests | Planner Engineer | core | done (PR #21) |
 | M1-02 | Phase 1 programme (`phase-1.json`, weeks 1–6 ramp) and callout text for all 44 exercises | Researcher (Advisor reviews) | docs | done (PR #19) |
 | M1-03 | Design: Today, workout player, run-walk, onboarding confirm | Product Designer (Advisor critiques, max 2 rounds) | interface | done (PR #18) |
 | M1-04 | Onboarding confirm, pre-filled with decision E6 defaults | iOS Interface Engineer | interface | todo |
@@ -155,7 +155,7 @@ Device-only Done when lines from plan §7 are rewritten as simulator or UI-test 
 **M1-03** · Mock-ups for the four screens, each usable one-handed with a big next and done · Advisor critique folded in within 2 rounds · open taste decisions listed for Gate 2, not asked.
 **M1-04** · A simulator UI test confirms onboarding in under 5 minutes of taps, with every default pre-filled · the result is stored in the profile record.
 **M1-05** · Today shows the right session for any date in weeks 1–6 (UI test across 7 days).
-**M1-06** · A UI test completes a full Phase 1 session touching only "next" and "done" · the GIFs are bundled (no network) · the Live Activity starts and ends with each rest (simulator screenshot).
+**M1-06** · Rest comes from `phase-1.json` per block (75 s paired main lifts, 60 s single-leg, 45 s arm and shoulder accessories, 30–45 s core), with 90 s only as a fallback; a CoachCore test checks that every Phase 1 block has a rest value (Advisor, Gate 0a) · a voice heads-up at 10 s left names the next exercise and weight ("10 seconds. Next, one-arm row, 12 kilos"), ducking the music and never pausing it (Advisor, Gate 0a) · A UI test completes a full Phase 1 session touching only "next" and "done" · the GIFs are bundled (no network) · the Live Activity starts and ends with each rest (simulator screenshot).
 **M1-07** · The week 1 run-walk (1 min jog, 1 min walk × 10) plays with voice cues in the simulator, and later weeks build towards 5 km.
 **M1-08** · CoachCore tests prove the next session's loads change correctly after logging, including the dumbbell-limit flag at 24 kg and the drop to 2 sessions.
 **M2-01** · CoachCore tests place sessions correctly for at least 6 office-day patterns, never on Wednesday · wake time = first commitment − commute − shower − session − buffer, protecting 7.5 h of sleep.
