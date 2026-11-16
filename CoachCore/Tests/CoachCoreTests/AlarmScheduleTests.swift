@@ -69,6 +69,20 @@ private actor ClockedRegistrar: AlarmRegistering {
 
     // MARK: The 14-day schedule
 
+    @Test func reducedWeekDropsThursdaysFullBodyAlarm() throws {
+        let now = at(2026, 11, 23, 5, 0)
+        let normal = try make(now: now)
+        let reduced = AlarmSchedule.make(now: now, programme: try phase1(), profile: profile(),
+                                         answers: { _ in WeekAnswers() }, dropping: ["full-body"], calendar: calendar)
+        let thursday = at(2026, 11, 26)
+        let before = try #require(normal.first { calendar.isDate($0.fireDate, inSameDayAs: thursday) })
+        #expect(before.title.hasPrefix("Full body"))
+        // Thursday is still a work day, so it keeps a plain wake alarm, not the session's.
+        let after = reduced.first { calendar.isDate($0.fireDate, inSameDayAs: thursday) }
+        #expect(after?.title.hasPrefix("Full body") != true)
+        #expect(reduced.allSatisfy { !$0.title.hasPrefix("Full body") })
+    }
+
     @Test func fourteenDaysOfWakeAlarms() throws {
         let alarms = try make(now: at(2026, 11, 23, 5, 0))
         // Weeks 1–2: five work days plus Saturday's Upper B and Sunday's walk, twice.

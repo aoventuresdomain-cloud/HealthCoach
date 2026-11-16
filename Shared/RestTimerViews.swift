@@ -39,3 +39,41 @@ struct RestCountdown: View {
             .multilineTextAlignment(.trailing)
     }
 }
+
+struct RunWalkLockScreenView: View {
+    let title: String
+    let state: RunWalkAttributes.ContentState
+
+    var body: some View {
+        HStack(alignment: .center, spacing: 16) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title).font(.subheadline).foregroundStyle(.secondary)
+                Text(state.label)
+                    .font(.system(size: 34, weight: .heavy))
+                    .foregroundStyle(state.isJog ? .green : .blue)
+                Text("\(state.progress) · \(state.nextUp)")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+            Spacer()
+            RunWalkClock(state: state)
+                .font(.system(size: 44, weight: .bold).monospacedDigit())
+        }
+        .padding()
+        .foregroundStyle(.white)
+    }
+}
+
+/// Counts down to the segment's end, or shows the paused time still.
+struct RunWalkClock: View {
+    let state: RunWalkAttributes.ContentState
+
+    var body: some View {
+        if let paused = state.pausedRemaining {
+            Text("\(paused / 60):\(String(format: "%02d", paused % 60))")
+        } else {
+            RestCountdown(endsAt: state.endsAt)
+        }
+    }
+}

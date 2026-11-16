@@ -52,7 +52,7 @@ final class ProfileStore {
 /// profile is CoachCore's versioned JSON inside `ProfileRecord.payload`.
 nonisolated enum SchemaV1: VersionedSchema {
     static var versionIdentifier: Schema.Version { Schema.Version(1, 0, 0) }
-    static var models: [any PersistentModel.Type] { [ProfileRecord.self] }
+    static var models: [any PersistentModel.Type] { [ProfileRecord.self, SessionLogRecord.self] }
 }
 
 nonisolated enum HealthCoachMigrationPlan: SchemaMigrationPlan {

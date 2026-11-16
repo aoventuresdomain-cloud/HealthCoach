@@ -129,13 +129,13 @@ Device-only Done when lines from plan §7 are rewritten as simulator or UI-test 
 | M1-01 | Data model: versioned profile record (SwiftData), programme and exercise JSON schemas, content validation tests | Planner Engineer | core | done (PR #21) |
 | M1-02 | Phase 1 programme (`phase-1.json`, weeks 1–6 ramp) and callout text for all 44 exercises | Researcher (Advisor reviews) | docs | done (PR #19) |
 | M1-03 | Design: Today, workout player, run-walk, onboarding confirm | Product Designer (Advisor critiques, max 2 rounds) | interface | done (PR #18) |
-| M1-04 | Onboarding confirm, pre-filled with decision E6 defaults | iOS Interface Engineer | interface | todo |
-| M1-05 | Today screen: today's session and timeline | iOS Interface Engineer | interface | todo |
-| M1-06 | Workout player: GIF, three callouts, rest timer Live Activity, voice countdown, tap rep counter, one-tap "done as prescribed" | iOS Interface Engineer | interface | todo |
-| M1-07 | Run-walk player: guided intervals with voice cues, building to 5 km | iOS Interface Engineer | interface | todo |
-| M1-08 | Progression: reps → sets → tempo → weight, dumbbell-limit flag, drop to 2 strength sessions after two low recovery checks | Planner Engineer | core | todo |
-| M2-01 | Week planner: Sunday prompt answers, session placement around basketball and office days, wake time | Planner Engineer | core | todo |
-| M2-02 | 14-day alarm schedule through the reconcile, "tomorrow changed" re-plan, missing-alarm warning on Today | Planner Engineer | core | todo |
+| M1-04 | Onboarding confirm, pre-filled with decision E6 defaults | iOS Interface Engineer | interface | in review (PR #22) |
+| M1-05 | Today screen: today's session and timeline | iOS Interface Engineer | interface | in review (PR #22) |
+| M1-06 | Workout player: GIF, three callouts, rest timer Live Activity, voice countdown, tap rep counter, one-tap "done as prescribed" | iOS Interface Engineer | interface | in review (PR #22) |
+| M1-07 | Run-walk player: guided intervals with voice cues, building to 5 km | iOS Interface Engineer | interface | in review (PR #22) |
+| M1-08 | Progression: reps → sets → tempo → weight, dumbbell-limit flag, drop to 2 strength sessions after two low recovery checks | Planner Engineer | core | done (PR #27) |
+| M2-01 | Week planner: Sunday prompt answers, session placement around basketball and office days, wake time | Planner Engineer | core | done (PR #28) |
+| M2-02 | 14-day alarm schedule through the reconcile, "tomorrow changed" re-plan, missing-alarm warning on Today | Planner Engineer | core | in progress |
 | M2-03 | Weather swap (Open-Meteo, no key) when the morning brief opens | Planner Engineer | core | todo |
 | M2-04 | Health: weight 7-day trend and steps (read-only) | Planner Engineer | core | todo |
 | M2-05 | Sunday prompt screen, full Today timeline, local notifications with quiet hours 22:30–06:00 | iOS Interface Engineer | interface | todo |
@@ -174,6 +174,7 @@ Device-only Done when lines from plan §7 are rewritten as simulator or UI-test 
 
 ## Done
 
+- 2026-11-16 · M2-01 · PR #28 (week planner, CoachCore only; decision E10) · M1-08 · PR #27 (progression engine, SwiftData store recovery and SchemaV1, QA-2 alarm XCUITest) · M1-01 · PR #21
 - 2026-11-16 · M1-02 · PR #19 (Phase 1 programme, all callouts; Advisor signed off) · M1-03 · PR #18 (15 screens; taste decisions held for Gate 2)
 - 2026-11-16 · M0-12 · PR #13 (Linux core tests + macOS simulator build, both green on the first compile; merge on green by process, as GitHub Free has no branch protection)
 - 2026-11-16 · QA test plan and Gate 0a checklist · PRs #15, #16 · M0-06 no-audio fallback · PR #14 · screenshot modes · PR #11

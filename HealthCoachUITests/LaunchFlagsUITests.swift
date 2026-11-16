@@ -26,7 +26,7 @@ final class LaunchFlagsUITests: XCTestCase {
     @MainActor
     func testClockAndFixtureAreInjected() throws {
         let app = launch(now: "2026-11-23T06:30:00Z", fixture: "week1-monday")
-        XCTAssertTrue(app.staticTexts["home.title"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["today.title"].waitForExistence(timeout: 10))
         let status = app.staticTexts["debug.launch"]
         XCTAssertTrue(status.waitForExistence(timeout: 5))
         XCTAssertTrue(status.label.contains("now=2026-11-23T06:30:00Z"), status.label)

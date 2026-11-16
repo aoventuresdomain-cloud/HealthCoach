@@ -1,8 +1,9 @@
 import CoachCore
+import SwiftData
 import SwiftUI
 
-/// M0 skeleton screen. The Today screen replaces it in M1; the Spike tests
-/// screen (board M0-11) hangs off it until Gate 1.
+/// Root: onboarding until the profile is confirmed, then Today (board M1-04,
+/// M1-05). The `-screenshot` spike modes still open straight on their state.
 struct ContentView: View {
     var body: some View {
         switch ScreenshotMode.current {
@@ -11,30 +12,81 @@ struct ContentView: View {
         case let mode?:
             NavigationStack { SpikeTestsView(screenshot: mode) }
         case nil:
-            home
+            RootView()
+        }
+    }
+}
+
+private struct RootView: View {
+    @Environment(\.modelContext) private var context
+    @State private var state = LoadState.loading
+    @State private var playing: SessionLaunch?
+
+    private enum LoadState {
+        case loading
+        case ready(ContentLibrary, Programme, Profile)
+        case failed(String)
+    }
+
+    var body: some View {
+        Group {
+            switch state {
+            case .loading:
+                ProgressView()
+            case let .failed(message):
+                ContentUnavailableView("HealthCoach can't start", systemImage: "exclamationmark.triangle", description: Text(message))
+                    .accessibilityIdentifier("root.error")
+            case let .ready(content, programme, profile):
+                if profile.confirmed {
+                    NavigationStack {
+                        TodayView(content: content, programme: programme, profile: profile) { slot, week, recovery in
+                            playing = SessionLaunch.make(slot: slot, week: week, recovery: recovery,
+                                                         content: content, programme: programme, profile: profile,
+                                                         history: (try? SessionLogStore(context: context).all()) ?? [])
+                        }
+                    }
+                    .fullScreenCover(item: $playing) { launch in
+                        launch.view { log in
+                            do {
+                                try SessionLogStore(context: context).save(log)
+                            } catch {
+                                // Logging failed: the session still ends; nothing else depends on it in M1.
+                            }
+                            playing = nil
+                        }
+                        .preferredColorScheme(.dark)
+                    }
+                } else {
+                    OnboardingFlow(profile: profile, programme: programme,
+                                   skipSystemPrompts: LaunchOptions.current.isUITest) { confirmed in
+                        save(confirmed, content: content, programme: programme)
+                    }
+                }
+            }
+        }
+        .task { load() }
+    }
+
+    private func load() {
+        do {
+            let content = try BundledContent.load()
+            let profile = try ProfileStore(context: context).load() ?? Profile()
+            guard let programme = content.programmes[profile.programme.programmeID] else {
+                state = .failed("No programme called \(profile.programme.programmeID) in this build.")
+                return
+            }
+            state = .ready(content, programme, profile)
+        } catch {
+            state = .failed(error.localizedDescription)
         }
     }
 
-    private var home: some View {
-        NavigationStack {
-            VStack(spacing: 12) {
-                Text("HealthCoach")
-                    .font(.largeTitle.bold())
-                    .accessibilityIdentifier("home.title")
-                Text("Core schema v\(CoachCore.schemaVersion)")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                if SpikeTests.isEnabled {
-                    NavigationLink("Spike tests") { SpikeTestsView() }
-                        .buttonStyle(.borderedProminent)
-                        .padding(.top, 24)
-                        .accessibilityIdentifier("home.spikeTests")
-                }
-                if LaunchOptions.current.isUITest {
-                    UITestStatus()
-                }
-            }
-            .padding()
+    private func save(_ profile: Profile, content: ContentLibrary, programme: Programme) {
+        do {
+            try ProfileStore(context: context).save(profile)
+            state = .ready(content, programme, profile)
+        } catch {
+            state = .failed("Couldn't save your answers: \(error.localizedDescription)")
         }
     }
 }

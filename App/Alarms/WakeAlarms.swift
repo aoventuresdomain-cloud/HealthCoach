@@ -82,10 +82,11 @@ final class WakeAlarms {
         profile?.programme.startDate != nil && !LaunchOptions.current.spikeAlarms
     }
 
-    /// Builds the 14-day plan and reconciles it. Never prompts for permission:
+    /// Builds the 14-day plan and reconciles it. `history` is every logged
+    /// session, for the reduced week (`Programme.droppedSessions(history:)`). Never prompts for permission:
     /// onboarding asks. Without permission the coverage is `.noAlarms`.
     @discardableResult
-    func reconcile(profile: Profile, now: Date = AppClock.now(),
+    func reconcile(profile: Profile, history: [SessionLog] = [], now: Date = AppClock.now(),
                    answers: WeekAnswersStore = WeekAnswersStore()) async -> AlarmCoverage {
         lastError = nil
         ownsAlarms = true
@@ -100,9 +101,11 @@ final class WakeAlarms {
             coverage = .noAlarms
             return .noAlarms
         }
-        // TODO(M2-02 follow-up): pass Programme.droppedSessions(history:) once session logs are stored (#22).
+        // Two "Sore" answers in a row drop the reduced week's session (decision R2)
+        // until a "Fine" answer lifts it; its day then gets no session alarm.
+        let dropping = Set(programme.droppedSessions(history: history))
         let planned = AlarmSchedule.make(now: now, programme: programme, profile: profile,
-                                         answers: { answers.answers(weekStarting: $0) })
+                                         answers: { answers.answers(weekStarting: $0) }, dropping: dropping)
         do {
             let outcome = try await AlarmReconciler.reconcile(planned: planned, using: registrar, now: now)
             let result = AlarmCoverage(outcome)

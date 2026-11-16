@@ -34,10 +34,12 @@ struct HealthCoachApp: App {
             // and re-sets any that are missing (spike S1b). No background job.
             guard phase == .active else { return }
             let profile = try? ProfileStore(context: container.mainContext).load()
+            // An unreadable log store means a normal week, never a missing alarm.
+            let history = (try? SessionLogStore(context: container.mainContext).all()) ?? []
             Task {
                 if let profile, WakeAlarms.shared.isActive(profile: profile) {
                     // Board M2-02: the planner's 14 days of wake alarms.
-                    await WakeAlarms.shared.reconcile(profile: profile)
+                    await WakeAlarms.shared.reconcile(profile: profile, history: history)
                 } else {
                     _ = await AlarmKitSpike.shared.reconcileStatus()
                 }
