@@ -1,6 +1,6 @@
 # M1-03 · Mock-ups: Today, workout player, run-walk, onboarding confirm
 
-Product Designer · 16 Nov 2026 · Round 1 with the Advisor (max 2). Source: [`mockups.html`](mockups.html); PNGs in [`png/`](png/) are rendered from it with `node docs/design/m1/render.js`. Screens are iPhone 17 Pro size (393 × 852 pt). Workout content is placeholder until M1-02 lands; numbers follow the Advisor's brief (week 1 = 2 sets, ~4 in reserve, conservative start weights).
+Product Designer · 16 Nov 2026 · Round 2 with the Advisor (max 2); round 1 critique answered below. Source: [`mockups.html`](mockups.html); PNGs in [`png/`](png/) are rendered from it with `node docs/design/m1/render.js`. Screens are iPhone 17 Pro size (393 × 852 pt). Workout content is placeholder until M1-02 lands; numbers follow the Advisor's brief (week 1 = 2 sets, ~4 in reserve, conservative start weights).
 
 **Test every screen against the guiding rule:** if it takes thinking or admin time, it has failed. Nothing in a normal day asks the owner to choose, rate or type.
 
@@ -11,6 +11,10 @@ Product Designer · 16 Nov 2026 · Round 1 with the Advisor (max 2). Source: [`m
 | 1 | Today, training day | `png/today-training.png` | M1-05 |
 | 2 | Today, basketball day + missing-alarm warning | `png/today-basketball-warning.png` | M1-05, M0-05 |
 | 3 | Player, a set | `png/player-set.png` | M1-06 |
+| 3a | Player, warm-up (step 0) | `png/player-warmup.png` | M1-06 |
+| 3b | Player, one side at a time | `png/player-unilateral.png` | M1-06 |
+| 3c | Player, timed hold | `png/player-hold.png` | M1-06 |
+| 3d | Player, negatives | `png/player-negative.png` | M1-06 |
 | 4 | Player, rest | `png/player-rest.png` | M1-06 |
 | 5 | Player, session done | `png/player-done.png` | M1-06, M1-08 |
 | 6 | Run-walk | `png/runwalk.png` | M1-07 |
@@ -22,6 +26,8 @@ Product Designer · 16 Nov 2026 · Round 1 with the Advisor (max 2). Source: [`m
 | Today | Set | Rest | Done |
 |---|---|---|---|
 | ![](png/today-training.png) | ![](png/player-set.png) | ![](png/player-rest.png) | ![](png/player-done.png) |
+| **Warm-up** | **One side** | **Hold** | **Negatives** |
+| ![](png/player-warmup.png) | ![](png/player-unilateral.png) | ![](png/player-hold.png) | ![](png/player-negative.png) |
 | **Run-walk** | **Lock screen** | **Onboarding confirm** | **Permissions** |
 | ![](png/runwalk.png) | ![](png/runwalk-lock.png) | ![](png/onboarding-confirm.png) | ![](png/onboarding-permissions.png) |
 
@@ -35,18 +41,21 @@ Product Designer · 16 Nov 2026 · Round 1 with the Advisor (max 2). Source: [`m
 
 ## Behaviour the engineers need
 
-**Today (M1-05).** The title says what's next and when ("Upper A at 06:30"). The button starts it. On a day with no session the button is "See tomorrow" (grey). The timeline marks past items faded and the current one with a green dot. In M1 it shows wake, session and bed; breakfast, leave, lunch and dinner join in M2 and M3. If the reconcile re-set alarms, an orange banner says how many and that nothing needs doing; it clears on the next open. No streaks, badges or missed-session copy anywhere.
+**Today (M1-05).** The title says what's next and when ("Upper A at 06:30"). The button starts it. On a training day the session card carries one optional row, "Still sore from last time?", with **Fine** pre-selected; ignoring it means fine. A "Sore" answer is the M1 recovery signal for the drop-to-2 rule (M1-08). Nothing else on Today asks anything. On a day with no session the button is "See tomorrow" (grey). The timeline marks past items faded and the current one with a green dot. Wake, wind-down and lights-out all come from **one sleep rule: lights out = alarm − 7.5 h − 15 min to fall asleep, wind-down 30 min before** (06:15 alarm → wind-down 22:00, lights out 22:30). Onboarding shows the rule, not a fixed bedtime. In M1 it shows wake, session and bed; breakfast, leave, lunch and dinner join in M2 and M3. If the reconcile re-set alarms, an orange banner says how many and that nothing needs doing; it clears on the next open. On basketball day, steps are one passive line (no notification, no ring) and "pack the shaker" sits on the leave row. No streaks, badges or missed-session copy anywhere.
 
 **Workout player (M1-06).**
+- Step 0 is the 5-minute warm-up: one move per card, voice-led, auto-advancing; "Next" skips ahead. It counts in the session length.
+- Set types come from the programme data: **reps × kg** (screen 3), **one side at a time** (3b: "Done" on the left switches to the right with no rest and the voice says "switch sides"; "Done" on the right starts the rest; the counter resets per side), **timed hold** (3c: no reps or kg; the voice says "get in position… hold", the countdown starts by itself and the rest starts at zero) and **negatives** (3d: no kg; the voice paces each lowering).
 - Set screen: "Done" logs the set **as prescribed** and starts the rest. The tap counter is optional: the whole tile is the target, and if it was used, its count is logged instead. The reps-in-reserve line ("Stop with 4 left in the tank") comes from the programme data.
 - Callouts are always visible: Setup, Move, Fix (the mistake phrased as the fix, ≤ 12 words each, from M1-02).
 - Rest screen: the ring counts down and the screen moves on by itself at zero. The next card shows the next exercise and **the weight to dial**, large, so the dial is set during the rest. "Next" skips the rest; "+30 s" extends it. The rest also runs as the M0-06 Live Activity with the voice countdown.
 - Done screen: nothing to log, because every set was logged as it happened. It shows time, sets and the next session's loads (M1-08). "Something was different" opens one edit screen listing the sets with steppers, pre-filled; it is never a required step.
-- A full session is: Start → (Done → rest auto-advances) × n → Done. That is the M1-06 UI test path ("next" and "done" only).
+- **Rule for M1-08 (Planner Engineer):** a set logged from the counter below target counts as **held** (same load next time), never as failed, unless two sets in a row of the same exercise in one session fall short. A half-used counter (dropped phone, counting by voice) must never hold back progression on its own.
+- A full session is: Start → warm-up (auto) → (Done → rest auto-advances) × n → Done. That is the M1-06 UI test path ("next" and "done" only).
 
-**Run-walk (M1-07).** The screen shows only the current interval (JOG green, WALK blue), time left, what's next, and a segment bar. Voice calls every change ("Walk for 1 minute") through headphones, so the phone can stay locked; the Live Activity mirrors the screen. Distance and time come from the phone and sit in one small line. One button: Pause.
+**Run-walk (M1-07).** The screen shows only the current interval (JOG green, WALK blue), time left, what's next, and a segment bar. Voice calls every change ("Walk for 1 minute") through headphones, so the phone can stay locked; the Live Activity mirrors the screen. The segment bar runs warm-up walk → intervals → 2–3 min cool-down walk. The first voice cue sets the effort once: "Easy pace: you could chat"; the screen repeats it under the interval. Distance and time come from the phone and sit in one small line. One button: Pause.
 
-**Onboarding confirm (M1-04).** One scroll of pre-filled rows from decision E6, then "Looks right". Tapping a row edits it inline (picker expands in place; no new screen). Only the answers the requirements draft left "to confirm" are marked **Guess** (sleep, work hours, longest session), so the owner knows which three lines deserve a glance. Then one permissions screen: Alarms, Notifications, Health, Location while using, each with one line on why; "Continue" walks through the four iOS prompts. Camera is asked on the first photo day; Calendar is never asked (Sunday prompt, D5).
+**Onboarding confirm (M1-04).** One scroll of pre-filled rows from decision E6, then "Looks right". Tapping a row edits it inline (picker expands in place; no new screen). "Anything that hurts" defaults to **Nothing**; an answer there swaps exercises for their named substitutes. Only the answers the requirements draft left "to confirm" are marked **Guess** (sleep, work hours, longest session), so the owner knows which three lines deserve a glance. Then one permissions screen: Alarms, Notifications, Health, Location while using, each with one line on why; "Continue" walks through the four iOS prompts. Camera is asked on the first photo day; Calendar is never asked (Sunday prompt, D5).
 
 ## Tokens (map to SwiftUI semantic colours)
 
@@ -81,10 +90,28 @@ Dynamic Type: numbers and buttons scale; callouts may truncate to two lines at t
 
 1. **Accent colour.** Green for go, blue for rest/walk. Alternative: one brand colour. Default: green.
 2. **Dark always vs follow the system.** Default: always dark, switchable in Settings.
-3. **Callout labels.** "Setup / Move / Fix" vs the plan's "setup, movement, common mistake". Default: Setup / Move / Fix.
-4. **Tap counter visibility.** Always shown (default, owner asked for it) vs hidden until tapped.
-5. **App icon.** Not designed in M1; the current placeholder stays.
+3. **App icon.** Not designed in M1; the current placeholder stays.
+
+Settled in round 1, no longer open: callout labels are **Setup / Move / Fix** (Advisor agreed; they read better than the plan's wording and match its "phrase the mistake as the fix"). The tap counter stays **always visible**, because the owner asked for tap and voice counting.
 
 ## Not in M1
 
 The Sunday prompt, "tomorrow changed", weather swap copy and meal rows on Today (M2, M3); progress and photo screens (M4).
+
+## Advisor critique round 1 · answered
+
+Critique: `/mnt/project-files/advisor/m1-03-critique-round1.md`.
+
+| # | Advisor point | Answer | Where |
+|---|---|---|---|
+| 1 | Warm-up as player step 0; run-walk cool-down | **Accepted.** Voice-led, auto-advancing warm-up card; 2–3 min cool-down walk at the end of the segment bar | 3a, 6, 11 |
+| 2 | Timed-hold and negative set variants, one mock-up each | **Accepted.** Hold: countdown, no reps or kg, starts by itself. Negatives: lowers × seconds, voice-paced, no kg | 3c, 3d |
+| 3 | Left/right for one-sided sets, no rest between sides, counter resets per side | **Accepted** | 3b |
+| 4 | A short counted set logs as held, not failed (note for M1-08) | **Accepted.** Rule written under Workout player for the Planner Engineer | README |
+| 5 | One sleep rule so onboarding and Today agree | **Accepted.** Lights out = alarm − 7.5 h − 15 min; onboarding shows "7.5 h asleep, timed from the alarm" | 1, 2, 7 |
+| 6 | Optional pre-selected "still sore?" row on Today | **Accepted.** "Still sore from last time?" with Fine pre-selected, training days only | 1, 9 |
+| 7 | Onboarding "Anything that hurts: Nothing" | **Accepted** | 7 |
+| 8 | First voice cue "easy pace, you could chat" | **Accepted,** and repeated as one line under the interval | 6 |
+| 9 | Steps passive only; shaker on the leave row too | **Accepted** | 2 |
+| 10 | Show all 6 lifts on the done screen | **Accepted.** All six fit without scrolling | 5 |
+| Taste | Adopt Setup / Move / Fix now; keep counter always visible | **Accepted.** Both moved out of the open list | Taste decisions |

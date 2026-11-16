@@ -69,7 +69,7 @@
   .hero .meta { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
   .chip { font-size: 13px; font-weight: 600; padding: 5px 10px; border-radius: 99px; background: var(--fill); color: var(--label); }
   .timeline { margin-top: 18px; padding: 4px 0; }
-  .tl { display: grid; grid-template-columns: 58px 18px 1fr; align-items: start; padding: 9px 14px 9px 14px; }
+  .tl { display: grid; grid-template-columns: 58px 18px 1fr; align-items: start; padding: 7px 14px; }
   .tl .time { font-variant-numeric: tabular-nums; font-weight: 600; font-size: 15px; padding-top: 1px; }
   .tl .dot { width: 10px; height: 10px; border-radius: 5px; background: var(--label3); margin-top: 6px; }
   .tl.now .dot { background: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 25%, transparent); }
@@ -118,15 +118,15 @@
   .thumb svg { width: 52px; height: 52px; }
   .voice { margin: 14px 16px 0; text-align: center; font-size: 14px; color: var(--label2); }
 
-  .donehead { text-align: center; padding: 30px 16px 0; }
-  .tick { width: 84px; height: 84px; border-radius: 42px; background: var(--accent); color: var(--accent-ink); font-size: 46px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
-  .stats { display: flex; margin: 20px 16px 0; padding: 14px 0; }
+  .donehead { text-align: center; padding: 8px 16px 0; }
+  .tick { width: 64px; height: 64px; border-radius: 32px; background: var(--accent); color: var(--accent-ink); font-size: 34px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; }
+  .stats { display: flex; margin: 16px 16px 0; padding: 10px 0; }
   .stats div { flex: 1; text-align: center; }
   .stats div + div { border-left: .5px solid var(--sep); }
   .stats b { display: block; font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
   .stats span { font-size: 13px; color: var(--label2); }
   .list { margin: 14px 16px 0; padding: 2px 14px; }
-  .li { display: flex; justify-content: space-between; align-items: center; padding: 11px 0; font-size: 15px; gap: 10px; }
+  .li { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; font-size: 15px; gap: 10px; }
   .li + .li { border-top: .5px solid var(--sep); }
   .li .r { color: var(--label2); text-align: right; font-variant-numeric: tabular-nums; }
   .li .up { color: var(--accent); font-weight: 600; }
@@ -168,6 +168,18 @@
   .perm b { display: block; font-size: 17px; }
   .perm span { font-size: 15px; color: var(--label2); line-height: 1.3; }
 
+  .segs i.cd { flex: 2.5; }
+  .segs i.cd { background: var(--fill); }
+  .sore { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 12px; border-top: .5px solid var(--sep); font-size: 15px; color: var(--label2); }
+  .seg { display: flex; background: var(--fill); border-radius: 9px; padding: 2px; font-size: 14px; font-weight: 600; }
+  .seg b, .seg i { font-style: normal; padding: 5px 14px; border-radius: 7px; }
+  .seg b { background: var(--accent); color: var(--accent-ink); }
+  .seg i { color: var(--label2); }
+  .side { display: flex; gap: 6px; margin: 10px 16px 0; }
+  .side span { flex: 1; text-align: center; padding: 8px 0; border-radius: 10px; background: var(--fill); font-weight: 700; font-size: 17px; color: var(--label2); }
+  .side span.on { background: var(--accent); color: var(--accent-ink); }
+  .side span.done { color: var(--accent); }
+  .bigclock { text-align:center; font-size: 96px; font-weight: 700; letter-spacing: -4px; font-variant-numeric: tabular-nums; line-height: 1; margin-top: 8px; }
   .lock { background: linear-gradient(160deg,#1d2b3a,#0b0f14); }
   .la { margin: 0 12px; padding: 16px 18px; border-radius: 24px; background: rgba(28,28,30,.82); }
 </style>
@@ -185,6 +197,7 @@
       <div class="t2">Upper A</div>
       <div class="sub" style="margin-top:2px">Chest, back, shoulders, arms</div>
       <div class="meta"><span class="chip">40 min</span><span class="chip">6 exercises</span><span class="chip">Dumbbells · bench · bar</span></div>
+      <div class="sore"><span>Still sore from last time?</span><span class="seg"><b>Fine</b><i>Sore</i></span></div>
     </div>
     <div class="card timeline">
       <div class="tl past"><span class="time">06:15</span><span class="dot"></span><span class="what">Wake<small>Alarm rang</small></span></div>
@@ -193,7 +206,7 @@
       <div class="tl"><span class="time">08:30</span><span class="dot"></span><span class="what">Leave for the office<small>25 min · bike, 9 °C and dry</small></span></div>
       <div class="tl"><span class="time">12:30</span><span class="dot"></span><span class="what">Lunch order<small>Chicken grain bowl · 45 g protein</small></span></div>
       <div class="tl"><span class="time">19:30</span><span class="dot"></span><span class="what">Dinner · box night<small>Harissa chicken traybake</small></span></div>
-      <div class="tl"><span class="time">22:15</span><span class="dot"></span><span class="what">Wind down<small>Bed by 22:45 for a 06:15 alarm</small></span></div>
+      <div class="tl"><span class="time">22:00</span><span class="dot"></span><span class="what">Wind down<small>Lights out 22:30 for a 06:15 alarm</small></span></div>
     </div>
   </div>
   <div class="dock">
@@ -219,9 +232,9 @@
     <div class="card timeline">
       <div class="tl past"><span class="time">07:00</span><span class="dot"></span><span class="what">Wake<small>Rest-day lie-in</small></span></div>
       <div class="tl now"><span class="time">07:20</span><span class="dot"></span><span class="what">Breakfast<small>Eggs on sourdough · 40 g protein</small></span></div>
-      <div class="tl"><span class="time">08:30</span><span class="dot"></span><span class="what">Leave for the office<small>25 min</small></span></div>
+      <div class="tl"><span class="time">08:30</span><span class="dot"></span><span class="what">Leave for the office<small>25 min · pack the shaker for tonight</small></span></div>
       <div class="tl"><span class="time">19:00</span><span class="dot"></span><span class="what">Basketball<small>Eat by 17:30 · shaker in your bag</small></span></div>
-      <div class="tl"><span class="time">22:15</span><span class="dot"></span><span class="what">Wind down<small>Bed by 22:45 for a 06:15 alarm</small></span></div>
+      <div class="tl"><span class="time">22:00</span><span class="dot"></span><span class="what">Wind down<small>Lights out 22:30 for a 06:15 alarm</small></span></div>
     </div>
   </div>
   <div class="dock">
@@ -286,6 +299,105 @@
 <figcaption>3 · Workout player, a set<span>"Done" logs the set as prescribed and starts the rest. The rep counter is optional; if used, its count is logged instead. End (✕) is top-left, away from the thumb, and asks before quitting.</span></figcaption>
 </figure>
 
+
+<!-- ============ 3a-3d. PLAYER VARIANTS (Advisor round 1) ============ -->
+<figure>
+<div class="phone dark" id="player-warmup">
+  <div class="status"><span>06:31</span><div class="island"></div><span class="icons">▮▮▮ ◔ ▬</span></div>
+  <div class="topbar"><div class="xbtn">✕</div><div class="progress"><i class="cur"></i><i></i><i></i><i></i><i></i><i></i></div><span class="count">Warm-up</span></div>
+  <div class="gif"><svg style="color:var(--label)"><use href="#figure"/></svg><span class="tag">Side · GIF</span></div>
+  <div class="exname"><span class="eyebrow" style="display:block">Warm-up · move 2 of 4</span>World's greatest stretch</div>
+  <div class="bigclock">0:34</div>
+  <div class="sub" style="text-align:center">5 each side · voice says when to switch</div>
+  <div class="card callouts">
+    <div class="co"><b>Move</b><span>Lunge, elbow to instep, then rotate and reach up.</span></div>
+  </div>
+  <div style="flex:1"></div>
+  <div class="dock"><button class="btn xl">Next</button></div>
+  <div class="home"></div>
+</div>
+<figcaption>3a · Warm-up (player step 0)<span>Five minutes, one move per card, voice-led, moves on by itself. "Next" skips ahead. Counts in the session's 40 minutes.</span></figcaption>
+</figure>
+
+<figure>
+<div class="phone dark" id="player-unilateral">
+  <div class="status"><span>06:45</span><div class="island"></div><span class="icons">▮▮▮ ◔ ▬</span></div>
+  <div class="topbar"><div class="xbtn">✕</div><div class="progress"><i class="done"></i><i class="done"></i><i class="cur"></i><i></i><i></i><i></i></div><span class="count">3 / 6</span></div>
+  <div class="gif"><svg style="color:var(--label)"><use href="#row"/></svg><span class="tag">Side · GIF</span></div>
+  <div class="exname">One-arm row</div>
+  <div class="presc">
+    <div><b>1<small style="font-size:24px;color:var(--label2)">/2</small></b><span>Set</span></div>
+    <div><b>10</b><span>Reps</span></div>
+    <div><b>12</b><span>kg</span></div>
+  </div>
+  <div class="side"><span class="done">Left ✓</span><span class="on">Right</span></div>
+  <div class="card callouts">
+    <div class="co"><b>Setup</b><span>Hand and knee on the bench, back flat.</span></div>
+    <div class="co"><b>Move</b><span>Pull the elbow to your hip, lower slowly.</span></div>
+    <div class="co mistake"><b>Fix</b><span>Keep shoulders square; don't twist to lift.</span></div>
+  </div>
+  <div style="flex:1"></div>
+  <div class="dock">
+    <div class="counter"><div class="n">4<small> / 10</small></div><div class="hint">Right side<br>count resets each side</div></div>
+    <button class="btn xl">Done</button>
+  </div>
+  <div class="home"></div>
+</div>
+<figcaption>3b · One side at a time<span>"Done" on the left switches straight to the right with no rest; voice says "switch sides". "Done" on the right starts the rest. The counter resets per side.</span></figcaption>
+</figure>
+
+<figure>
+<div class="phone dark" id="player-hold">
+  <div class="status"><span>07:02</span><div class="island"></div><span class="icons">▮▮▮ ◔ ▬</span></div>
+  <div class="topbar"><div class="xbtn">✕</div><div class="progress"><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="cur"></i></div><span class="count">6 / 6</span></div>
+  <div class="gif"><svg style="color:var(--label)"><use href="#figure"/></svg><span class="tag">Side · GIF</span></div>
+  <div class="exname">Plank</div>
+  <div class="presc">
+    <div><b>1<small style="font-size:24px;color:var(--label2)">/2</small></b><span>Set</span></div>
+    <div style="flex:2"><b>0:14<small style="font-size:24px;color:var(--label2)"> / 0:20</small></b><span>Hold</span></div>
+  </div>
+  <div class="rir">Voice: "10 left", then 3, 2, 1, rest</div>
+  <div class="card callouts">
+    <div class="co"><b>Setup</b><span>Elbows under shoulders, body in one line.</span></div>
+    <div class="co"><b>Move</b><span>Brace like a punch is coming; breathe.</span></div>
+    <div class="co mistake"><b>Fix</b><span>Keep hips level, not sagging or piked.</span></div>
+  </div>
+  <div style="flex:1"></div>
+  <div class="dock">
+    <button class="btn xl">Done</button>
+  </div>
+  <div class="home"></div>
+</div>
+<figcaption>3c · Timed hold<span>No reps, no kg. After the rest the voice says "get in position… hold" and the countdown starts by itself. The rest starts at zero; "Done" ends early and still logs as held.</span></figcaption>
+</figure>
+
+<figure>
+<div class="phone dark" id="player-negative">
+  <div class="status"><span>06:52</span><div class="island"></div><span class="icons">▮▮▮ ◔ ▬</span></div>
+  <div class="topbar"><div class="xbtn">✕</div><div class="progress"><i class="done"></i><i class="done"></i><i class="done"></i><i class="cur"></i><i></i><i></i></div><span class="count">4 / 6</span></div>
+  <div class="gif"><svg style="color:var(--label)"><use href="#figure"/></svg><span class="tag">Front · GIF</span></div>
+  <div class="exname">Negative pull-up</div>
+  <div class="presc">
+    <div><b>1<small style="font-size:24px;color:var(--label2)">/2</small></b><span>Set</span></div>
+    <div><b>5</b><span>Lowers</span></div>
+    <div><b>5 s</b><span>each</span></div>
+  </div>
+  <div class="rir">Voice counts each lowering: "down, 2, 3, 4, 5"</div>
+  <div class="card callouts">
+    <div class="co"><b>Setup</b><span>Step up so your chin is over the bar.</span></div>
+    <div class="co"><b>Move</b><span>Lower for five seconds to straight arms.</span></div>
+    <div class="co mistake"><b>Fix</b><span>Stay tight to the end; don't drop.</span></div>
+  </div>
+  <div style="flex:1"></div>
+  <div class="dock">
+    <div class="counter"><div class="n">2<small> / 5</small></div><div class="hint">Tap anywhere here<br>to count (optional)</div></div>
+    <button class="btn xl">Done</button>
+  </div>
+  <div class="home"></div>
+</div>
+<figcaption>3d · Negatives<span>No kg column. The voice paces each five-second lowering. Graduates to pull-ups when 3 × 5 is done as prescribed (programme data).</span></figcaption>
+</figure>
+
 <!-- ============ 4. PLAYER: rest ============ -->
 <figure>
 <div class="phone dark" id="player-rest">
@@ -331,6 +443,8 @@
       <div class="li"><span>One-arm row</span><span class="r up">3 × 10 · 12 kg</span></div>
       <div class="li"><span>Negative pull-up</span><span class="r up">3 × 5 slow lowers</span></div>
       <div class="li"><span>Lateral raise</span><span class="r up">3 × 15 · 4 kg</span></div>
+      <div class="li"><span>Lying triceps extension</span><span class="r up">3 × 12 · 6 kg</span></div>
+      <div class="li"><span>Biceps curl</span><span class="r up">3 × 12 · 6 kg</span></div>
     </div>
   </div>
   <div class="dock">
@@ -352,14 +466,15 @@
     <div class="word">JOG</div>
     <div class="clock">0:38</div>
     <div class="then">Then walk 1:00</div>
+    <div class="sub" style="margin-top:6px">Easy pace: you could chat</div>
   </div>
   <div class="segs">
     <i class="wu d"></i>
     <i class="j d"></i><i class="w d"></i><i class="j d"></i><i class="w d"></i><i class="j d"></i><i class="w d"></i><i class="j c"></i><i class="w"></i>
-    <i class="j"></i><i class="w"></i><i class="j"></i><i class="w"></i><i class="j"></i><i class="w"></i><i class="j"></i><i class="w"></i><i class="j"></i><i class="w"></i><i class="j"></i><i class="w"></i>
+    <i class="j"></i><i class="w"></i><i class="j"></i><i class="w"></i><i class="j"></i><i class="w"></i><i class="j"></i><i class="w"></i><i class="j"></i><i class="w"></i><i class="j"></i><i class="w"></i><i class="cd"></i>
   </div>
-  <div class="seglabel"><span>Warm-up walk</span><span>10 × 1 min jog, 1 min walk</span></div>
-  <div class="sub" style="text-align:center;margin-top:18px;font-variant-numeric:tabular-nums">11:22 gone · 13:40 to go · 1.48 km</div>
+  <div class="seglabel"><span>Warm-up walk</span><span>10 × jog 1, walk 1</span><span>Cool-down</span></div>
+  <div class="sub" style="text-align:center;margin-top:18px;font-variant-numeric:tabular-nums">11:22 gone · 16:10 to go · 1.48 km</div>
   <div style="flex:1"></div>
   <div class="dock">
     <button class="btn xl" style="background:var(--fill);color:var(--label)">Pause</button>
@@ -382,10 +497,11 @@
       <div class="card rows" style="margin:0 16px">
         <div class="r"><span class="k">You</span><span class="v">Male, 30 · 178 cm · 82 kg</span></div>
         <div class="r"><span class="k">Goal</span><span class="v">Lean, strong, defined · 16–20 wks</span></div>
+        <div class="r"><span class="k">Anything that hurts</span><span class="v">Nothing</span></div>
       </div></div>
     <div class="grp"><div class="eyebrow">Week</div>
       <div class="card rows" style="margin:0 16px">
-        <div class="r"><span class="k">Sleep</span><span class="v"><span class="guess">Guess</span>7.5 h · bed by 23:30</span></div>
+        <div class="r"><span class="k">Sleep</span><span class="v"><span class="guess">Guess</span>7.5 h asleep, timed from the alarm</span></div>
         <div class="r"><span class="k">Work hours</span><span class="v"><span class="guess">Guess</span>09:00–18:00</span></div>
         <div class="r"><span class="k">Office days</span><span class="v">Asked each Sunday</span></div>
         <div class="r"><span class="k">Fixed</span><span class="v">Basketball, Wed evening</span></div>
@@ -450,7 +566,7 @@
   <div class="la">
     <div style="display:flex;justify-content:space-between;align-items:baseline"><span class="eyebrow">Run-walk · 4 of 10</span><span class="eyebrow">Then walk 1:00</span></div>
     <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:4px"><span style="font-size:40px;font-weight:800;color:var(--accent)">JOG</span><span style="font-size:52px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-2px">0:38</span></div>
-    <div class="segs" style="margin:10px 0 0"><i class="wu d"></i><i class="j d"></i><i class="w d"></i><i class="j d"></i><i class="w d"></i><i class="j d"></i><i class="w d"></i><i class="j c"></i><i class="w"></i><i class="j"></i><i class="w"></i><i class="j"></i><i class="w"></i><i class="j"></i><i class="w"></i><i class="j"></i><i class="w"></i><i class="j"></i><i class="w"></i><i class="j"></i><i class="w"></i></div>
+    <div class="segs" style="margin:10px 0 0"><i class="wu d"></i><i class="j d"></i><i class="w d"></i><i class="j d"></i><i class="w d"></i><i class="j d"></i><i class="w d"></i><i class="j c"></i><i class="w"></i><i class="j"></i><i class="w"></i><i class="j"></i><i class="w"></i><i class="j"></i><i class="w"></i><i class="j"></i><i class="w"></i><i class="j"></i><i class="w"></i><i class="j"></i><i class="w"></i><i class="cd"></i></div>
   </div>
   <div style="height:120px"></div>
   <div class="home"></div>
