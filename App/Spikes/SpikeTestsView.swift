@@ -1,9 +1,19 @@
 import SwiftUI
 
 /// Gate 0 scaffolding (board M0-11): one-tap tests for spikes S1, S1b and S3.
-/// Hide behind Settings or delete before Gate 1 by setting `isEnabled` to false.
+/// Hidden in normal launches (M0-11, before Gate 1). Debug builds only, and
+/// only under `-uitest`, `-spikeAlarms` (QA-2) or a `-screenshot` mode.
 enum SpikeTests {
-    static let isEnabled = true
+    static let isEnabled: Bool = {
+        #if DEBUG
+        let arguments = ProcessInfo.processInfo.arguments
+        return LaunchOptions.current.isUITest
+            || arguments.contains("-spikeAlarms")
+            || arguments.contains("-screenshot")
+        #else
+        return false
+        #endif
+    }()
 }
 
 struct SpikeTestsView: View {
