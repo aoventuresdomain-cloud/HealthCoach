@@ -8,10 +8,10 @@ enum SpikeTests {
 
 struct SpikeTestsView: View {
     var alarms: any AlarmSpikeRunning = AlarmKitSpike.shared
-    /// Starts the rest timer on appear; CI screenshots only (`-screenshot spikes-timer`).
-    var autostartTimer = false
+    /// CI screenshot runs only: what to do by itself on appear.
+    var screenshot: ScreenshotMode?
 
-    @State private var timer = RestTimerSpike()
+    @State private var timer = RestTimerSpike(restSeconds: ScreenshotMode.restSeconds ?? RestTimerSpike.defaultRestSeconds)
     @State private var alarmResult = "Not run yet."
     @State private var reconcileResult = "Checking…"
     @State private var settingAlarms = false
@@ -53,14 +53,29 @@ struct SpikeTestsView: View {
             } header: {
                 Text("S3 · Rest timer")
             } footer: {
-                Text("Play music through headphones, tap Start, then lock the phone. You should hear 3, 2, 1, go over ducked music after \(RestTimerSpike.restSeconds) seconds.")
+                Text("Play music through headphones, tap Start, then lock the phone. You should hear 3, 2, 1, go over ducked music after \(timer.restSeconds) seconds.")
             }
         }
         .navigationTitle("Spike tests")
         .task {
             await timer.endLeftovers()
-            if autostartTimer { timer.start() }
             await refreshReconcile()
+            await runScreenshotStep()
+        }
+    }
+
+    private func runScreenshotStep() async {
+        switch screenshot {
+        case .spikesTimer:
+            timer.start()
+        case .spikesTimerCancel:
+            timer.start()
+            try? await Task.sleep(for: .seconds(5))
+            timer.cancel()
+        case .spikesSetAlarms:
+            await setAlarms()
+        case .spikes, .liveActivity, nil:
+            break
         }
     }
 
