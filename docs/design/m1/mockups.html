@@ -1,0 +1,584 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HealthCoach M1 mock-ups</title>
+<!--
+  M1-03 mock-ups. Source for the PNGs in docs/design/m1/png/ (render with render.js).
+  Each .phone is one iPhone 17 Pro screen at 393 x 852 pt. Colours map to iOS system
+  colours (see README.md, "Tokens"), so the SwiftUI build can use semantic colours and
+  get dark mode for free. Workout content is placeholder until M1-02 lands.
+-->
+<style>
+  :root {
+    --bg: #F2F2F7;           /* systemGroupedBackground */
+    --card: #FFFFFF;         /* secondarySystemGroupedBackground */
+    --label: #000000;
+    --label2: rgba(60,60,67,.60);  /* secondaryLabel */
+    --label3: rgba(60,60,67,.30);
+    --sep: rgba(60,60,67,.18);
+    --fill: rgba(120,120,128,.12); /* tertiarySystemFill */
+    --accent: #34C759;       /* systemGreen: "go" / primary action */
+    --accent-ink: #FFFFFF;
+    --walk: #007AFF;         /* systemBlue: walk / rest phases */
+    --warn: #FF9500;         /* systemOrange: warnings */
+    --warn-bg: #FFF4E5;
+  }
+  .dark {
+    --bg: #000000;
+    --card: #1C1C1E;
+    --label: #FFFFFF;
+    --label2: rgba(235,235,245,.60);
+    --label3: rgba(235,235,245,.30);
+    --sep: rgba(84,84,88,.6);
+    --fill: rgba(118,118,128,.24);
+    --accent: #30D158;
+    --accent-ink: #000000;
+    --walk: #0A84FF;
+    --warn: #FF9F0A;
+    --warn-bg: #2C2210;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Inter, -apple-system, system-ui, sans-serif; background: #d9d9de; padding: 32px; display: flex; flex-wrap: wrap; gap: 40px; align-items: flex-start; }
+  figure { display: flex; flex-direction: column; gap: 10px; }
+  figcaption { font: 600 14px Inter, sans-serif; color: #333; max-width: 393px; }
+  figcaption span { display: block; font-weight: 400; color: #555; margin-top: 2px; }
+
+  .phone { width: 393px; height: 852px; background: var(--bg); color: var(--label); border-radius: 48px; overflow: hidden; position: relative; display: flex; flex-direction: column; font-size: 17px; letter-spacing: -0.2px; }
+  .status { height: 54px; flex: none; display: flex; justify-content: space-between; align-items: center; padding: 14px 34px 0 42px; font-weight: 600; font-size: 17px; }
+  .status .island { position: absolute; left: 50%; top: 11px; width: 124px; height: 36px; margin-left: -62px; background: #000; border-radius: 20px; }
+  .status .icons { letter-spacing: 2px; font-size: 13px; }
+  .home { position: absolute; bottom: 8px; left: 50%; width: 140px; margin-left: -70px; height: 5px; border-radius: 3px; background: var(--label); opacity: .9; }
+  .scroll { flex: 1; overflow: hidden; padding: 0 16px; }
+  .dock { flex: none; padding: 12px 16px 34px; background: linear-gradient(to bottom, transparent, var(--bg) 18px); display: flex; flex-direction: column; gap: 10px; }
+
+  .eyebrow { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .3px; color: var(--label2); }
+  .big { font-size: 34px; font-weight: 700; letter-spacing: -0.8px; line-height: 1.1; }
+  .t2 { font-size: 22px; font-weight: 700; letter-spacing: -0.4px; }
+  .sub { color: var(--label2); font-size: 15px; }
+  .card { background: var(--card); border-radius: 14px; }
+  .btn { height: 64px; border-radius: 18px; border: 0; background: var(--accent); color: var(--accent-ink); font: 700 20px Inter, sans-serif; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; }
+  .btn.xl { height: 76px; font-size: 22px; }
+  .btn.quiet { background: var(--fill); color: var(--label); font-weight: 600; font-size: 17px; height: 50px; }
+  .link { text-align: center; color: var(--label2); font-size: 15px; font-weight: 500; padding: 4px; }
+  .row2 { display: flex; gap: 10px; } .row2 > * { flex: 1; }
+
+  /* Today */
+  .hero { padding: 18px; margin-top: 12px; }
+  .hero .meta { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+  .chip { font-size: 13px; font-weight: 600; padding: 5px 10px; border-radius: 99px; background: var(--fill); color: var(--label); }
+  .timeline { margin-top: 18px; padding: 4px 0; }
+  .tl { display: grid; grid-template-columns: 58px 18px 1fr; align-items: start; padding: 7px 14px; }
+  .tl .time { font-variant-numeric: tabular-nums; font-weight: 600; font-size: 15px; padding-top: 1px; }
+  .tl .dot { width: 10px; height: 10px; border-radius: 5px; background: var(--label3); margin-top: 6px; }
+  .tl.now .dot { background: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 25%, transparent); }
+  .tl.past { opacity: .45; }
+  .tl .what { font-size: 16px; font-weight: 600; }
+  .tl .what small { display: block; font-weight: 400; font-size: 14px; color: var(--label2); margin-top: 1px; }
+  .tl + .tl { border-top: .5px solid var(--sep); }
+  .banner { margin-top: 12px; padding: 12px 14px; border-radius: 14px; background: var(--warn-bg); color: var(--label); display: flex; gap: 10px; align-items: flex-start; font-size: 15px; }
+  .banner b { color: var(--warn); }
+  .banner .ic { width: 22px; height: 22px; border-radius: 11px; background: var(--warn); color: #fff; font-weight: 800; display: flex; align-items: center; justify-content: center; flex: none; font-size: 14px; }
+
+  /* Player */
+  .topbar { display: flex; align-items: center; gap: 12px; padding: 6px 16px 10px; }
+  .xbtn { width: 34px; height: 34px; border-radius: 17px; background: var(--fill); display: flex; align-items: center; justify-content: center; font-weight: 600; color: var(--label2); flex: none; }
+  .progress { flex: 1; display: flex; gap: 4px; }
+  .progress i { flex: 1; height: 5px; border-radius: 3px; background: var(--fill); }
+  .progress i.done { background: var(--accent); }
+  .progress i.cur { background: color-mix(in srgb, var(--accent) 45%, var(--fill)); }
+  .topbar .count { font-size: 15px; font-weight: 600; color: var(--label2); font-variant-numeric: tabular-nums; }
+  .gif { margin: 0 16px; height: 220px; border-radius: 18px; background: var(--card); position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .gif svg { width: 200px; height: 200px; }
+  .gif .tag { position: absolute; right: 10px; top: 10px; font-size: 12px; font-weight: 600; padding: 4px 8px; border-radius: 99px; background: var(--fill); color: var(--label2); }
+  .exname { padding: 14px 16px 2px; font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+  .presc { display: flex; padding: 6px 16px 0; gap: 8px; }
+  .presc div { flex: 1; }
+  .presc b { display: block; font-size: 48px; line-height:1.05; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.5px; }
+  .presc span { font-size: 13px; color: var(--label2); font-weight: 600; text-transform: uppercase; letter-spacing: .3px; }
+  .rir { padding: 4px 16px 0; font-size: 15px; font-weight: 600; color: var(--accent); }
+  .callouts { margin: 10px 16px 0; padding: 4px 14px; }
+  .co { display: grid; grid-template-columns: 66px 1fr; padding: 8px 0; font-size: 15px; line-height: 1.3; }
+  .co + .co { border-top: .5px solid var(--sep); }
+  .co b { font-size: 13px; text-transform: uppercase; letter-spacing: .3px; color: var(--label2); padding-top: 1px; }
+  .co.mistake b { color: var(--warn); }
+  .counter { height: 92px; border-radius: 18px; background: var(--card); display: flex; align-items: center; justify-content: space-between; padding: 0 22px; border: 1.5px dashed var(--label3); }
+  .counter .n { font-size: 44px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -1px; }
+  .counter .n small { font-size: 22px; color: var(--label2); font-weight: 600; }
+  .counter .hint { font-size: 14px; color: var(--label2); text-align: right; line-height: 1.3; }
+
+  .ringwrap { display: flex; flex-direction: column; align-items: center; margin-top: 26px; }
+  .ring { position: relative; width: 270px; height: 270px; }
+  .ring svg { width: 270px; height: 270px; transform: rotate(-90deg); }
+  .ring .mid { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .ring .mid b { font-size: 76px; font-weight: 700; letter-spacing: -3px; font-variant-numeric: tabular-nums; }
+  .nextcard { margin: 26px 16px 0; padding: 14px; display: flex; gap: 14px; align-items: center; }
+  .thumb { width: 64px; height: 64px; border-radius: 12px; background: var(--fill); flex: none; display: flex; align-items: center; justify-content: center; }
+  .thumb svg { width: 52px; height: 52px; }
+  .voice { margin: 14px 16px 0; text-align: center; font-size: 14px; color: var(--label2); }
+
+  .donehead { text-align: center; padding: 8px 16px 0; }
+  .tick { width: 64px; height: 64px; border-radius: 32px; background: var(--accent); color: var(--accent-ink); font-size: 34px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; }
+  .stats { display: flex; margin: 16px 16px 0; padding: 10px 0; }
+  .stats div { flex: 1; text-align: center; }
+  .stats div + div { border-left: .5px solid var(--sep); }
+  .stats b { display: block; font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .stats span { font-size: 13px; color: var(--label2); }
+  .list { margin: 14px 16px 0; padding: 2px 14px; }
+  .li { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; font-size: 15px; gap: 10px; }
+  .li + .li { border-top: .5px solid var(--sep); }
+  .li .r { color: var(--label2); text-align: right; font-variant-numeric: tabular-nums; }
+  .li .up { color: var(--accent); font-weight: 600; }
+  .sectionh { margin: 20px 16px 6px; }
+
+  /* Run-walk */
+  .phase { text-align: center; margin-top: 34px; }
+  .phase .word { font-size: 64px; font-weight: 800; letter-spacing: -1px; color: var(--accent); }
+  .phase .word.walk { color: var(--walk); }
+  .phase .clock { font-size: 112px; font-weight: 700; letter-spacing: -5px; font-variant-numeric: tabular-nums; line-height: 1; margin-top: 4px; }
+  .phase .then { margin-top: 10px; font-size: 18px; color: var(--label2); font-weight: 600; }
+  .segs { display: flex; gap: 3px; margin: 34px 16px 0; }
+  .segs i { height: 14px; border-radius: 3px; background: var(--fill); }
+  .segs i.j { flex: 1; } .segs i.w { flex: 1; }
+  .segs i.wu { flex: 3; }
+  .segs i.d.j { background: var(--accent); } .segs i.d.w, .segs i.d.wu { background: var(--walk); }
+  .segs i.c { background: color-mix(in srgb, var(--accent) 45%, var(--fill)); outline: 2px solid var(--accent); outline-offset: 1px; }
+  .seglabel { display: flex; justify-content: space-between; margin: 8px 16px 0; font-size: 13px; color: var(--label2); font-weight: 600; }
+  .runstats { display: flex; margin: 26px 16px 0; padding: 14px 0; }
+  .runstats div { flex: 1; text-align: center; }
+  .runstats div + div { border-left: .5px solid var(--sep); }
+  .runstats b { display: block; font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .runstats span { font-size: 13px; color: var(--label2); }
+
+  /* Onboarding */
+  .ob-head { padding: 8px 16px 4px; }
+  .grp { margin: 18px 0 0; }
+  .grp .eyebrow { padding: 0 16px 6px; }
+  .rows { padding: 0 14px; margin: 0; }
+  .r { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; gap: 10px; font-size: 15px; }
+  .r + .r { border-top: .5px solid var(--sep); }
+  .r .k { color: var(--label); }
+  .r .v { color: var(--label2); text-align: right; display: flex; align-items: center; gap: 6px; }
+  
+  .guess { font-size: 11px; font-weight: 700; color: var(--warn); background: var(--warn-bg); padding: 2px 6px; border-radius: 6px; text-transform: uppercase; letter-spacing: .3px; }
+  .perm { display: flex; gap: 14px; align-items: flex-start; padding: 14px 0; }
+  .perm + .perm { border-top: .5px solid var(--sep); }
+  .perm .pi { width: 40px; height: 40px; border-radius: 10px; flex: none; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #fff; font-weight: 700; }
+  .perm b { display: block; font-size: 17px; }
+  .perm span { font-size: 15px; color: var(--label2); line-height: 1.3; }
+
+  .segs i.cd { flex: 2.5; }
+  .segs i.cd { background: var(--fill); }
+  .sore { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 12px; border-top: .5px solid var(--sep); font-size: 15px; color: var(--label2); }
+  .seg { display: flex; background: var(--fill); border-radius: 9px; padding: 2px; font-size: 14px; font-weight: 600; }
+  .seg b, .seg i { font-style: normal; padding: 5px 14px; border-radius: 7px; }
+  .seg b { background: var(--accent); color: var(--accent-ink); }
+  .seg i { color: var(--label2); }
+  .side { display: flex; gap: 6px; margin: 10px 16px 0; }
+  .side span { flex: 1; text-align: center; padding: 8px 0; border-radius: 10px; background: var(--fill); font-weight: 700; font-size: 17px; color: var(--label2); }
+  .side span.on { background: var(--accent); color: var(--accent-ink); }
+  .side span.done { color: var(--accent); }
+  .bigclock { text-align:center; font-size: 96px; font-weight: 700; letter-spacing: -4px; font-variant-numeric: tabular-nums; line-height: 1; margin-top: 8px; }
+  .lock { background: linear-gradient(160deg,#1d2b3a,#0b0f14); }
+  .la { margin: 0 12px; padding: 16px 18px; border-radius: 24px; background: rgba(28,28,30,.82); }
+</style>
+</head>
+<body>
+
+<!-- ============ 1. TODAY: training day ============ -->
+<figure>
+<div class="phone dark" id="today-training">
+  <div class="status"><span>06:16</span><div class="island"></div><span class="icons">▮▮▮ ◔ ▬</span></div>
+  <div class="scroll">
+    <div class="eyebrow">Monday 17 Nov · Week 1 of Phase 1</div>
+    <div class="big" style="margin-top:4px">Upper A at 06:30</div>
+    <div class="card hero">
+      <div class="t2">Upper A</div>
+      <div class="sub" style="margin-top:2px">Chest, back, shoulders, arms</div>
+      <div class="meta"><span class="chip">40 min</span><span class="chip">6 exercises</span><span class="chip">Dumbbells · bench · bar</span></div>
+      <div class="sore"><span>Still sore from last time?</span><span class="seg"><b>Fine</b><i>Sore</i></span></div>
+    </div>
+    <div class="card timeline">
+      <div class="tl past"><span class="time">06:15</span><span class="dot"></span><span class="what">Wake<small>Alarm rang</small></span></div>
+      <div class="tl now"><span class="time">06:30</span><span class="dot"></span><span class="what">Upper A<small>Done by 07:10, then shower</small></span></div>
+      <div class="tl"><span class="time">07:30</span><span class="dot"></span><span class="what">Breakfast<small>Greek yoghurt, berries, oats · 40 g protein</small></span></div>
+      <div class="tl"><span class="time">08:30</span><span class="dot"></span><span class="what">Leave for the office<small>25 min · bike, 9 °C and dry</small></span></div>
+      <div class="tl"><span class="time">12:30</span><span class="dot"></span><span class="what">Lunch order<small>Chicken grain bowl · 45 g protein</small></span></div>
+      <div class="tl"><span class="time">19:30</span><span class="dot"></span><span class="what">Dinner · box night<small>Harissa chicken traybake</small></span></div>
+      <div class="tl"><span class="time">22:00</span><span class="dot"></span><span class="what">Wind down<small>Lights out 22:30 for a 06:15 alarm</small></span></div>
+    </div>
+  </div>
+  <div class="dock">
+    <button class="btn xl">Start Upper A</button>
+  </div>
+  <div class="home"></div>
+</div>
+<figcaption>1 · Today, training day<span>One timeline, one button. Start sits in the thumb zone. Meals and lunch fill in from M2 and M3; in M1 the timeline shows wake, session and bed.</span></figcaption>
+</figure>
+
+<!-- ============ 2. TODAY: basketball day + missing alarm ============ -->
+<figure>
+<div class="phone dark" id="today-basketball-warning">
+  <div class="status"><span>07:02</span><div class="island"></div><span class="icons">▮▮▮ ◔ ▬</span></div>
+  <div class="scroll">
+    <div class="eyebrow">Wednesday 19 Nov · Week 1 of Phase 1</div>
+    <div class="big" style="margin-top:4px">Basketball tonight</div>
+    <div class="banner"><span class="ic">!</span><div><b>3 alarms were missing.</b> They're set again, so nothing to do. Next alarm Thursday 06:15.</div></div>
+    <div class="card hero">
+      <div class="t2">No session today</div>
+      <div class="sub" style="margin-top:2px">Basketball is your conditioning. Walk when you can: 8,000 steps.</div>
+    </div>
+    <div class="card timeline">
+      <div class="tl past"><span class="time">07:00</span><span class="dot"></span><span class="what">Wake<small>Rest-day lie-in</small></span></div>
+      <div class="tl now"><span class="time">07:20</span><span class="dot"></span><span class="what">Breakfast<small>Eggs on sourdough · 40 g protein</small></span></div>
+      <div class="tl"><span class="time">08:30</span><span class="dot"></span><span class="what">Leave for the office<small>25 min · pack the shaker for tonight</small></span></div>
+      <div class="tl"><span class="time">19:00</span><span class="dot"></span><span class="what">Basketball<small>Eat by 17:30 · shaker in your bag</small></span></div>
+      <div class="tl"><span class="time">22:00</span><span class="dot"></span><span class="what">Wind down<small>Lights out 22:30 for a 06:15 alarm</small></span></div>
+    </div>
+  </div>
+  <div class="dock">
+    <button class="btn quiet">See tomorrow</button>
+  </div>
+  <div class="home"></div>
+</div>
+<figcaption>2 · Today, basketball day with the missing-alarm warning<span>The warning says what happened and that it is already fixed (S1b). It clears itself; there is nothing to tap.</span></figcaption>
+</figure>
+
+<!-- shared GIF placeholder -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="figure" viewBox="0 0 200 200">
+      <rect x="20" y="128" width="160" height="10" rx="5" fill="currentColor" opacity=".25"/>
+      <rect x="62" y="138" width="8" height="34" fill="currentColor" opacity=".25"/>
+      <rect x="130" y="138" width="8" height="34" fill="currentColor" opacity=".25"/>
+      <circle cx="44" cy="114" r="12" fill="currentColor" opacity=".55"/>
+      <rect x="56" y="108" width="80" height="16" rx="8" fill="currentColor" opacity=".55"/>
+      <path d="M136 116 L160 150 M136 116 L150 152" stroke="currentColor" stroke-width="10" stroke-linecap="round" opacity=".55"/>
+      <path d="M86 108 L86 62 M106 108 L106 62" stroke="currentColor" stroke-width="9" stroke-linecap="round" opacity=".55"/>
+      <rect x="70" y="52" width="52" height="10" rx="4" fill="currentColor" opacity=".8"/>
+      <rect x="64" y="46" width="10" height="22" rx="3" fill="currentColor" opacity=".8"/>
+      <rect x="118" y="46" width="10" height="22" rx="3" fill="currentColor" opacity=".8"/>
+    </symbol>
+    <symbol id="row" viewBox="0 0 200 200">
+      <rect x="40" y="120" width="120" height="10" rx="5" fill="currentColor" opacity=".25"/>
+      <circle cx="58" cy="84" r="12" fill="currentColor" opacity=".55"/>
+      <path d="M70 92 L140 108" stroke="currentColor" stroke-width="14" stroke-linecap="round" opacity=".55"/>
+      <path d="M100 100 L100 150" stroke="currentColor" stroke-width="8" stroke-linecap="round" opacity=".55"/>
+      <rect x="88" y="150" width="26" height="10" rx="4" fill="currentColor" opacity=".8"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- ============ 3. PLAYER: set ============ -->
+<figure>
+<div class="phone dark" id="player-set">
+  <div class="status"><span>06:41</span><div class="island"></div><span class="icons">▮▮▮ ◔ ▬</span></div>
+  <div class="topbar"><div class="xbtn">✕</div><div class="progress"><i class="done"></i><i class="cur"></i><i></i><i></i><i></i><i></i></div><span class="count">2 / 6</span></div>
+  <div class="gif"><svg style="color:var(--label)"><use href="#figure"/></svg><span class="tag">Side · GIF</span></div>
+  <div class="exname">Dumbbell bench press</div>
+  <div class="presc">
+    <div><b>1<small style="font-size:24px;color:var(--label2)">/2</small></b><span>Set</span></div>
+    <div><b>10</b><span>Reps</span></div>
+    <div><b>10</b><span>kg each</span></div>
+  </div>
+  <div class="rir">Stop with 4 left in the tank
+  </div>
+  <div class="card callouts">
+    <div class="co"><b>Setup</b><span>Feet flat, squeeze shoulder blades into the bench.</span></div>
+    <div class="co"><b>Move</b><span>Lower for two seconds, elbows at 45°, press up.</span></div>
+    <div class="co mistake"><b>Fix</b><span>Keep elbows tucked, not flared wide.</span></div>
+  </div>
+  <div style="flex:1"></div>
+  <div class="dock">
+    <div class="counter"><div class="n">7<small> / 10</small></div><div class="hint">Tap anywhere here<br>to count (optional)</div></div>
+    <button class="btn xl">Done</button>
+  </div>
+  <div class="home"></div>
+</div>
+<figcaption>3 · Workout player, a set<span>"Done" logs the set as prescribed and starts the rest. The rep counter is optional; if used, its count is logged instead. End (✕) is top-left, away from the thumb, and asks before quitting.</span></figcaption>
+</figure>
+
+
+<!-- ============ 3a-3d. PLAYER VARIANTS (Advisor round 1) ============ -->
+<figure>
+<div class="phone dark" id="player-warmup">
+  <div class="status"><span>06:31</span><div class="island"></div><span class="icons">▮▮▮ ◔ ▬</span></div>
+  <div class="topbar"><div class="xbtn">✕</div><div class="progress"><i class="cur"></i><i></i><i></i><i></i><i></i><i></i></div><span class="count">Warm-up</span></div>
+  <div class="gif"><svg style="color:var(--label)"><use href="#figure"/></svg><span class="tag">Side · GIF</span></div>
+  <div class="exname"><span class="eyebrow" style="display:block">Warm-up · move 2 of 4</span>World's greatest stretch</div>
+  <div class="bigclock">0:34</div>
+  <div class="sub" style="text-align:center">5 each side · voice says when to switch</div>
+  <div class="card callouts">
+    <div class="co"><b>Move</b><span>Lunge, elbow to instep, then rotate and reach up.</span></div>
+  </div>
+  <div style="flex:1"></div>
+  <div class="dock"><button class="btn xl">Next</button></div>
+  <div class="home"></div>
+</div>
+<figcaption>3a · Warm-up (player step 0)<span>Five minutes, one move per card, voice-led, moves on by itself. "Next" skips ahead. Counts in the session's 40 minutes.</span></figcaption>
+</figure>
+
+<figure>
+<div class="phone dark" id="player-unilateral">
+  <div class="status"><span>06:45</span><div class="island"></div><span class="icons">▮▮▮ ◔ ▬</span></div>
+  <div class="topbar"><div class="xbtn">✕</div><div class="progress"><i class="done"></i><i class="done"></i><i class="cur"></i><i></i><i></i><i></i></div><span class="count">3 / 6</span></div>
+  <div class="gif"><svg style="color:var(--label)"><use href="#row"/></svg><span class="tag">Side · GIF</span></div>
+  <div class="exname">One-arm row</div>
+  <div class="presc">
+    <div><b>1<small style="font-size:24px;color:var(--label2)">/2</small></b><span>Set</span></div>
+    <div><b>10</b><span>Reps</span></div>
+    <div><b>12</b><span>kg</span></div>
+  </div>
+  <div class="side"><span class="done">Left ✓</span><span class="on">Right</span></div>
+  <div class="card callouts">
+    <div class="co"><b>Setup</b><span>Hand and knee on the bench, back flat.</span></div>
+    <div class="co"><b>Move</b><span>Pull the elbow to your hip, lower slowly.</span></div>
+    <div class="co mistake"><b>Fix</b><span>Keep shoulders square; don't twist to lift.</span></div>
+  </div>
+  <div style="flex:1"></div>
+  <div class="dock">
+    <div class="counter"><div class="n">4<small> / 10</small></div><div class="hint">Right side<br>count resets each side</div></div>
+    <button class="btn xl">Done</button>
+  </div>
+  <div class="home"></div>
+</div>
+<figcaption>3b · One side at a time<span>"Done" on the left switches straight to the right with no rest; voice says "switch sides". "Done" on the right starts the rest. The counter resets per side.</span></figcaption>
+</figure>
+
+<figure>
+<div class="phone dark" id="player-hold">
+  <div class="status"><span>07:02</span><div class="island"></div><span class="icons">▮▮▮ ◔ ▬</span></div>
+  <div class="topbar"><div class="xbtn">✕</div><div class="progress"><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="cur"></i></div><span class="count">6 / 6</span></div>
+  <div class="gif"><svg style="color:var(--label)"><use href="#figure"/></svg><span class="tag">Side · GIF</span></div>
+  <div class="exname">Plank</div>
+  <div class="presc">
+    <div><b>1<small style="font-size:24px;color:var(--label2)">/2</small></b><span>Set</span></div>
+    <div style="flex:2"><b>0:14<small style="font-size:24px;color:var(--label2)"> / 0:20</small></b><span>Hold</span></div>
+  </div>
+  <div class="rir">Voice: "10 left", then 3, 2, 1, rest</div>
+  <div class="card callouts">
+    <div class="co"><b>Setup</b><span>Elbows under shoulders, body in one line.</span></div>
+    <div class="co"><b>Move</b><span>Brace like a punch is coming; breathe.</span></div>
+    <div class="co mistake"><b>Fix</b><span>Keep hips level, not sagging or piked.</span></div>
+  </div>
+  <div style="flex:1"></div>
+  <div class="dock">
+    <button class="btn xl">Done</button>
+  </div>
+  <div class="home"></div>
+</div>
+<figcaption>3c · Timed hold<span>No reps, no kg. After the rest the voice says "get in position… hold" and the countdown starts by itself. The rest starts at zero; "Done" ends early and still logs as held.</span></figcaption>
+</figure>
+
+<figure>
+<div class="phone dark" id="player-negative">
+  <div class="status"><span>06:52</span><div class="island"></div><span class="icons">▮▮▮ ◔ ▬</span></div>
+  <div class="topbar"><div class="xbtn">✕</div><div class="progress"><i class="done"></i><i class="done"></i><i class="done"></i><i class="cur"></i><i></i><i></i></div><span class="count">4 / 6</span></div>
+  <div class="gif"><svg style="color:var(--label)"><use href="#figure"/></svg><span class="tag">Front · GIF</span></div>
+  <div class="exname">Negative pull-up</div>
+  <div class="presc">
+    <div><b>1<small style="font-size:24px;color:var(--label2)">/2</small></b><span>Set</span></div>
+    <div><b>5</b><span>Lowers</span></div>
+    <div><b>5 s</b><span>each</span></div>
+  </div>
+  <div class="rir">Voice counts each lowering: "down, 2, 3, 4, 5"</div>
+  <div class="card callouts">
+    <div class="co"><b>Setup</b><span>Step up so your chin is over the bar.</span></div>
+    <div class="co"><b>Move</b><span>Lower for five seconds to straight arms.</span></div>
+    <div class="co mistake"><b>Fix</b><span>Stay tight to the end; don't drop.</span></div>
+  </div>
+  <div style="flex:1"></div>
+  <div class="dock">
+    <div class="counter"><div class="n">2<small> / 5</small></div><div class="hint">Tap anywhere here<br>to count (optional)</div></div>
+    <button class="btn xl">Done</button>
+  </div>
+  <div class="home"></div>
+</div>
+<figcaption>3d · Negatives<span>No kg column. The voice paces each five-second lowering. Graduates to pull-ups when 3 × 5 is done as prescribed (programme data).</span></figcaption>
+</figure>
+
+<!-- ============ 4. PLAYER: rest ============ -->
+<figure>
+<div class="phone dark" id="player-rest">
+  <div class="status"><span>06:42</span><div class="island"></div><span class="icons">▮▮▮ ◔ ▬</span></div>
+  <div class="topbar"><div class="xbtn">✕</div><div class="progress"><i class="done"></i><i class="done"></i><i></i><i></i><i></i><i></i></div><span class="count">2 / 6</span></div>
+  <div class="ringwrap">
+    <div class="eyebrow">Rest</div>
+    <div class="ring">
+      <svg viewBox="0 0 270 270"><circle cx="135" cy="135" r="122" fill="none" stroke="var(--fill)" stroke-width="16"/><circle cx="135" cy="135" r="122" fill="none" stroke="var(--walk)" stroke-width="16" stroke-linecap="round" stroke-dasharray="766.5" stroke-dashoffset="366"/></svg>
+      <div class="mid"><b>0:47</b><span class="sub">of 1:30</span></div>
+    </div>
+  </div>
+  <div class="card nextcard">
+    <div class="thumb"><svg style="color:var(--label)"><use href="#row"/></svg></div>
+    <div style="flex:1"><div class="eyebrow">Next · 3 of 6</div><div style="font-weight:700;font-size:19px">One-arm row</div><div class="sub">2 sets × 10 each arm</div></div>
+    <div style="text-align:right"><div class="eyebrow">Dial to</div><div style="font-size:40px;font-weight:800;letter-spacing:-1px;color:var(--accent)">12<small style="font-size:18px"> kg</small></div></div>
+  </div>
+  <div class="voice">Voice says "3, 2, 1, go" in your headphones. Also on the lock screen.</div>
+  <div style="flex:1"></div>
+  <div class="dock">
+    <button class="btn quiet">+30 s</button>
+    <button class="btn xl">Next</button>
+  </div>
+  <div class="home"></div>
+</div>
+<figcaption>4 · Workout player, rest<span>The rest runs as a Live Activity too (S3). It moves on by itself at zero; "Next" skips the rest early.</span></figcaption>
+</figure>
+
+<!-- ============ 5. PLAYER: session done ============ -->
+<figure>
+<div class="phone dark" id="player-done">
+  <div class="status"><span>07:09</span><div class="island"></div><span class="icons">▮▮▮ ◔ ▬</span></div>
+  <div class="scroll" style="padding:0">
+    <div class="donehead">
+      <div class="tick">✓</div>
+      <div class="big">Upper A done</div>
+      <div class="sub" style="margin-top:6px">Logged as prescribed. Nothing else to do.</div>
+    </div>
+    <div class="card stats"><div><b>39</b><span>minutes</span></div><div><b>12</b><span>sets</span></div><div><b>6</b><span>exercises</span></div></div>
+    <div class="eyebrow sectionh">Next time (week 2 adds a set)</div>
+    <div class="card list">
+      <div class="li"><span>Bench press</span><span class="r up">3 × 10 · 10 kg</span></div>
+      <div class="li"><span>One-arm row</span><span class="r up">3 × 10 · 12 kg</span></div>
+      <div class="li"><span>Negative pull-up</span><span class="r up">3 × 5 slow lowers</span></div>
+      <div class="li"><span>Lateral raise</span><span class="r up">3 × 15 · 4 kg</span></div>
+      <div class="li"><span>Lying triceps extension</span><span class="r up">3 × 12 · 6 kg</span></div>
+      <div class="li"><span>Biceps curl</span><span class="r up">3 × 12 · 6 kg</span></div>
+    </div>
+  </div>
+  <div class="dock">
+    <button class="btn quiet">Something was different</button>
+    <button class="btn xl">Done</button>
+  </div>
+  <div class="home"></div>
+</div>
+<figcaption>5 · Workout player, session done<span>Logging already happened set by set, so this screen only confirms it and shows the next loads (progression, M1-08). "Something was different" is secondary and opens one edit screen, not a form.</span></figcaption>
+</figure>
+
+<!-- ============ 6. RUN-WALK ============ -->
+<figure>
+<div class="phone dark" id="runwalk">
+  <div class="status"><span>07:12</span><div class="island"></div><span class="icons">▮▮▮ ◔ ▬</span></div>
+  <div class="topbar"><div class="xbtn">✕</div><div style="flex:1;font-weight:600">Run-walk · Week 1</div><span class="count">Voice on</span></div>
+  <div class="phase">
+    <div class="eyebrow">Interval 4 of 10</div>
+    <div class="word">JOG</div>
+    <div class="clock">0:38</div>
+    <div class="then">Then walk 1:00</div>
+    <div class="sub" style="margin-top:6px">Easy pace: you could chat</div>
+  </div>
+  <div class="segs">
+    <i class="wu d"></i>
+    <i class="j d"></i><i class="w d"></i><i class="j d"></i><i class="w d"></i><i class="j d"></i><i class="w d"></i><i class="j c"></i><i class="w"></i>
+    <i class="j"></i><i class="w"></i><i class="j"></i><i class="w"></i><i class="j"></i><i class="w"></i><i class="j"></i><i class="w"></i><i class="j"></i><i class="w"></i><i class="j"></i><i class="w"></i><i class="cd"></i>
+  </div>
+  <div class="seglabel"><span>Warm-up walk</span><span>10 × jog 1, walk 1</span><span>Cool-down</span></div>
+  <div class="sub" style="text-align:center;margin-top:18px;font-variant-numeric:tabular-nums">11:22 gone · 16:10 to go · 1.48 km</div>
+  <div style="flex:1"></div>
+  <div class="dock">
+    <button class="btn xl" style="background:var(--fill);color:var(--label)">Pause</button>
+  </div>
+  <div class="home"></div>
+</div>
+<figcaption>6 · Run-walk<span>Readable at arm's length mid-jog. Voice calls every change ("Walk for 1 minute"), so the screen is a back-up. Distance and time come from the phone.</span></figcaption>
+</figure>
+
+<!-- ============ 7. ONBOARDING CONFIRM ============ -->
+<figure>
+<div class="phone dark" id="onboarding-confirm">
+  <div class="status"><span>20:05</span><div class="island"></div><span class="icons">▮▮▮ ◔ ▬</span></div>
+  <div class="scroll" style="padding:0">
+    <div class="ob-head">
+      <div class="big">Check this, then you're set</div>
+      <div class="sub" style="margin-top:6px">Filled in from what you've told us. Tap a line to change it here. Only the 3 marked <span class="guess">Guess</span> need a look.</div>
+    </div>
+    <div class="grp"><div class="eyebrow">You and your goal</div>
+      <div class="card rows" style="margin:0 16px">
+        <div class="r"><span class="k">You</span><span class="v">Male, 30 · 178 cm · 82 kg</span></div>
+        <div class="r"><span class="k">Goal</span><span class="v">Lean, strong, defined · 16–20 wks</span></div>
+        <div class="r"><span class="k">Anything that hurts</span><span class="v">Nothing</span></div>
+      </div></div>
+    <div class="grp"><div class="eyebrow">Week</div>
+      <div class="card rows" style="margin:0 16px">
+        <div class="r"><span class="k">Sleep</span><span class="v"><span class="guess">Guess</span>7.5 h asleep, timed from the alarm</span></div>
+        <div class="r"><span class="k">Work hours</span><span class="v"><span class="guess">Guess</span>09:00–18:00</span></div>
+        <div class="r"><span class="k">Office days</span><span class="v">Asked each Sunday</span></div>
+        <div class="r"><span class="k">Fixed</span><span class="v">Basketball, Wed evening</span></div>
+        <div class="r"><span class="k">Commute</span><span class="v">25 min · bike if 8 °C, dry</span></div>
+      </div></div>
+    <div class="grp"><div class="eyebrow">Training</div>
+      <div class="card rows" style="margin:0 16px">
+        <div class="r"><span class="k">Kit</span><span class="v">Dumbbells to 24 kg, bench, bar</span></div>
+        <div class="r"><span class="k">Longest session</span><span class="v"><span class="guess">Guess</span>45 min</span></div>
+        <div class="r"><span class="k">Cues</span><span class="v">Voice on · tap to count</span></div>
+      </div></div>
+    <div class="grp"><div class="eyebrow">Food</div>
+      <div class="card rows" style="margin:0 16px">
+        <div class="r"><span class="k">Eating</span><span class="v">Everything but raw fish · for 2</span></div>
+      </div></div>
+  </div>
+  <div class="dock">
+    <button class="btn xl">Looks right</button>
+  </div>
+  <div class="home"></div>
+</div>
+<figcaption>7 · Onboarding confirm<span>One scroll, not a questionnaire (decision E6). Every row is pre-filled; only the requirements draft's "to confirm" answers are marked Guess. The rest of the list (places, coach, notifications) continues below the fold.</span></figcaption>
+</figure>
+
+<!-- ============ 8. ONBOARDING PERMISSIONS ============ -->
+<figure>
+<div class="phone dark" id="onboarding-permissions">
+  <div class="status"><span>20:06</span><div class="island"></div><span class="icons">▮▮▮ ◔ ▬</span></div>
+  <div class="scroll">
+    <div class="big" style="margin-top:8px">Four yeses and you're done</div>
+    <div class="sub" style="margin-top:6px">iOS asks for each one. Say no to any and that part goes manual.</div>
+    <div class="card" style="margin-top:20px;padding:0 14px">
+      <div class="perm"><div class="pi" style="background:#FF9500">⏰</div><div><b>Alarms</b><span>Wakes you for each session, even on Silent.</span></div></div>
+      <div class="perm"><div class="pi" style="background:#FF3B30">🔔</div><div><b>Notifications</b><span>Morning brief, "leave now", Sunday question. Quiet 22:30–06:00.</span></div></div>
+      <div class="perm"><div class="pi" style="background:#FF2D55">♥</div><div><b>Health</b><span>Reads weight and steps. Nothing leaves the phone.</span></div></div>
+      <div class="perm"><div class="pi" style="background:#007AFF">➤</div><div><b>Location, while using</b><span>Weather for runs, distance on run-walks.</span></div></div>
+    </div>
+    <div class="sub" style="margin:14px 4px 0;font-size:13px">Camera is asked on your first photo day, not now. Calendar isn't needed: the Sunday question covers it.</div>
+  </div>
+  <div class="dock">
+    <button class="btn xl">Continue</button>
+  </div>
+  <div class="home"></div>
+</div>
+<figcaption>8 · Onboarding permissions<span>One button walks through the four system prompts in order. No "Skip" button: refusing in the iOS prompt already does that.</span></figcaption>
+</figure>
+
+<!-- ============ 9-11. VARIANTS ============ -->
+<figure>
+<div class="phone" id="today-training-light"></div>
+<figcaption>9 · Today, light<span>Only if the owner switches the app to follow the system. Same semantic colours, so no extra build work.</span></figcaption>
+</figure>
+<figure>
+<div class="phone" id="player-set-light"></div>
+<figcaption>10 · Workout player, light</figcaption>
+</figure>
+<figure>
+<div class="phone dark lock" id="runwalk-lock">
+  <div class="status"><span></span><div class="island"></div><span class="icons">▮▮▮ ◔ ▬</span></div>
+  <div style="text-align:center;margin-top:18px"><div style="font-size:20px;font-weight:600;color:var(--label2)">Wednesday 19 November</div><div style="font-size:96px;font-weight:700;letter-spacing:-3px;line-height:1">07:12</div></div>
+  <div style="flex:1"></div>
+  <div class="la">
+    <div style="display:flex;justify-content:space-between;align-items:baseline"><span class="eyebrow">Run-walk · 4 of 10</span><span class="eyebrow">Then walk 1:00</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:4px"><span style="font-size:40px;font-weight:800;color:var(--accent)">JOG</span><span style="font-size:52px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-2px">0:38</span></div>
+    <div class="segs" style="margin:10px 0 0"><i class="wu d"></i><i class="j d"></i><i class="w d"></i><i class="j d"></i><i class="w d"></i><i class="j d"></i><i class="w d"></i><i class="j c"></i><i class="w"></i><i class="j"></i><i class="w"></i><i class="j"></i><i class="w"></i><i class="j"></i><i class="w"></i><i class="j"></i><i class="w"></i><i class="j"></i><i class="w"></i><i class="j"></i><i class="w"></i><i class="cd"></i></div>
+  </div>
+  <div style="height:120px"></div>
+  <div class="home"></div>
+</div>
+<figcaption>11 · Run-walk on the lock screen<span>Live Activity: current interval, time left, what comes next. Same pattern as the rest-timer Live Activity from M0-06; voice does the real work.</span></figcaption>
+</figure>
+
+<script>
+  // Variants reuse the main markup so they never drift apart.
+  const copy = (from, to) => { document.getElementById(to).innerHTML = document.getElementById(from).innerHTML; };
+  copy('today-training', 'today-training-light');
+  copy('player-set', 'player-set-light');
+</script>
+</body>
+</html>
