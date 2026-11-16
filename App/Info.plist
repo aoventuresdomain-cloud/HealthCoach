@@ -8,5 +8,9 @@
 	<string>HealthCoach sets your wake-up and training alarms so you never have to.</string>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>audio</string>
+	</array>
 </dict>
 </plist>
