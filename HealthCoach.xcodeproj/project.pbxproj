@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		02D872C9E683462D0C611E69 /* CoachCore in Frameworks */ = {isa = PBXBuildFile; productRef = 2B03028AC5929CFEDA0907B6 /* CoachCore */; };
+		191C054908F6B8C58C05E3FD /* Content in Resources */ = {isa = PBXBuildFile; fileRef = 106E75CF59DD918581D356BE /* Content */; };
 		93F8B13EC1BF060C37A79030 /* LiveActivity.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C65BAFA3F05C11E4408F3ECE /* LiveActivity.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -43,6 +44,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		106E75CF59DD918581D356BE /* Content */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder; path = Content; sourceTree = "<group>"; };
 		508EDCC19BA04C1055859818 /* HealthCoachUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HealthCoachUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7BCCADA3021C07D12E775CB5 /* HealthCoach.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HealthCoach.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C65BAFA3F05C11E4408F3ECE /* LiveActivity.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LiveActivity.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -133,6 +135,7 @@
 				00B68AB319E395A6AFB73C46 /* LiveActivity */,
 				90B2E22521451DE7601994BE /* Shared */,
 				810EF701C73A420CE314D2EC /* HealthCoachUITests */,
+				106E75CF59DD918581D356BE /* Content */,
 				BF7A2D27A78D590BDEF15AF2 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -276,6 +279,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				191C054908F6B8C58C05E3FD /* Content in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
