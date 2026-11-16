@@ -32,7 +32,7 @@ The CEO is training from paper and will not be asked anything until Gate 2. The 
 |---|---|---|---|---|---|---|---|
 | M0-01 | Repository layout, board, decisions | Head of Engineering | `claude/project-thread-cl2ypb` | repo root, docs/ | docs | done (PR #1) | — |
 | M0-02 | Xcode project: app + Live Activity targets linking CoachCore | Planner Engineer | `claude/project-thread-3n9z3c` | App/, LiveActivity/, Shared/, ci_scripts/ | core | done (PR #2) | — |
-| M0-12 | GitHub Actions CI: build for the iOS 26 simulator, run CoachCore tests, save spike-screen screenshots | Planner Engineer | — | .github/workflows/ | core | todo | — |
+| M0-12 | GitHub Actions CI: build for the iOS 26 simulator, run CoachCore tests, save spike-screen screenshots | Planner Engineer | — | .github/workflows/ | core | done (PR #13; first compile green) | — |
 | M0-04 | S1 · Alarms (code and simulator now; on-phone deferred to payment) | Planner Engineer | `claude/project-thread-3n9z3c` | App/, CoachCore/Planner | core | code done (PR #8, #10); simulator check pending; device test deferred | — |
 | M0-05 | S1b · Reconcile on open (code now; TestFlight update test deferred to payment) | Planner Engineer | `claude/project-thread-3n9z3c` | CoachCore/Planner, App/ | core | code done (PR #10); simulator check pending; device test deferred | — |
 | M0-06 | S3 · Live Activity timer with voice cues (simulator now; on-phone deferred to payment) | iOS Interface Engineer | `claude/project-thread-buqy8y` | LiveActivity/, App/ | interface | code done (PR #7); simulator check pending; device test deferred | — |
@@ -126,9 +126,9 @@ Device-only Done when lines from plan §7 are rewritten as simulator or UI-test 
 
 | ID | Item | Owner | Label | Status |
 |---|---|---|---|---|
-| M1-01 | Data model: versioned profile record (SwiftData), programme and exercise JSON schemas, content validation tests | Planner Engineer | core | todo |
-| M1-02 | Phase 1 programme (`phase-1.json`, weeks 1–6 ramp) and callout text for all 44 exercises | Researcher (Advisor reviews) | docs | todo |
-| M1-03 | Design: Today, workout player, run-walk, onboarding confirm | Product Designer (Advisor critiques, max 2 rounds) | interface | todo |
+| M1-01 | Data model: versioned profile record (SwiftData), programme and exercise JSON schemas, content validation tests | Planner Engineer | core | in progress |
+| M1-02 | Phase 1 programme (`phase-1.json`, weeks 1–6 ramp) and callout text for all 44 exercises | Researcher (Advisor reviews) | docs | done (PR #19) |
+| M1-03 | Design: Today, workout player, run-walk, onboarding confirm | Product Designer (Advisor critiques, max 2 rounds) | interface | done (PR #18) |
 | M1-04 | Onboarding confirm, pre-filled with decision E6 defaults | iOS Interface Engineer | interface | todo |
 | M1-05 | Today screen: today's session and timeline | iOS Interface Engineer | interface | todo |
 | M1-06 | Workout player: GIF, three callouts, rest timer Live Activity, voice countdown, tap rep counter, one-tap "done as prescribed" | iOS Interface Engineer | interface | todo |
@@ -174,6 +174,10 @@ Device-only Done when lines from plan §7 are rewritten as simulator or UI-test 
 
 ## Done
 
+- 2026-11-16 · M1-02 · PR #19 (Phase 1 programme, all callouts; Advisor signed off) · M1-03 · PR #18 (15 screens; taste decisions held for Gate 2)
+- 2026-11-16 · M0-12 · PR #13 (Linux core tests + macOS simulator build, both green on the first compile; merge on green by process, as GitHub Free has no branch protection)
+- 2026-11-16 · QA test plan and Gate 0a checklist · PRs #15, #16 · M0-06 no-audio fallback · PR #14 · screenshot modes · PR #11
+- 2026-11-16 · M0-04/05 part 2 · PR #10
 - 2026-11-16 · M0-06 (code), M0-11 · PR #7 (Spike tests screen, Live Activity timer, voice cues; not compiled yet)
 - 2026-11-16 · M0-04/05 part 1 · PR #8 (CoachCore reconcile + S1 schedule, unit-tested; AlarmKit registrar)
 - 2026-11-16 · M0-03 (part) · PR #5 (CoachCore tests run before every archive; pipeline itself waits on Setup Desk Part B)
