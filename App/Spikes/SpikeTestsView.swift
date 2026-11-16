@@ -111,6 +111,7 @@ struct SpikeTestsView: View {
     static func describe(_ status: AlarmReconcileStatus) -> String {
         switch status {
         case .notYetRun: "⚠️ Alarm check hasn't run yet."
+        case .allSet(0): "⚠️ No alarms set. Tap Set test alarms."
         case .allSet(let count): "All alarms set (\(count))."
         case .reSet(let missing, let total): "⚠️ \(missing) of \(total) alarms were missing and have been re-set."
         case .failed(let reason): "⚠️ Alarm check failed: \(reason)"

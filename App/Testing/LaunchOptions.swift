@@ -5,12 +5,14 @@ import Foundation
 ///     -uitest                      test mode: in-memory store, fake alarms, no animations
 ///     -now 2026-11-23T06:30:00Z    fixes the clock the app passes to CoachCore
 ///     -fixture week1-monday        loads App/Testing/Fixtures/fixture-week1-monday.json
+///     -realAlarms                  with -uitest: real AlarmKit and alarm plan kept across launches (QA-2)
 ///
 /// Debug builds only. Release builds ignore every flag, like the Spike tests screen.
 struct LaunchOptions: Equatable {
     var isUITest = false
     var now: Date?
     var fixture: String?
+    var realAlarms = false
 
     static let current = LaunchOptions(arguments: ProcessInfo.processInfo.arguments)
 
@@ -29,6 +31,7 @@ struct LaunchOptions: Equatable {
         isUITest = arguments.contains("-uitest")
         now = value(after: "-now").flatMap { try? Date.ISO8601FormatStyle().parse($0) }
         fixture = value(after: "-fixture")
+        realAlarms = arguments.contains("-realAlarms")
         #endif
     }
 }
