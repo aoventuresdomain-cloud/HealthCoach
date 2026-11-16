@@ -36,16 +36,19 @@ final class AlarmKitSpike: AlarmSpikeRunning {
     nonisolated enum SpikeError: LocalizedError {
         case permissionDenied
         case planUnreadable
+        case plannerOwnsAlarms
 
         var errorDescription: String? {
             switch self {
             case .permissionDenied: "Alarm permission is off. Turn it on in Settings › HealthCoach › Alarms."
             case .planUnreadable: "The saved alarm plan couldn't be read, so nothing was changed."
+            case .plannerOwnsAlarms: "The planner sets the alarms now, so test alarms are off."
             }
         }
     }
 
     func setTestAlarms() async throws -> AlarmSpikeSummary {
+        guard !WakeAlarms.shared.ownsAlarms else { throw SpikeError.plannerOwnsAlarms }
         guard try await requestAuthorization() else { throw SpikeError.permissionDenied }
         let plan = TestAlarmSchedule.make(now: AppClock.now())
         try save(plan)
@@ -58,6 +61,7 @@ final class AlarmKitSpike: AlarmSpikeRunning {
     /// Cancels the 13 test alarms set 21+ days out, keeping the near one, in
     /// case the M2 planner isn't there to replace them in time.
     func clearLaterTestAlarms() async throws -> AlarmSpikeSummary {
+        guard !WakeAlarms.shared.ownsAlarms else { throw SpikeError.plannerOwnsAlarms }
         guard let plan = try loadPlan() else { return AlarmSpikeSummary(count: 0, next: nil) }
         let split = TestAlarmSchedule.splitForClearing(plan, now: AppClock.now())
         for alarm in split.drop {
@@ -85,6 +89,16 @@ final class AlarmKitSpike: AlarmSpikeRunning {
     }
 
     private func runReconcile() async -> AlarmReconcileStatus {
+        if WakeAlarms.shared.ownsAlarms {
+            // Report the planner's result; never reconcile the test plan over it.
+            switch WakeAlarms.shared.coverage {
+            case let .allSet(count, _)?: lastStatus = .allSet(count: count)
+            case let .reSet(missing, total, _)?: lastStatus = .reSet(missing: missing, total: total)
+            case .noAlarms?: lastStatus = .allSet(count: 0)
+            case nil: lastStatus = .notYetRun
+            }
+            return lastStatus
+        }
         let plan: [PlannedAlarm]
         do {
             guard let stored = try loadPlan() else {
