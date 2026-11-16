@@ -52,16 +52,20 @@ final class OnboardingUITests: XCTestCase {
         app.launchArguments = ["-uitest", "-now", "2026-11-16T09:00:00Z", "-fixture", "new-install"]
         app.launch()
 
+        XCTAssertTrue(app.staticTexts["onboarding.title"].waitForExistence(timeout: 15))
+        // The row sits below the fold on smaller screens; lists only build what's visible.
         let row = app.buttons["onboarding.row.longest"]
-        XCTAssertTrue(row.waitForExistence(timeout: 15))
+        for _ in 0..<6 where !(row.exists && row.isHittable) { app.swipeUp() }
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
         XCTAssertTrue(row.label.contains("45 min"), row.label)
         row.tap()
         let stepper = app.steppers.firstMatch
         XCTAssertTrue(stepper.waitForExistence(timeout: 5))
+        if !stepper.isHittable { app.swipeUp() }
         stepper.buttons.element(boundBy: 1).tap()
         XCTAssertTrue(row.label.contains("50 min"), row.label)
         // Still the same screen: editing never opens a new one.
-        XCTAssertTrue(app.staticTexts["onboarding.title"].exists)
+        XCTAssertTrue(app.buttons["onboarding.confirm"].exists)
     }
 
     @MainActor
