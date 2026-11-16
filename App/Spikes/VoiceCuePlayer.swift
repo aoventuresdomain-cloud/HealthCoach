@@ -37,7 +37,14 @@ final class VoiceCuePlayer: NSObject {
 
         engine.attach(silence)
         engine.connect(silence, to: engine.mainMixerNode, format: format)
-        try engine.start()
+        do {
+            try engine.start()
+        } catch {
+            // Leave nothing attached or active, so the next attempt starts clean.
+            engine.detach(silence)
+            try? session.setActive(false, options: .notifyOthersOnDeactivation)
+            throw error
+        }
         silence.scheduleBuffer(buffer, at: nil, options: .loops)
         silence.play()
         isHolding = true
@@ -79,7 +86,7 @@ final class VoiceCuePlayer: NSObject {
         isHolding = false
     }
 
-    enum CueError: LocalizedError {
+    nonisolated enum CueError: LocalizedError {
         case noAudioOutput
         var errorDescription: String? { "No audio output available for voice cues." }
     }

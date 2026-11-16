@@ -26,7 +26,7 @@ enum AlarmReconcileStatus: Equatable {
 
 /// Stands in until M0-04 lands, so the screen builds and can be walked.
 struct PlaceholderAlarmSpike: AlarmSpikeRunning {
-    struct NotBuilt: LocalizedError {
+    nonisolated struct NotBuilt: LocalizedError {
         var errorDescription: String? { "Alarm test not built yet (board M0-04)." }
     }
 
