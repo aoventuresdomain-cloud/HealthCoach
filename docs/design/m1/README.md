@@ -1,6 +1,6 @@
 # M1-03 · Mock-ups: Today, workout player, run-walk, onboarding confirm
 
-Product Designer · 16 Nov 2026 · Round 2 with the Advisor (max 2); round 1 critique answered below. Source: [`mockups.html`](mockups.html); PNGs in [`png/`](png/) are rendered from it with `node docs/design/m1/render.js`. Screens are iPhone 17 Pro size (393 × 852 pt). Workout content is placeholder until M1-02 lands; numbers follow the Advisor's brief (week 1 = 2 sets, ~4 in reserve, conservative start weights).
+Product Designer · 16 Nov 2026 · Advisor signed off at round 2; nothing held. Source: [`mockups.html`](mockups.html); PNGs in [`png/`](png/) are rendered from it with `node docs/design/m1/render.js`. Screens are iPhone 17 Pro size (393 × 852 pt). Workout content is placeholder until M1-02 lands; numbers follow the Advisor's brief (week 1 = 2 sets, ~4 in reserve, conservative start weights).
 
 **Test every screen against the guiding rule:** if it takes thinking or admin time, it has failed. Nothing in a normal day asks the owner to choose, rate or type.
 
@@ -93,6 +93,11 @@ Dynamic Type: numbers and buttons scale; callouts may truncate to two lines at t
 3. **App icon.** Not designed in M1; the current placeholder stays.
 
 Settled in round 1, no longer open: callout labels are **Setup / Move / Fix** (Advisor agreed; they read better than the plan's wording and match its "phrase the mistake as the fix"). The tap counter stays **always visible**, because the owner asked for tap and voice counting.
+
+## Build notes (Advisor sign-off, round 2)
+
+1. **Every number on screen comes from `phase-1.json`, never from these mocks.** The mock numbers are illustrative. For example, week 1 negatives are 2 × 3 lowers, not 5.
+2. **Every GIF is a drawn placeholder.** M1-06 loads each exercise's own bundled GIF, for example the real negative pull-up GIF on screen 3d.
 
 ## Not in M1
 
