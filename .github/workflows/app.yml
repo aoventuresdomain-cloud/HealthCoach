@@ -1,5 +1,5 @@
 # Board M0-12: compile the app and Live Activity for the iOS 26 simulator, and
-# take spike-screen screenshots.
+# run the HealthCoachUITests UI tests, and take spike-screen screenshots.
 #
 # macOS minutes count 10x, so about 200 a month on the free plan (spending
 # limit £0). To save them: pull requests only (not main, which gets the same
@@ -45,19 +45,42 @@ jobs:
         id: sim
         run: echo "udid=$(.github/scripts/pick-simulator.sh)" >> "$GITHUB_OUTPUT"
 
-      - name: Build app and Live Activity (signing off)
+      - name: Build app, Live Activity and UI tests (signing off)
         run: |
           set -o pipefail
-          xcodebuild build \
+          xcodebuild build-for-testing \
             -project HealthCoach.xcodeproj \
             -scheme HealthCoach \
             -configuration Debug \
             -destination "id=${{ steps.sim.outputs.udid }}" \
             -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO \
-            | tee xcodebuild.log | grep -E "error:|warning:|BUILD (SUCCEEDED|FAILED)" || true
-          grep -q "BUILD SUCCEEDED" xcodebuild.log
+            | tee xcodebuild.log | grep -E "error:|warning:|\*\* .* (SUCCEEDED|FAILED) \*\*" || true
+          grep -q "TEST BUILD SUCCEEDED" xcodebuild.log
           test -d build/Build/Products/Debug-iphonesimulator/HealthCoach.app/PlugIns/LiveActivity.appex
+
+      - name: UI tests (HealthCoachUITests)
+        # CoachCore unit tests run on Linux (core-tests.yml), so only the UI tests run here.
+        run: |
+          set -o pipefail
+          xcodebuild test-without-building \
+            -project HealthCoach.xcodeproj \
+            -scheme HealthCoach \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            -derivedDataPath build \
+            -only-testing:HealthCoachUITests \
+            -resultBundlePath ui-tests.xcresult \
+            | tee uitests.log | grep -E "Test (Case|Suite).*(passed|failed)|error:|\*\* TEST" || true
+          grep -q "\*\* TEST EXECUTE SUCCEEDED \*\*" uitests.log
+
+      - name: Upload UI test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-tests-xcresult
+          path: ui-tests.xcresult
+          retention-days: 14
+          if-no-files-found: ignore
 
       - name: Decide on screenshots
         id: shots
@@ -90,6 +113,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: xcodebuild-log
-          path: xcodebuild.log
+          path: |
+            xcodebuild.log
+            uitests.log
           retention-days: 7
           if-no-files-found: ignore

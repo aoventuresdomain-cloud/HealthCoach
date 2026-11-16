@@ -1,6 +1,6 @@
 {
-  "schemaVersion": 0,
-  "note": "Provisional shape (schemaVersion 0). The Planner Engineer owns the schema and may rename fields in M1-01. `substitute` = the exercise whose GIF stands in when this one has none. `swap` = the exercise to do instead on pain or a kit problem. Callouts: 12 words or fewer, imperative, `commonMistake` phrased as the fix.",
+  "schemaVersion": 1,
+  "note": "Schema v1 (docs/content-schemas.md). `substitute` = the exercise whose GIF stands in when this one has none. `swap` = the exercise to do instead on pain or a kit problem. Callouts: 12 words or fewer, imperative, `commonMistake` phrased as the fix. Validated by CoachCore tests.",
   "mediaSource": {
     "provider": "exercisedb-v1",
     "owner": "AscendAPI (formerly ExerciseDB)",
