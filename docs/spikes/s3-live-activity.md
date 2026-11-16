@@ -19,26 +19,17 @@ Owner: iOS Interface Engineer. Run from **Spike tests → Start test timer** (M0
 
 ## Simulator screenshots (for CI, board M0-12)
 
-The app takes a `-screenshot <mode>` launch argument and opens straight on that state, no taps:
+The app takes a `-screenshot <mode>` launch argument and opens straight on that state, no taps. `.github/scripts/screenshots.sh` runs them all.
 
 | Mode | Shows |
 |---|---|
-| `spikes` | Spike tests screen, nothing run |
-| `spikes-timer` | Spike tests screen with the 90 s timer running (starts a real Live Activity) |
+| `spikes` | Spike tests screen; after "Set test alarms", the relaunch reconcile result |
+| `spikes-timer` | The timer running (starts a real Live Activity). Add `-restSeconds <n>` (min 5) for a short rest that finishes |
+| `spikes-timer-cancel` | Starts the timer, cancels it 5 s later |
+| `spikes-set-alarms` | Taps "Set test alarms" by itself |
 | `live-activity` | The lock-screen and Dynamic Island layouts drawn in-app, counting down (same views as the widget) |
 
-```sh
-APP=com.aoventures.healthcoach
-xcrun simctl launch booted $APP -screenshot spikes;        sleep 3; xcrun simctl io booted screenshot spikes.png
-xcrun simctl terminate booted $APP
-xcrun simctl launch booted $APP -screenshot live-activity; sleep 3; xcrun simctl io booted screenshot live-activity-layouts.png
-xcrun simctl terminate booted $APP
-xcrun simctl launch booted $APP -screenshot spikes-timer;  sleep 5; xcrun simctl io booted screenshot spikes-timer.png
-# Background the app: the real Live Activity shows in the Dynamic Island (use an iPhone Pro simulator).
-xcrun simctl launch booted com.apple.Preferences;          sleep 3; xcrun simctl io booted screenshot dynamic-island.png
-```
-
-`simctl` can't lock the simulator, so the lock-screen view comes from `live-activity-layouts.png`; the real lock screen is checked on the phone in M0b.
+Backgrounding the app (launching Settings) shows the real Live Activity in the Dynamic Island on an iPhone Pro simulator. `simctl` can't lock the simulator or answer the AlarmKit permission prompt, so the real lock screen waits for the phone (M0b), and a prompt in `9-spike-tests-set-alarms.png` is itself the S1 simulator finding; tapping Allow then needs the UI test target (M1-01).
 
 ## Results
 
