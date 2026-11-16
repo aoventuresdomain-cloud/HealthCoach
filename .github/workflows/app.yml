@@ -59,6 +59,26 @@ jobs:
         id: sim
         run: echo "udid=$(.github/scripts/pick-simulator.sh)" >> "$GITHUB_OUTPUT"
 
+      - name: Boot the simulator in the background (en_GB, 24-hour clock)
+        # Overlaps the boot with the build; the UI tests step waits for it.
+        # Older commits built with the `ref` input may predate the script.
+        run: |
+          if [ -x .github/scripts/prepare-simulator.sh ]; then
+            nohup .github/scripts/prepare-simulator.sh "${{ steps.sim.outputs.udid }}" > sim-prepare.log 2>&1 &
+          else
+            touch sim-ready
+          fi
+
+      - name: Cache exercise GIFs
+        uses: actions/cache@v4
+        with:
+          path: Content/exercises/media
+          key: exercise-gifs-${{ hashFiles('Content/exercises/exercises.json') }}
+          restore-keys: exercise-gifs-
+
+      - name: Fetch exercise GIFs into the bundle (never fetched at runtime)
+        run: scripts/fetch-exercise-gifs.sh
+
       - name: Build app, Live Activity and UI tests (signing off)
         run: |
           set -o pipefail
@@ -83,6 +103,7 @@ jobs:
         if: hashFiles('HealthCoachUITests/**') != ''
         run: |
           set -o pipefail
+          if [ -x .github/scripts/wait-simulator.sh ]; then .github/scripts/wait-simulator.sh; fi
           xcodebuild test-without-building \
             -project HealthCoach.xcodeproj \
             -scheme HealthCoach \
@@ -117,7 +138,9 @@ jobs:
 
       - name: Simulator screenshots
         if: steps.shots.outputs.take == 'true'
-        run: .github/scripts/screenshots.sh "${{ steps.sim.outputs.udid }}" build/Build/Products/Debug-iphonesimulator/HealthCoach.app screenshots
+        run: |
+          if [ -x .github/scripts/wait-simulator.sh ]; then .github/scripts/wait-simulator.sh; fi
+          .github/scripts/screenshots.sh "${{ steps.sim.outputs.udid }}" build/Build/Products/Debug-iphonesimulator/HealthCoach.app screenshots
 
       - name: Upload screenshots
         if: always() && steps.shots.outputs.take == 'true'

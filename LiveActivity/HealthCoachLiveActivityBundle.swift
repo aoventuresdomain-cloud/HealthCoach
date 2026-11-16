@@ -5,5 +5,6 @@ import WidgetKit
 struct HealthCoachLiveActivityBundle: WidgetBundle {
     var body: some Widget {
         RestTimerLiveActivity()
+        RunWalkLiveActivity()
     }
 }
