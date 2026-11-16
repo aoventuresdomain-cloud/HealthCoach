@@ -20,7 +20,7 @@ on:
         type: boolean
         default: true
       ref:
-        description: "Commit or branch to build (blank: the branch you run from). Its own scripts are used."
+        description: "Full 40-character commit SHA, branch or tag to build (blank: the branch you run from). Its own scripts are used."
         type: string
         default: ""
       publish_shots:
