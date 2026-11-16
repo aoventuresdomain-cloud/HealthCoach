@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		02D872C9E683462D0C611E69 /* CoachCore in Frameworks */ = {isa = PBXBuildFile; productRef = 2B03028AC5929CFEDA0907B6 /* CoachCore */; };
+		191C054908F6B8C58C05E3FD /* Content in Resources */ = {isa = PBXBuildFile; fileRef = 106E75CF59DD918581D356BE /* Content */; };
 		93F8B13EC1BF060C37A79030 /* LiveActivity.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C65BAFA3F05C11E4408F3ECE /* LiveActivity.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -18,6 +19,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 0160E53885C840BE2250F8F7;
 			remoteInfo = LiveActivity;
+		};
+		E7779A49C96957FBAFBC276C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 46F86FAA6BBF9AC94A7E4595 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6439CF22188FA14BBD363342;
+			remoteInfo = HealthCoach;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -36,6 +44,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		106E75CF59DD918581D356BE /* Content */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder; path = Content; sourceTree = "<group>"; };
+		508EDCC19BA04C1055859818 /* HealthCoachUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HealthCoachUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7BCCADA3021C07D12E775CB5 /* HealthCoach.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HealthCoach.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C65BAFA3F05C11E4408F3ECE /* LiveActivity.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LiveActivity.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -76,6 +86,13 @@
 			path = App;
 			sourceTree = "<group>";
 		};
+		810EF701C73A420CE314D2EC /* HealthCoachUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			path = HealthCoachUITests;
+			sourceTree = "<group>";
+		};
 		90B2E22521451DE7601994BE /* Shared */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -87,6 +104,13 @@
 
 /* Begin PBXFrameworksBuildPhase section */
 		8DAC40E792F966D47DDAFA10 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CECBC212EDDBA4A9CB1F709C /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -110,6 +134,8 @@
 				095FEE2E633C50D24407F2D6 /* App */,
 				00B68AB319E395A6AFB73C46 /* LiveActivity */,
 				90B2E22521451DE7601994BE /* Shared */,
+				810EF701C73A420CE314D2EC /* HealthCoachUITests */,
+				106E75CF59DD918581D356BE /* Content */,
 				BF7A2D27A78D590BDEF15AF2 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -119,6 +145,7 @@
 			children = (
 				7BCCADA3021C07D12E775CB5 /* HealthCoach.app */,
 				C65BAFA3F05C11E4408F3ECE /* LiveActivity.appex */,
+				508EDCC19BA04C1055859818 /* HealthCoachUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -173,6 +200,27 @@
 			productReference = 7BCCADA3021C07D12E775CB5 /* HealthCoach.app */;
 			productType = "com.apple.product-type.application";
 		};
+		95E4FC72F9AF478551AE1B72 /* HealthCoachUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D9DCF85A90504FD21E2C3429 /* Build configuration list for PBXNativeTarget "HealthCoachUITests" */;
+			buildPhases = (
+				42B06A8EFDB678B12C1EE48E /* Sources */,
+				CECBC212EDDBA4A9CB1F709C /* Frameworks */,
+				FC933206EC8AAF5AF29E1EBB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2D5652B4C18E02572E241FBA /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				810EF701C73A420CE314D2EC /* HealthCoachUITests */,
+			);
+			name = HealthCoachUITests;
+			productName = HealthCoachUITests;
+			productReference = 508EDCC19BA04C1055859818 /* HealthCoachUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -188,6 +236,10 @@
 					};
 					6439CF22188FA14BBD363342 = {
 						CreatedOnToolsVersion = 26.0;
+					};
+					95E4FC72F9AF478551AE1B72 = {
+						CreatedOnToolsVersion = 26.0;
+						TestTargetID = 6439CF22188FA14BBD363342;
 					};
 				};
 			};
@@ -210,6 +262,7 @@
 			targets = (
 				6439CF22188FA14BBD363342 /* HealthCoach */,
 				0160E53885C840BE2250F8F7 /* LiveActivity */,
+				95E4FC72F9AF478551AE1B72 /* HealthCoachUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -226,6 +279,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				191C054908F6B8C58C05E3FD /* Content in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FC933206EC8AAF5AF29E1EBB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -233,6 +294,13 @@
 
 /* Begin PBXSourcesBuildPhase section */
 		0F2A33C9B352E389BDBCF3E8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		42B06A8EFDB678B12C1EE48E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -249,6 +317,12 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		2D5652B4C18E02572E241FBA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = HealthCoach;
+			target = 6439CF22188FA14BBD363342 /* HealthCoach */;
+			targetProxy = E7779A49C96957FBAFBC276C /* PBXContainerItemProxy */;
+		};
 		D8B4029C7578A2DA2967D336 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 0160E53885C840BE2250F8F7 /* LiveActivity */;
@@ -321,6 +395,19 @@
 			};
 			name = Release;
 		};
+		4A8A929A0297EA6F62A46573 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.aoventures.healthcoach.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_DEFAULT_ACTOR_ISOLATION = nonisolated;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TEST_TARGET_NAME = HealthCoach;
+			};
+			name = Debug;
+		};
 		7BF40F069D95C38DE60AA602 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -346,6 +433,20 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = 1;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		CB4EAB8DFC0B45B6D8DDCE2B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.aoventures.healthcoach.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_DEFAULT_ACTOR_ISOLATION = nonisolated;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TEST_TARGET_NAME = HealthCoach;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -425,6 +526,15 @@
 			buildConfigurations = (
 				0F9FC8EE2C99E07A9753399D /* Debug */,
 				1483FA26082F598A11F242FF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D9DCF85A90504FD21E2C3429 /* Build configuration list for PBXNativeTarget "HealthCoachUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CB4EAB8DFC0B45B6D8DDCE2B /* Release */,
+				4A8A929A0297EA6F62A46573 /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

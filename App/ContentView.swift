@@ -20,6 +20,7 @@ struct ContentView: View {
             VStack(spacing: 12) {
                 Text("HealthCoach")
                     .font(.largeTitle.bold())
+                    .accessibilityIdentifier("home.title")
                 Text("Core schema v\(CoachCore.schemaVersion)")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
@@ -27,6 +28,10 @@ struct ContentView: View {
                     NavigationLink("Spike tests") { SpikeTestsView() }
                         .buttonStyle(.borderedProminent)
                         .padding(.top, 24)
+                        .accessibilityIdentifier("home.spikeTests")
+                }
+                if LaunchOptions.current.isUITest {
+                    UITestStatus()
                 }
             }
             .padding()

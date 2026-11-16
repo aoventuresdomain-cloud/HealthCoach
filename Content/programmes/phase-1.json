@@ -1,6 +1,6 @@
 {
-  "schemaVersion": 0,
-  "note": "Provisional shape; the Planner Engineer owns the schema (M1-01) and may rename fields. Arrays of six are indexed by week (week 1 first). Sets of 0 mean the exercise is not done that week. startKg is per dumbbell (one dumbbell for goblet squat and overhead triceps). null means bodyweight.",
+  "schemaVersion": 1,
+  "note": "Schema v1 (docs/content-schemas.md). Arrays of six are indexed by week (week 1 first). Sets of 0 mean the exercise is not done that week. startKg is per dumbbell (one dumbbell for goblet squat and overhead triceps). null means bodyweight. Validated by CoachCore tests.",
   "id": "phase-1",
   "phase": 1,
   "name": "Cut and rebuild",
@@ -8,6 +8,7 @@
   "maxSessionMinutes": 45,
   "warmUpMinutes": 5,
   "loadStepKg": 2,
+  "dumbbellLimitKg": 24,
   "effort": [
     {
       "week": 1,
@@ -53,8 +54,7 @@
     "reps": "Bodyweight. Climb reps to the top of the range, then hold.",
     "time": "Add 5 seconds a session up to the top of the range, then hold.",
     "time-then-load": "Climb time to the top of the range; then add one load step and restart at the bottom.",
-    "reps-then-graduate": "Climb reps to the top of the range; then graduate as the item says.",
-    "dumbbellLimitKg": 24
+    "reps-then-graduate": "Climb reps to the top of the range; then graduate as the item says."
   },
   "fixed": [
     {

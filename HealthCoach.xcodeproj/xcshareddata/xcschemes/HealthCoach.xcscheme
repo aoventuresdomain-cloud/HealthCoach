@@ -40,6 +40,16 @@
                ReferencedContainer = "container:CoachCore">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "95E4FC72F9AF478551AE1B72"
+               BuildableName = "HealthCoachUITests.xctest"
+               BlueprintName = "HealthCoachUITests"
+               ReferencedContainer = "container:HealthCoach.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
