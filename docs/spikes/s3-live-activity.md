@@ -17,6 +17,29 @@ Owner: iOS Interface Engineer. Run from **Spike tests → Start test timer** (M0
 5. Check the lock screen: the timer should be gone and the music back at full volume.
 6. Repeat, tapping Cancel mid-rest: lock screen clears at once.
 
+## Simulator screenshots (for CI, board M0-12)
+
+The app takes a `-screenshot <mode>` launch argument and opens straight on that state, no taps:
+
+| Mode | Shows |
+|---|---|
+| `spikes` | Spike tests screen, nothing run |
+| `spikes-timer` | Spike tests screen with the 90 s timer running (starts a real Live Activity) |
+| `live-activity` | The lock-screen and Dynamic Island layouts drawn in-app, counting down (same views as the widget) |
+
+```sh
+APP=com.aoventures.healthcoach
+xcrun simctl launch booted $APP -screenshot spikes;        sleep 3; xcrun simctl io booted screenshot spikes.png
+xcrun simctl terminate booted $APP
+xcrun simctl launch booted $APP -screenshot live-activity; sleep 3; xcrun simctl io booted screenshot live-activity-layouts.png
+xcrun simctl terminate booted $APP
+xcrun simctl launch booted $APP -screenshot spikes-timer;  sleep 5; xcrun simctl io booted screenshot spikes-timer.png
+# Background the app: the real Live Activity shows in the Dynamic Island (use an iPhone Pro simulator).
+xcrun simctl launch booted com.apple.Preferences;          sleep 3; xcrun simctl io booted screenshot dynamic-island.png
+```
+
+`simctl` can't lock the simulator, so the lock-screen view comes from `live-activity-layouts.png`; the real lock screen is checked on the phone in M0b.
+
 ## Results
 
 | Check | Result | Notes |
