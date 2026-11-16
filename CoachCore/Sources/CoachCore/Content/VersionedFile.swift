@@ -40,12 +40,11 @@ extension VersionedFormat {
     /// Checks the version first, so a newer file gets the "newer" message
     /// rather than a confusing decoding error.
     public static func decode(_ data: Data, file: String) throws -> Self {
-        struct Header: Decodable { let schemaVersion: Int }
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
-        let header: Header
+        let header: SchemaHeader
         do {
-            header = try decoder.decode(Header.self, from: data)
+            header = try decoder.decode(SchemaHeader.self, from: data)
         } catch {
             throw ContentError.unreadable(file: file, reason: "no schemaVersion (\(describe(error)))")
         }
@@ -61,6 +60,11 @@ extension VersionedFormat {
             throw ContentError.unreadable(file: file, reason: describe(error))
         }
     }
+}
+
+/// Just the version, read before the rest of a file.
+struct SchemaHeader: Decodable {
+    let schemaVersion: Int
 }
 
 /// Turns a DecodingError into one line naming the field, e.g.

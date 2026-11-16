@@ -112,8 +112,7 @@ extension Profile {
     public static func decoded(from data: Data) throws -> Profile {
         let file = "Profile"
         // Version check first, with the usual plain messages.
-        struct Header: Decodable { let schemaVersion: Int }
-        guard let header = try? JSONDecoder().decode(Header.self, from: data) else {
+        guard let header = try? JSONDecoder().decode(SchemaHeader.self, from: data) else {
             throw ContentError.unreadable(file: file, reason: "no schemaVersion")
         }
         if header.schemaVersion > currentSchemaVersion {
