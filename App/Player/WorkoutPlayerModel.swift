@@ -159,7 +159,8 @@ final class WorkoutPlayerModel {
         if step.restSeconds > 0, script.sets.indices.contains(i + 1) {
             let upcoming = script.sets[i + 1]
             phase = .rest(next: i + 1)
-            rest.start(seconds: step.restSeconds, nextUp: nextUpLine(upcoming)) { [weak self] in
+            rest.start(seconds: step.restSeconds, nextUp: nextUpLine(upcoming),
+                       headsUp: spokenNextUp(upcoming)) { [weak self] in
                 self?.enter(.set(i + 1))
             }
         } else if script.sets.indices.contains(i + 1) {
@@ -252,6 +253,12 @@ final class WorkoutPlayerModel {
             }
             voice.mixAgain()
         }
+    }
+
+    /// The 10-second heads-up: "Next: Dumbbell row, 12 kilos."
+    private func spokenNextUp(_ step: WorkoutScript.SetStep) -> String {
+        let load = step.kg.map { ", \(PlayerFormat.kg($0)) kilos" } ?? ""
+        return "Next: \(name(step.exercise))\(load)."
     }
 
     private func nextUpLine(_ step: WorkoutScript.SetStep) -> String {

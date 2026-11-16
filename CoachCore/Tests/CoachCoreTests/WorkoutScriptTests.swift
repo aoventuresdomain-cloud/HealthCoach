@@ -26,6 +26,33 @@ import Testing
         #expect(script.sets.last?.restSeconds == 0)
     }
 
+    @Test func everyPhaseOneBlockSetsItsOwnRest() throws {
+        let programme = try phase1()
+        var checked = 0
+        for (id, session) in programme.sessions {
+            guard case let .strength(strength) = session else { continue }
+            for block in strength.blocks {
+                #expect(block.restSeconds > 0, "\(id) \(block.label) has no rest")
+                checked += 1
+            }
+            // Each set rests for its own block's value, never the fallback.
+            for week in 1...programme.weeks {
+                let script = try #require(WorkoutScript.make(sessionID: id, programme: programme, week: week))
+                let blockRests = Set(strength.blocks.map(\.restSeconds))
+                for step in script.sets.dropLast() {
+                    #expect(blockRests.contains(step.restSeconds), "\(id) week \(week): \(step.restSeconds) s")
+                }
+            }
+        }
+        #expect(checked > 0)
+    }
+
+    @Test func missingRestFallsBackToNinetySeconds() throws {
+        let block = StrengthSession.Block(label: "A", restSeconds: 0, items: [])
+        #expect(WorkoutScript.restSeconds(for: block) == 90)
+        #expect(WorkoutScript.restSeconds(for: StrengthSession.Block(label: "B", restSeconds: 45, items: [])) == 45)
+    }
+
     @Test func setKindsComeFromTheItems() throws {
         let script = try #require(WorkoutScript.make(sessionID: "upper-a", programme: phase1(), week: 1))
         let kinds = Dictionary(script.sets.map { ($0.exercise, $0.kind) }, uniquingKeysWith: { a, _ in a })

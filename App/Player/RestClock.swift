@@ -16,6 +16,8 @@ final class RestClock {
     @ObservationIgnored private var countdown: Task<Void, Never>?
     @ObservationIgnored private var onFinish: (() -> Void)?
     @ObservationIgnored private var nextUp = ""
+    @ObservationIgnored private var headsUp: String?
+    @ObservationIgnored private var headsUpSpoken = false
     @ObservationIgnored private let voice: VoiceCuePlayer?
 
     /// `voice` nil = no spoken cues (the owner turned them off, or no audio).
@@ -25,8 +27,15 @@ final class RestClock {
 
     var isRunning: Bool { endsAt != nil }
 
-    func start(seconds: Int, nextUp: String, onFinish: @escaping () -> Void) {
+    /// Seconds before the end when the voice names what's next.
+    static let headsUpSeconds = 10.0
+
+    /// `headsUp` is spoken 10 s before the end (next exercise and weight),
+    /// ducking music under it, never pausing it.
+    func start(seconds: Int, nextUp: String, headsUp: String? = nil, onFinish: @escaping () -> Void) {
         stop()
+        self.headsUp = headsUp
+        headsUpSpoken = false
         let ends = Date.now.addingTimeInterval(TimeInterval(seconds))
         endsAt = ends
         totalSeconds = seconds
@@ -79,6 +88,12 @@ final class RestClock {
         countdown = Task { [weak self] in
             do {
                 if let voice = self?.voice {
+                    if let self, let line = self.headsUp, !self.headsUpSpoken,
+                       ends.timeIntervalSinceNow > Self.headsUpSeconds + 3 {
+                        try await Self.sleep(until: ends.addingTimeInterval(-Self.headsUpSeconds))
+                        self.headsUpSpoken = true
+                        await voice.announce(line)
+                    }
                     try await Self.sleep(until: ends.addingTimeInterval(-3.5))
                     voice.duckOthers()
                     for (offset, word) in [(-3.0, "3"), (-2.0, "2"), (-1.0, "1")] {

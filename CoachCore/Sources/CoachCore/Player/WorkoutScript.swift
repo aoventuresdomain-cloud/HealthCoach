@@ -74,6 +74,14 @@ public struct WorkoutScript: Equatable, Sendable {
     }
 
     /// nil when `sessionID` isn't a strength session.
+    /// Used only if a block's rest is missing or zero; every Phase 1 block
+    /// sets its own (Advisor condition on M1-06).
+    public static let fallbackRestSeconds = 90
+
+    static func restSeconds(for block: StrengthSession.Block) -> Int {
+        block.restSeconds > 0 ? block.restSeconds : fallbackRestSeconds
+    }
+
     public static func make(sessionID: String, programme: Programme, week: Int,
                             loads: [String: Double] = [:]) -> WorkoutScript? {
         guard case let .strength(session) = programme.sessions[sessionID] else { return nil }
@@ -94,7 +102,7 @@ public struct WorkoutScript: Equatable, Sendable {
                         exerciseNumber: exerciseNumber,
                         repsInReserve: item.repsInReserve[safe: week - 1] ?? effort?.repsInReserve,
                         cue: kind.isLoaded ? effort?.cue : nil,
-                        note: item.note, restSeconds: block.restSeconds))
+                        note: item.note, restSeconds: Self.restSeconds(for: block)))
                 }
             }
         }
