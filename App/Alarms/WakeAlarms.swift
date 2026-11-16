@@ -79,7 +79,7 @@ final class WakeAlarms {
 
     /// True when the planner owns the alarms (onboarding has set a start date).
     func isActive(profile: Profile?) -> Bool {
-        profile?.programme.startDate != nil
+        profile?.programme.startDate != nil && !LaunchOptions.current.spikeAlarms
     }
 
     /// Builds the 14-day plan and reconciles it. Never prompts for permission:

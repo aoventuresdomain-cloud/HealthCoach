@@ -11,7 +11,8 @@ final class AlarmPermissionUITests: XCTestCase {
     @MainActor
     private func openSpikeTests() -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = ["-uitest", "-realAlarms"]
+        // The spike screen, not the planner, owns the alarms in this test (M2-02).
+        app.launchArguments = ["-uitest", "-realAlarms", "-spikeAlarms"]
         app.launch()
         let link = app.buttons["home.spikeTests"]
         XCTAssertTrue(link.waitForExistence(timeout: 10))
