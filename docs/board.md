@@ -12,13 +12,13 @@ Gate 0 (CEO approves): spikes S0, S1, S1b and S3 pass or their fallbacks are acc
 | ID | Item | Owner | Branch | Areas | Label | Status | 🙋 CEO hands |
 |---|---|---|---|---|---|---|---|
 | M0-01 | Repository layout, board, decisions | Head of Engineering | `claude/project-thread-cl2ypb` | repo root, docs/ | docs | done (PR #1) | — |
-| M0-02 | Xcode project: app + Live Activity targets linking CoachCore | Planner Engineer | `claude/project-thread-3n9z3c` | App/, LiveActivity/, Shared/, ci_scripts/ | core | in review | — |
+| M0-02 | Xcode project: app + Live Activity targets linking CoachCore | Planner Engineer | `claude/project-thread-3n9z3c` | App/, LiveActivity/, Shared/, ci_scripts/ | core | done (PR #2) | — |
 | M0-03 | S0 · Pipeline: push → Xcode Cloud → TestFlight → phone | Planner Engineer | — | ci_scripts/, Xcode Cloud | core | todo | yes |
 | M0-04 | S1 · Alarms fire locked, on Silent and in Focus | Planner Engineer | — | App/, CoachCore/Planner | core | todo | yes |
 | M0-05 | S1b · Alarms survive a TestFlight update, or are re-set on open | Planner Engineer | — | CoachCore/Planner, App/ | core | todo | yes |
 | M0-06 | S3 · Live Activity rest timer with voice cues | iOS Interface Engineer | — | LiveActivity/, App/ | interface | todo | yes |
 | M0-07 | S2 · Calendar route chosen | Head of Engineering | `claude/project-thread-cl2ypb` | docs/decisions.md | docs | done (PR #1) | — |
-| M0-08 | S4 · GIFs found for all ~40 exercises | Training and Nutrition Researcher | — | Content/exercises/, docs/ | docs | todo | — |
+| M0-08 | S4 · GIFs found for all ~40 exercises | Training and Nutrition Researcher | `claude/project-thread-buqy8y` | Content/exercises/, docs/ | docs | done (PR #3) | — |
 | M0-09 | Cloud sessions can run `swift test` | Head of Engineering | — | project environment | docs | blocked | yes |
 | M0-10 | Gate 0 pack for the CEO | Head of Engineering | — | docs/spikes/ | docs | todo | — |
 | M0-11 | In-app "Spike tests" screen (one-tap buttons for S1, S1b, S3) | iOS Interface Engineer | — | App/ | interface | todo | — |
@@ -94,4 +94,6 @@ Order: M0-01 → M0-02 (merge to `main` first, then tell the Setup Desk: it hold
 
 ## Done
 
+- 2026-11-16 · M0-08 · PR #3 (44 exercises; GIFs personal-use only, bundle in M1, clear licence before any wider release; rear three-quarter angle on bar exercises accepted)
+- 2026-11-16 · M0-02 · PR #2 (not compiled yet: first Xcode Cloud build is the compile check)
 - 2026-11-16 · M0-01, M0-07 · PR #1 (Head of Engineering reviewed against Done when; `swift test` not yet run, see M0-09)
