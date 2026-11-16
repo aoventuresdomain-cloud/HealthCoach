@@ -1,18 +1,23 @@
 import Foundation
 
-/// One day as Today shows it: the session, its time, and the sleep rule's
-/// wake, wind-down and lights-out (design M1-03, board M1-05).
+/// One day as Today shows it: the session, its time, the leave time and the
+/// sleep rule's wake, wind-down and lights-out (design M1-03, board M1-05).
 ///
-/// Interim placement until the M2 planner: the alarm is the profile's
-/// earliest wake every day and a session starts 15 minutes after it. Only
-/// `make` decides that, so the M2 planner can replace it behind the same call.
+/// Times come from the week planner (M2-01), the same plan the wake alarms
+/// are built from (M2-02), so Today never shows a different alarm from the
+/// one that rings (QA-9).
 public struct DayPlan: Equatable, Sendable {
     public let planned: PlannedDay
-    public let alarm: TimeOfDay
+    /// nil on a day off with nothing planned (no alarm: sleep in).
+    public let alarm: TimeOfDay?
     public let session: SessionSlot?
+    /// Leave for the office; nil on home days and days off.
+    public let leave: TimeOfDay?
+    /// Tonight, before tomorrow's alarm.
     public let windDown: TimeOfDay
     public let lightsOut: TimeOfDay
-    /// Wake, session or fixed event, wind-down; in time order (untimed fixed events last but one).
+    /// Wake, session or fixed event and leave, then wind-down; in time order
+    /// (untimed fixed events last but one).
     public let timeline: [TimelineItem]
 
     public struct SessionSlot: Equatable, Sendable {
@@ -21,14 +26,16 @@ public struct DayPlan: Equatable, Sendable {
         public let name: String
         public let session: Session
         public let start: TimeOfDay
-        /// Expected length for this week, warm-up included; nil when the data has none.
+        /// Planned length, warm-up included (the planner's slot).
         public let minutes: Int?
+        /// Set when the planner moved the session here from its programme day.
+        public let movedFrom: Weekday?
 
         public var end: TimeOfDay? { minutes.map { start.adding(minutes: $0) } }
     }
 
     public struct TimelineItem: Equatable, Sendable, Identifiable {
-        public enum Kind: String, Sendable { case wake, session, fixed, windDown }
+        public enum Kind: String, Sendable { case wake, session, fixed, leave, windDown }
         public let kind: Kind
         /// nil for a fixed event with only a part of day ("evening").
         public let time: TimeOfDay?
@@ -37,41 +44,58 @@ public struct DayPlan: Equatable, Sendable {
         public var id: String { kind.rawValue }
     }
 
-    /// Minutes between the alarm and the session start (interim placement).
-    public static let sessionOffsetMinutes = 15
-
     /// The plan for `date`, or nil until onboarding has set a start date.
+    /// `answers` and `dropping` must be what the alarm reconcile used (the
+    /// Sunday prompt's answers for the week starting a Monday, and the reduced
+    /// week), so Today and the alarm agree.
     public static func make(for date: Date, programme: Programme, profile: Profile,
+                            answers: (Date) -> WeekAnswers = { _ in WeekAnswers() },
+                            dropping: Set<String> = [],
                             calendar: Calendar = .current) -> DayPlan? {
         guard let start = profile.programme.startDate else { return nil }
         let planned = programme.plannedDay(on: date, start: start, calendar: calendar)
         let schedule = profile.schedule
-        let alarm = schedule.earliestWake
-        // One sleep rule: lights out = alarm − sleep − time to fall asleep; wind-down before that.
-        let asleepMinutes = Int((schedule.sleepHours * 60).rounded())
-        let lightsOut = alarm.adding(minutes: -(asleepMinutes + schedule.fallAsleepMinutes))
+
+        func plannerDay(_ date: Date) -> WeekPlan.Day? {
+            let monday = AlarmSchedule.mondayOf(date, calendar: calendar)
+            return WeekPlanner.plan(weekStarting: monday, programme: programme, profile: profile,
+                                    answers: answers(monday), dropping: dropping, calendar: calendar)
+                .days.first { calendar.isDate($0.date, inSameDayAs: date) }
+        }
+        let today = plannerDay(date)
+        let tomorrow = calendar.date(byAdding: .day, value: 1, to: date).flatMap(plannerDay)
+
+        // One sleep rule, from tomorrow's alarm; with no alarm tomorrow, the latest bedtime.
+        let lightsOut = tomorrow?.lightsOutBefore ?? schedule.latestBedtime
         let windDown = lightsOut.adding(minutes: -schedule.windDownMinutes)
 
         var slot: SessionSlot?
-        var timeline = [TimelineItem(kind: .wake, time: alarm, title: "Wake", detail: "Alarm")]
-        switch planned.entry {
-        case let .session(id, session):
-            let start = alarm.adding(minutes: sessionOffsetMinutes)
-            let made = SessionSlot(id: id, name: session.name, session: session, start: start,
-                                   minutes: planned.week.flatMap { session.minutes(inWeek: $0) })
+        var timeline: [TimelineItem] = []
+        if let wake = today?.wake {
+            timeline.append(TimelineItem(kind: .wake, time: wake, title: "Wake", detail: "Alarm"))
+        }
+        if let placement = today?.session, let session = programme.sessions[placement.sessionID] {
+            let minutes = placement.end.minutesSinceMidnight - placement.start.minutesSinceMidnight
+            let made = SessionSlot(id: placement.sessionID, name: session.name, session: session,
+                                   start: placement.start, minutes: minutes, movedFrom: placement.movedFrom)
             slot = made
-            timeline.append(TimelineItem(kind: .session, time: start, title: made.name,
+            timeline.append(TimelineItem(kind: .session, time: made.start, title: made.name,
                                          detail: made.end.map { "Done by \($0)" }))
-        case let .fixed(event):
+        }
+        if let leave = today?.leave {
+            timeline.append(TimelineItem(kind: .leave, time: leave, title: "Leave for the office",
+                                         detail: "\(schedule.commuteMinutes) min"))
+        }
+        timeline.sort { ($0.time?.minutesSinceMidnight ?? .max) < ($1.time?.minutesSinceMidnight ?? .max) }
+        if let event = today?.fixed {
             timeline.append(TimelineItem(kind: .fixed, time: nil, title: event.name,
                                          detail: event.time.prefix(1).uppercased() + event.time.dropFirst()))
-        case .rest, .beforeStart, .afterEnd:
-            break
         }
-        timeline.append(TimelineItem(kind: .windDown, time: windDown, title: "Wind down",
-                                     detail: "Lights out \(lightsOut) for a \(alarm) alarm"))
-        return DayPlan(planned: planned, alarm: alarm, session: slot, windDown: windDown,
-                       lightsOut: lightsOut, timeline: timeline)
+        let windDownDetail = tomorrow?.wake.map { "Lights out \(lightsOut) for a \($0) alarm" }
+            ?? "Lights out \(lightsOut), no alarm tomorrow"
+        timeline.append(TimelineItem(kind: .windDown, time: windDown, title: "Wind down", detail: windDownDetail))
+        return DayPlan(planned: planned, alarm: today?.wake, session: slot, leave: today?.leave,
+                       windDown: windDown, lightsOut: lightsOut, timeline: timeline)
     }
 }
 
