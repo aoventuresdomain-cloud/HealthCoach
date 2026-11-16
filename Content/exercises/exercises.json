@@ -1,6 +1,6 @@
 {
   "schemaVersion": 0,
-  "note": "Provisional shape from M0-08. The Planner Engineer owns the schema and may rename fields. Callout text is written in M1.",
+  "note": "Provisional shape (schemaVersion 0). The Planner Engineer owns the schema and may rename fields in M1-01. `substitute` = the exercise whose GIF stands in when this one has none. `swap` = the exercise to do instead on pain or a kit problem. Callouts: 12 words or fewer, imperative, `commonMistake` phrased as the fix.",
   "mediaSource": {
     "provider": "exercisedb-v1",
     "owner": "AscendAPI (formerly ExerciseDB)",
@@ -25,10 +25,11 @@
         "angle": "front"
       },
       "substitute": null,
+      "swap": "push-up",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Lie on the bench, feet flat, shoulder blades squeezed together.",
+        "movement": "Lower to chest level, then press up and slightly in.",
+        "commonMistake": "Keep elbows at 45 degrees, not flared out wide."
       }
     },
     {
@@ -48,10 +49,11 @@
         "angle": "front"
       },
       "substitute": null,
+      "swap": "dumbbell-bench-press",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Set the bench one notch up, about 30 degrees.",
+        "movement": "Lower to upper chest, then press straight up.",
+        "commonMistake": "Keep your backside on the bench throughout."
       }
     },
     {
@@ -61,7 +63,7 @@
       "equipment": [
         "bodyweight"
       ],
-      "usedIn": "Warm-up set, finisher, travel",
+      "usedIn": "Full body, indoor circuit, travel",
       "media": {
         "provider": "exercisedb-v1",
         "mediaId": "I4hDWkc",
@@ -70,10 +72,11 @@
         "angle": "side"
       },
       "substitute": null,
+      "swap": "dumbbell-bench-press",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Hands under shoulders, body straight from head to heels.",
+        "movement": "Lower your chest to a fist above the floor, push back.",
+        "commonMistake": "Squeeze your bum so your hips stay level."
       }
     },
     {
@@ -92,10 +95,11 @@
         "angle": "side"
       },
       "substitute": null,
+      "swap": "push-up",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Feet on the bench, hands under shoulders.",
+        "movement": "Lower your chest towards the floor, then push back up.",
+        "commonMistake": "Keep hips in line; do not pike upwards."
       }
     },
     {
@@ -115,10 +119,11 @@
         "angle": "front"
       },
       "substitute": null,
+      "swap": "dumbbell-bench-press",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Lie on the bench, dumbbells above chest, palms facing.",
+        "movement": "Open arms wide in an arc, then hug them back.",
+        "commonMistake": "Keep a soft bend in the elbows; stop at chest level."
       }
     },
     {
@@ -138,10 +143,11 @@
         "angle": "front"
       },
       "substitute": null,
+      "swap": "dumbbell-arnold-press",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Sit upright, back on the bench, dumbbells at ear height.",
+        "movement": "Press overhead until arms are straight, then lower slowly.",
+        "commonMistake": "Keep ribs down and your back on the bench."
       }
     },
     {
@@ -161,10 +167,11 @@
         "angle": "front"
       },
       "substitute": null,
+      "swap": "dumbbell-seated-shoulder-press",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Sit upright, dumbbells at chin height, palms facing you.",
+        "movement": "Rotate palms forward as you press overhead.",
+        "commonMistake": "Keep ribs down; press, do not lean back."
       }
     },
     {
@@ -183,10 +190,11 @@
         "angle": "front"
       },
       "substitute": null,
+      "swap": "dumbbell-reverse-fly",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Stand tall, light dumbbells at your sides, slight elbow bend.",
+        "movement": "Raise arms out to shoulder height, lower over two seconds.",
+        "commonMistake": "Lead with elbows and keep shoulders down, away from ears."
       }
     },
     {
@@ -205,10 +213,11 @@
         "angle": "front"
       },
       "substitute": null,
+      "swap": "dumbbell-incline-row",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Hinge forward, flat back, dumbbells hanging under shoulders.",
+        "movement": "Raise arms out wide, squeezing shoulder blades together.",
+        "commonMistake": "Keep your chest still; move only the arms."
       }
     },
     {
@@ -218,7 +227,7 @@
       "equipment": [
         "dumbbells"
       ],
-      "usedIn": "Warm-up, all phases",
+      "usedIn": "Warm-up, upper days, all phases",
       "media": {
         "provider": "exercisedb-v1",
         "mediaId": "x306lCW",
@@ -227,10 +236,11 @@
         "angle": "front"
       },
       "substitute": null,
+      "swap": "scapular-push-up",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Stand, elbow tucked at your side, bent to 90 degrees.",
+        "movement": "Rotate the forearm outwards, then back in slowly.",
+        "commonMistake": "Keep the elbow pinned to your side; go light."
       }
     },
     {
@@ -250,10 +260,11 @@
         "angle": "side"
       },
       "substitute": null,
+      "swap": "dumbbell-overhead-triceps-extension",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Lie on the bench, dumbbells above chest, palms facing.",
+        "movement": "Bend elbows to lower beside your head, then straighten.",
+        "commonMistake": "Keep upper arms still and pointing at the ceiling."
       }
     },
     {
@@ -273,10 +284,11 @@
         "angle": "front"
       },
       "substitute": null,
+      "swap": "dumbbell-lying-triceps-extension",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Sit upright, hold one dumbbell overhead with both hands.",
+        "movement": "Lower it behind your head, then straighten your arms.",
+        "commonMistake": "Keep elbows pointing forward and ribs down."
       }
     },
     {
@@ -295,10 +307,11 @@
         "angle": "side"
       },
       "substitute": null,
+      "swap": "dumbbell-overhead-triceps-extension",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Hands on the bench edge behind you, legs out.",
+        "movement": "Bend elbows to lower your hips, then push back up.",
+        "commonMistake": "Stop when upper arms are level; keep shoulders back."
       }
     },
     {
@@ -308,7 +321,7 @@
       "equipment": [
         "pull-up bar"
       ],
-      "usedIn": "Upper A and B, once able",
+      "usedIn": "Upper A and B once 3 × 5 negatives are done",
       "media": {
         "provider": "exercisedb-v1",
         "mediaId": "lBDjFxJ",
@@ -317,10 +330,11 @@
         "angle": "rear-three-quarter"
       },
       "substitute": null,
+      "swap": "negative-pull-up",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Hang from the bar, hands just wider than shoulders, palms away.",
+        "movement": "Pull your chest towards the bar, then lower all the way.",
+        "commonMistake": "Pull with your back, not by swinging your legs."
       }
     },
     {
@@ -330,7 +344,7 @@
       "equipment": [
         "pull-up bar"
       ],
-      "usedIn": "Upper A and B, all phases",
+      "usedIn": "Swap for pull-up",
       "media": {
         "provider": "exercisedb-v1",
         "mediaId": "T2mxWqc",
@@ -339,10 +353,11 @@
         "angle": "rear-three-quarter"
       },
       "substitute": null,
+      "swap": "negative-pull-up",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Hang from the bar, hands shoulder-width, palms facing you.",
+        "movement": "Pull your chin over the bar, then lower all the way.",
+        "commonMistake": "Keep legs still; lower slowly, no dropping."
       }
     },
     {
@@ -352,13 +367,14 @@
       "equipment": [
         "pull-up bar"
       ],
-      "usedIn": "Upper A and B, Phase 1 regression",
+      "usedIn": "Upper A and B, Phase 1",
       "media": null,
       "substitute": "pull-up",
+      "swap": "scapular-pull-up",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Step up so your chin is over the bar, palms away.",
+        "movement": "Lower yourself slowly over five seconds to a straight hang.",
+        "commonMistake": "Fight the drop all the way down; count five."
       }
     },
     {
@@ -369,7 +385,7 @@
         "pull-up bar",
         "band"
       ],
-      "usedIn": "Fallback if no bar or for extra reps",
+      "usedIn": "Library only: needs a band, which is not in the kit",
       "media": {
         "provider": "exercisedb-v1",
         "mediaId": "r1XNRYB",
@@ -378,10 +394,11 @@
         "angle": "rear-three-quarter"
       },
       "substitute": null,
+      "swap": "negative-pull-up",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Loop the band over the bar, one foot or knee in it.",
+        "movement": "Pull your chest towards the bar, then lower slowly.",
+        "commonMistake": "Pull with your back; let the band only help."
       }
     },
     {
@@ -391,7 +408,7 @@
       "equipment": [
         "pull-up bar"
       ],
-      "usedIn": "Warm-up, all phases",
+      "usedIn": "Warm-up, upper days, all phases",
       "media": {
         "provider": "exercisedb-v1",
         "mediaId": "uTBt1HV",
@@ -400,10 +417,11 @@
         "angle": "rear-three-quarter"
       },
       "substitute": null,
+      "swap": "scapular-push-up",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Hang from the bar with straight arms.",
+        "movement": "Pull shoulders down and back to lift slightly, then relax.",
+        "commonMistake": "Keep elbows straight; the shoulders do the work."
       }
     },
     {
@@ -423,10 +441,11 @@
         "angle": "front"
       },
       "substitute": null,
+      "swap": "dumbbell-incline-row",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "One hand and knee on the bench, back flat.",
+        "movement": "Pull the dumbbell to your hip, then lower to a stretch.",
+        "commonMistake": "Keep your chest square to the floor; do not twist."
       }
     },
     {
@@ -446,10 +465,11 @@
         "angle": "side"
       },
       "substitute": null,
+      "swap": "dumbbell-one-arm-row",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Lie chest-down on the bench set to 30 degrees.",
+        "movement": "Pull dumbbells to your ribs, squeezing shoulder blades together.",
+        "commonMistake": "Keep your chest on the bench throughout."
       }
     },
     {
@@ -457,7 +477,7 @@
       "name": "Dumbbell pullover",
       "group": "pull",
       "equipment": [
-        "dumbbell",
+        "dumbbells",
         "bench"
       ],
       "usedIn": "Upper B, Phase 2–3",
@@ -469,10 +489,11 @@
         "angle": "side"
       },
       "substitute": null,
+      "swap": "dumbbell-one-arm-row",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Lie on the bench, one dumbbell above chest, both hands.",
+        "movement": "Lower it behind your head in an arc, then pull back.",
+        "commonMistake": "Keep ribs down and elbows softly bent."
       }
     },
     {
@@ -491,10 +512,11 @@
         "angle": "front"
       },
       "substitute": null,
+      "swap": "dumbbell-hammer-curl",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Stand tall, dumbbells at your sides, palms forward.",
+        "movement": "Curl up to shoulders, lower over two seconds.",
+        "commonMistake": "Keep elbows by your sides; no swinging."
       }
     },
     {
@@ -513,10 +535,11 @@
         "angle": "front"
       },
       "substitute": null,
+      "swap": "dumbbell-biceps-curl",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Stand tall, dumbbells at your sides, palms facing in.",
+        "movement": "Curl up to shoulders, keeping palms facing in.",
+        "commonMistake": "Keep elbows by your sides; lower slowly."
       }
     },
     {
@@ -536,10 +559,11 @@
         "angle": "front"
       },
       "substitute": null,
+      "swap": "dumbbell-biceps-curl",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Sit back on the bench set to 45 degrees, arms hanging.",
+        "movement": "Curl up without moving your upper arms, lower slowly.",
+        "commonMistake": "Keep shoulders back on the bench throughout."
       }
     },
     {
@@ -547,9 +571,9 @@
       "name": "Goblet squat",
       "group": "legs",
       "equipment": [
-        "dumbbell"
+        "dumbbells"
       ],
-      "usedIn": "Full body, all phases",
+      "usedIn": "Full body and warm-up, all phases",
       "media": {
         "provider": "exercisedb-v1",
         "mediaId": "yn8yg1r",
@@ -558,10 +582,11 @@
         "angle": "front"
       },
       "substitute": null,
+      "swap": "glute-bridge",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Hold one dumbbell at your chest, feet shoulder-width.",
+        "movement": "Sit down between your heels, then stand up tall.",
+        "commonMistake": "Keep heels down and knees following your toes."
       }
     },
     {
@@ -571,7 +596,7 @@
       "equipment": [
         "dumbbells"
       ],
-      "usedIn": "Full body, Phase 1",
+      "usedIn": "Full body from week 4, Phase 1",
       "media": {
         "provider": "exercisedb-v1",
         "mediaId": "9E25EOx",
@@ -580,10 +605,11 @@
         "angle": "front"
       },
       "substitute": null,
+      "swap": "dumbbell-reverse-lunge",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Stand in a long stride, dumbbells at your sides.",
+        "movement": "Lower the back knee towards the floor, then stand up.",
+        "commonMistake": "Keep your front heel down and torso upright."
       }
     },
     {
@@ -603,10 +629,11 @@
         "angle": "front"
       },
       "substitute": null,
+      "swap": "split-squat",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Back foot on the bench, front foot a stride ahead.",
+        "movement": "Lower the back knee towards the floor, then stand up.",
+        "commonMistake": "Keep the front heel down; move straight up and down."
       }
     },
     {
@@ -625,10 +652,11 @@
         "angle": "front"
       },
       "substitute": null,
+      "swap": "glute-bridge",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Stand tall, dumbbells in front of your thighs, knees soft.",
+        "movement": "Push hips back, slide dumbbells to mid-shin, then stand.",
+        "commonMistake": "Keep your back flat and dumbbells close to your legs."
       }
     },
     {
@@ -638,7 +666,7 @@
       "equipment": [
         "dumbbells"
       ],
-      "usedIn": "Full body, swap for split squat",
+      "usedIn": "Swap for split squat",
       "media": {
         "provider": "exercisedb-v1",
         "mediaId": "SSsBDwB",
@@ -647,10 +675,11 @@
         "angle": "side"
       },
       "substitute": null,
+      "swap": "split-squat",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Stand tall, dumbbells at your sides.",
+        "movement": "Step back, lower the back knee, then return to standing.",
+        "commonMistake": "Keep your front knee over your toes, torso upright."
       }
     },
     {
@@ -670,10 +699,11 @@
         "angle": "side"
       },
       "substitute": null,
+      "swap": "split-squat",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Face the bench, dumbbells at your sides.",
+        "movement": "Step up with one foot, stand tall, then step down slowly.",
+        "commonMistake": "Push through the top foot; do not bounce off the floor."
       }
     },
     {
@@ -683,7 +713,7 @@
       "equipment": [
         "bodyweight"
       ],
-      "usedIn": "Warm-up, Phase 1",
+      "usedIn": "Full body and warm-up, Phase 1",
       "media": {
         "provider": "exercisedb-v1",
         "mediaId": "u0cNiij",
@@ -692,10 +722,11 @@
         "angle": "side"
       },
       "substitute": null,
+      "swap": "dead-bug",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Lie on your back, knees bent, feet flat near your bum.",
+        "movement": "Push through heels to lift hips, squeeze, then lower.",
+        "commonMistake": "Keep ribs down; lift with your bum, not your back."
       }
     },
     {
@@ -714,10 +745,11 @@
         "angle": "side"
       },
       "substitute": null,
+      "swap": "glute-bridge",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Lie on your back, heels on the bench, knees bent.",
+        "movement": "Push through heels to lift hips, squeeze, then lower.",
+        "commonMistake": "Keep ribs down; stop when hips are level."
       }
     },
     {
@@ -727,7 +759,7 @@
       "equipment": [
         "dumbbells"
       ],
-      "usedIn": "Full body, all phases",
+      "usedIn": "Full body from week 2, all phases",
       "media": {
         "provider": "exercisedb-v1",
         "mediaId": "dPmaUaU",
@@ -736,10 +768,11 @@
         "angle": "side"
       },
       "substitute": null,
+      "swap": "dumbbell-single-leg-calf-raise",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Stand tall, dumbbells at your sides, feet hip-width.",
+        "movement": "Rise onto your toes, pause, lower over two seconds.",
+        "commonMistake": "Go all the way up and down; no bouncing."
       }
     },
     {
@@ -747,7 +780,7 @@
       "name": "Single-leg calf raise",
       "group": "legs",
       "equipment": [
-        "dumbbell"
+        "dumbbells"
       ],
       "usedIn": "Full body, Phase 2–3",
       "media": {
@@ -758,10 +791,11 @@
         "angle": "side"
       },
       "substitute": null,
+      "swap": "dumbbell-calf-raise",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Stand on one foot, dumbbell in that hand, wall for balance.",
+        "movement": "Rise onto your toes, pause, lower over two seconds.",
+        "commonMistake": "Keep the knee straight; no bouncing at the bottom."
       }
     },
     {
@@ -780,10 +814,11 @@
         "angle": "side"
       },
       "substitute": null,
+      "swap": "dead-bug",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Forearms under shoulders, body straight from head to heels.",
+        "movement": "Hold still and breathe steadily.",
+        "commonMistake": "Squeeze your bum and keep ribs down."
       }
     },
     {
@@ -802,10 +837,11 @@
         "angle": "side"
       },
       "substitute": null,
+      "swap": "plank",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Lie on your side, elbow under shoulder, legs stacked.",
+        "movement": "Lift hips into a straight line and hold.",
+        "commonMistake": "Push hips forward so you are not folding."
       }
     },
     {
@@ -815,7 +851,7 @@
       "equipment": [
         "bodyweight"
       ],
-      "usedIn": "Core block, Phase 1",
+      "usedIn": "Core block and indoor circuit, Phase 1",
       "media": {
         "provider": "exercisedb-v1",
         "mediaId": "iny3m5y",
@@ -824,10 +860,11 @@
         "angle": "side"
       },
       "substitute": null,
+      "swap": "plank",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Lie on your back, arms up, knees bent over hips.",
+        "movement": "Lower the opposite arm and leg slowly, then swap.",
+        "commonMistake": "Press your lower back into the floor throughout."
       }
     },
     {
@@ -840,10 +877,11 @@
       "usedIn": "Core block, Phase 3",
       "media": null,
       "substitute": "dead-bug",
+      "swap": "dead-bug",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Lie on your back, arms overhead, legs straight.",
+        "movement": "Lift shoulders and legs a little off the floor, hold.",
+        "commonMistake": "Press your lower back into the floor; bend knees if needed."
       }
     },
     {
@@ -851,9 +889,9 @@
       "name": "Reverse crunch",
       "group": "core",
       "equipment": [
-        "bodyweight or bench"
+        "bodyweight"
       ],
-      "usedIn": "Core block, Phase 1–2",
+      "usedIn": "Core block, Phase 2",
       "media": {
         "provider": "exercisedb-v1",
         "mediaId": "nCU1Ekp",
@@ -862,10 +900,11 @@
         "angle": "side"
       },
       "substitute": null,
+      "swap": "dead-bug",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Lie on your back, knees bent over hips, hands down.",
+        "movement": "Curl hips off the floor towards your chest, lower slowly.",
+        "commonMistake": "Use your stomach, not momentum; move slowly."
       }
     },
     {
@@ -884,10 +923,11 @@
         "angle": "front"
       },
       "substitute": null,
+      "swap": "reverse-crunch",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Hang from the bar, shoulders pulled down.",
+        "movement": "Raise knees to your chest, then lower slowly.",
+        "commonMistake": "Keep still; no swinging between reps."
       }
     },
     {
@@ -906,10 +946,11 @@
         "angle": "front"
       },
       "substitute": null,
+      "swap": "hanging-knee-raise",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Hang from the bar, shoulders pulled down, legs straight.",
+        "movement": "Raise straight legs to hip height, then lower slowly.",
+        "commonMistake": "Curl your hips up; no swinging."
       }
     },
     {
@@ -919,7 +960,7 @@
       "equipment": [
         "dumbbells"
       ],
-      "usedIn": "Full body finisher, all phases",
+      "usedIn": "Full body and indoor circuit, all phases",
       "media": {
         "provider": "exercisedb-v1",
         "mediaId": "qPEzJjA",
@@ -928,10 +969,11 @@
         "angle": "front"
       },
       "substitute": null,
+      "swap": "plank",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Pick up heavy dumbbells, stand tall, shoulders back.",
+        "movement": "Walk with short, steady steps for the time.",
+        "commonMistake": "Keep shoulders level and ribs down; no leaning."
       }
     },
     {
@@ -941,7 +983,7 @@
       "equipment": [
         "bodyweight"
       ],
-      "usedIn": "Warm-up, every session",
+      "usedIn": "Warm-up and indoor circuit, every session",
       "media": {
         "provider": "exercisedb-v1",
         "mediaId": "DFGXwZr",
@@ -950,10 +992,11 @@
         "angle": "side"
       },
       "substitute": null,
+      "swap": "glute-bridge",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Step into a long lunge, hands on the floor.",
+        "movement": "Drop the elbow to the instep, then rotate that arm up.",
+        "commonMistake": "Keep the back knee off the floor; move slowly."
       }
     },
     {
@@ -972,10 +1015,11 @@
         "angle": "side"
       },
       "substitute": null,
+      "swap": "scapular-pull-up",
       "callouts": {
-        "setup": null,
-        "movement": null,
-        "commonMistake": null
+        "setup": "Start in a push-up position, arms straight.",
+        "movement": "Let your chest sink between shoulders, then push it away.",
+        "commonMistake": "Keep elbows straight; only the shoulder blades move."
       }
     }
   ]

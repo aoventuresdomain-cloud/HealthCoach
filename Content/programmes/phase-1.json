@@ -1,0 +1,1370 @@
+{
+  "schemaVersion": 0,
+  "note": "Provisional shape; the Planner Engineer owns the schema (M1-01) and may rename fields. Arrays of six are indexed by week (week 1 first). Sets of 0 mean the exercise is not done that week. startKg is per dumbbell (one dumbbell for goblet squat and overhead triceps). null means bodyweight.",
+  "id": "phase-1",
+  "phase": 1,
+  "name": "Cut and rebuild",
+  "weeks": 6,
+  "maxSessionMinutes": 45,
+  "warmUpMinutes": 5,
+  "loadStepKg": 2,
+  "effort": [
+    {
+      "week": 1,
+      "mainSets": 2,
+      "repsInReserve": 4,
+      "cue": "Stop with 4 reps left in the tank."
+    },
+    {
+      "week": 2,
+      "mainSets": 3,
+      "repsInReserve": 3,
+      "cue": "Stop with 3 reps left in the tank."
+    },
+    {
+      "week": 3,
+      "mainSets": 3,
+      "repsInReserve": 3,
+      "cue": "Stop with 3 reps left in the tank."
+    },
+    {
+      "week": 4,
+      "mainSets": 3,
+      "repsInReserve": 2,
+      "cue": "Stop with 2 reps left in the tank."
+    },
+    {
+      "week": 5,
+      "mainSets": 3,
+      "repsInReserve": 2,
+      "cue": "Stop with 2 reps left in the tank."
+    },
+    {
+      "week": 6,
+      "mainSets": 3,
+      "repsInReserve": 2,
+      "cue": "Stop with 2 reps left in the tank."
+    }
+  ],
+  "progressionRules": {
+    "double": "All sets reach the top of the rep range as prescribed: add one load step next time and restart at the bottom of the range.",
+    "reps-tempo-load": "Climb reps to the top of the range; then lower over 3 seconds; then add one load step and restart at the bottom.",
+    "reps-tempo": "Bodyweight. Climb reps to the top of the range; then lower over 3 seconds.",
+    "reps": "Bodyweight. Climb reps to the top of the range, then hold.",
+    "time": "Add 5 seconds a session up to the top of the range, then hold.",
+    "time-then-load": "Climb time to the top of the range; then add one load step and restart at the bottom.",
+    "reps-then-graduate": "Climb reps to the top of the range; then graduate as the item says.",
+    "dumbbellLimitKg": 24
+  },
+  "fixed": [
+    {
+      "id": "basketball",
+      "name": "Basketball",
+      "kind": "basketball",
+      "day": "wednesday",
+      "time": "evening",
+      "note": "Counts as conditioning. Nothing else is planned on Wednesday."
+    }
+  ],
+  "placementRules": {
+    "neverOn": [
+      "wednesday"
+    ],
+    "notTheDayBefore": {
+      "basketball": [
+        "full-body",
+        "run-2"
+      ]
+    },
+    "longSlot": "sunday",
+    "outdoorSessions": [
+      "run-1",
+      "run-2"
+    ]
+  },
+  "reducedWeek": {
+    "trigger": "Two low recovery checks (soreness or the optional mood log).",
+    "drop": [
+      "full-body"
+    ],
+    "keep": [
+      "upper-a",
+      "upper-b",
+      "run-1",
+      "run-2"
+    ]
+  },
+  "schedule": [
+    {
+      "week": 1,
+      "days": {
+        "monday": "upper-a",
+        "tuesday": "run-1",
+        "wednesday": "basketball",
+        "thursday": "full-body",
+        "friday": null,
+        "saturday": "upper-b",
+        "sunday": "walk"
+      }
+    },
+    {
+      "week": 2,
+      "days": {
+        "monday": "upper-a",
+        "tuesday": "run-1",
+        "wednesday": "basketball",
+        "thursday": "full-body",
+        "friday": null,
+        "saturday": "upper-b",
+        "sunday": "walk"
+      }
+    },
+    {
+      "week": 3,
+      "days": {
+        "monday": "upper-a",
+        "tuesday": "run-1",
+        "wednesday": "basketball",
+        "thursday": "full-body",
+        "friday": null,
+        "saturday": "upper-b",
+        "sunday": "walk"
+      }
+    },
+    {
+      "week": 4,
+      "days": {
+        "monday": "upper-a",
+        "tuesday": "run-1",
+        "wednesday": "basketball",
+        "thursday": "full-body",
+        "friday": null,
+        "saturday": "upper-b",
+        "sunday": "run-2"
+      }
+    },
+    {
+      "week": 5,
+      "days": {
+        "monday": "upper-a",
+        "tuesday": "run-1",
+        "wednesday": "basketball",
+        "thursday": "full-body",
+        "friday": null,
+        "saturday": "upper-b",
+        "sunday": "run-2"
+      }
+    },
+    {
+      "week": 6,
+      "days": {
+        "monday": "upper-a",
+        "tuesday": "run-1",
+        "wednesday": "basketball",
+        "thursday": "full-body",
+        "friday": null,
+        "saturday": "upper-b",
+        "sunday": "run-2"
+      }
+    }
+  ],
+  "sessions": {
+    "upper-a": {
+      "name": "Upper A",
+      "kind": "strength",
+      "warmUp": [
+        {
+          "exercise": "worlds-greatest-stretch",
+          "perSide": true,
+          "startKg": null,
+          "reps": 3
+        },
+        {
+          "exercise": "scapular-push-up",
+          "perSide": false,
+          "startKg": null,
+          "reps": 10
+        },
+        {
+          "exercise": "scapular-pull-up",
+          "perSide": false,
+          "startKg": null,
+          "reps": 8
+        },
+        {
+          "exercise": "dumbbell-external-rotation",
+          "perSide": true,
+          "startKg": 2,
+          "reps": 12
+        }
+      ],
+      "blocks": [
+        {
+          "label": "A",
+          "restSeconds": 75,
+          "items": [
+            {
+              "exercise": "dumbbell-bench-press",
+              "sets": [
+                2,
+                3,
+                3,
+                3,
+                3,
+                3
+              ],
+              "repsInReserve": [
+                4,
+                3,
+                3,
+                2,
+                2,
+                2
+              ],
+              "reps": {
+                "min": 8,
+                "max": 12
+              },
+              "perSide": false,
+              "startKg": 10,
+              "tempo": "2-0-1",
+              "progression": "double"
+            },
+            {
+              "exercise": "dumbbell-one-arm-row",
+              "sets": [
+                2,
+                3,
+                3,
+                3,
+                3,
+                3
+              ],
+              "repsInReserve": [
+                4,
+                3,
+                3,
+                2,
+                2,
+                2
+              ],
+              "reps": {
+                "min": 8,
+                "max": 12
+              },
+              "perSide": true,
+              "startKg": 12,
+              "tempo": "2-0-1",
+              "progression": "double"
+            }
+          ]
+        },
+        {
+          "label": "B",
+          "restSeconds": 75,
+          "items": [
+            {
+              "exercise": "negative-pull-up",
+              "sets": [
+                2,
+                3,
+                3,
+                3,
+                3,
+                3
+              ],
+              "repsInReserve": [
+                4,
+                3,
+                3,
+                2,
+                2,
+                2
+              ],
+              "reps": {
+                "min": 3,
+                "max": 5
+              },
+              "perSide": false,
+              "startKg": null,
+              "tempo": "5-0-x",
+              "progression": "reps-then-graduate",
+              "note": "Step up to the top, lower over 5 seconds.",
+              "graduate": {
+                "to": "pull-up",
+                "when": "3 sets of 5 done as prescribed",
+                "reps": {
+                  "min": 1,
+                  "max": 5
+                },
+                "then": "finish the sets as 5-second negatives"
+              }
+            },
+            {
+              "exercise": "dumbbell-lateral-raise",
+              "sets": [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "repsInReserve": [
+                4,
+                3,
+                3,
+                2,
+                2,
+                2
+              ],
+              "reps": {
+                "min": 12,
+                "max": 20
+              },
+              "perSide": false,
+              "startKg": 4,
+              "tempo": "2-0-1",
+              "progression": "reps-tempo-load"
+            }
+          ]
+        },
+        {
+          "label": "C",
+          "restSeconds": 45,
+          "items": [
+            {
+              "exercise": "dumbbell-lying-triceps-extension",
+              "sets": [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "repsInReserve": [
+                4,
+                3,
+                3,
+                2,
+                2,
+                2
+              ],
+              "reps": {
+                "min": 12,
+                "max": 20
+              },
+              "perSide": false,
+              "startKg": 6,
+              "tempo": "2-0-1",
+              "progression": "reps-tempo-load"
+            },
+            {
+              "exercise": "dumbbell-biceps-curl",
+              "sets": [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "repsInReserve": [
+                4,
+                3,
+                3,
+                2,
+                2,
+                2
+              ],
+              "reps": {
+                "min": 12,
+                "max": 20
+              },
+              "perSide": false,
+              "startKg": 6,
+              "tempo": "2-0-1",
+              "progression": "reps-tempo-load"
+            },
+            {
+              "exercise": "dumbbell-reverse-fly",
+              "sets": [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "repsInReserve": [
+                4,
+                3,
+                3,
+                2,
+                2,
+                2
+              ],
+              "reps": {
+                "min": 12,
+                "max": 20
+              },
+              "perSide": false,
+              "startKg": 4,
+              "tempo": "2-0-1",
+              "progression": "reps-tempo-load"
+            }
+          ]
+        },
+        {
+          "label": "Core",
+          "restSeconds": 30,
+          "items": [
+            {
+              "exercise": "dead-bug",
+              "sets": [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "repsInReserve": [
+                4,
+                3,
+                3,
+                2,
+                2,
+                2
+              ],
+              "reps": {
+                "min": 6,
+                "max": 10
+              },
+              "perSide": true,
+              "startKg": null,
+              "tempo": "2-0-1",
+              "progression": "reps"
+            },
+            {
+              "exercise": "plank",
+              "sets": [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "repsInReserve": [
+                4,
+                3,
+                3,
+                2,
+                2,
+                2
+              ],
+              "seconds": {
+                "min": 20,
+                "max": 45
+              },
+              "perSide": false,
+              "startKg": null,
+              "tempo": "2-0-1",
+              "progression": "time"
+            }
+          ]
+        }
+      ],
+      "durationMinutes": [
+        39,
+        45,
+        45,
+        45,
+        45,
+        45
+      ],
+      "warmUpMinutes": 5
+    },
+    "upper-b": {
+      "name": "Upper B",
+      "kind": "strength",
+      "warmUp": [
+        {
+          "exercise": "worlds-greatest-stretch",
+          "perSide": true,
+          "startKg": null,
+          "reps": 3
+        },
+        {
+          "exercise": "scapular-push-up",
+          "perSide": false,
+          "startKg": null,
+          "reps": 10
+        },
+        {
+          "exercise": "scapular-pull-up",
+          "perSide": false,
+          "startKg": null,
+          "reps": 8
+        },
+        {
+          "exercise": "dumbbell-external-rotation",
+          "perSide": true,
+          "startKg": 2,
+          "reps": 12
+        }
+      ],
+      "blocks": [
+        {
+          "label": "A",
+          "restSeconds": 75,
+          "items": [
+            {
+              "exercise": "dumbbell-incline-bench-press",
+              "sets": [
+                2,
+                3,
+                3,
+                3,
+                3,
+                3
+              ],
+              "repsInReserve": [
+                4,
+                3,
+                3,
+                2,
+                2,
+                2
+              ],
+              "reps": {
+                "min": 8,
+                "max": 12
+              },
+              "perSide": false,
+              "startKg": 8,
+              "tempo": "2-0-1",
+              "progression": "double"
+            },
+            {
+              "exercise": "dumbbell-incline-row",
+              "sets": [
+                2,
+                3,
+                3,
+                3,
+                3,
+                3
+              ],
+              "repsInReserve": [
+                4,
+                3,
+                3,
+                2,
+                2,
+                2
+              ],
+              "reps": {
+                "min": 8,
+                "max": 12
+              },
+              "perSide": false,
+              "startKg": 8,
+              "tempo": "2-0-1",
+              "progression": "double"
+            }
+          ]
+        },
+        {
+          "label": "B",
+          "restSeconds": 75,
+          "items": [
+            {
+              "exercise": "dumbbell-seated-shoulder-press",
+              "sets": [
+                2,
+                3,
+                3,
+                3,
+                3,
+                3
+              ],
+              "repsInReserve": [
+                4,
+                3,
+                3,
+                2,
+                2,
+                2
+              ],
+              "reps": {
+                "min": 8,
+                "max": 12
+              },
+              "perSide": false,
+              "startKg": 8,
+              "tempo": "2-0-1",
+              "progression": "double"
+            },
+            {
+              "exercise": "negative-pull-up",
+              "sets": [
+                2,
+                3,
+                3,
+                3,
+                3,
+                3
+              ],
+              "repsInReserve": [
+                4,
+                3,
+                3,
+                2,
+                2,
+                2
+              ],
+              "reps": {
+                "min": 3,
+                "max": 5
+              },
+              "perSide": false,
+              "startKg": null,
+              "tempo": "5-0-x",
+              "progression": "reps-then-graduate",
+              "note": "Step up to the top, lower over 5 seconds.",
+              "graduate": {
+                "to": "pull-up",
+                "when": "3 sets of 5 done as prescribed",
+                "reps": {
+                  "min": 1,
+                  "max": 5
+                },
+                "then": "finish the sets as 5-second negatives"
+              }
+            }
+          ]
+        },
+        {
+          "label": "C",
+          "restSeconds": 45,
+          "items": [
+            {
+              "exercise": "dumbbell-overhead-triceps-extension",
+              "sets": [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "repsInReserve": [
+                4,
+                3,
+                3,
+                2,
+                2,
+                2
+              ],
+              "reps": {
+                "min": 12,
+                "max": 20
+              },
+              "perSide": false,
+              "startKg": 10,
+              "tempo": "2-0-1",
+              "progression": "reps-tempo-load"
+            },
+            {
+              "exercise": "dumbbell-hammer-curl",
+              "sets": [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "repsInReserve": [
+                4,
+                3,
+                3,
+                2,
+                2,
+                2
+              ],
+              "reps": {
+                "min": 12,
+                "max": 20
+              },
+              "perSide": false,
+              "startKg": 8,
+              "tempo": "2-0-1",
+              "progression": "reps-tempo-load"
+            },
+            {
+              "exercise": "dumbbell-lateral-raise",
+              "sets": [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "repsInReserve": [
+                4,
+                3,
+                3,
+                2,
+                2,
+                2
+              ],
+              "reps": {
+                "min": 12,
+                "max": 20
+              },
+              "perSide": false,
+              "startKg": 4,
+              "tempo": "2-0-1",
+              "progression": "reps-tempo-load"
+            },
+            {
+              "exercise": "dumbbell-reverse-fly",
+              "sets": [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "repsInReserve": [
+                4,
+                3,
+                3,
+                2,
+                2,
+                2
+              ],
+              "reps": {
+                "min": 12,
+                "max": 20
+              },
+              "perSide": false,
+              "startKg": 4,
+              "tempo": "2-0-1",
+              "progression": "reps-tempo-load"
+            }
+          ]
+        },
+        {
+          "label": "Core",
+          "restSeconds": 30,
+          "items": [
+            {
+              "exercise": "plank",
+              "sets": [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "repsInReserve": [
+                4,
+                3,
+                3,
+                2,
+                2,
+                2
+              ],
+              "seconds": {
+                "min": 20,
+                "max": 45
+              },
+              "perSide": false,
+              "startKg": null,
+              "tempo": "2-0-1",
+              "progression": "time"
+            },
+            {
+              "exercise": "side-plank",
+              "sets": [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "repsInReserve": [
+                4,
+                3,
+                3,
+                2,
+                2,
+                2
+              ],
+              "seconds": {
+                "min": 15,
+                "max": 30
+              },
+              "perSide": true,
+              "startKg": null,
+              "tempo": "2-0-1",
+              "progression": "time"
+            }
+          ]
+        }
+      ],
+      "durationMinutes": [
+        38,
+        44,
+        44,
+        44,
+        44,
+        44
+      ],
+      "warmUpMinutes": 5
+    },
+    "full-body": {
+      "name": "Full body (light legs)",
+      "kind": "strength",
+      "warmUp": [
+        {
+          "exercise": "worlds-greatest-stretch",
+          "perSide": true,
+          "startKg": null,
+          "reps": 3
+        },
+        {
+          "exercise": "glute-bridge",
+          "perSide": false,
+          "startKg": null,
+          "reps": 10
+        },
+        {
+          "exercise": "dumbbell-goblet-squat",
+          "perSide": false,
+          "startKg": 6,
+          "reps": 8
+        },
+        {
+          "exercise": "scapular-push-up",
+          "perSide": false,
+          "startKg": null,
+          "reps": 10
+        }
+      ],
+      "blocks": [
+        {
+          "label": "A",
+          "restSeconds": 75,
+          "items": [
+            {
+              "exercise": "dumbbell-goblet-squat",
+              "sets": [
+                2,
+                3,
+                3,
+                3,
+                3,
+                3
+              ],
+              "repsInReserve": [
+                4,
+                3,
+                3,
+                3,
+                3,
+                3
+              ],
+              "reps": {
+                "min": 8,
+                "max": 12
+              },
+              "perSide": false,
+              "startKg": 12,
+              "tempo": "2-0-1",
+              "progression": "double"
+            },
+            {
+              "exercise": "push-up",
+              "sets": [
+                2,
+                3,
+                3,
+                3,
+                3,
+                3
+              ],
+              "repsInReserve": [
+                4,
+                3,
+                3,
+                2,
+                2,
+                2
+              ],
+              "reps": {
+                "min": 6,
+                "max": 12
+              },
+              "perSide": false,
+              "startKg": null,
+              "tempo": "2-0-1",
+              "progression": "reps-tempo",
+              "autoSwap": {
+                "whenFirstSetRepsBelow": 6,
+                "to": "dumbbell-bench-press",
+                "startKg": 10,
+                "reps": {
+                  "min": 8,
+                  "max": 12
+                },
+                "from": "next set",
+                "note": "Automatic: the app switches; the owner is never asked."
+              }
+            }
+          ]
+        },
+        {
+          "label": "B",
+          "restSeconds": 75,
+          "items": [
+            {
+              "exercise": "dumbbell-romanian-deadlift",
+              "sets": [
+                2,
+                3,
+                3,
+                3,
+                3,
+                3
+              ],
+              "repsInReserve": [
+                4,
+                3,
+                3,
+                3,
+                3,
+                3
+              ],
+              "reps": {
+                "min": 8,
+                "max": 12
+              },
+              "perSide": false,
+              "startKg": 12,
+              "tempo": "2-0-1",
+              "progression": "double"
+            },
+            {
+              "exercise": "glute-bridge",
+              "sets": [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "repsInReserve": [
+                4,
+                3,
+                3,
+                3,
+                3,
+                3
+              ],
+              "reps": {
+                "min": 12,
+                "max": 20
+              },
+              "perSide": false,
+              "startKg": null,
+              "tempo": "2-0-1",
+              "progression": "reps-tempo",
+              "note": "Bodyweight. Tempo step: 2-second squeeze at the top."
+            }
+          ]
+        },
+        {
+          "label": "C",
+          "restSeconds": 60,
+          "items": [
+            {
+              "exercise": "split-squat",
+              "sets": [
+                0,
+                0,
+                0,
+                2,
+                2,
+                2
+              ],
+              "repsInReserve": [
+                4,
+                3,
+                3,
+                3,
+                3,
+                3
+              ],
+              "reps": {
+                "min": 8,
+                "max": 12
+              },
+              "perSide": true,
+              "startKg": 6,
+              "tempo": "2-0-1",
+              "progression": "double"
+            },
+            {
+              "exercise": "dumbbell-calf-raise",
+              "sets": [
+                0,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "repsInReserve": [
+                4,
+                3,
+                3,
+                3,
+                3,
+                3
+              ],
+              "reps": {
+                "min": 12,
+                "max": 20
+              },
+              "perSide": false,
+              "startKg": 10,
+              "tempo": "2-0-1",
+              "progression": "reps-tempo-load"
+            }
+          ]
+        },
+        {
+          "label": "Core",
+          "restSeconds": 45,
+          "items": [
+            {
+              "exercise": "dead-bug",
+              "sets": [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "repsInReserve": [
+                4,
+                3,
+                3,
+                2,
+                2,
+                2
+              ],
+              "reps": {
+                "min": 6,
+                "max": 10
+              },
+              "perSide": true,
+              "startKg": null,
+              "tempo": "2-0-1",
+              "progression": "reps"
+            },
+            {
+              "exercise": "farmers-carry",
+              "sets": [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "repsInReserve": [
+                4,
+                3,
+                3,
+                2,
+                2,
+                2
+              ],
+              "seconds": {
+                "min": 30,
+                "max": 45
+              },
+              "perSide": false,
+              "startKg": 16,
+              "tempo": "2-0-1",
+              "progression": "time-then-load"
+            }
+          ]
+        }
+      ],
+      "durationMinutes": [
+        28,
+        38,
+        38,
+        42,
+        42,
+        42
+      ],
+      "warmUpMinutes": 5
+    },
+    "run-1": {
+      "name": "Run-walk",
+      "kind": "run-walk",
+      "outdoor": true,
+      "route": "hyde-park",
+      "note": "Easy pace: you can talk in full sentences. Slower than 6:30 per km is fine.",
+      "weeks": [
+        {
+          "week": 1,
+          "warmUpWalkMinutes": 5,
+          "intervals": {
+            "repeats": 10,
+            "jogSeconds": 60,
+            "walkSeconds": 60
+          },
+          "coolDownWalkMinutes": 3,
+          "durationMinutes": 28,
+          "jogMinutes": 10.0,
+          "indoorSwap": {
+            "session": "indoor-circuit",
+            "rounds": 4,
+            "coolDownMinutes": 3,
+            "durationMinutes": 28
+          }
+        },
+        {
+          "week": 2,
+          "warmUpWalkMinutes": 5,
+          "intervals": {
+            "repeats": 8,
+            "jogSeconds": 90,
+            "walkSeconds": 60
+          },
+          "coolDownWalkMinutes": 3,
+          "durationMinutes": 28,
+          "jogMinutes": 12.0,
+          "indoorSwap": {
+            "session": "indoor-circuit",
+            "rounds": 4,
+            "coolDownMinutes": 3,
+            "durationMinutes": 28
+          }
+        },
+        {
+          "week": 3,
+          "warmUpWalkMinutes": 5,
+          "intervals": {
+            "repeats": 7,
+            "jogSeconds": 120,
+            "walkSeconds": 60
+          },
+          "coolDownWalkMinutes": 3,
+          "durationMinutes": 29,
+          "jogMinutes": 14.0,
+          "indoorSwap": {
+            "session": "indoor-circuit",
+            "rounds": 4,
+            "coolDownMinutes": 4,
+            "durationMinutes": 29
+          }
+        },
+        {
+          "week": 4,
+          "warmUpWalkMinutes": 5,
+          "intervals": {
+            "repeats": 7,
+            "jogSeconds": 120,
+            "walkSeconds": 60
+          },
+          "coolDownWalkMinutes": 3,
+          "durationMinutes": 29,
+          "jogMinutes": 14.0,
+          "indoorSwap": {
+            "session": "indoor-circuit",
+            "rounds": 4,
+            "coolDownMinutes": 4,
+            "durationMinutes": 29
+          }
+        },
+        {
+          "week": 5,
+          "warmUpWalkMinutes": 5,
+          "intervals": {
+            "repeats": 5,
+            "jogSeconds": 180,
+            "walkSeconds": 60
+          },
+          "coolDownWalkMinutes": 3,
+          "durationMinutes": 28,
+          "jogMinutes": 15.0,
+          "indoorSwap": {
+            "session": "indoor-circuit",
+            "rounds": 4,
+            "coolDownMinutes": 3,
+            "durationMinutes": 28
+          }
+        },
+        {
+          "week": 6,
+          "warmUpWalkMinutes": 5,
+          "intervals": {
+            "repeats": 4,
+            "jogSeconds": 240,
+            "walkSeconds": 60
+          },
+          "coolDownWalkMinutes": 3,
+          "durationMinutes": 28,
+          "jogMinutes": 16.0,
+          "indoorSwap": {
+            "session": "indoor-circuit",
+            "rounds": 4,
+            "coolDownMinutes": 3,
+            "durationMinutes": 28
+          }
+        }
+      ]
+    },
+    "run-2": {
+      "name": "Easy run-walk",
+      "kind": "run-walk",
+      "outdoor": true,
+      "route": "hyde-park",
+      "note": "Easy pace: you can talk in full sentences. Slower than 6:30 per km is fine.",
+      "weeks": [
+        {
+          "week": 4,
+          "warmUpWalkMinutes": 5,
+          "intervals": {
+            "repeats": 6,
+            "jogSeconds": 60,
+            "walkSeconds": 60
+          },
+          "coolDownWalkMinutes": 3,
+          "durationMinutes": 20,
+          "jogMinutes": 6.0,
+          "indoorSwap": {
+            "session": "indoor-circuit",
+            "rounds": 3,
+            "coolDownMinutes": 0,
+            "durationMinutes": 20
+          }
+        },
+        {
+          "week": 5,
+          "warmUpWalkMinutes": 5,
+          "intervals": {
+            "repeats": 8,
+            "jogSeconds": 60,
+            "walkSeconds": 60
+          },
+          "coolDownWalkMinutes": 3,
+          "durationMinutes": 24,
+          "jogMinutes": 8.0,
+          "indoorSwap": {
+            "session": "indoor-circuit",
+            "rounds": 3,
+            "coolDownMinutes": 4,
+            "durationMinutes": 24
+          }
+        },
+        {
+          "week": 6,
+          "warmUpWalkMinutes": 5,
+          "intervals": {
+            "repeats": 5,
+            "jogSeconds": 120,
+            "walkSeconds": 60
+          },
+          "coolDownWalkMinutes": 3,
+          "durationMinutes": 23,
+          "jogMinutes": 10.0,
+          "indoorSwap": {
+            "session": "indoor-circuit",
+            "rounds": 3,
+            "coolDownMinutes": 3,
+            "durationMinutes": 23
+          }
+        }
+      ]
+    },
+    "indoor-circuit": {
+      "name": "Indoor circuit",
+      "kind": "circuit",
+      "swapOnly": true,
+      "note": "Replaces a rained-off run at the same length. No jumping.",
+      "warmUp": [
+        {
+          "exercise": "worlds-greatest-stretch",
+          "perSide": true,
+          "startKg": null,
+          "reps": 3
+        },
+        {
+          "exercise": "scapular-push-up",
+          "perSide": false,
+          "startKg": null,
+          "reps": 10
+        }
+      ],
+      "warmUpMinutes": 5,
+      "round": {
+        "workSeconds": 40,
+        "restSeconds": 20,
+        "items": [
+          {
+            "exercise": "farmers-carry",
+            "startKg": 12,
+            "note": "Walk laps of the room."
+          },
+          {
+            "exercise": "push-up"
+          },
+          {
+            "exercise": "glute-bridge"
+          },
+          {
+            "exercise": "dead-bug"
+          },
+          {
+            "exercise": "worlds-greatest-stretch"
+          }
+        ]
+      },
+      "roundMinutes": 5,
+      "coolDown": "Walk about the flat, then stretch, for the minutes left."
+    },
+    "walk": {
+      "name": "Walk in Hyde Park",
+      "kind": "walk",
+      "optional": true,
+      "alarm": false,
+      "durationMinutes": [
+        30,
+        30,
+        30,
+        30,
+        30,
+        30
+      ],
+      "note": "Optional. Skipping it changes nothing."
+    }
+  }
+}
