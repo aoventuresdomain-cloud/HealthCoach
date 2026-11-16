@@ -13,7 +13,10 @@ final class RestTimerSpike {
     private(set) var isRunning = false
 
     @ObservationIgnored private let voice = VoiceCuePlayer()
-    @ObservationIgnored private var activity: Activity<RestTimerAttributes>?
+    /// Held by id, not as an `Activity`: Activity isn't Sendable, so ending a
+    /// stored one from the main actor fails Swift 6 checking ("sending
+    /// 'activity' risks causing data races"). Looked up fresh when ending.
+    @ObservationIgnored private var activityID: String?
     @ObservationIgnored private var run: Task<Void, Never>?
     @ObservationIgnored private var voiceOn = false
 
@@ -36,11 +39,11 @@ final class RestTimerSpike {
 
         do {
             let state = RestTimerAttributes.ContentState(endsAt: endsAt, nextUp: "Spike test: lock the phone now")
-            activity = try Activity.request(
+            activityID = try Activity.request(
                 attributes: RestTimerAttributes(title: "Rest"),
                 content: ActivityContent(state: state, staleDate: endsAt),
                 pushType: nil
-            )
+            ).id
         } catch {
             voice.endHolding()
             status = "Couldn't start: \(error.localizedDescription)"
@@ -90,10 +93,12 @@ final class RestTimerSpike {
     }
 
     private func finish(message: String) async {
-        if let activity {
-            await activity.end(nil, dismissalPolicy: .immediate)
+        if let activityID {
+            for live in Activity<RestTimerAttributes>.activities where live.id == activityID {
+                await live.end(nil, dismissalPolicy: .immediate)
+            }
         }
-        activity = nil
+        activityID = nil
         voice.endHolding()
         isRunning = false
         status = message
