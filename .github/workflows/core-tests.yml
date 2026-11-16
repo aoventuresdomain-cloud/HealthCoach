@@ -1,0 +1,35 @@
+# Board M0-12: CoachCore tests on Linux. Linux minutes count 1x against the
+# 2,000 free private-repo minutes, so this runs on every PR and on main.
+# CoachCore is Foundation-only, so Linux is a faithful test host.
+name: Core tests
+
+on:
+  pull_request:
+    paths-ignore: ["docs/**", "**/*.md"]
+  push:
+    branches: [main]
+    paths-ignore: ["docs/**", "**/*.md"]
+  workflow_dispatch:
+
+concurrency:
+  group: core-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  swift-test:
+    name: CoachCore tests (Linux)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container: swift:6.2-noble # pinned Swift 6.2
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain
+        run: |
+          swift --version
+          test -f /usr/share/zoneinfo/Europe/London # tests use Europe/London
+      - name: swift test
+        working-directory: CoachCore
+        run: swift test

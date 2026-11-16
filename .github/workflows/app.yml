@@ -1,0 +1,95 @@
+# Board M0-12: compile the app and Live Activity for the iOS 26 simulator, and
+# take spike-screen screenshots.
+#
+# macOS minutes count 10x, so about 200 a month on the free plan (spending
+# limit £0). To save them: pull requests only (not main, which gets the same
+# squash), docs/Content/Markdown-only changes skip it, a newer push cancels
+# the older run, and screenshots only run when screens change or on demand.
+# CoachCore tests run on Linux (core-tests.yml). Estimate: docs/spikes/m0-12-ci.md.
+name: App build
+
+on:
+  pull_request:
+    paths-ignore: ["docs/**", "Content/**", "**/*.md"]
+  workflow_dispatch:
+    inputs:
+      screenshots:
+        description: "Take simulator screenshots"
+        type: boolean
+        default: true
+
+concurrency:
+  group: app-build-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build app (iOS 26 simulator)
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Select the newest Xcode 26
+        run: |
+          xcode="$(ls -d /Applications/Xcode_26*.app | sort -V | tail -1)"
+          sudo xcode-select -s "$xcode"
+          xcodebuild -version
+
+      - name: Pick an iOS 26 iPhone simulator
+        id: sim
+        run: echo "udid=$(.github/scripts/pick-simulator.sh)" >> "$GITHUB_OUTPUT"
+
+      - name: Build app and Live Activity (signing off)
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project HealthCoach.xcodeproj \
+            -scheme HealthCoach \
+            -configuration Debug \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            | tee xcodebuild.log | grep -E "error:|warning:|BUILD (SUCCEEDED|FAILED)" || true
+          grep -q "BUILD SUCCEEDED" xcodebuild.log
+          test -d build/Build/Products/Debug-iphonesimulator/HealthCoach.app/PlugIns/LiveActivity.appex
+
+      - name: Decide on screenshots
+        id: shots
+        # Manual runs: the input. PRs: only when screens or the screenshot recipe change.
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "take=${{ inputs.screenshots }}" >> "$GITHUB_OUTPUT"
+          elif git diff --name-only "origin/${{ github.base_ref }}...HEAD" \
+               | grep -qE '^(App|LiveActivity|Shared)/|^\.github/(scripts/screenshots\.sh|workflows/app\.yml)$'; then
+            echo "take=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "take=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Simulator screenshots
+        if: steps.shots.outputs.take == 'true'
+        run: .github/scripts/screenshots.sh "${{ steps.sim.outputs.udid }}" build/Build/Products/Debug-iphonesimulator/HealthCoach.app screenshots
+
+      - name: Upload screenshots
+        if: always() && steps.shots.outputs.take == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: simulator-screenshots
+          path: screenshots/
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: Upload build log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcodebuild-log
+          path: xcodebuild.log
+          retention-days: 7
+          if-no-files-found: ignore
