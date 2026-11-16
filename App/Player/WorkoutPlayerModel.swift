@@ -18,7 +18,8 @@ final class WorkoutPlayerModel {
 
     enum Side: Equatable { case left, right }
 
-    let script: WorkoutScript
+    /// Changes only when an autoSwap switches the rest of an item's sets.
+    private(set) var script: WorkoutScript
     let catalogue: ExerciseCatalogue
     private(set) var phase: Phase
     /// Only for one-side-at-a-time sets.
@@ -120,6 +121,12 @@ final class WorkoutPlayerModel {
             return
         }
         log.sets.append(entry(for: step))
+        // autoSwap: a short first set (counted) switches the item's remaining sets, without asking.
+        if let swap = step.swap, count > 0, count < swap.whenFirstSetRepsBelow {
+            script = script.swappingRemainingSets(after: i)
+            let to = name(swap.exercise)
+            Task { await voice?.announce("Switching to \(to) for the next sets") }
+        }
         afterSet(i)
     }
 

@@ -158,6 +158,17 @@ private struct SetScreen: View {
             } else if let note = step.note {
                 Text(note).font(.headline).foregroundStyle(.green)
             }
+            if step.slowTempo {
+                Text("Lower over 3 seconds this time.")
+                    .font(.headline)
+                    .accessibilityIdentifier("player.slowTempo")
+            }
+            if step.atDumbbellLimit {
+                Text("Next step is past your heaviest dumbbell.")
+                    .font(.subheadline)
+                    .foregroundStyle(.orange)
+                    .accessibilityIdentifier("player.dumbbellLimit")
+            }
             if let callouts = model.exercise(step.exercise)?.callouts {
                 CalloutsCard(callouts: callouts)
                     .layoutPriority(-1)

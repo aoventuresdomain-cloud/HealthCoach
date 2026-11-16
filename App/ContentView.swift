@@ -41,7 +41,8 @@ private struct RootView: View {
                     NavigationStack {
                         TodayView(content: content, programme: programme, profile: profile) { slot, week, recovery in
                             playing = SessionLaunch.make(slot: slot, week: week, recovery: recovery,
-                                                         content: content, programme: programme, profile: profile)
+                                                         content: content, programme: programme, profile: profile,
+                                                         history: (try? SessionLogStore(context: context).all()) ?? [])
                         }
                     }
                     .fullScreenCover(item: $playing) { launch in

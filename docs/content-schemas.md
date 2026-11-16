@@ -51,3 +51,6 @@ One record, stored by the app in SwiftData as this JSON (`ProfileRecord.payload`
 | `programme` | `programmeID` phase-1, `startDate` (Monday of week 1; set at onboarding) |
 
 Times are `"HH:mm"`, dates ISO 8601. Personal details (postcode, office address) are deliberately not defaults in code; onboarding (M1-04) asks or leaves them empty.
+
+## The app's store (SwiftData)
+`SchemaV1` holds `ProfileRecord` (the profile JSON above, as bytes). A model change ships as `SchemaV2` plus a stage in `HealthCoachMigrationPlan`, never as an edit to `SchemaV1`. If the store won't open, the app never crashes: a readable but broken store is moved aside as `HealthCoach-unreadable-<time>.store` (never deleted) and a fresh one opens; an unreadable one (protected before first unlock) is left alone and that launch runs in memory. `AppStore.recovery` says which happened, for a one-line notice on Today.

@@ -14,7 +14,8 @@ struct SessionLaunch: Identifiable {
 
     @MainActor
     static func make(slot: DayPlan.SessionSlot, week: Int, recovery: RecoveryCheck,
-                     content: ContentLibrary, programme: Programme, profile: Profile) -> SessionLaunch? {
+                     content: ContentLibrary, programme: Programme, profile: Profile,
+                     history: [SessionLog]) -> SessionLaunch? {
         let now = AppClock.now()
         let voiceCues = profile.training.voiceCues
         // Strength UI tests run without speech so the warm-up and holds keep a
@@ -22,7 +23,7 @@ struct SessionLaunch: Identifiable {
         let strengthVoice = voiceCues && !LaunchOptions.current.isUITest
         switch slot.session {
         case .strength:
-            guard let script = WorkoutScript.make(sessionID: slot.id, programme: programme, week: week) else { return nil }
+            guard let script = WorkoutScript.make(sessionID: slot.id, programme: programme, week: week, history: history) else { return nil }
             return SessionLaunch(player: .strength(WorkoutPlayerModel(
                 script: script, catalogue: content.exercises, programmeID: programme.id,
                 recovery: recovery, voiceCues: strengthVoice, now: now)))

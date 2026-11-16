@@ -16,7 +16,7 @@ final class AlarmKitSpike: AlarmSpikeRunning {
     private let store: UserDefaults
 
     private init() {
-        if LaunchOptions.current.isUITest {
+        if LaunchOptions.current.isUITest && !LaunchOptions.current.realAlarms {
             // UI tests: no prompt, no real alarms, a clean store every launch.
             registrar = FakeAlarmRegistrar()
             requestAuthorization = { true }

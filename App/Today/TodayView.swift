@@ -25,6 +25,12 @@ struct TodayView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 header(date: date, plan: plan)
+                if let notice = TodayFormat.storeNotice(AppStore.recovery) {
+                    Label(notice, systemImage: "exclamationmark.triangle.fill")
+                        .font(.subheadline)
+                        .foregroundStyle(.orange)
+                        .accessibilityIdentifier("today.storeNotice")
+                }
                 if dayOffset == 0, let banner = alarmBanner {
                     banner
                 }
@@ -295,6 +301,15 @@ struct SessionSummary {
 }
 
 enum TodayFormat {
+    /// One line when the store had to recover on launch (Planner, PR #27).
+    static func storeNotice(_ recovery: StoreRecovery?) -> String? {
+        switch recovery {
+        case .startedFresh: "We couldn't open your saved data, so we kept a copy and started fresh."
+        case .memoryOnly: "Your data can't be saved right now. Restart the phone if this stays."
+        case nil: nil
+        }
+    }
+
     static func dateLine(_ date: Date, week: Int?, programme: Programme, calendar: Calendar) -> String {
         let day = date.formatted(.dateTime.weekday(.wide).day().month(.abbreviated))
         guard let week else { return day }

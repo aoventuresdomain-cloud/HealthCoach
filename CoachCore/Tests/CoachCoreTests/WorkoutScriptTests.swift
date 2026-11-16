@@ -61,10 +61,37 @@ import Testing
         #expect(kinds["plank"] == .hold(seconds: 20))
     }
 
-    @Test func loadsOverrideStartWeights() throws {
-        let script = try #require(WorkoutScript.make(sessionID: "upper-a", programme: phase1(), week: 1,
-                                                      loads: ["dumbbell-bench-press": 12]))
-        #expect(script.sets.first?.kg == 12)
+    @Test func targetsAndWeightsComeFromThePrescription() throws {
+        let programme = try phase1()
+        // Last Upper A: every bench press set done as prescribed at 10 kg.
+        var log = SessionLog(programmeID: "phase-1", sessionID: "upper-a", week: 1,
+                             startedAt: Date(timeIntervalSince1970: 1_800_000_000))
+        log.sets = (0..<3).map { SetLog(exercise: "dumbbell-bench-press", setIndex: $0, reps: 8, kg: 10, asPrescribed: true) }
+        let script = try #require(WorkoutScript.make(sessionID: "upper-a", programme: programme, week: 2, history: [log]))
+
+        guard case let .strength(session) = programme.sessions["upper-a"] else { Issue.record("upper-a"); return }
+        let bench = try #require(session.blocks.flatMap(\.items).first { $0.exercise == "dumbbell-bench-press" })
+        let expected = try #require(programme.prescription(for: bench, week: 2, history: [log]))
+        let first = try #require(script.sets.first)
+        #expect(first.kind == .reps(target: try #require(expected.reps)))
+        #expect(first.kg == expected.kg)
+        #expect(first.slowTempo == expected.slowTempo)
+        #expect(script.sets.filter { $0.exercise == "dumbbell-bench-press" }.count == expected.sets)
+    }
+
+    @Test func pushUpsSwapToBenchPressWhenTheFirstSetFallsShort() throws {
+        let script = try #require(WorkoutScript.make(sessionID: "full-body", programme: phase1(), week: 2))
+        let index = try #require(script.sets.firstIndex { $0.exercise == "push-up" })
+        let swap = try #require(script.sets[index].swap)
+        #expect(swap.exercise == "dumbbell-bench-press")
+        #expect(swap.whenFirstSetRepsBelow == 6)
+        #expect(script.sets[index + 1].swap == nil)
+
+        let swapped = script.swappingRemainingSets(after: index)
+        let rest = swapped.sets.filter { $0.exerciseNumber == script.sets[index].exerciseNumber }
+        #expect(rest.first?.exercise == "push-up")
+        #expect(rest.dropFirst().allSatisfy { $0.exercise == "dumbbell-bench-press" && $0.kg == swap.kg })
+        #expect(swapped.sets.count == script.sets.count)
     }
 
     @Test func notAStrengthSession() throws {
