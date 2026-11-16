@@ -1,0 +1,22 @@
+# S1 / S1b · Alarms (board M0-04, M0-05)
+
+**Status:** code in review; device results wait on Setup Desk Part D. Owner: Planner Engineer.
+
+## Design
+- CoachCore owns the logic, with no iOS imports: `PlannedAlarm`, the `AlarmRegistering` protocol, `AlarmReconciler` (plan vs registered: re-set missing, cancel dropped, ignore past) and `TestAlarmSchedule`. Unit-tested in `AlarmReconcilerTests`.
+- The app owns AlarmKit: `App/Alarms/AlarmKitRegistrar.swift` implements `AlarmRegistering` (authorisation, `AlarmManager.alarms`, `schedule(id:configuration:)` with a fixed date, `cancel(id:)`). Plan ids are AlarmKit ids, so comparison is direct.
+- Every app open reconciles against the stored plan (plan §4.1). No background job.
+
+## Test plan (S1)
+- "Set test alarms" registers 14: the first at the next whole minute at least 2 minutes ahead, the other 13 one a day from day 21 at the same time. Only the first should ring during the spike; the M2 planner's reconcile replaces the rest before they are due.
+- Owner check (Part D1): first alarm rings with the phone locked, on Silent, in a Focus.
+
+## S1b
+- Part D2: after a TestFlight update installs, open the app. The Spike tests screen shows "re-set N of 14" if the update dropped alarms, or "all 14 set" if they survived.
+
+## Findings
+| Question | Result |
+|---|---|
+| Per-app AlarmKit limit | _not yet measured_ |
+| Rings locked / Silent / Focus | _Part D1_ |
+| Survives TestFlight update | _Part D2_ |
