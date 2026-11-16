@@ -159,6 +159,32 @@ import Testing
         }
     }
 
+    @Test func fourteenDaysFromNowLikeTheAlarms() throws {
+        let programme = try phase1()
+        var profile = Profile()
+        profile.confirmed = true
+        profile.programme.startDate = date(2026, 11, 23)
+        // Wednesday of week 1, mid-morning.
+        let now = date(2026, 11, 25, 10, 0)
+        let out = NotificationPlanner.plan(now: now, programme: programme, profile: profile,
+                                           answers: { _ in WeekAnswers(officeDays: [.monday, .thursday]) },
+                                           calendar: calendar)
+        let first = try #require(out.first)
+        let last = try #require(out.last)
+        #expect(first.fireDate > now)
+        #expect(last.fireDate < date(2026, 12, 9))
+        #expect(out.contains { $0.id == "sundayPrompt-2026-11-29" })
+        #expect(out.contains { $0.id == "sundayPrompt-2026-12-06" })
+        #expect(out.contains { $0.id == "leaveNow-2026-11-26" })
+        for n in out { #expect(!QuietHours.contains(n.fireDate, calendar: calendar)) }
+    }
+
+    @Test func noStartDateNoNotifications() throws {
+        let out = NotificationPlanner.plan(now: date(2026, 11, 25), programme: try phase1(), profile: Profile(),
+                                           answers: { _ in WeekAnswers() }, calendar: calendar)
+        #expect(out.isEmpty)
+    }
+
     @Test func neverMoreThanIOSKeeps() {
         let days = (0..<30).map { day(calendar.date(byAdding: .day, value: $0, to: date(2026, 11, 23))!,
                                       leave: t(8, 30)) }

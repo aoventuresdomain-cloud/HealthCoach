@@ -14,6 +14,11 @@ struct TodayView: View {
     @State private var dayOffset = 0
     @State private var recovery = RecoveryCheck.fine
     @State private var alarmStatus = AlarmReconcileStatus.notYetRun
+    /// The Monday the Sunday prompt sheet is open for; nil when closed.
+    @State private var promptWeek: PromptWeek?
+    /// Bumped after the prompt saves, so the "Plan next week" card re-reads the store.
+    @State private var answersVersion = 0
+    @Environment(\.modelContext) private var context
 
     private let calendar = Calendar.coach
 
@@ -34,6 +39,9 @@ struct TodayView: View {
                 if dayOffset == 0, let banner = alarmBanner {
                     banner
                 }
+                if dayOffset == 0, let monday = promptDue(now: now) {
+                    planWeekCard(monday)
+                }
                 if let plan {
                     card(plan)
                     TimelineCard(items: plan.timeline, now: dayOffset == 0 ? TodayFormat.timeOfDay(now, calendar) : nil)
@@ -45,6 +53,15 @@ struct TodayView: View {
         .background(Color(.systemGroupedBackground))
         .safeAreaInset(edge: .bottom) { actions(plan) }
         .toolbar {
+            if profile.programme.startDate != nil {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        promptWeek = PromptWeek(monday: SundayPrompt.monday(for: AppClock.now(), calendar: calendar))
+                    } label: { Image(systemName: "calendar") }
+                        .accessibilityLabel("Plan the week")
+                        .accessibilityIdentifier("today.planWeekToolbar")
+                }
+            }
             if SpikeTests.isEnabled {
                 ToolbarItem(placement: .topBarTrailing) {
                     NavigationLink { SpikeTestsView() } label: { Image(systemName: "wrench.adjustable") }
@@ -54,6 +71,68 @@ struct TodayView: View {
             }
         }
         .task { alarmStatus = await AlarmKitSpike.shared.reconcileStatus() }
+        .sheet(item: $promptWeek) { week in
+            SundayPromptView(monday: week.monday,
+                             initial: WeekAnswersStore.shared.answers(weekStarting: week.monday, calendar: calendar),
+                             workStart: profile.schedule.workStart, workEnd: profile.schedule.workEnd) { answers in
+                save(answers, weekStarting: week.monday)
+            }
+        }
+    }
+
+    // MARK: Sunday prompt
+
+    private struct PromptWeek: Identifiable {
+        let monday: Date
+        var id: Date { monday }
+    }
+
+    /// Next week's Monday from Saturday until it is answered; nil otherwise.
+    private func promptDue(now: Date) -> Date? {
+        _ = answersVersion
+        guard profile.programme.startDate != nil, SundayPrompt.isDue(on: now, calendar: calendar) else { return nil }
+        let monday = SundayPrompt.monday(for: now, calendar: calendar)
+        return WeekAnswersStore.shared.hasAnswers(weekStarting: monday, calendar: calendar) ? nil : monday
+    }
+
+    private func planWeekCard(_ monday: Date) -> some View {
+        Button {
+            promptWeek = PromptWeek(monday: monday)
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "calendar.badge.clock")
+                    .font(.title2)
+                    .foregroundStyle(Color.accentColor)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Plan next week").font(.headline)
+                    Text("Which days are you in the office? 20 seconds.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right").foregroundStyle(.tertiary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(16)
+            .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 20))
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("today.planWeek")
+    }
+
+    /// Saves the answers, then re-plans alarms and notifications at once
+    /// (plan §4.1: alarms are reconciled after the Sunday prompt).
+    private func save(_ answers: WeekAnswers, weekStarting monday: Date) {
+        WeekAnswersStore.shared.save(answers, weekStarting: monday, calendar: calendar)
+        answersVersion += 1
+        let history = (try? SessionLogStore(context: context).all()) ?? []
+        let profile = profile
+        Task {
+            if WakeAlarms.shared.isActive(profile: profile) {
+                await WakeAlarms.shared.reconcile(profile: profile, history: history)
+            }
+            await CoachNotifier.shared.reschedule(profile: profile, history: history)
+        }
     }
 
     // MARK: Header

@@ -63,6 +63,26 @@ public enum NotificationPlanner {
     /// The Sunday prompt asks about the coming week at this time on Sunday.
     public static let sundayPromptTime = TimeOfDay(hour: 18, minute: 0)
 
+    /// The notifications for the same 14 days the wake alarms cover
+    /// (`AlarmSchedule.horizonDays`), planned the way the alarms are.
+    public static func plan(now: Date, programme: Programme, profile: Profile,
+                            answers: (Date) -> WeekAnswers, dropping: Set<String> = [],
+                            calendar: Calendar = .current) -> [CoachNotification] {
+        guard profile.programme.startDate != nil else { return [] }
+        let today = calendar.startOfDay(for: now)
+        let last = calendar.date(byAdding: .day, value: AlarmSchedule.horizonDays - 1, to: today)!
+        var days: [WeekPlan.Day] = []
+        var monday = AlarmSchedule.mondayOf(today, calendar: calendar)
+        while monday <= last {
+            let week = WeekPlanner.plan(weekStarting: monday, programme: programme, profile: profile,
+                                        answers: answers(monday), dropping: dropping, calendar: calendar)
+            days += week.days.filter { $0.date >= today && $0.date <= last }
+            monday = calendar.date(byAdding: .day, value: 7, to: monday)!
+        }
+        return plan(days: days, sessionName: { programme.sessions[$0]?.name ?? "Session" },
+                    now: now, calendar: calendar)
+    }
+
     public static func plan(days: [WeekPlan.Day], sessionName: (String) -> String,
                             now: Date, calendar: Calendar = .current) -> [CoachNotification] {
         var out: [CoachNotification] = []
