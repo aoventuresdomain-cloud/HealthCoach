@@ -262,10 +262,11 @@ final class WorkoutPlayerModel {
         }
     }
 
-    /// The 10-second heads-up: "Next: Dumbbell row, 12 kilos."
+    /// The 10-second heads-up, as the board words it:
+    /// "10 seconds. Next, one-arm row, 12 kilos."
     private func spokenNextUp(_ step: WorkoutScript.SetStep) -> String {
         let load = step.kg.map { ", \(PlayerFormat.kg($0)) kilos" } ?? ""
-        return "Next: \(name(step.exercise))\(load)."
+        return "\(Int(RestClock.headsUpSeconds)) seconds. Next, \(name(step.exercise))\(load)."
     }
 
     private func nextUpLine(_ step: WorkoutScript.SetStep) -> String {
