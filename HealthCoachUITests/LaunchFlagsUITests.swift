@@ -32,6 +32,11 @@ final class LaunchFlagsUITests: XCTestCase {
         XCTAssertTrue(status.label.contains("now=2026-11-23T06:30:00Z"), status.label)
         XCTAssertTrue(status.label.contains("profile=confirmed"), status.label)
         XCTAssertTrue(status.label.contains("content=ok("), status.label)
+        // Board M2-02: on open the planner reconciles 14 days of wake alarms
+        // (Monday 23 Nov, 06:30 GMT: today's 07:50 alarm is still ahead).
+        let fourteen = NSPredicate(format: "label CONTAINS 'alarms=14'")
+        expectation(for: fourteen, evaluatedWith: status)
+        waitForExpectations(timeout: 10)
         attachScreenshot(app, named: "week1-monday")
     }
 

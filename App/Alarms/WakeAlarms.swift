@@ -1,6 +1,6 @@
 import CoachCore
 import Foundation
-import SwiftData
+import Observation
 
 /// The Sunday prompt's answers, one entry per week (keyed by its Monday).
 /// Office days and start times only: no health data. Weeks not yet answered
@@ -52,6 +52,7 @@ final class WeekAnswersStore {
 /// alarms (M0-04) keep their own reconcile; after that this one owns the
 /// app's alarms and replaces any test alarms left over.
 @MainActor
+@Observable
 final class WakeAlarms {
     static let shared = WakeAlarms()
 
@@ -62,8 +63,8 @@ final class WakeAlarms {
     /// stops touching AlarmKit, so it can never cancel a wake alarm.
     private(set) var ownsAlarms = false
 
-    private let registrar: any AlarmRegistering
-    private let isAuthorized: () -> Bool
+    @ObservationIgnored private let registrar: any AlarmRegistering
+    @ObservationIgnored private let isAuthorized: () -> Bool
 
     private init() {
         if LaunchOptions.current.isUITest && !LaunchOptions.current.realAlarms {

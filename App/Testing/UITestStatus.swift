@@ -33,6 +33,13 @@ struct UITestStatus: View {
         } else {
             content = "error"
         }
-        return "now=\(now) profile=\(profile) content=\(content)"
+        let alarms: String
+        switch WakeAlarms.shared.coverage {
+        case let .allSet(count, _)?: alarms = "\(count)"
+        case let .reSet(_, total, _)?: alarms = "\(total)"
+        case .noAlarms?: alarms = "none"
+        case nil: alarms = "pending"
+        }
+        return "now=\(now) profile=\(profile) content=\(content) alarms=\(alarms)"
     }
 }
