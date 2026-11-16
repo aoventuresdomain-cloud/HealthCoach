@@ -144,15 +144,32 @@ struct TodayView: View {
 
     // MARK: Banner
 
+    /// QA-1: once the planner owns the alarms, Today reads its coverage, and
+    /// zero upcoming alarms is always a warning, never "all set".
     private var alarmBanner: AnyView? {
+        let wake = WakeAlarms.shared
+        if wake.isActive(profile: profile) {
+            switch wake.coverage {
+            case let .reSet(missing, _, _)?:
+                return AnyView(Banner(strong: "\(missing) \(missing == 1 ? "alarm was" : "alarms were") missing.",
+                                      rest: "They're set again, so nothing to do."))
+            case let coverage? where coverage.needsWarning:
+                return AnyView(Banner(strong: "No alarms set.",
+                                      rest: wake.lastError ?? "Allow alarms in Settings so the coach can wake you.",
+                                      identifier: "today.alarmWarning",
+                                      settingsLink: wake.lastError == nil))
+            default:
+                return nil
+            }
+        }
         switch alarmStatus {
         case let .reSet(missing, _):
-            AnyView(Banner(strong: "\(missing) \(missing == 1 ? "alarm was" : "alarms were") missing.",
-                           rest: "They're set again, so nothing to do."))
+            return AnyView(Banner(strong: "\(missing) \(missing == 1 ? "alarm was" : "alarms were") missing.",
+                                  rest: "They're set again, so nothing to do."))
         case let .failed(reason):
-            AnyView(Banner(strong: "Alarm check failed.", rest: reason))
+            return AnyView(Banner(strong: "Alarm check failed.", rest: reason))
         case .notYetRun, .allSet:
-            nil
+            return nil
         }
     }
 
@@ -193,19 +210,28 @@ struct PlainGreyLargeStyle: ButtonStyle {
 private struct Banner: View {
     let strong: String
     let rest: String
+    var identifier = "today.alarmBanner"
+    /// Adds "Open Settings" for a fix only the owner can make.
+    var settingsLink = false
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: "exclamationmark.circle.fill")
                 .font(.title2)
                 .foregroundStyle(.orange)
-            Text("\(Text(strong).bold().foregroundStyle(.orange)) \(rest)")
+            VStack(alignment: .leading, spacing: 8) {
+                Text("\(Text(strong).bold().foregroundStyle(.orange)) \(rest)")
+                    .accessibilityIdentifier(identifier)
+                if settingsLink, let url = URL(string: UIApplication.openSettingsURLString) {
+                    Link("Open Settings", destination: url)
+                        .font(.subheadline.weight(.semibold))
+                        .accessibilityIdentifier("today.openSettings")
+                }
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
         .background(Color.orange.opacity(0.15), in: .rect(cornerRadius: 20))
-        .accessibilityElement(children: .combine)
-        .accessibilityIdentifier("today.alarmBanner")
     }
 }
 
