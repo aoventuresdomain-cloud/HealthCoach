@@ -11,8 +11,24 @@ import Foundation
 final class AlarmKitSpike: AlarmSpikeRunning {
     static let shared = AlarmKitSpike()
 
-    private let registrar = AlarmKitRegistrar()
-    private let store = UserDefaults.standard
+    private let registrar: any AlarmRegistering
+    private let requestAuthorization: () async throws -> Bool
+    private let store: UserDefaults
+
+    private init() {
+        if LaunchOptions.current.isUITest {
+            // UI tests: no prompt, no real alarms, a clean store every launch.
+            registrar = FakeAlarmRegistrar()
+            requestAuthorization = { true }
+            store = UserDefaults(suiteName: "uitest.alarms") ?? .standard
+            store.removePersistentDomain(forName: "uitest.alarms")
+        } else {
+            let alarmKit = AlarmKitRegistrar()
+            registrar = alarmKit
+            requestAuthorization = { try await alarmKit.requestAuthorization() }
+            store = .standard
+        }
+    }
     private let planKey = "spike.testAlarmPlan.v1"
     private var lastStatus: AlarmReconcileStatus = .notYetRun
     private var inFlight: Task<AlarmReconcileStatus, Never>?
@@ -30,11 +46,11 @@ final class AlarmKitSpike: AlarmSpikeRunning {
     }
 
     func setTestAlarms() async throws -> AlarmSpikeSummary {
-        guard try await registrar.requestAuthorization() else { throw SpikeError.permissionDenied }
-        let plan = TestAlarmSchedule.make(now: .now)
+        guard try await requestAuthorization() else { throw SpikeError.permissionDenied }
+        let plan = TestAlarmSchedule.make(now: AppClock.now())
         try save(plan)
         // Registers the new plan and cancels any earlier test alarms.
-        let outcome = try await AlarmReconciler.reconcile(planned: plan, using: registrar, now: .now)
+        let outcome = try await AlarmReconciler.reconcile(planned: plan, using: registrar, now: AppClock.now())
         lastStatus = .allSet(count: outcome.total)
         return AlarmSpikeSummary(count: outcome.total, next: outcome.next)
     }
@@ -43,13 +59,14 @@ final class AlarmKitSpike: AlarmSpikeRunning {
     /// case the M2 planner isn't there to replace them in time.
     func clearLaterTestAlarms() async throws -> AlarmSpikeSummary {
         guard let plan = try loadPlan() else { return AlarmSpikeSummary(count: 0, next: nil) }
-        let split = TestAlarmSchedule.splitForClearing(plan, now: .now)
+        let split = TestAlarmSchedule.splitForClearing(plan, now: AppClock.now())
         for alarm in split.drop {
             // Already gone (fired or dropped by an update) is fine.
             try? await registrar.cancel(alarmID: alarm.id)
         }
         try save(split.keep)
-        let upcoming = split.keep.filter { $0.fireDate > .now }
+        let now = AppClock.now()
+        let upcoming = split.keep.filter { $0.fireDate > now }
         lastStatus = .allSet(count: upcoming.count)
         return AlarmSpikeSummary(count: upcoming.count, next: upcoming.map(\.fireDate).min())
     }
@@ -83,7 +100,7 @@ final class AlarmKitSpike: AlarmSpikeRunning {
             return lastStatus
         }
         do {
-            let outcome = try await AlarmReconciler.reconcile(planned: plan, using: registrar, now: .now)
+            let outcome = try await AlarmReconciler.reconcile(planned: plan, using: registrar, now: AppClock.now())
             if outcome.reSet > 0 {
                 lastStatus = .reSet(missing: outcome.reSet, total: outcome.total)
             } else if case .reSet = lastStatus {
