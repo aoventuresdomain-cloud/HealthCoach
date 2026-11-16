@@ -12,7 +12,7 @@ Gate 0 (CEO approves): spikes S0, S1, S1b and S3 pass or their fallbacks are acc
 | ID | Item | Owner | Branch | Areas | Label | Status | 🙋 CEO hands |
 |---|---|---|---|---|---|---|---|
 | M0-01 | Repository layout, board, decisions | Head of Engineering | `claude/project-thread-cl2ypb` | repo root, docs/ | docs | done (PR #1) | — |
-| M0-02 | Xcode project: app + Live Activity targets linking CoachCore | Planner Engineer | — | App/, LiveActivity/, ci_scripts/ | core | todo | — |
+| M0-02 | Xcode project: app + Live Activity targets linking CoachCore | Planner Engineer | `claude/project-thread-3n9z3c` | App/, LiveActivity/, Shared/, ci_scripts/ | core | in review | — |
 | M0-03 | S0 · Pipeline: push → Xcode Cloud → TestFlight → phone | Planner Engineer | — | ci_scripts/, Xcode Cloud | core | todo | yes |
 | M0-04 | S1 · Alarms fire locked, on Silent and in Focus | Planner Engineer | — | App/, CoachCore/Planner | core | todo | yes |
 | M0-05 | S1b · Alarms survive a TestFlight update, or are re-set on open | Planner Engineer | — | CoachCore/Planner, App/ | core | todo | yes |

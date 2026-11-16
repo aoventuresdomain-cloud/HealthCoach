@@ -1,0 +1,9 @@
+# Xcode per-user state and build output
+xcuserdata/
+DerivedData/
+build/
+*.xcuserstate
+# SwiftPM
+CoachCore/.build/
+CoachCore/.swiftpm/
+.DS_Store
