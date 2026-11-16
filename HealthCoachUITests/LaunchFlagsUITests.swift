@@ -41,6 +41,25 @@ final class LaunchFlagsUITests: XCTestCase {
     }
 
     @MainActor
+    func testRainSwapsTuesdaysRunIndoorsAndOfflineChangesNothing() throws {
+        // Board M2-03. Tuesday 24 Nov (week 1) has run-1 outdoors at about 08:15.
+        for (weather, expected) in [("rain", "weather=swap(indoor-circuit)"), ("offline", "weather=noForecast")] {
+            let app = XCUIApplication()
+            app.launchArguments = ["-uitest", "-now", "2026-11-24T06:00:00Z", "-fixture", "week1-monday",
+                                   "-weather", weather]
+            app.launch()
+            let status = app.staticTexts["debug.launch"]
+            XCTAssertTrue(status.waitForExistence(timeout: 10))
+            expectation(for: NSPredicate(format: "label CONTAINS %@", expected), evaluatedWith: status)
+            waitForExpectations(timeout: 10)
+            // The swap runs after the alarm reconcile and never touches it.
+            XCTAssertFalse(status.label.contains("alarms=none"), status.label)
+            XCTAssertFalse(status.label.contains("alarms=pending"), status.label)
+            app.terminate()
+        }
+    }
+
+    @MainActor
     func testEachLaunchStartsFromItsOwnFixture() throws {
         // In-memory store: the previous test's confirmed profile must not leak.
         let app = launch(now: "2026-11-16T09:00:00Z", fixture: "new-install")

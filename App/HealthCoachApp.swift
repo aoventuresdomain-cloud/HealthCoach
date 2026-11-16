@@ -40,6 +40,8 @@ struct HealthCoachApp: App {
                 if let profile, WakeAlarms.shared.isActive(profile: profile) {
                     // Board M2-02: the planner's 14 days of wake alarms.
                     await WakeAlarms.shared.reconcile(profile: profile, history: history)
+                    // Board M2-03: on a run day, the forecast may swap the run indoors.
+                    await MorningWeather.shared.check(profile: profile)
                 } else {
                     _ = await AlarmKitSpike.shared.reconcileStatus()
                 }

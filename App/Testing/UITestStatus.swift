@@ -40,6 +40,12 @@ struct UITestStatus: View {
         case .noAlarms?: alarms = "none"
         case nil: alarms = "pending"
         }
-        return "now=\(now) profile=\(profile) content=\(content) alarms=\(alarms)"
+        let weather: String
+        switch MorningWeather.shared.decision {
+        case let .swap(swap)?: weather = "swap(\(swap.to))"
+        case let .keep(reason)?: weather = reason.rawValue
+        case nil: weather = "pending"
+        }
+        return "now=\(now) profile=\(profile) content=\(content) alarms=\(alarms) weather=\(weather)"
     }
 }
