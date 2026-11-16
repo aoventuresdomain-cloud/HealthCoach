@@ -45,6 +45,10 @@ struct HealthCoachApp: App {
                 } else {
                     _ = await AlarmKitSpike.shared.reconcileStatus()
                 }
+                // Board M2-04: weight trend and steps, read-only, after onboarding.
+                if profile?.confirmed == true {
+                    await BodyStats.shared.refresh()
+                }
             }
         }
     }

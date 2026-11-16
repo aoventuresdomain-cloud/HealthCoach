@@ -46,6 +46,8 @@ struct UITestStatus: View {
         case let .keep(reason)?: weather = reason.rawValue
         case nil: weather = "pending"
         }
-        return "now=\(now) profile=\(profile) content=\(content) alarms=\(alarms) weather=\(weather)"
+        let stats = BodyStats.shared
+        let weight = !stats.hasRead ? "pending" : stats.weight.map { WeightTrend.oneDecimal($0.averageKg) } ?? "none"
+        return "now=\(now) profile=\(profile) content=\(content) alarms=\(alarms) weather=\(weather) weight=\(weight)"
     }
 }

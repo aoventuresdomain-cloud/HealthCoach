@@ -37,6 +37,10 @@ final class LaunchFlagsUITests: XCTestCase {
         let fourteen = NSPredicate(format: "label CONTAINS 'alarms=14'")
         expectation(for: fourteen, evaluatedWith: status)
         waitForExpectations(timeout: 10)
+        // Board M2-04: the 7-day weight average from (sample) Health data:
+        // 82.4–83.0 kg over the last 7 days.
+        expectation(for: NSPredicate(format: "label CONTAINS 'weight=82.7'"), evaluatedWith: status)
+        waitForExpectations(timeout: 10)
         attachScreenshot(app, named: "week1-monday")
     }
 
