@@ -46,10 +46,101 @@ final class ProfileStore {
     }
 }
 
+/// SwiftData schema versions. Each released shape of the models gets a new
+/// `VersionedSchema` and a stage in `HealthCoachMigrationPlan`, so an update
+/// never meets a store it can't read. Profile changes don't need one: the
+/// profile is CoachCore's versioned JSON inside `ProfileRecord.payload`.
+nonisolated enum SchemaV1: VersionedSchema {
+    static var versionIdentifier: Schema.Version { Schema.Version(1, 0, 0) }
+    static var models: [any PersistentModel.Type] { [ProfileRecord.self] }
+}
+
+nonisolated enum HealthCoachMigrationPlan: SchemaMigrationPlan {
+    static var schemas: [any VersionedSchema.Type] { [SchemaV1.self] }
+    /// Add `.lightweight(fromVersion:toVersion:)` or `.custom` stages here, oldest first.
+    static var stages: [MigrationStage] { [] }
+}
+
+/// What happened when the store wouldn't open. The app keeps running either
+/// way; Today shows a one-line notice (iOS Interface Engineer).
+enum StoreRecovery: Equatable {
+    /// The old store was moved aside (never deleted) and a fresh one opened.
+    case startedFresh(keptCopyAt: URL)
+    /// Nothing could be opened on disk: this session keeps data in memory only.
+    case memoryOnly
+}
+
 enum AppStore {
-    /// On disk normally; in memory under `-uitest`, so every test starts clean.
-    static func makeContainer(options: LaunchOptions = .current) throws -> ModelContainer {
-        let configuration = ModelConfiguration(isStoredInMemoryOnly: options.isUITest)
-        return try ModelContainer(for: ProfileRecord.self, configurations: configuration)
+    /// Set when `open()` had to recover; nil after a normal open.
+    private(set) static var recovery: StoreRecovery?
+
+    static var storeURL: URL {
+        URL.applicationSupportDirectory.appending(path: "HealthCoach.store")
+    }
+
+    /// Opens the store without crashing. In memory under `-uitest`, so every
+    /// test starts clean. On disk otherwise; if the store won't open:
+    /// - unreadable file (protected before first unlock, say): memory only for
+    ///   this launch, and the store is left untouched for the next one;
+    /// - readable but won't open (corrupt, or no migration path): the store is
+    ///   moved aside, never deleted, and a fresh one opened.
+    static func open(options: LaunchOptions = .current) -> ModelContainer {
+        if options.isUITest {
+            // Test-only: an in-memory store failing here is a broken simulator.
+            return try! makeContainer(inMemory: true)
+        }
+        if let container = try? makeContainer(inMemory: false) {
+            return container
+        }
+        let fm = FileManager.default
+        if fm.isReadableFile(atPath: storeURL.path), let kept = moveStoreAside() {
+            if let container = try? makeContainer(inMemory: false) {
+                recovery = .startedFresh(keptCopyAt: kept)
+                return container
+            }
+            // A fresh store failed too (disk full?): put the old one back.
+            moveStore(from: kept, to: storeURL)
+        }
+        recovery = .memoryOnly
+        // A fixed in-memory schema only fails if SwiftData itself is broken.
+        return try! makeContainer(inMemory: true)
+    }
+
+    static func makeContainer(inMemory: Bool) throws -> ModelContainer {
+        let schema = Schema(versionedSchema: SchemaV1.self)
+        let configuration = inMemory
+            ? ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+            : ModelConfiguration(schema: schema, url: storeURL)
+        if !inMemory {
+            try FileManager.default.createDirectory(at: storeURL.deletingLastPathComponent(),
+                                                    withIntermediateDirectories: true)
+        }
+        return try ModelContainer(for: schema, migrationPlan: HealthCoachMigrationPlan.self,
+                                  configurations: configuration)
+    }
+
+    /// Renames the store and its -wal/-shm files to `HealthCoach-unreadable-<time>.store`.
+    /// Returns the kept copy's URL, or nil (store left in place) if it couldn't be moved.
+    private static func moveStoreAside() -> URL? {
+        let stamp = Int(Date().timeIntervalSince1970)
+        let kept = storeURL.deletingLastPathComponent().appending(path: "HealthCoach-unreadable-\(stamp).store")
+        return moveStore(from: storeURL, to: kept) ? kept : nil
+    }
+
+    /// Moves a store and its -wal/-shm files together; undoes a partial move.
+    @discardableResult
+    private static func moveStore(from: URL, to: URL) -> Bool {
+        let fm = FileManager.default
+        var moved: [String] = []
+        for suffix in ["", "-wal", "-shm"] where fm.fileExists(atPath: from.path + suffix) {
+            do {
+                try fm.moveItem(atPath: from.path + suffix, toPath: to.path + suffix)
+                moved.append(suffix)
+            } catch {
+                for done in moved { try? fm.moveItem(atPath: to.path + done, toPath: from.path + done) }
+                return false
+            }
+        }
+        return !moved.isEmpty
     }
 }

@@ -9,12 +9,9 @@ struct HealthCoachApp: App {
 
     init() {
         let options = LaunchOptions.current
-        do {
-            container = try AppStore.makeContainer(options: options)
-        } catch {
-            // The store can't open: nothing sensible to run without it.
-            fatalError("Couldn't open the HealthCoach store: \(error)")
-        }
+        // Never crashes: a store that won't open is kept aside and the app
+        // starts fresh (AppStore.recovery says so).
+        container = AppStore.open(options: options)
         if options.isUITest {
             UIView.setAnimationsEnabled(false)
         }
