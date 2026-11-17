@@ -20,17 +20,21 @@ import Testing
         try #require(ContentLibrary.load(from: contentRoot).programmes["phase-1"])
     }
 
-    /// Paper start Monday 16 Nov 2026 (the onboarding guess), so Monday 23 Nov is week 2.
-    private func profile() -> Profile {
+    /// Paper start Monday 16 Nov 2026 (the onboarding guess), so Monday 23 Nov
+    /// is week 2. Onboarded on `confirmedOn` (Monday 23 Nov, 09:00, by default).
+    private func profile(confirmedOn: Date? = nil) -> Profile {
         var p = Profile()
         p.confirmed = true
         p.programme.startDate = at(11, 16)
+        p.programme.confirmedOn = confirmedOn ?? at(11, 23, 9)
         return p
     }
 
-    private func plan(now: Date, answers: WeekAnswers = WeekAnswers(), completed: Set<String> = []) throws -> WeekPlan {
+    private func plan(now: Date, answers: WeekAnswers = WeekAnswers(), completed: Set<String> = [],
+                      confirmedOn: Date? = nil) throws -> WeekPlan {
         WeekPlanner.plan(weekStarting: AlarmSchedule.mondayOf(now, calendar: calendar), programme: try phase1(),
-                         profile: profile(), answers: answers, now: now, completed: completed, calendar: calendar)
+                         profile: profile(confirmedOn: confirmedOn), answers: answers, now: now,
+                         completed: completed, calendar: calendar)
     }
 
     @Test func weekComesFromThePaperStart() throws {
@@ -155,6 +159,28 @@ extension StartWeekTests {
         #expect(week.day(.friday)?.session?.sessionID == "upper-a")
         #expect(week.unplaced.map(\.sessionID) == ["run-1", "full-body"])
         #expect(week.day(.saturday)?.session?.sessionID == "upper-b")
+    }
+}
+
+/// HoE on #48: replay only from the onboarding day; earlier days were on paper.
+extension StartWeekTests {
+    @Test func onboardedThursdayLeavesMondayToWednesdayAlone() throws {
+        let week = try plan(now: at(11, 26, 10), confirmedOn: at(11, 26, 9, 30))
+        #expect(week.day(.monday)?.session?.sessionID == "upper-a")
+        #expect(week.day(.tuesday)?.session?.sessionID == "run-1")
+        #expect(week.day(.friday)?.session == nil)
+        #expect(week.unplaced.isEmpty)
+        // Thursday's own full body (08:00) has passed on onboarding day: tonight.
+        #expect(week.day(.thursday)?.session?.slot == .evening)
+    }
+
+    @Test func aProfileWithNoConfirmDateNeverReplaysEarlierDays() throws {
+        var p = profile()
+        p.programme.confirmedOn = nil
+        let week = WeekPlanner.plan(weekStarting: at(11, 23), programme: try phase1(), profile: p,
+                                    answers: WeekAnswers(), now: at(11, 24, 7), calendar: calendar)
+        #expect(week.day(.monday)?.session?.sessionID == "upper-a")
+        #expect(week.day(.friday)?.session == nil)
     }
 }
 

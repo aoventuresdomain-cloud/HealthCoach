@@ -73,7 +73,8 @@ public struct WeekPlan: Sendable, Equatable {
 /// placement rules allow. `dropping` leaves sessions out (the reduced week,
 /// `Programme.droppedSessions(history:)`).
 ///
-/// With `now` in this week, every session on an earlier day, and today's once
+/// With `now` in this week, every session on an earlier day since onboarding
+/// (`programme.confirmedOn`; earlier days were on paper), and today's once
 /// its slot has ended, that isn't in `completed` (this week's logged session
 /// ids, whatever day they were logged) moves (decision E13): to this evening's
 /// normal slot if it ends at least 2 h before wind-down, else to the next
@@ -261,7 +262,9 @@ public enum WeekPlanner {
             for index in 0...todayIndex {
                 let weekday = planned[index].weekday
                 guard let placement = placements[weekday], !completed.contains(placement.sessionID) else { continue }
-                if index < todayIndex || placement.end.minutesSinceMidnight <= nowMinutes {
+                // Days before onboarding were trained on paper: they count as done.
+                let replayed = profile.programme.confirmedOn.map { dates[index] >= calendar.startOfDay(for: $0) } ?? false
+                if (index < todayIndex && replayed) || (index == todayIndex && placement.end.minutesSinceMidnight <= nowMinutes) {
                     passed.append((placement.sessionID, placement.movedFrom ?? weekday, planned[index].week))
                     placements[weekday] = nil
                 }

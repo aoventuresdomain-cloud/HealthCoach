@@ -2,7 +2,7 @@ import XCTest
 
 /// Board M1-05: Today shows the right session for each day of week 1.
 /// Expected names are phase-1.json's week 1 schedule (start Monday 23 Nov 2026).
-/// Nothing is logged in `week1-monday`, so by Friday Monday's Upper A has
+/// `week1-monday` was onboarded Sunday 22 Nov (`confirmedOn`) and logs nothing, so by Friday Monday's Upper A has
 /// passed and moved to the free Friday (E13, QA-15).
 final class TodayUITests: XCTestCase {
     override func setUpWithError() throws {

@@ -103,6 +103,11 @@ public struct Profile: VersionedFormat, Codable, Sendable, Equatable {
         public var programmeID = "phase-1"
         /// Monday of programme week 1, in the owner's calendar. nil until onboarding.
         public var startDate: Date?
+        /// When onboarding was confirmed. The planner replays missed sessions
+        /// (E13) only from this day: earlier days were trained on paper and
+        /// count as done. nil (profiles from before this field) means no
+        /// replay before today.
+        public var confirmedOn: Date?
         public init() {}
     }
 }
