@@ -49,6 +49,9 @@ struct SpikeTestsView: View {
                 Button("Clear later test alarms", role: .destructive) {
                     Task { await clearLater() }
                 }
+                Button("Clear all test alarms", role: .destructive) {
+                    Task { await clearLater(keepWithin: 0) }
+                }
             } footer: {
                 Text("Removes the 13 test alarms set three weeks out. Use it if the real alarm planner isn't in by then.")
             }
@@ -100,9 +103,10 @@ struct SpikeTestsView: View {
         await refreshReconcile()
     }
 
-    private func clearLater() async {
+    private func clearLater(keepWithin: TimeInterval = 24 * 3600) async {
         do {
-            alarmResult = "Cleared later alarms. " + Self.describe(try await alarms.clearLaterTestAlarms())
+            let summary = try await alarms.clearLaterTestAlarms(keepWithin: keepWithin)
+            alarmResult = (keepWithin == 0 ? "Cleared all alarms. " : "Cleared later alarms. ") + Self.describe(summary)
         } catch {
             alarmResult = "Failed: \(error.localizedDescription)"
         }

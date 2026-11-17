@@ -33,9 +33,10 @@ final class LaunchFlagsUITests: XCTestCase {
         XCTAssertTrue(status.label.contains("profile=confirmed"), status.label)
         XCTAssertTrue(status.label.contains("content=ok("), status.label)
         // Board M2-02: on open the planner reconciles 14 days of wake alarms
-        // (Monday 23 Nov, 06:30 GMT: today's 07:50 alarm is still ahead).
-        let fourteen = NSPredicate(format: "label CONTAINS 'alarms=14'")
-        expectation(for: fourteen, evaluatedWith: status)
+        // (Monday 23 Nov, 06:30 GMT: today's 07:50 alarm is still ahead). Decision
+        // E14: only the 8 training days ring (no alarm on home Wed/Fri or the Sunday walk).
+        let alarmsSet = NSPredicate(format: "label CONTAINS 'alarms=8'")
+        expectation(for: alarmsSet, evaluatedWith: status)
         waitForExpectations(timeout: 10)
         // Board M2-04: the 7-day weight average from (sample) Health data:
         // 82.4–83.0 kg over the last 7 days.

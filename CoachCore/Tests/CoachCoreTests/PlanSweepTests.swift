@@ -58,8 +58,11 @@ import Testing
                 let weekday = plan.planned.weekday
                 let workDay = weekday != .saturday && weekday != .sunday
 
-                // Wake: always on a work day, never before the earliest wake.
-                if workDay { #expect(plan.alarm != nil, "\(label): no alarm on a work day") }
+                // Wake (E14): exactly the days with a fixed start (a session that
+                // sets an alarm, or an office day), never before the earliest wake.
+                let fixedStart = (plan.session.map(\.session.setsAlarm) ?? false)
+                    || (workDay && answers.officeDays.contains(weekday))
+                #expect((plan.alarm != nil) == fixedStart, "\(label): alarm \(String(describing: plan.alarm))")
                 if let alarm = plan.alarm { #expect(alarm >= s.earliestWake, "\(label): alarm \(alarm)") }
 
                 // The session: a real slot, never on Wednesday, within the limits.

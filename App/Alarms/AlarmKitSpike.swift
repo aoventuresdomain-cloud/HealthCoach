@@ -60,10 +60,11 @@ final class AlarmKitSpike: AlarmSpikeRunning {
 
     /// Cancels the 13 test alarms set 21+ days out, keeping the near one, in
     /// case the M2 planner isn't there to replace them in time.
-    func clearLaterTestAlarms() async throws -> AlarmSpikeSummary {
+    /// Cancels the test alarms more than `keepWithin` ahead; 0 cancels every one still to ring.
+    func clearLaterTestAlarms(keepWithin: TimeInterval = 24 * 3600) async throws -> AlarmSpikeSummary {
         guard !WakeAlarms.shared.ownsAlarms else { throw SpikeError.plannerOwnsAlarms }
         guard let plan = try loadPlan() else { return AlarmSpikeSummary(count: 0, next: nil) }
-        let split = TestAlarmSchedule.splitForClearing(plan, now: AppClock.now())
+        let split = TestAlarmSchedule.splitForClearing(plan, now: AppClock.now(), keepWithin: keepWithin)
         for alarm in split.drop {
             // Already gone (fired or dropped by an update) is fine.
             try? await registrar.cancel(alarmID: alarm.id)

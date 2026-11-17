@@ -36,7 +36,8 @@ public struct WeekPlan: Sendable, Equatable {
         public let wake: TimeOfDay?
         /// Leave for the office; nil on home days and days off.
         public let leave: TimeOfDay?
-        /// Lights out the night before, from this day's alarm and the sleep rule.
+        /// Lights out the night before, from this day's alarm and the sleep rule;
+        /// on a day with no alarm, from the week's median alarm (E14).
         public let lightsOutBefore: TimeOfDay?
     }
 
@@ -186,8 +187,15 @@ public enum WeekPlanner {
             let placement = placements[day.weekday]
             var fixed: Programme.FixedEvent?
             if case let .fixed(e) = day.entry { fixed = e }
+            // Decision E14 (refines E11, QA-11): an alarm only on a day with a fixed
+            // start, a session that sets an alarm or an office day. Home rest days,
+            // a home Wednesday and a day whose only plan is optional (the Sunday
+            // walk) have no alarm.
+            let setsAlarm = placement.flatMap { programme.sessions[$0.sessionID] }?.setsAlarm ?? false
             var wake: Int?
-            if let placement, placement.slot == .morning {
+            if !setsAlarm && k != .office {
+                wake = nil
+            } else if let placement, placement.slot == .morning {
                 wake = placement.start.minutesSinceMidnight - s.wakeBufferMinutes
             } else if k != .dayOff {
                 let first = (answers.earlyStarts[day.weekday] ?? s.workStart).minutesSinceMidnight
@@ -198,19 +206,39 @@ public enum WeekPlanner {
             let leave: TimeOfDay? = k == .office
                 ? time((answers.earlyStarts[day.weekday] ?? s.workStart).minutesSinceMidnight - s.commuteMinutes)
                 : nil
-            let lightsOut: TimeOfDay? = wake.map { w in
-                let asleep = Int((s.sleepHours * 60).rounded()) + s.fallAsleepMinutes
-                // Minutes after the previous midnight; never later than latestBedtime.
-                let byRule = w - asleep + 1440
-                var latest = s.latestBedtime.minutesSinceMidnight
-                if latest < 12 * 60 { latest += 1440 }
-                return time(min(byRule, latest))
-            }
+            let lightsOut: TimeOfDay? = wake.map { Self.lightsOut(forWake: $0, schedule: s) }
             days.append(.init(date: date, weekday: day.weekday, week: day.week, kind: k,
                               session: placement, fixed: fixed, wake: wake.map(time),
                               leave: leave, lightsOutBefore: lightsOut))
         }
-        return WeekPlan(days: days, unplaced: unplaced)
+        return WeekPlan(days: withFreeDayLightsOut(days, schedule: s), unplaced: unplaced)
+    }
+
+    /// E14: the night before a day with no alarm, lights out comes from the
+    /// week's median alarm, so bedtime stays close to the other nights.
+    private static func withFreeDayLightsOut(_ days: [WeekPlan.Day], schedule s: Profile.Schedule) -> [WeekPlan.Day] {
+        let wakes = days.compactMap(\.wake).map(\.minutesSinceMidnight).sorted()
+        guard !wakes.isEmpty else { return days }
+        let median = wakes.count % 2 == 1
+            ? wakes[wakes.count / 2]
+            : roundDown((wakes[wakes.count / 2 - 1] + wakes[wakes.count / 2]) / 2)
+        let lightsOut = Self.lightsOut(forWake: median, schedule: s)
+        return days.map { day in
+            guard day.wake == nil else { return day }
+            return WeekPlan.Day(date: day.date, weekday: day.weekday, week: day.week, kind: day.kind,
+                                session: day.session, fixed: day.fixed, wake: nil, leave: day.leave,
+                                lightsOutBefore: lightsOut)
+        }
+    }
+
+    /// The sleep rule: wake − sleep − fall asleep, never later than the latest bedtime.
+    static func lightsOut(forWake w: Int, schedule s: Profile.Schedule) -> TimeOfDay {
+        let asleep = Int((s.sleepHours * 60).rounded()) + s.fallAsleepMinutes
+        // Minutes after the previous midnight; never later than latestBedtime.
+        let byRule = w - asleep + 1440
+        var latest = s.latestBedtime.minutesSinceMidnight
+        if latest < 12 * 60 { latest += 1440 }
+        return time(min(byRule, latest))
     }
 
     // MARK: - Minutes
@@ -243,6 +271,13 @@ extension Weekday {
 
 extension Session {
     /// Expected length in `week`, warm-up included, from the programme data.
+    /// False for an optional session or one the data says gets no alarm
+    /// (decision E11): it never sets or moves an alarm.
+    public var setsAlarm: Bool {
+        if case let .walk(w) = self { return w.alarm && !w.optional }
+        return true
+    }
+
     func plannedMinutes(week: Int) -> Int? {
         switch self {
         case let .strength(s): week >= 1 && week <= s.durationMinutes.count ? s.durationMinutes[week - 1] : nil

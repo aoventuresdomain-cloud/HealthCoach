@@ -77,7 +77,10 @@ final class AlarmPermissionUITests: XCTestCase {
         shot.lifetime = .keepAlways
         add(shot)
 
-        // Leave one near alarm rather than 14 on the simulator.
-        app.buttons["Clear later test alarms"].tap()
+        // QA-12: cancel every test alarm, so none rings over later tests' screenshots.
+        let clearAll = app.buttons["Clear all test alarms"]
+        if !clearAll.isHittable { app.swipeUp() }
+        clearAll.tap()
+        XCTAssertTrue(waitForResult(app, containing: "Cleared all alarms. 0 alarms set", timeout: 10), results(app))
     }
 }

@@ -82,15 +82,18 @@ import Testing
     @Test func basketballDayHasNoSessionButShowsTheFixedEvent() throws {
         let plan = try #require(DayPlan.make(for: date(2026, 11, 25), programme: phase1(), profile: profile(), calendar: calendar))
         #expect(plan.session == nil)
-        #expect(plan.timeline.map(\.kind) == [.wake, .fixed, .windDown])
-        #expect(plan.timeline[1].title == "Basketball")
-        #expect(plan.timeline[1].detail == "Evening")
+        // No session, so no alarm (E11): sleep in.
+        #expect(plan.alarm == nil)
+        #expect(plan.timeline.map(\.kind) == [.fixed, .windDown])
+        #expect(plan.timeline[0].title == "Basketball")
+        #expect(plan.timeline[0].detail == "Evening")
     }
 
     @Test func restDayHasOnlyWakeAndWindDown() throws {
         let plan = try #require(DayPlan.make(for: date(2026, 11, 27), programme: phase1(), profile: profile(), calendar: calendar))
         #expect(plan.planned.entry == .rest)
-        #expect(plan.timeline.map(\.kind) == [.wake, .windDown])
+        #expect(plan.alarm == nil)
+        #expect(plan.timeline.map(\.kind) == [.windDown])
     }
 
     @Test func runWalkLengthComesFromItsWeek() throws {
