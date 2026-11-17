@@ -66,7 +66,10 @@ struct TodayView: View {
                 if let plan {
                     card(plan)
                     // QA-20: the session row follows a weather swap, like the header.
-                    TimelineCard(items: plan.swapped(by: dayOffset == 0 ? weatherSwap : nil, programme: programme).timeline, now: dayOffset == 0 ? TodayFormat.timeOfDay(now, calendar) : nil)
+                    let shown = plan.swapped(by: dayOffset == 0 ? weatherSwap : nil, programme: programme)
+                    // QA-28: the current row is the first one not over yet (CoachCore).
+                    TimelineCard(items: shown.timeline,
+                                 current: dayOffset == 0 ? shown.timelineProgress(at: TodayFormat.timeOfDay(now, calendar)) : nil)
                 }
             }
             .padding(.horizontal, 16)
@@ -382,11 +385,11 @@ private struct Banner: View {
 
 struct TimelineCard: View {
     let items: [DayPlan.TimelineItem]
+    /// The current row from `DayPlan.timelineProgress(at:)`; rows before it are past.
     /// nil when showing another day: nothing is past or current.
-    let now: TimeOfDay?
+    let current: Int?
 
     var body: some View {
-        let current = now.flatMap { now in items.lastIndex { ($0.time ?? .init(hour: 23, minute: 59)) <= now } }
         VStack(spacing: 0) {
             ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
                 let isPast = current.map { index < $0 } ?? false

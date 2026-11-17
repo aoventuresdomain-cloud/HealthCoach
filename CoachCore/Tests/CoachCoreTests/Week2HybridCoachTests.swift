@@ -2,8 +2,8 @@ import Foundation
 import Testing
 @testable import CoachCore
 
-/// Gate 1–2 checklist §A, the CoachCore twin for the coach steps (A5, A13,
-/// A16, A17). It runs the scripted hybrid week 2 (Mon 23 – Sun 29 Nov 2026):
+/// Gate 1–2 checklist §A, the CoachCore twin for the coach steps (A5, A12,
+/// A13, A16, A17). It runs the scripted hybrid week 2 (Mon 23 – Sun 29 Nov 2026):
 /// office Mon, Tue and Thu, early Tue 08:00, late Thu 19:00. Upper A, Run 1
 /// and Upper B are logged done as prescribed, Thursday's full body is missed,
 /// and the weight comes down about 0.5 kg a week.
@@ -79,6 +79,59 @@ import Testing
             #expect(r.flags.isEmpty)                              // nothing to tap
             #expect(r.droppedSessions.isEmpty)                    // all Fine: no reduced week
         }
+    }
+
+    /// The app's week2-hybrid fixture, with its fixed Health data (A12).
+    private func fixtureHealth() throws -> FixedHealthReader {
+        let url = contentRoot.deletingLastPathComponent()
+            .appendingPathComponent("App/Testing/Fixtures/fixture-week2-hybrid.json")
+        struct File: Decodable { let health: FixedHealthReader }
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return try decoder.decode(File.self, from: Data(contentsOf: url)).health
+    }
+
+    @Test func a12FixtureHealthDataGivesTheTrendAndSteps() async throws {
+        let health = try fixtureHealth()
+        // The fixture is this suite's weight line, to the gram.
+        #expect(health.weights.count == weights.count)
+        for (fixed, line) in zip(health.weights, weights) {
+            #expect(fixed.date == line.date)
+            #expect(abs(fixed.kg - line.kg) < 0.005)
+        }
+        let samples = try await health.weights(from: f.day(-14), to: f.day(14))
+        let trend = try #require(WeightTrend.make(samples: samples, endingOn: sunday, calendar: f.calendar))
+        #expect(trend.daysWeighed == 7)
+        #expect(abs((trend.changeKg ?? 0) + 0.5) < 0.01) // down about 0.5 kg on the week before
+        let steps = StepsSummary.make(days: try await health.dailySteps(from: f.day(6), to: f.day(14)),
+                                      today: sunday, calendar: f.calendar)
+        #expect(steps.today == 6_500)
+        #expect(steps.sevenDayAverage != nil)
+    }
+
+    @Test func a13MealsEveryDayArePreTickedAndInsideTheBand() throws {
+        let p = try f.phase1()
+        let lib = try ContentLibrary.load(from: contentRoot)
+        let fixed = try fixtureHealth().weights
+        let plan = MealPlan.week(monday: f.day(7), content: lib.nutrition, lunchOrders: lib.lunchOrders.orders,
+                                 answers: answers, programmeID: p.id, kcalTarget: 2_000, calendar: f.calendar)
+        #expect(plan.days.count == 7)
+        for day in plan.days {
+            let r = try #require(CoachReview.make(programme: p, profile: f.profile(), history: [], weights: fixed,
+                                                  blocks: [], now: day.date.addingTimeInterval(12 * 3_600),
+                                                  calendar: f.calendar))
+            #expect(day.target.kcal == r.calories.kcal, "\(day.weekday)")
+            #expect(day.target.kcalMin...day.target.kcalMax == r.calories.dayBand, "\(day.weekday)")
+            #expect(day.meals.allSatisfy { $0.ticked }, "\(day.weekday)")  // nothing to tap if eaten as planned
+            #expect(day.withinBand, "\(day.weekday): \(day.kcal) kcal, \(day.protein) g")
+            // Advisor (17 Nov): 150 g a day is the pass line; about 160 is the aim.
+            #expect(day.protein >= day.target.proteinMin, "\(day.weekday): \(day.protein) g")
+            let office = answers.officeDays.contains(day.weekday)
+            #expect((day.meal(.lunch)?.isOfficeLunch ?? false) == office, "\(day.weekday)")
+        }
+        // ...and the week's planned protein averages at least 155 g a day.
+        let average = Double(plan.days.reduce(0) { $0 + $1.protein }) / Double(plan.days.count)
+        #expect(average >= 155, "weekly average \(average) g")
     }
 
     @Test func a16SundaySummaryCarriesTheWeek() throws {

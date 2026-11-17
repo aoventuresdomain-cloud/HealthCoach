@@ -8,6 +8,31 @@ final class AlarmPermissionUITests: XCTestCase {
         continueAfterFailure = false
     }
 
+    /// QA-27: this is the suite's only real-AlarmKit test. When it fails part
+    /// way, a system alert (the AlarmKit permission prompt, or a test alarm
+    /// ringing) can stay over the simulator and keep the next tests' app
+    /// inactive, so their launch-time reconcile never runs. Whatever happened,
+    /// leave no alert up and no test alarm set.
+    override func tearDown() async throws {
+        await MainActor.run {
+            let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+            for _ in 0..<3 {
+                let alert = springboard.alerts.firstMatch
+                guard alert.waitForExistence(timeout: 1) else { break }
+                let allow = alert.buttons["Allow"]
+                (allow.exists ? allow : alert.buttons.element(boundBy: 0)).tap()
+            }
+            let app = XCUIApplication()
+            let clearAll = app.buttons["Clear all test alarms"]
+            if app.state == .runningForeground, clearAll.exists {
+                if !clearAll.isHittable { app.swipeUp() }
+                clearAll.tap()
+            }
+            app.terminate()
+        }
+        try await super.tearDown()
+    }
+
     @MainActor
     private func openSpikeTests() -> XCUIApplication {
         let app = XCUIApplication()

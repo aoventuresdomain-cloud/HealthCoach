@@ -10,12 +10,15 @@ import Foundation
 /// `logs` is optional: sessions already done, so the planner (E13) doesn't
 /// move them. A log that starts after `now` (the `-now` clock) is left out, so
 /// one fixture can script a whole week: each launch sees only what is done by then. `weekAnswers` is optional: the Sunday prompt's answers for those
-/// weeks. More keys join as features need them.
+/// weeks. `health` is optional: fixed weigh-ins and steps (`FixedHealthReader`)
+/// in place of the generic sample data (A12). More keys join as features need them.
 struct Fixture {
     let profile: Profile
     var logs: [SessionLog] = []
     /// Monday ("yyyy-MM-dd") → that week's answers.
     var weekAnswers: [String: WeekAnswers] = [:]
+    /// Fixed Health data, read by BodyStats in UI-test mode instead of the sample reader.
+    var health: FixedHealthReader?
 
     private struct Logs: Decodable {
         struct Entry: Decodable {
@@ -25,6 +28,7 @@ struct Fixture {
         }
         let logs: [Entry]?
         let weekAnswers: [String: WeekAnswers]?
+        let health: FixedHealthReader?
     }
 
     nonisolated enum LoadError: LocalizedError {
@@ -65,6 +69,6 @@ struct Fixture {
         return Fixture(profile: profile, logs: (extras.logs ?? []).filter { $0.startedAt <= now }.map {
             SessionLog(programmeID: profile.programme.programmeID, sessionID: $0.sessionID, week: $0.week,
                        startedAt: $0.startedAt, finishedAt: $0.startedAt.addingTimeInterval(45 * 60))
-        }, weekAnswers: extras.weekAnswers ?? [:])
+        }, weekAnswers: extras.weekAnswers ?? [:], health: extras.health)
     }
 }

@@ -123,6 +123,46 @@ import Testing
         #expect(sunday.alarm == nil)
     }
 
+    // QA-28: Today's current row is the first one not over yet, whatever rows the day has.
+
+    private func current(_ plan: DayPlan, at time: TimeOfDay) -> DayPlan.TimelineItem.Kind? {
+        let index = plan.timelineProgress(at: time)
+        return index < plan.timeline.count ? plan.timeline[index].kind : nil
+    }
+
+    @Test func qa28ThursdayNightAfterTheMoveIsWindDown() throws {
+        // A8: full body moved to Friday, so Thursday is wake 08:05, leave 08:35, wind down 23:00.
+        let plan = try today(at(11, 26, 21), done: ["upper-a", "run-1"])
+        #expect(plan.timeline.map(\.kind) == [.wake, .leave, .windDown])
+        #expect(current(plan, at: Self.t(21, 0)) == .windDown)
+        #expect(plan.timelineProgress(at: Self.t(21, 0)) == 2) // wake and leave both past
+    }
+
+    @Test func qa28AnOrdinaryDayStepsThroughEveryRow() throws {
+        // Monday: wake 07:20, Upper A 07:35, leave 08:35, wind down 22:20.
+        let plan = try today(at(11, 23, 6, 30))
+        #expect(plan.timeline.map(\.kind) == [.wake, .session, .leave, .windDown])
+        let session = try #require(plan.session?.end)
+        #expect(current(plan, at: Self.t(6, 30)) == .wake)       // nothing past yet
+        #expect(current(plan, at: Self.t(7, 20)) == .wake)       // the alarm's minute
+        #expect(current(plan, at: Self.t(7, 21)) == .session)    // up next
+        #expect(current(plan, at: Self.t(7, 50)) == .session)    // in progress
+        #expect(current(plan, at: session) == .leave)            // done, leave next
+        #expect(current(plan, at: Self.t(12, 0)) == .windDown)   // leave passed
+        #expect(current(plan, at: plan.windDown) == .windDown)   // winding down until lights out
+        #expect(current(plan, at: plan.lightsOut) == nil)        // the day is over: all past
+    }
+
+    @Test func qa28UntimedEveningEventStaysCurrentUntilWindDown() throws {
+        // Wednesday: basketball (evening, no time) then wind down.
+        let plan = try today(at(11, 25, 7), done: ["upper-a", "run-1"])
+        #expect(plan.timeline.map(\.kind) == [.fixed, .windDown])
+        #expect(current(plan, at: Self.t(7, 0)) == .fixed)
+        #expect(current(plan, at: plan.windDown.adding(minutes: -1)) == .fixed)
+        #expect(current(plan, at: plan.windDown) == .windDown)
+        #expect(current(plan, at: plan.lightsOut) == nil)
+    }
+
     private func phase1Plan(now: Date, done: Set<String>) throws -> WeekPlan {
         WeekPlanner.plan(weekStarting: at(11, 23), programme: try phase1(), profile: profile(),
                          answers: Self.hybrid, now: now, completed: done, calendar: calendar)

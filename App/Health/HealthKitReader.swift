@@ -100,7 +100,9 @@ final class BodyStats {
         if let reader {
             self.reader = reader
         } else if LaunchOptions.current.isUITest {
-            self.reader = SampleHealthReader(today: AppClock.now())
+            // A fixture's own Health data when it has some (A12), else the samples.
+            let fixed = LaunchOptions.current.fixture.flatMap { try? Fixture.load(named: $0).health }
+            self.reader = fixed ?? SampleHealthReader(today: AppClock.now())
         } else {
             #if targetEnvironment(simulator)
             // No entitlement without the paid account; sample data stands in.
