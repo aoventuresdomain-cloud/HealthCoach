@@ -1,3 +1,4 @@
+import CoachCore
 import SwiftUI
 import UserNotifications
 

@@ -1,3 +1,4 @@
+import CoachCore
 import Foundation
 
 /// Seam between the Spike tests screen (M0-11, iOS Interface Engineer) and the

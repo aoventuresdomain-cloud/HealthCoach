@@ -19,6 +19,16 @@ permissions:
   contents: read
 
 jobs:
+  app-imports:
+    # Swift 6 needs `import CoachCore` in each App/ file; without it only the
+    # macOS build fails (twice on 17 Nov). This catches it in seconds.
+    name: App files import CoachCore
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+      - run: .github/scripts/check-coachcore-imports.sh
+
   swift-test:
     name: CoachCore tests (Linux)
     runs-on: ubuntu-latest

@@ -1,3 +1,4 @@
+import CoachCore
 import Foundation
 
 /// Deterministic launch for simulator UI tests (QA test plan §3, board M1-01):
