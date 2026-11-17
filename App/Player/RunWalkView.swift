@@ -21,9 +21,11 @@ struct RunWalkView: View {
                 .buttonStyle(.plain)
                 .accessibilityLabel("End run")
                 .accessibilityIdentifier("run.end")
-                Text("\(model.plan.name) · Week \(model.plan.week)").font(.headline)
                 Spacer()
-                Text(model.voiceOn ? "Voice on" : "Voice off").foregroundStyle(.secondary)
+                // UI-12: no title (you started it from Today); only the exception is said.
+                if !model.voiceOn {
+                    Text("Voice off").foregroundStyle(.secondary)
+                }
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
@@ -77,12 +79,11 @@ struct RunWalkView: View {
                 Text("\(PlayerFormat.clock(model.plan.totalSeconds)) · \(model.plan.repeats) jogs")
                     .font(.title3).foregroundStyle(.secondary)
             } else if let segment = model.segment {
-                Text(RunWalkFormat.progress(model.plan, segment).uppercased())
-                    .font(.headline).foregroundStyle(.secondary)
-                    .padding(.top, 32)
                 Text(RunWalkFormat.label(segment.kind))
                     .font(.coachNumber(segment.kind == .jog || segment.kind == .walk ? 88 : 44, weight: .heavy))
                     .foregroundStyle(segment.isJog ? Color.go : Color.rest)
+                    .padding(.top, 32)
+                    .accessibilityLabel("\(RunWalkFormat.label(segment.kind)), \(RunWalkFormat.progress(model.plan, segment))")
                     .accessibilityIdentifier("run.label")
                 let left = model.pausedRemaining ?? model.endsAt.map { max(0, Int($0.timeIntervalSince(date).rounded(.up))) } ?? 0
                 Text(PlayerFormat.clock(left))
@@ -93,12 +94,15 @@ struct RunWalkView: View {
                     .accessibilityIdentifier("run.clock")
                 Text(RunWalkFormat.nextUp(model.plan, after: model.index))
                     .font(.title2.bold()).foregroundStyle(.secondary)
-                Text(RunWalkPlan.effortLine.trimmingCharacters(in: .punctuationCharacters))
-                    .foregroundStyle(.secondary)
+                // UI-12: easy pace on the warm-up and the first jog only; the voice says it too.
+                if segment.kind == .warmUp || (segment.kind == .jog && segment.interval == 1) {
+                    Text(RunWalkPlan.effortLine.trimmingCharacters(in: .punctuationCharacters))
+                        .foregroundStyle(.secondary)
+                }
                 SegmentBar(plan: model.plan, current: model.index)
                     .padding(.horizontal, 16)
                     .padding(.top, 20)
-                Text("\(PlayerFormat.clock(times.gone)) gone · \(PlayerFormat.clock(times.toGo)) to go")
+                Text("\(PlayerFormat.clock(times.toGo)) to go")
                     .font(.callout.monospacedDigit())
                     .foregroundStyle(.secondary)
                     .accessibilityIdentifier("run.stats")
@@ -132,15 +136,6 @@ private struct SegmentBar: View {
                 }
             }
             .frame(height: 22)
-            HStack {
-                Text("Warm-up walk")
-                Spacer()
-                Text("\(plan.repeats) × jog, walk")
-                Spacer()
-                Text("Cool-down")
-            }
-            .font(.footnote)
-            .foregroundStyle(.secondary)
         }
         .accessibilityHidden(true)
     }
@@ -163,10 +158,19 @@ struct WalkView: View {
         VStack(spacing: 16) {
             Text(name).font(.largeTitle.bold()).padding(.top, 48)
                 .accessibilityIdentifier("walk.title")
-            if let minutes { Text("About \(minutes) min, at your pace").foregroundStyle(.secondary) }
             TimelineView(.periodic(from: .now, by: 1)) { context in
-                Text(PlayerFormat.clock(Int(context.date.timeIntervalSince(log.startedAt))))
-                    .font(.coachNumber(96))
+                let gone = Int(context.date.timeIntervalSince(log.startedAt))
+                VStack(spacing: 8) {
+                    Text(PlayerFormat.clock(gone))
+                        .font(.coachNumber(96))
+                    // UI-12: the same rule as the run-walk, "to go" only.
+                    if let minutes {
+                        Text("\(PlayerFormat.clock(max(0, minutes * 60 - gone))) to go")
+                            .font(.callout.monospacedDigit())
+                            .foregroundStyle(.secondary)
+                            .accessibilityIdentifier("walk.toGo")
+                    }
+                }
             }
             Spacer()
         }
