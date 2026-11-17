@@ -118,6 +118,8 @@ struct MealsHubView: View {
                 Image(systemName: ticked ? "checkmark.circle.fill" : "circle")
                     .font(.title2)
                     .foregroundStyle(ticked ? Color.go : Color.secondary)
+                    .frame(minWidth: 44, minHeight: 44)  // 44 pt hit area round the 24 pt circle
+                    .contentShape(.rect)
             }
             .buttonStyle(.borderless)
             .accessibilityLabel(ticked ? "Eaten" : "Not eaten")
@@ -158,7 +160,7 @@ struct MealsHubView: View {
         let aisles = items.reduce(into: [String]()) { if !$0.contains($1.aisle) { $0.append($1.aisle) } }
         return List {
             ForEach(aisles, id: \.self) { aisle in
-                Section(aisle) {
+                Section(aisle.prefix(1).uppercased() + aisle.dropFirst()) {  // QA-29: "Produce", not "produce"
                     ForEach(items.filter { $0.aisle == aisle }) { item in
                         shoppingRow(item, monday: monday)
                     }
@@ -180,6 +182,8 @@ struct MealsHubView: View {
                 Image(systemName: ticked ? "checkmark.circle.fill" : "circle")
                     .font(.title2)
                     .foregroundStyle(ticked ? Color.go : Color.secondary)
+                    .frame(minWidth: 44, minHeight: 44)  // 44 pt hit area round the 24 pt circle
+                    .contentShape(.rect)
             }
             .buttonStyle(.borderless)
             .accessibilityLabel(ticked ? "Got it" : "To buy")
