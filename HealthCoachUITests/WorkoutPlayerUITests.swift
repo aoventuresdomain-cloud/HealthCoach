@@ -33,6 +33,16 @@ final class WorkoutPlayerUITests: XCTestCase {
             } else if next.exists, next.isHittable {
                 if !restShot, restClock.exists {
                     attach(app, "player-rest")
+                    // QA-5: background the app mid-rest so the Live Activity
+                    // (lock screen / Dynamic Island) is in the shot.
+                    XCUIDevice.shared.press(.home)
+                    sleep(2)
+                    let backgrounded = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+                    backgrounded.name = "player-rest-backgrounded"
+                    backgrounded.lifetime = .keepAlways
+                    add(backgrounded)
+                    app.activate()
+                    XCTAssertTrue(next.waitForExistence(timeout: 10))
                     restShot = true
                 }
                 next.tap()

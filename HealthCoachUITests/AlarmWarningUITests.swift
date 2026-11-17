@@ -1,0 +1,48 @@
+import XCTest
+
+/// QA-1 on Today: with no alarms set (permission denied), Today warns and
+/// never says "all set"; with alarms set, there's no warning.
+final class AlarmWarningUITests: XCTestCase {
+    override func setUpWithError() throws {
+        continueAfterFailure = false
+    }
+
+    @MainActor
+    private func launch(_ extra: [String]) -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uitest", "-now", "2026-11-23T06:20:00Z", "-fixture", "week1-monday"] + extra
+        app.launch()
+        XCTAssertTrue(app.staticTexts["today.title"].waitForExistence(timeout: 15))
+        return app
+    }
+
+    @MainActor
+    func testDeniedAlarmsShowAWarningNeverAllSet() throws {
+        let app = launch(["-denyAlarms"])
+        let warning = app.staticTexts["today.alarmWarning"]
+        XCTAssertTrue(warning.waitForExistence(timeout: 10))
+        XCTAssertTrue(warning.label.contains("No alarms set."), warning.label)
+        XCTAssertTrue(app.links["today.openSettings"].exists || app.buttons["today.openSettings"].exists)
+        let allSet = app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] 'all set'"))
+        XCTAssertEqual(allSet.count, 0)
+        let status = app.staticTexts["debug.launch"]
+        if status.exists { XCTAssertTrue(status.label.contains("alarms=none"), status.label) }
+
+        let shot = XCTAttachment(screenshot: app.screenshot())
+        shot.name = "today-no-alarms-warning"
+        shot.lifetime = .keepAlways
+        add(shot)
+    }
+
+    @MainActor
+    func testAlarmsSetShowNoWarning() throws {
+        let app = launch([])
+        let status = app.staticTexts["debug.launch"]
+        if status.waitForExistence(timeout: 5) {
+            let reconciled = NSPredicate(format: "NOT (label CONTAINS 'alarms=pending')")
+            expectation(for: reconciled, evaluatedWith: status)
+            waitForExpectations(timeout: 10)
+        }
+        XCTAssertFalse(app.staticTexts["today.alarmWarning"].exists)
+    }
+}

@@ -1,3 +1,4 @@
+import CoachCore
 import ActivityKit
 import Foundation
 import Observation
@@ -28,7 +29,7 @@ final class RestClock {
     var isRunning: Bool { endsAt != nil }
 
     /// Seconds before the end when the voice names what's next.
-    static let headsUpSeconds = 10.0
+    static let headsUpSeconds = Double(PlayerCues.headsUpSeconds)
 
     /// `headsUp` is spoken 10 s before the end (next exercise and weight),
     /// ducking music under it, never pausing it.

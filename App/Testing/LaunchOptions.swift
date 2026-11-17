@@ -6,6 +6,7 @@ import Foundation
 ///     -now 2026-11-23T06:30:00Z    fixes the clock the app passes to CoachCore
 ///     -fixture week1-monday        loads App/Testing/Fixtures/fixture-week1-monday.json
 ///     -realAlarms                  with -uitest: real AlarmKit and alarm plan kept across launches (QA-2)
+///     -denyAlarms                  with -uitest: the fake alarms report no permission (QA-1 warning)
 ///     -spikeAlarms                 the spike screen keeps the alarms even with a planned profile (QA-2)
 ///
 /// Debug builds only. Release builds ignore every flag, like the Spike tests screen.
@@ -15,6 +16,7 @@ struct LaunchOptions: Equatable {
     var fixture: String?
     var realAlarms = false
     var spikeAlarms = false
+    var denyAlarms = false
 
     static let current = LaunchOptions(arguments: ProcessInfo.processInfo.arguments)
 
@@ -35,6 +37,7 @@ struct LaunchOptions: Equatable {
         fixture = value(after: "-fixture")
         realAlarms = arguments.contains("-realAlarms")
         spikeAlarms = arguments.contains("-spikeAlarms")
+        denyAlarms = arguments.contains("-denyAlarms")
         #endif
     }
 }

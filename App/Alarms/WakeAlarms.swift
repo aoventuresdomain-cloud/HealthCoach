@@ -69,7 +69,8 @@ final class WakeAlarms {
     private init() {
         if LaunchOptions.current.isUITest && !LaunchOptions.current.realAlarms {
             registrar = FakeAlarmRegistrar()
-            isAuthorized = { true }
+            let denied = LaunchOptions.current.denyAlarms
+            isAuthorized = { !denied }
         } else {
             let alarmKit = AlarmKitRegistrar()
             registrar = alarmKit
