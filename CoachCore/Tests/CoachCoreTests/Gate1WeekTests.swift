@@ -101,11 +101,16 @@ import Testing
         let friday = try #require(thursdayNight.day(.friday)?.session)
         #expect(friday.sessionID == "full-body")
         #expect(friday.movedFrom == .thursday)
-        #expect(ring(on: at(11, 27), in: try alarms(at(11, 26, 21), done: done)) != nil)
-        // Fri 07:00 (QA-15): still there, with its alarm.
-        let fridayMorning = try today(at(11, 27, 6), done: done)
+        #expect(friday.start == Self.t(8, 5)) // Friday morning, not the evening
+        let setThursdayNight = try #require(ring(on: at(11, 27), in: try alarms(at(11, 26, 21), done: done)))
+        // Fri 07:00 (QA-15): same day, same start, same alarm as Thursday night set.
+        let fridayMorning = try today(at(11, 27, 7), done: done)
         #expect(fridayMorning.session?.id == "full-body")
-        #expect(fridayMorning.alarm != nil)
+        #expect(fridayMorning.session?.start == Self.t(8, 5))
+        #expect(fridayMorning.session?.movedFrom == .thursday)
+        #expect(fridayMorning.alarm == setThursdayNight)
+        // The reconcile at Fri 07:00 keeps that alarm, and it matches Today.
+        #expect(ring(on: at(11, 27), in: try alarms(at(11, 27, 7), done: done)) == setThursdayNight)
     }
 
     @Test func a10a11TheWeekend() throws {
