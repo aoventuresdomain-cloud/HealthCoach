@@ -15,6 +15,11 @@ enum SpikeTests {
         return false
         #endif
     }()
+
+    /// M0-11b: the wrench on Today only under `-spikeAlarms` (the alarm
+    /// permission test), so review screenshots never show it. The
+    /// `-screenshot` modes open the spike screen directly from ContentView.
+    static let showsLink: Bool = isEnabled && ProcessInfo.processInfo.arguments.contains("-spikeAlarms")
 }
 
 struct SpikeTestsView: View {
