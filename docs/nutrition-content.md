@@ -17,7 +17,7 @@ Two files, both provisional schema version 0 (the Planner Engineer owns the sche
 | Snack | yogurt pot; shake instead if the planned day is under 150 g protein | 220–260 | 21–34 g |
 | **Day** | | **~1,710–2,210 combined** | **~145–200 g** |
 
-Targets are in `dailyTargets` (2,000 kcal, 160 g protein, about 40 g at each of 4 eating moments, 2 untracked social meals a week), from plan §2 and §4.3. M3-02 plans only days inside 1,850–2,150 kcal with at least 150 g protein (`kcalMin`, `kcalMax`, `proteinMin`). `snackRule`: the yogurt pot by default, the shake when the planned day is under 150 g, and at 17:30 on Wednesdays before basketball. `supplements`: one pre-ticked line with breakfast (creatine 5 g daily; vitamin D 10 µg from October to March, as the NHS advises).
+Targets are in `dailyTargets` (2,000 kcal, 160 g protein, about 40 g at each of 4 eating moments, 2 untracked social meals a week), from plan §2 and §4.3. The rules engine moves the calorie target week to week, so M3-02 plans only days within ±150 kcal of the current target (`kcalBandPlusMinus`), never below 1,700 kcal (`kcalFloor`), with at least 150 g protein (`proteinMin`). `snackRule`: the yogurt pot by default, the shake when the planned day is under 150 g, and at 17:30 on Wednesdays before basketball. `supplements`: one pre-ticked line with breakfast (creatine 5 g daily; vitamin D 10 µg from October to March, as the NHS advises).
 
 ## Rules held in the data
 

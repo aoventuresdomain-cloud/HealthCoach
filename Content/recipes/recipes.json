@@ -23,15 +23,15 @@
   "dailyTargets": {
     "phase-1": {
       "kcal": 2000,
-      "kcalMin": 1850,
-      "kcalMax": 2150,
+      "kcalBandPlusMinus": 150,
+      "kcalFloor": 1700,
       "protein": 160,
       "proteinMin": 150,
       "eatingMoments": 4,
       "proteinPerMoment": 40,
       "socialMealsPerWeek": 2,
       "socialMealsTracked": false,
-      "note": "Plan only days whose planned total sits inside kcalMin–kcalMax with at least proteinMin."
+      "note": "kcal is the starting target; the rules engine moves it week to week. Plan only days within ±kcalBandPlusMinus of the current target, never below kcalFloor, with at least proteinMin."
     }
   },
   "snackRule": {
