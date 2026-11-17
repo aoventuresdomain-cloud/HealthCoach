@@ -70,7 +70,9 @@ public struct WeightTrend: Sendable, Equatable {
 
         func window(endingOn end: Date) -> (average: Double, days: Int)? {
             guard let first = calendar.date(byAdding: .day, value: -(windowDays - 1), to: end) else { return nil }
-            let values = daily.filter { $0.key >= first && $0.key <= end }.map(\.value)
+            // In date order: summing in dictionary order made the last bits of the
+            // average differ between calls, so equal inputs compared unequal.
+            let values = daily.filter { $0.key >= first && $0.key <= end }.sorted { $0.key < $1.key }.map(\.value)
             guard values.count >= minimumDays else { return nil }
             return (values.reduce(0, +) / Double(values.count), values.count)
         }

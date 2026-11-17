@@ -265,7 +265,10 @@ public enum WeekPlanner {
 
             /// The next unlogged session to pass by `now`: earliest day, then earliest end.
             func nextPass() -> (index: Int, placement: WeekPlan.Placement)? {
-                for index in max(firstReplayed, 0)...todayIndex where index < dates.count {
+                // Today always replays; earlier days only from onboarding on. (A
+                // `firstReplayed...todayIndex` range would trap when onboarding is
+                // later this week than today, as in the week1-monday fixture.)
+                for index in 0...todayIndex where index == todayIndex || index >= firstReplayed {
                     let weekday = planned[index].weekday
                     guard let placement = placements[weekday], !completed.contains(placement.sessionID) else { continue }
                     if index < todayIndex || placement.end.minutesSinceMidnight <= nowMinutes {

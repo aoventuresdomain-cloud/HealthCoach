@@ -96,8 +96,14 @@ import Testing
         let fridayMorning = f.day(11, hour: 7)
         let friday = try day(11, at: fridayMorning)
         #expect(friday.session?.id == "full-body")
+        #expect(friday.session?.start == TimeOfDay(hour: 8, minute: 5)) // Friday morning, not the evening
+        #expect(friday.session?.movedFrom == .thursday)
         let parts = f.calendar.dateComponents([.hour, .minute], from: thursdayNight.fireDate)
         #expect(friday.alarm == TimeOfDay(hour: parts.hour!, minute: parts.minute!))
+        // The alarm the reconcile keeps at Friday 07:00 is the same one, and matches Today.
+        let ringing = try #require(alarm(on: 11, in: try alarms(at: fridayMorning)))
+        #expect(ringing.fireDate == thursdayNight.fireDate)
+        #expect(ringing.id == thursdayNight.id)
     }
 
     @Test func a10SaturdayIsUpperBAtTheDayOffTimeAndWindsDownLikeAWeekday() throws {
@@ -203,5 +209,19 @@ import Testing
             now = now.addingTimeInterval(15 * 60)
         }
         #expect(moves >= 1, "\(scenario): expected at least one move")
+    }
+
+    /// Regression (#56 UI run): onboarding later in the week than `now` (the
+    /// week1-monday fixture opened on a real clock before its confirm date)
+    /// must not trap, and replays only today.
+    @Test func onboardingLaterThisWeekThanNowDoesNotTrap() throws {
+        var later = profile()
+        later.programme.confirmedOn = f.day(13, hour: 18) // Sunday of week 2
+        let week = WeekPlanner.plan(weekStarting: f.day(7), programme: try f.phase1(), profile: later,
+                                    answers: answers, now: f.day(8, hour: 12), calendar: f.calendar)
+        #expect(week.day(.monday)?.session?.sessionID == "upper-a") // before onboarding: done on paper
+        let alarms = AlarmSchedule.make(now: f.day(8, hour: 12), programme: try f.phase1(), profile: later,
+                                        answers: { _ in answers }, calendar: f.calendar)
+        #expect(!alarms.isEmpty)
     }
 }
