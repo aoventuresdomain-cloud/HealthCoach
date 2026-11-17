@@ -1,4 +1,5 @@
 import CoachCore
+import SwiftData
 import SwiftUI
 
 /// Today (board M1-05, design screens 1–2): what's next and when, one card,
