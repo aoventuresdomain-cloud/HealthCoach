@@ -2,7 +2,7 @@
 
 Head of QA · drafted 2026-11-17, extended the same day for the CEO's re-plan: the whole app is ready for review in 1–2 days, so Gate 1 and Gate 2 are one internal QA round. Signed by the Head of QA and the Advisor (standing order D7: no CEO questions).
 
-**Timetable (London):** PRs re-checked as they land on 17 Nov · **round on one frozen SHA, morning of 18 Nov** · fix and retest 18 Nov 12:00–18:00 · round closed and report merged by 18:00.
+**Timetable (London):** PRs re-checked as they land on 17 Nov · Designer's change list 16:00 · full UI dry run once M3-04 lands · iOS polish PR by 06:00 on 18 Nov · **round on one frozen SHA, morning of 18 Nov** · fix and retest 18 Nov 12:00–18:00 · round closed and report merged by 18:00.
 
 **The round asks:** can the app run the week, training and eating, with no paper? (plan §7, Gates 1 and 2). Judged against the guiding rule: *if it takes thinking or admin time, it has failed.*
 
@@ -13,7 +13,7 @@ Round SHA: `________` (40 chars) · Core tests run: `________` · App build run 
 ## Round setup
 
 1. HoE freezes merges to blocker and major fixes plus test-only changes (test plan §5).
-2. Dispatch **App build** on the round SHA with `publish_shots`. UI-test PNGs land in `qa/gate-0a-shots` `screenshots/ui-tests/`. One run is budgeted at ~21 min (QA-6), with one re-run in the 12:00–18:00 fix window.
+2. Dispatch **App build** on the round SHA with `publish_shots`. UI-test PNGs land in `qa/gate-0a-shots` `screenshots/ui-tests/`. CI minutes are no longer a constraint (CEO, 17 Nov), so the full UI suite runs on every fix in the 12:00–18:00 window, and a dry run happens on 17 Nov evening once M3-04 lands.
 3. Core tests run green on the same SHA (Linux).
 
 ## A. The simulated week (the gate itself)
@@ -88,6 +88,23 @@ Each is checked only for absence: no dead button, empty screen or copy promising
 - Social-meal counter (2 untracked meals)
 - Photo ghost outline
 - Mood check
+
+## C4. Look and feel (CEO, 17 Nov: easy to use and cool, to researched best practice)
+
+Judged against the Designer's change list (due 17 Nov 16:00) and iOS's polish PR (due 18 Nov 06:00), on the round's UI-test shots at the iPhone Pro size, en_GB.
+
+- [ ] Every item on the Designer's change list is done, or listed as deferred with a reason.
+- [ ] **No new required taps.** The polish adds no step, dialog or control that the §A week needs. Re-count against the Advisor's accepted-tap list.
+- [ ] One-handed: next and done stay big, in the lower third and in thumb reach on every workout and run screen.
+- [ ] Hierarchy: each screen has one obvious primary action and one main number or time, readable at arm's length.
+- [ ] Consistency: one type scale, spacing and corner radius, plus SF Symbols, across Today, player, run-walk, meals, top-up, lunch and Progress.
+- [ ] Dark mode and Dynamic Type at the largest standard size: nothing clipped or overlapping (one shot each, of Today and the player).
+- [ ] Accessibility: VoiceOver labels on every control, and the accessibilityIdentifiers the UI tests rely on are unchanged.
+- [ ] Motion: transitions are short and never delay next or done. Reduce Motion is respected.
+- [ ] Copy: plain, British, no guilt copy (E13), and no text promising a cut feature.
+- [ ] Live Activity and Dynamic Island match the in-app style.
+
+Any line that fails is a minor, unless it adds a required tap or hides next or done, which is a major.
 
 ## D. Carried QA items to close in this round
 
