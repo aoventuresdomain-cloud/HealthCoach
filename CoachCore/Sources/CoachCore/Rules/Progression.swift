@@ -43,6 +43,8 @@ public struct Prescription: Sendable, Equatable {
         case backOff
         /// Moved to the harder exercise (`graduate.to`), at the bottom of its range.
         case graduated
+        /// Set by an imported Claude block (M4-02), at the bottom of the range.
+        case coach
     }
 }
 

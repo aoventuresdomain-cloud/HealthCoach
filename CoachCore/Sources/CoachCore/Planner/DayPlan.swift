@@ -48,7 +48,7 @@ public struct DayPlan: Equatable, Sendable {
     /// `answers` and `dropping` must be what the alarm reconcile used (the
     /// Sunday prompt's answers for the week starting a Monday, and the reduced
     /// week), so Today and the alarm agree. `now` and `completed` (session ids
-    /// logged today) move a session whose time has passed (E13).
+    /// logged this week, on any day) move a session whose time has passed (E13).
     public static func make(for date: Date, programme: Programme, profile: Profile,
                             answers: (Date) -> WeekAnswers = { _ in WeekAnswers() },
                             dropping: Set<String> = [],

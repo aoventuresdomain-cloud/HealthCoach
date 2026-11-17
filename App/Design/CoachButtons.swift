@@ -1,3 +1,4 @@
+import CoachCore
 import SwiftUI
 
 // Layout rules from docs/design/m1/README.md: one primary action per screen,

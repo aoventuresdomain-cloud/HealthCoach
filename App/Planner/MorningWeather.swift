@@ -91,7 +91,7 @@ final class MorningWeather {
     /// an outdoor session that hasn't finished yet.
     @discardableResult
     func check(profile: Profile, now: Date = AppClock.now(), answers: WeekAnswersStore = .shared,
-               calendar: Calendar = .current) async -> WeatherDecision {
+               completed: Set<String> = [], calendar: Calendar = .current) async -> WeatherDecision {
         guard let content = try? BundledContent.load(),
               let programme = content.programmes[profile.programme.programmeID],
               profile.programme.startDate != nil else {
@@ -101,7 +101,7 @@ final class MorningWeather {
         let monday = AlarmSchedule.mondayOf(now, calendar: calendar)
         let plan = WeekPlanner.plan(weekStarting: monday, programme: programme, profile: profile,
                                     answers: answers.answers(weekStarting: monday, calendar: calendar),
-                                    dropping: [], now: now, calendar: calendar)
+                                    dropping: [], now: now, completed: completed, calendar: calendar)
         guard let day = plan.days.first(where: { calendar.isDate($0.date, inSameDayAs: now) }) else {
             return settle(.keep(.notOutdoor), day: nil)
         }

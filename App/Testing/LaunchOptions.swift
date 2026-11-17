@@ -1,3 +1,4 @@
+import CoachCore
 import Foundation
 
 /// Deterministic launch for simulator UI tests (QA test plan §3, board M1-01):
@@ -5,10 +6,12 @@ import Foundation
 ///     -uitest                      test mode: in-memory store, fake alarms, no animations
 ///     -now 2026-11-23T06:30:00Z    fixes the clock the app passes to CoachCore
 ///     -fixture week1-monday        loads App/Testing/Fixtures/fixture-week1-monday.json
+///     -fixture week1-on-track      week 1 with Mon, Tue and Thu logged (a normal rest Friday)
 ///     -realAlarms                  with -uitest: real AlarmKit and alarm plan kept across launches (QA-2)
 ///     -denyAlarms                  with -uitest: the fake alarms report no permission (QA-1 warning)
 ///     -spikeAlarms                 the spike screen keeps the alarms even with a planned profile (QA-2)
 ///     -weather rain|dry|offline    fake forecast for the weather swap (M2-03); UI tests are offline without it
+///     -clipboard <text>            what "Import Claude's reply" reads instead of the clipboard (M4-02, QA A17)
 ///
 /// Debug builds only. Release builds ignore every flag, like the Spike tests screen.
 struct LaunchOptions: Equatable {
@@ -19,6 +22,7 @@ struct LaunchOptions: Equatable {
     var spikeAlarms = false
     var weather: String?
     var denyAlarms = false
+    var clipboard: String?
 
     static let current = LaunchOptions(arguments: ProcessInfo.processInfo.arguments)
 
@@ -41,6 +45,7 @@ struct LaunchOptions: Equatable {
         spikeAlarms = arguments.contains("-spikeAlarms")
         weather = value(after: "-weather")
         denyAlarms = arguments.contains("-denyAlarms")
+        clipboard = value(after: "-clipboard")
         #endif
     }
 }

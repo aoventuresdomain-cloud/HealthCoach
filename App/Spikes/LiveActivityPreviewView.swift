@@ -1,3 +1,4 @@
+import CoachCore
 import SwiftUI
 
 /// Draws the rest-timer Live Activity layouts in-app for CI screenshots

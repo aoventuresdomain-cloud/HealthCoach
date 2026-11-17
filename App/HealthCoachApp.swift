@@ -15,10 +15,14 @@ struct HealthCoachApp: App {
         container = AppStore.open(options: options)
         if options.isUITest {
             UIView.setAnimationsEnabled(false)
+            CoachBlockStore.resetForUITest()
         }
         if let name = options.fixture {
             do {
-                try ProfileStore(context: container.mainContext).save(Fixture.load(named: name).profile)
+                let fixture = try Fixture.load(named: name)
+                try ProfileStore(context: container.mainContext).save(fixture.profile)
+                let logs = SessionLogStore(context: container.mainContext)
+                for log in fixture.logs { try logs.save(log) }
             } catch {
                 fatalError("UI test fixture \(name) failed: \(error.localizedDescription)")
             }
@@ -42,7 +46,8 @@ struct HealthCoachApp: App {
                     // Board M2-02: the planner's 14 days of wake alarms.
                     await WakeAlarms.shared.reconcile(profile: profile, history: history)
                     // Board M2-03: on a run day, the forecast may swap the run indoors.
-                    await MorningWeather.shared.check(profile: profile)
+                    await MorningWeather.shared.check(
+                        profile: profile, completed: SessionLog.sessionIDs(in: history, weekOf: AppClock.now()))
                 } else {
                     _ = await AlarmKitSpike.shared.reconcileStatus()
                 }

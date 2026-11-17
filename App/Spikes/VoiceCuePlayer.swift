@@ -1,3 +1,4 @@
+import CoachCore
 import AVFoundation
 
 /// Speaks rest-timer cues ("3, 2, 1, go") through headphones with the screen
