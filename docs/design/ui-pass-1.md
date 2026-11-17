@@ -16,7 +16,7 @@ Sizes: **S** < 30 min, **M** 30–90 min. P1 is the must-ship set (~5 h). P2 mak
 - Add `App/Design/Theme.swift` with the tokens in `direction.md`.
 - Done when: every screen in the UI-test screenshots is dark · Sunday selected pills read black on green · no screen shows system blue as an accent except rest/walk.
 
-**UI-2 · Haptics (S).** None today. Add `.sensoryFeedback` per the table in `direction.md`: Start/Next/Done medium impact, counter `.increase`, last 3 s of rest light impact, rest end and run-walk interval change heavy impact, session done `.success`, alarm warning `.warning`.
+**UI-2 · Haptics (S).** None today. Add `.sensoryFeedback` per the table in `direction.md`: Start/Next/Done medium impact, counter `.increase`, last 3 s of rest light impact, rest end and run-walk interval change heavy impact, session done `.success`, zero-alarms warning `.warning` (no haptic on the "alarms were missing, now set" banner).
 - Done when: each trigger is bound to a model value change (not a gesture), so voice-driven and auto-advanced changes also fire · no haptic fires on a timer tick other than the last 3 s.
 
 **UI-3 · Numbers roll, in rounded type (S).** Swap every `.system(size:weight:)` numeral (BigNumber, rest clock, dial-to, counter, run-walk clock and label, walk clock, Live Activity clocks) for `Font.coachNumber(size)`. Add `.contentTransition(.numericText(countsDown: true))` on the rest, run-walk and hold clocks and `.numericText()` on the counter, with `.animation(.coach, value:)`.
@@ -38,10 +38,10 @@ Sizes: **S** < 30 min, **M** 30–90 min. P1 is the must-ship set (~5 h). P2 mak
 **UI-7 · Start zooms into the session (S).** `@Namespace` on Today, `.matchedTransitionSource(id: "session", in: ns)` on the Start button, `.navigationTransition(.zoom(sourceID: "session", in: ns))` on the full-screen cover content.
 - Done when: Start → player animates from the button; with Reduce Motion it falls back to the standard cover.
 
-**UI-8 · Rest ring with intent (S).** Ring stroke becomes an `AngularGradient` of `rest` to `rest.opacity(0.6)`; in the last 10 s the ring and clock turn `go` green (the heads-up moment). Rest clock gets a VoiceOver label ("1 minute 14 seconds left").
-- Done when: the mid-rest screenshot shows the gradient ring · the last-10-s state is green · VoiceOver reads the time in words.
+**UI-8 · Rest ring with intent (S).** Ring stroke becomes an `AngularGradient` of `rest` to `rest.opacity(0.6)`; the ring and clock stay blue until the last 3 s, then turn `go` green. At 10 s left (the voice heads-up), the "Dial to" weight pulses once (`.symbolEffect`-style scale or `.phaseAnimator`, opacity only under Reduce Motion) instead. Rest clock gets a VoiceOver label ("1 minute 14 seconds left").
+- Done when: the mid-rest screenshot shows the gradient ring · the ring is blue at 10 s and green only in the last 3 s · the dial-to weight pulses at 10 s · VoiceOver reads the time in words.
 
-**UI-9 · Done screen feels like a finish (S).** Header gets a 64 pt `checkmark.circle.fill` in green with `.symbolEffect(.bounce, value:)` once on appear and the `.success` haptic. "1 MINUTES" → singular/plural. Where the next session's load goes up, show it in green with `arrow.up` (data from `NextTime`, M2-05 branch). No confetti, streaks or badges.
+**UI-9 · Done screen feels like a finish (S).** Header gets a 64 pt `checkmark.circle.fill` in green with `.symbolEffect(.bounce, value:)` once on appear and the `.success` haptic. "1 MINUTES" → singular/plural. Where the next session's load goes up, show it in green with `arrow.up` (data from `NextTime`, M2-05 branch); held or reduced loads are neutral grey with no arrow, never red. No confetti, streaks or badges.
 - Done when: done screenshot shows the check and correct plural · nothing new needs a tap.
 
 **UI-10 · Run-walk reads from across the room (S).** Full-screen background wash: `go.opacity(0.12)` during jog, `rest.opacity(0.12)` during walk and warm-up/cool-down, animated with `.coach`. Heavy haptic on each change (UI-2).
@@ -54,7 +54,7 @@ Sizes: **S** < 30 min, **M** 30–90 min. P1 is the must-ship set (~5 h). P2 mak
 
 **UI-12 · Today timeline current dot (S).** Current item uses `circle.fill` with `.symbolEffect(.pulse)`; past items stay faded.
 
-**UI-13 · Meals and Progress polish (M).** Build to the screen rules in `direction.md` when M3-04 and M4-03 land: pre-ticked meal rows, 44 pt aisle ticks, one large lunch suggestion, one Swift Charts weight-trend hero with the phase line.
+**UI-13 · Meals and Progress polish (M).** Build to the screen rules in `direction.md` when M3-04 and M4-03 land: pre-ticked meal rows (unticking triggers nothing), 44 pt aisle ticks, one large lunch suggestion, a Swift Charts hero showing the 7-day average with daily weigh-ins as faint dots, and "Phase 1 · week 3 of 6" over a quieter "Week 3 of about 20".
 
 ## Not changing
 
@@ -62,4 +62,16 @@ Layout of the player, the 76 pt primary, ✕ top-left with confirmation, Setup/M
 
 ## Advisor review
 
-See the table at the end of this file once the Advisor has replied (max 2 rounds).
+Round 1, 17 Nov. Critique: `/mnt/project-files/advisor/ui-pass-1-critique.md`. Advisor found nothing that adds a required tap; haptics, the tab bar (hidden mid-session) and the done-screen check accepted; lock-screen "Dial to" rated the best item.
+
+| # | Advisor point | Answer | Where |
+|---|---|---|---|
+| 1 | Progress shows "Phase 1 · week 3 of 6" plus a quieter "Week 3 of about 20"; "of 6" alone reads as a finish line | **Accepted** | direction.md Progress, UI-13 |
+| 2 | Weight chart hero is the 7-day average; daily weigh-ins faint dots, never the big number | **Accepted** | direction.md Progress, UI-13 |
+| 3 | Rest ring blue until the last 3 s, not 10 s (green at 10 s invites starting early); pulse the "Dial to" weight at 10 s instead | **Accepted** | UI-8 |
+| 4 | Lifts table: no red, no down arrows; held or reduced loads neutral grey | **Accepted** | direction.md Progress, UI-9 |
+| 5 | No `.warning` haptic on the "missing, now set" banner; keep it for zero alarms | **Accepted** | haptics table, UI-2 |
+| 6 | Condition: unticking a meal triggers nothing | **Accepted** | direction.md Meals, UI-13 |
+| 7 | Condition: Today stays the daily home; Meals tab never needed on a normal day | **Accepted** (already the rule: meals show as Today timeline rows) | direction.md Today, UI-6 |
+
+All points accepted, so no round 2. Open taste decisions for Gate 2 are unchanged (see direction.md).
