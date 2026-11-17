@@ -19,7 +19,7 @@ struct ExerciseMediaView: View {
                     .accessibilityLabel("\(exercise?.name ?? "Exercise") demonstration")
             } else {
                 Image(systemName: "figure.strengthtraining.traditional")
-                    .font(.system(size: compact ? 28 : 72))
+                    .font(.coachSymbol(compact ? 28 : 72))
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .accessibilityLabel("No demonstration in this build")

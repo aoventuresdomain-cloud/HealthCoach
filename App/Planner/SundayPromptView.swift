@@ -86,8 +86,8 @@ struct SundayPromptView: View {
             Text(SundayPrompt.short(day))
                 .font(.headline)
                 .frame(maxWidth: .infinity, minHeight: 56)
-                .foregroundStyle(on ? Color.white : Color.primary)
-                .background(on ? Color.accentColor : Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 14))
+                .foregroundStyle(on ? Color.onGo : Color.primary)
+                .background(on ? Color.go : Color.surface, in: .rect(cornerRadius: Radius.pill))
         }
         .buttonStyle(.plain)
         .accessibilityLabel(SundayPrompt.long(day))

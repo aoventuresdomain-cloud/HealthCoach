@@ -27,6 +27,16 @@ struct WorkoutPlayerView: View {
         }
         .background(Color(.systemGroupedBackground))
         .safeAreaInset(edge: .bottom) { actions }
+        // UI-2: haptics bound to model changes, so voice-driven and auto-advanced
+        // steps fire too. Done is .success; rest ending is heavy; any other step medium.
+        .sensoryFeedback(trigger: model.phase) { old, new in
+            switch (old, new) {
+            case (_, .done): .success
+            case (.rest, .set): .impact(weight: .heavy)
+            default: .impact(weight: .medium)
+            }
+        }
+        .sensoryFeedback(trigger: model.count) { old, new in new > old ? .increase : nil }
         .onAppear { model.begin() }
         .confirmationDialog("End this session?", isPresented: $confirmingEnd, titleVisibility: .visible) {
             Button("End and keep what's logged", role: .destructive) {
@@ -49,7 +59,7 @@ struct WorkoutPlayerView: View {
                 Image(systemName: "xmark")
                     .font(.headline)
                     .frame(width: 44, height: 44)
-                    .background(Color(.tertiarySystemFill), in: .circle)
+                    .glassEffect(.regular.interactive(), in: .circle) // UI-5: glass chrome
             }
             .buttonStyle(.plain)
             .accessibilityLabel("End session")
@@ -205,7 +215,7 @@ private struct SetScreen: View {
         case .reps(let target), .perSide(let target), .negatives(let target, _):
             Button { model.tapCount() } label: {
                 HStack(alignment: .firstTextBaseline) {
-                    Text("\(model.count)").font(.system(size: 56, weight: .bold).monospacedDigit())
+                    Text("\(model.count)").font(.coachNumber(56)).rollingNumber(model.count)
                     Text("/ \(target)").font(.title.monospacedDigit()).foregroundStyle(.secondary)
                     Spacer()
                     Text("Tap anywhere here\nto count (optional)")
@@ -232,6 +242,9 @@ private struct SetScreen: View {
 private struct RestScreen: View {
     let model: WorkoutPlayerModel
     let upcoming: WorkoutScript.SetStep
+    /// UI-8: bumps once at 10 s left (the voice heads-up) to pulse "Dial to".
+    @State private var dialPulse = 0
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         VStack(spacing: 24) {
@@ -242,18 +255,33 @@ private struct RestScreen: View {
                     Circle().stroke(Color(.tertiarySystemFill), lineWidth: 18)
                     Circle()
                         .trim(from: 0, to: CGFloat(remaining) / CGFloat(total))
-                        .stroke(Color.blue, style: StrokeStyle(lineWidth: 18, lineCap: .round))
+                        // UI-8: blue until the last 3 s, then green (green earlier invites starting early).
+                        .stroke(remaining <= 3
+                                    ? AnyShapeStyle(Color.go)
+                                    : AnyShapeStyle(AngularGradient(colors: [.rest, .rest.opacity(0.6)], center: .center)),
+                                style: StrokeStyle(lineWidth: 18, lineCap: .round))
                         .rotationEffect(.degrees(-90))
+                        .animation(reduceMotion ? nil : .coach, value: remaining <= 3)
                     VStack(spacing: 4) {
                         Text("REST").font(.headline).foregroundStyle(.secondary)
                         Text(PlayerFormat.clock(remaining))
-                            .font(.system(size: 76, weight: .bold).monospacedDigit())
+                            .font(.coachNumber(76))
+                            .rollingNumber(remaining, countsDown: true)
+                            .foregroundStyle(remaining <= 3 ? Color.go : Color.primary)
+                            .accessibilityLabel(RestScreen.spoken(remaining))
                             .accessibilityIdentifier("player.restClock")
                         Text("of \(PlayerFormat.clock(total))").foregroundStyle(.secondary)
                     }
                 }
                 .frame(width: 260, height: 260)
                 .padding(.top, 16)
+                .onChange(of: remaining) { old, new in
+                    if old > 10, new <= 10, new > 3 { dialPulse += 1 }
+                }
+                // UI-2: one light tap per second in the last 3 s only.
+                .sensoryFeedback(trigger: remaining) { old, new in
+                    new < old && (1...3).contains(new) ? .impact(weight: .light) : nil
+                }
             }
             HStack(spacing: 14) {
                 // QA-13: the mock-up's thumbnail of what's next.
@@ -271,10 +299,15 @@ private struct RestScreen: View {
                     VStack(alignment: .trailing, spacing: 0) {
                         Text("DIAL TO").font(.footnote.weight(.semibold)).foregroundStyle(.secondary)
                         HStack(alignment: .firstTextBaseline, spacing: 2) {
-                            Text(PlayerFormat.kg(kg)).font(.system(size: 52, weight: .bold).monospacedDigit())
+                            Text(PlayerFormat.kg(kg)).font(.coachNumber(52))
                             Text("kg").font(.title3.bold())
                         }
-                        .foregroundStyle(.green)
+                        .foregroundStyle(.go)
+                        .phaseAnimator([1.0, 1.18, 1.0], trigger: dialPulse) { view, scale in
+                            // Reduce Motion: opacity only.
+                            view.scaleEffect(reduceMotion ? 1 : scale, anchor: .trailing)
+                                .opacity(reduceMotion && scale > 1 ? 0.5 : 1)
+                        }
                         .accessibilityIdentifier("player.dialTo")
                     }
                 }
@@ -292,6 +325,15 @@ private struct RestScreen: View {
 
     /// "2 sets × 10 each side" before an exercise's first set (as the mock-up);
     /// "Set 2 of 2 · 8 reps" between its sets, never "1 set × 8" (QA-13).
+    /// VoiceOver: "1 minute 14 seconds left".
+    static func spoken(_ seconds: Int) -> String {
+        let m = seconds / 60, s = seconds % 60
+        var parts: [String] = []
+        if m > 0 { parts.append("\(m) \(m == 1 ? "minute" : "minutes")") }
+        if s > 0 || m == 0 { parts.append("\(s) \(s == 1 ? "second" : "seconds")") }
+        return parts.joined(separator: " ") + " left"
+    }
+
     static func summary(_ step: WorkoutScript.SetStep) -> String {
         if step.setIndex > 0 {
             let of = "Set \(step.setIndex + 1) of \(step.setCount)"
@@ -314,11 +356,19 @@ private struct RestScreen: View {
 
 private struct DoneScreen: View {
     let model: WorkoutPlayerModel
+    @State private var appeared = false
 
     var body: some View {
         let minutes = max(1, Int(AppClock.now().timeIntervalSince(model.log.startedAt) / 60))
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
+                // UI-9: a finish, not a form. One bounce and the success haptic (UI-2).
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.coachSymbol(64))
+                    .foregroundStyle(.go)
+                    .symbolEffect(.bounce, value: appeared)
+                    .onAppear { appeared = true }
+                    .accessibilityHidden(true)
                 Text("\(model.script.name) done")
                     .font(.largeTitle.bold())
                     .accessibilityIdentifier("player.doneTitle")
@@ -350,7 +400,13 @@ private struct DoneScreen: View {
                             HStack {
                                 Text(model.name(line.exercise))
                                 Spacer()
-                                Text(line.text).foregroundStyle(.green).monospacedDigit()
+                                // UI-9: up is green with an arrow; held or lighter is neutral grey, never red.
+                                if line.loadUp {
+                                    Label(line.text, systemImage: "arrow.up")
+                                        .foregroundStyle(.go).monospacedDigit()
+                                } else {
+                                    Text(line.text).foregroundStyle(.secondary).monospacedDigit()
+                                }
                             }
                             .padding(.vertical, 10)
                             .padding(.horizontal, 16)
@@ -448,7 +504,7 @@ struct BigNumber: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(alignment: .firstTextBaseline, spacing: 0) {
-                Text(value).font(.system(size: 48, weight: .bold).monospacedDigit())
+                Text(value).font(.coachNumber(48))
                 if let suffix {
                     Text(suffix).font(.title.bold().monospacedDigit()).foregroundStyle(.secondary)
                 }
