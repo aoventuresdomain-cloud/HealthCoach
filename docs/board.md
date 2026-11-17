@@ -24,7 +24,7 @@ The CEO is training from paper and will not be asked anything until Gate 2. The 
 
 **Cut rule:** if any milestone slips more than a week, cut M3 extras first (in-store mode, delivery reminder, lunch swipe), then M4 photos.
 
-**Deferred to payment (built, not provable until the CEO says when):** S0 pipeline to the phone (M0-03). S1 alarms ringing locked, on Silent and in Focus. S1b alarms surviving an update. S3 lock-screen timer and voice through headphones while locked. Real Health scale data. Backup Clock alarm for the first week on the app. All need ~45 min of setup and ~15 min of on-phone tests once paid; the Setup Desk checklist already covers them (Parts A–D). **Risk:** alarm and timer code ship unproven on a device; M2's wake alarms depend on it. If the device tests fail later, only the AlarmKit and ActivityKit layer is reworked, because CoachCore is device-independent.
+**Deferred to payment (built, not provable until the CEO says when):** S0 pipeline to the phone (M0-03). S1 alarms ringing locked, on Silent and in Focus. S1b alarms surviving an update. S3 lock-screen timer and voice through headphones while locked. Real Health scale data. Backup Clock alarm for the first week on the app. Xcode Cloud GIF fetch in `ci_scripts` (QA-7). Music ducking under voice cues with real music. All need ~45 min of setup and ~15 min of on-phone tests once paid; the Setup Desk checklist already covers them (Parts A–D). **Risk:** alarm and timer code ship unproven on a device; M2's wake alarms depend on it. If the device tests fail later, only the AlarmKit and ActivityKit layer is reworked, because CoachCore is device-independent.
 
 ## Current mode: build cycle · M1 (Gate 0a passed 2026-11-16: QA round 1 on `be49d2f`, Advisor co-signed; pack in `docs/spikes/gate-0.md`)
 
@@ -44,6 +44,17 @@ The CEO is training from paper and will not be asked anything until Gate 2. The 
 | M0-03 | S0 · Pipeline: push → Xcode Cloud → TestFlight → phone | Planner Engineer | `claude/project-thread-3n9z3c` | ci_scripts/, Xcode Cloud | core | **deferred to payment** (hook merged PR #5) | — |
 
 Order now: M0-12 (first real compile) → simulator checks of M0-04, M0-05 and M0-06 → M0-10 → Gate 0a. M1 design and content (M1-01 to M1-03) start now in parallel, so code can follow Gate 0a straight away.
+
+## Open QA items (from the M1 sanity check, PR #31)
+
+| ID | Item | Owner | Due |
+|---|---|---|---|
+| QA-5 | Export UI-test attachments as PNGs to `qa/gate-0a-shots` on dispatched runs; one shot backgrounded mid-rest (Live Activity) | Planner Engineer (CI) | Gate 1 |
+| QA-6 | Cut macOS minutes (~21 min a run): UI tests on dispatch only, no spike shots on PRs, one full run per gate | Planner Engineer (CI) | now |
+| QA-8 | Voice heads-up line moves to CoachCore with a unit test | iOS Interface Engineer | Gate 1 |
+| QA-9 | CoachCore sweep of all 42 days of weeks 1–6 for Today | Planner Engineer | Gate 1 |
+| QA-1 UI | Today shows a warning when `WakeAlarms.coverage` is `.noAlarms` | iOS Interface Engineer | Gate 1 |
+| M0-11 | Hide the Spike tests screen outside `-uitest` / `-spikeAlarms` | iOS Interface Engineer | Gate 1 |
 
 ## Done when
 
@@ -129,13 +140,13 @@ Device-only Done when lines from plan §7 are rewritten as simulator or UI-test 
 | M1-01 | Data model: versioned profile record (SwiftData), programme and exercise JSON schemas, content validation tests | Planner Engineer | core | done (PR #21) |
 | M1-02 | Phase 1 programme (`phase-1.json`, weeks 1–6 ramp) and callout text for all 44 exercises | Researcher (Advisor reviews) | docs | done (PR #19) |
 | M1-03 | Design: Today, workout player, run-walk, onboarding confirm | Product Designer (Advisor critiques, max 2 rounds) | interface | done (PR #18) |
-| M1-04 | Onboarding confirm, pre-filled with decision E6 defaults | iOS Interface Engineer | interface | in review (PR #22) |
-| M1-05 | Today screen: today's session and timeline | iOS Interface Engineer | interface | in review (PR #22) |
-| M1-06 | Workout player: GIF, three callouts, rest timer Live Activity, voice countdown, tap rep counter, one-tap "done as prescribed" | iOS Interface Engineer | interface | in review (PR #22) |
-| M1-07 | Run-walk player: guided intervals with voice cues, building to 5 km | iOS Interface Engineer | interface | in review (PR #22) |
+| M1-04 | Onboarding confirm, pre-filled with decision E6 defaults | iOS Interface Engineer | interface | done (PR #22) |
+| M1-05 | Today screen: today's session and timeline | iOS Interface Engineer | interface | done (PR #22) |
+| M1-06 | Workout player: GIF, three callouts, rest timer Live Activity, voice countdown, tap rep counter, one-tap "done as prescribed" | iOS Interface Engineer | interface | done (PR #22) |
+| M1-07 | Run-walk player: guided intervals with voice cues, building to 5 km | iOS Interface Engineer | interface | done (PR #22) |
 | M1-08 | Progression: reps → sets → tempo → weight, dumbbell-limit flag, drop to 2 strength sessions after two low recovery checks | Planner Engineer | core | done (PR #27) |
 | M2-01 | Week planner: Sunday prompt answers, session placement around basketball and office days, wake time | Planner Engineer | core | done (PR #28) |
-| M2-02 | 14-day alarm schedule through the reconcile, "tomorrow changed" re-plan, missing-alarm warning on Today | Planner Engineer | core | in progress |
+| M2-02 | 14-day alarm schedule through the reconcile, "tomorrow changed" re-plan, missing-alarm warning on Today | Planner Engineer | core | done (PR #30; Today warning UI with iOS Interface Engineer) |
 | M2-03 | Weather swap (Open-Meteo, no key) when the morning brief opens | Planner Engineer | core | todo |
 | M2-04 | Health: weight 7-day trend and steps (read-only) | Planner Engineer | core | todo |
 | M2-05 | Sunday prompt screen, full Today timeline, local notifications with quiet hours 22:30–06:00 | iOS Interface Engineer | interface | todo |
@@ -174,6 +185,7 @@ Device-only Done when lines from plan §7 are rewritten as simulator or UI-test 
 
 ## Done
 
+- 2026-11-16 · M1-04, M1-05, M1-06, M1-07 · PR #22 (all M1 screens; QA M1 sanity check passed, PR #31) · M2-02 · PR #30 (14-day wake alarms; AlarmKit burst refusal fixed with retry and backoff; reduced week drops Thursday's alarm)
 - 2026-11-16 · M2-01 · PR #28 (week planner, CoachCore only; decision E10) · M1-08 · PR #27 (progression engine, SwiftData store recovery and SchemaV1, QA-2 alarm XCUITest) · M1-01 · PR #21
 - 2026-11-16 · M1-02 · PR #19 (Phase 1 programme, all callouts; Advisor signed off) · M1-03 · PR #18 (15 screens; taste decisions held for Gate 2)
 - 2026-11-16 · M0-12 · PR #13 (Linux core tests + macOS simulator build, both green on the first compile; merge on green by process, as GitHub Free has no branch protection)

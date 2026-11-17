@@ -2,16 +2,20 @@
 # run the HealthCoachUITests UI tests, and take spike-screen screenshots.
 #
 # macOS minutes count 10x, so about 200 a month on the free plan (spending
-# limit £0). To save them: pull requests only (not main, which gets the same
-# squash), docs/Content/Markdown-only changes skip it, a newer push cancels
-# the older run, and screenshots only run when screens change or on demand.
+# limit £0). To save them (QA-6): every PR push builds (~6 min); the UI tests
+# (~15 min) run only on a PR labelled `ready` and on manual runs; screenshots
+# only on manual runs. Docs/Content/Markdown-only changes skip it, and a newer
+# push cancels the older run. One full dispatched run per gate.
 # CoachCore tests run on Linux (core-tests.yml). Estimate: docs/spikes/m0-12-ci.md.
 # Manual runs can build an older commit (`ref`) and, with `publish_shots`, push
-# the screenshots to the throwaway branch qa/gate-0a-shots for review.
+# the screenshots and the UI tests' screenshot attachments (QA-5, as PNGs) to
+# the throwaway branch qa/gate-0a-shots for review.
 name: App build
 
 on:
   pull_request:
+    # `labeled`: adding `ready` runs the UI tests on the current commit.
+    types: [opened, synchronize, reopened, labeled]
     paths-ignore: ["docs/**", "Content/**", "**/*.md"]
   workflow_dispatch:
     inputs:
@@ -29,7 +33,8 @@ on:
         default: false
 
 concurrency:
-  group: app-build-${{ github.ref }}
+  # Any other label gets its own group, so it never cancels a real run.
+  group: app-build-${{ github.ref }}${{ github.event.action == 'labeled' && github.event.label.name != 'ready' && format('-{0}', github.run_id) || '' }}
   cancel-in-progress: true
 
 permissions:
@@ -38,8 +43,10 @@ permissions:
 jobs:
   build:
     name: Build app (iOS 26 simulator)
+    # Any label but `ready` changes nothing worth a macOS run.
+    if: github.event.action != 'labeled' || github.event.label.name == 'ready'
     runs-on: macos-26
-    timeout-minutes: 30
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
         with:
@@ -99,8 +106,11 @@ jobs:
 
       - name: UI tests (HealthCoachUITests)
         # CoachCore unit tests run on Linux (core-tests.yml), so only the UI tests run here.
+        # QA-6: manual runs and PRs labelled `ready` only (~15 macOS minutes a run).
         # Older commits built with the `ref` input may predate the UI test target.
-        if: hashFiles('HealthCoachUITests/**') != ''
+        if: >-
+          hashFiles('HealthCoachUITests/**') != '' &&
+          (github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'ready'))
         run: |
           set -o pipefail
           if [ -x .github/scripts/wait-simulator.sh ]; then .github/scripts/wait-simulator.sh; fi
@@ -123,14 +133,17 @@ jobs:
           retention-days: 14
           if-no-files-found: ignore
 
+      - name: Export UI test screenshots as PNGs
+        # QA-5: every XCTAttachment the UI tests keep (Today per day, player,
+        # rest with the app backgrounded…), named after the attachment.
+        if: always() && github.event_name == 'workflow_dispatch' && hashFiles('ui-tests.xcresult/**') != ''
+        run: .github/scripts/export-attachments.sh ui-tests.xcresult screenshots/ui-tests
+
       - name: Decide on screenshots
         id: shots
-        # Manual runs: the input. PRs: only when screens or the screenshot recipe change.
+        # QA-6: the spike-screen screenshots run on manual runs only, never on PRs.
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "take=${{ inputs.screenshots }}" >> "$GITHUB_OUTPUT"
-          elif git diff --name-only "origin/${{ github.base_ref }}...HEAD" \
-               | grep -qE '^(App|LiveActivity|Shared)/|^\.github/(scripts/screenshots\.sh|workflows/app\.yml)$'; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.screenshots }}" = "true" ]; then
             echo "take=true" >> "$GITHUB_OUTPUT"
           else
             echo "take=false" >> "$GITHUB_OUTPUT"
@@ -143,7 +156,7 @@ jobs:
           .github/scripts/screenshots.sh "${{ steps.sim.outputs.udid }}" build/Build/Products/Debug-iphonesimulator/HealthCoach.app screenshots
 
       - name: Upload screenshots
-        if: always() && steps.shots.outputs.take == 'true'
+        if: always() && github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v4
         with:
           name: simulator-screenshots
@@ -170,7 +183,7 @@ jobs:
   publish-shots:
     name: Publish screenshots to qa/gate-0a-shots
     needs: build
-    if: github.event_name == 'workflow_dispatch' && inputs.publish_shots && inputs.screenshots
+    if: github.event_name == 'workflow_dispatch' && inputs.publish_shots
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -192,13 +205,16 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -q --orphan qa/gate-0a-shots
-          mkdir screenshots && cp ../shots/screenshots/*.png screenshots/
+          mkdir -p screenshots
+          cp -R ../shots/screenshots/. screenshots/
           {
-            echo "# Gate 0a screenshots"
+            echo "# Gate screenshots"
             echo
             echo "Built from \`$sha\` by run ${{ github.run_id }}. Throwaway branch: never merge it."
             echo
-            for f in screenshots/*.png; do echo "## $(basename "$f" .png)"; echo; echo "![]($f)"; echo; done
+            find screenshots -name '*.png' | sort | while read -r f; do
+              echo "## ${f#screenshots/}"; echo; echo "![]($f)"; echo
+            done
           } > README.md
           git add -A
           git commit -q -m "Gate 0a screenshots from $sha (run ${{ github.run_id }})"
