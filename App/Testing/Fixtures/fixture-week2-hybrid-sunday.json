@@ -1,0 +1,11 @@
+{
+  "profile": {
+    "schemaVersion": 1,
+    "confirmed": true,
+    "programme": {
+      "programmeID": "phase-1",
+      "startDate": "2026-11-16T00:00:00Z",
+      "confirmedOn": "2026-11-22T18:00:00Z"
+    }
+  }
+}

@@ -34,9 +34,11 @@ struct UITestStatus: View {
             content = "error"
         }
         let alarms: String
+        // The next wake alarm, so a UI test can match it to Today's wake row (§A A9).
+        var next = "none"
         switch WakeAlarms.shared.coverage {
-        case let .allSet(count, _)?: alarms = "\(count)"
-        case let .reSet(_, total, _)?: alarms = "\(total)"
+        case let .allSet(count, date)?: alarms = "\(count)"; next = date.formatted(.iso8601)
+        case let .reSet(_, total, date)?: alarms = "\(total)"; next = date.formatted(.iso8601)
         case .noAlarms?: alarms = "none"
         case nil: alarms = "pending"
         }
@@ -55,6 +57,6 @@ struct UITestStatus: View {
         }
         let stats = BodyStats.shared
         let weight = !stats.hasRead ? "pending" : stats.weight.map { WeightTrend.oneDecimal($0.averageKg) } ?? "none"
-        return "now=\(now) profile=\(profile) content=\(content) alarms=\(alarms) weather=\(weather) weight=\(weight) held=\(held)"
+        return "now=\(now) profile=\(profile) content=\(content) alarms=\(alarms) weather=\(weather) weight=\(weight) held=\(held) next=\(next)"
     }
 }

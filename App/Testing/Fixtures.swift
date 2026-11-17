@@ -8,7 +8,8 @@ import Foundation
 /// Shape: `{"profile": { …a Profile record… }, "logs": [{"sessionID", "week",
 /// "startedAt" (ISO 8601)}], "weekAnswers": {"yyyy-MM-dd" (a Monday): WeekAnswers}}`.
 /// `logs` is optional: sessions already done, so the planner (E13) doesn't
-/// move them. `weekAnswers` is optional: the Sunday prompt's answers for those
+/// move them. A log that starts after `now` (the `-now` clock) is left out, so
+/// one fixture can script a whole week: each launch sees only what is done by then. `weekAnswers` is optional: the Sunday prompt's answers for those
 /// weeks. More keys join as features need them.
 struct Fixture {
     let profile: Profile
@@ -51,7 +52,7 @@ struct Fixture {
         }
     }
 
-    static func load(named name: String, bundle: Bundle = .main) throws -> Fixture {
+    static func load(named name: String, now: Date = AppClock.now(), bundle: Bundle = .main) throws -> Fixture {
         guard let url = bundle.url(forResource: "fixture-\(name)", withExtension: "json") else {
             throw LoadError.notFound(name)
         }
@@ -61,7 +62,7 @@ struct Fixture {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         let extras = try decoder.decode(Logs.self, from: Data(contentsOf: url))
-        return Fixture(profile: profile, logs: (extras.logs ?? []).map {
+        return Fixture(profile: profile, logs: (extras.logs ?? []).filter { $0.startedAt <= now }.map {
             SessionLog(programmeID: profile.programme.programmeID, sessionID: $0.sessionID, week: $0.week,
                        startedAt: $0.startedAt, finishedAt: $0.startedAt.addingTimeInterval(45 * 60))
         }, weekAnswers: extras.weekAnswers ?? [:])
