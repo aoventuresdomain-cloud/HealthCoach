@@ -53,10 +53,19 @@ final class MealsUITests: XCTestCase {
         XCTAssertEqual(tick.label, "Got it")
         attach(app, "shopping")
 
+        // UI-12: one header names the shop and counts what's left.
+        XCTAssertTrue(app.staticTexts["shopping.header"].label.hasPrefix("Waitrose · "))
+
         app.segmentedControls["meals.tabs"].buttons["Lunch"].tap()
+        // UI-12: one suggestion (office day) or one line; the full list is behind "All N orders".
+        let all = app.buttons["lunch.all"]
+        XCTAssertTrue(all.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["lunch.suggestion"].exists || app.staticTexts["lunch.noOffice"].exists)
+        attach(app, "lunch")
+        all.tap()
         let row = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'lunch.row.'")).firstMatch
         XCTAssertTrue(row.waitForExistence(timeout: 5))
-        attach(app, "lunch")
+        attach(app, "lunch-orders")
     }
 
     @MainActor

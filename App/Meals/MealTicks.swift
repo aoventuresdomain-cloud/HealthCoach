@@ -10,6 +10,7 @@ final class MealTicks {
 
     private let defaults: UserDefaults
     private let mealsKey = "meals.unticked.v1"
+    private let everUntickedKey = "meals.everUnticked.v1"
     private let staplesKey = "shopping.tickedStaples.v1"
     private let shoppingKey = "shopping.ticked.v1"
 
@@ -37,7 +38,11 @@ final class MealTicks {
         let key = Self.mealKey(date, meal.id, calendar: calendar)
         if ticked { set.remove(key) } else { set.insert(key) }
         defaults.set(Array(set), forKey: mealsKey)
+        if !ticked { defaults.set(true, forKey: everUntickedKey) }
     }
+
+    /// UI-12: the "untick anything you skipped" footer shows until the first untick, then never again.
+    var hasEverUnticked: Bool { defaults.bool(forKey: everUntickedKey) }
 
     private var unticked: Set<String> { Set(defaults.stringArray(forKey: mealsKey) ?? []) }
 
