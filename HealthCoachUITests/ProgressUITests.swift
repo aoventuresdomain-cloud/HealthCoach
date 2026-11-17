@@ -15,6 +15,10 @@ final class ProgressUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["today.title"].waitForExistence(timeout: 15))
         app.tabBars.buttons["Progress"].tap()
         XCTAssertTrue(app.staticTexts["progress.weight"].waitForExistence(timeout: 5))
+        // QA-30: SampleHealthReader's steps, 3,200 today and 8,100…8,700 before (mean 8,400).
+        let steps = app.staticTexts["progress.steps"]
+        XCTAssertTrue(steps.waitForExistence(timeout: 5))
+        XCTAssertTrue(steps.label.hasPrefix("Steps: 3,200 today"), steps.label)
         return app
     }
 

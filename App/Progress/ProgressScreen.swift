@@ -19,6 +19,13 @@ struct ProgressScreen: View {
     private let calendar = Calendar.coach
     private var store: ProgressStore { .shared }
 
+    /// "Steps: 6,240 today · 8,100 a day last week" (the average only once there is one).
+    static func stepsLine(_ steps: StepsSummary) -> String {
+        var line = "Steps: \(steps.today.formatted()) today"
+        if let average = steps.sevenDayAverage { line += " · \(average.formatted()) a day last week" }
+        return line
+    }
+
     var body: some View {
         let _ = version
         let now = AppClock.now()
@@ -42,6 +49,13 @@ struct ProgressScreen: View {
                     Text("No trend yet. It needs 3 weigh-ins in a week from the scale.")
                         .foregroundStyle(.secondary)
                         .accessibilityIdentifier("progress.weight")
+                }
+                // QA-30: steps were read but shown nowhere; one quiet line.
+                if let steps = BodyStats.shared.steps {
+                    Text(Self.stepsLine(steps))
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("progress.steps")
                 }
             } header: {
                 Text("Weight")
