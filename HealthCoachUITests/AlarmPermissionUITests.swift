@@ -78,7 +78,9 @@ final class AlarmPermissionUITests: XCTestCase {
         }
         set.tap()
         app.swipeUp() // any interaction lets the interruption monitor run
-        XCTAssertTrue(waitForResult(app, containing: "14 alarms set", timeout: 30), results(app))
+        XCTAssertTrue(waitForResult(app, containing: "14 alarms set", timeout: 30),
+                      results(app) + " | state=\(app.state.rawValue) springboardAlerts="
+                      + "\(XCUIApplication(bundleIdentifier: "com.apple.springboard").alerts.allElementsBoundByIndex.map(\.label))")
         add(XCTAttachment(screenshot: app.screenshot()))
 
         app.terminate()
