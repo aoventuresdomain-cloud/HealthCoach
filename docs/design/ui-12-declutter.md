@@ -1,6 +1,6 @@
 # UI-12 · Declutter
 
-Product Designer · 17 Nov 2026 · Round 1. Asked by the CEO at 21:08 UTC: *"Change the ui and simplify, it's too crowded, as I said before. Apply best practices."* This is the second time they have asked, so this pass **cuts and moves things; it does not restyle them**. Colour, type, tokens and components stay as set in [`direction.md`](direction.md). The [`m1/README.md`](m1/README.md) and [`ui-pass-1.md`](ui-pass-1.md) rules still hold unless this file changes them.
+Product Designer · 17 Nov 2026 · Final (Advisor and Head of Engineering round 1 folded in). Asked by the CEO at 21:08 UTC: *"Change the ui and simplify, it's too crowded, as I said before. Apply best practices."* This is the second time they have asked, so this pass **cuts and moves things; it does not restyle them**. Colour, type, tokens and components stay as set in [`direction.md`](direction.md). The [`m1/README.md`](m1/README.md) and [`ui-pass-1.md`](ui-pass-1.md) rules still hold unless this file changes them.
 
 **Before shots:** `qa/gate-0a-shots` at `375c226` (built from `b59f62d`), in `screenshots/ui-tests/`. They are named here by their test attachment name, for example `week1-monday` is `testClockAndFixtureAreInjected-week1-monday_0_….png`.
 
@@ -70,7 +70,7 @@ On a rain day the card reads "28 min · rain swapped your run", with **[ I'll ru
 |---|---|---|
 | `player.media`, `player.exerciseName`, numbers row, `player.done`, `player.counter` | **Keep** | They are the set |
 | `player.callouts` (Setup / Move / Fix) | **Show all three on the first set of each exercise; from set 2 show only Fix.** Tapping the line expands the other two | You need the setup once. After that the one cue that matters is the fix. It is still visible with no tap (Advisor B5) |
-| "Stop with N left in the tank" line | **Merge into the Reps caption:** "REPS · 3 in reserve" | One line fewer |
+| "Stop with N left in the tank" line | **Merge into the Reps caption:** "REPS · stop 3 short" | One line fewer |
 | `player.dumbbellLimit`, `player.slowTempo` | **Keep, only when true** (no change) | |
 | `player.progress` with its "Warm-up / 3 / 9" label | **Keep the bar, cut the label** | The bar already shows position |
 
@@ -99,10 +99,10 @@ On a rain day the card reads "28 min · rain swapped your run", with **[ I'll ru
 | Check and `player.doneTitle` | **Keep** | |
 | Stats | **One line:** "39 min · 18 sets · logged as prescribed" | Two big numbers for a summary nobody acts on |
 | The list of what was done (nine rows) | **Move behind `player.edit`** ("Something was different"); the edit screen lists the sets anyway | You just did it. It is a duplicate of the log |
-| `player.nextTime.*` | **Bring above the fold. Show only lifts whose load goes up** (green ↑), then one grey line, "7 others the same" | It is the only new information on the screen. Rule from the Advisor: no red, no down arrows |
+| `player.nextTime.*` | **Bring above the fold. Show every lift that increases in any way** (load, a set, or the rep band) in green ↑, for example "+1 set" or "12 kg". Then one grey line, "N others the same" | It is the only new information on the screen. Advisor: every increase counts (weeks 1→2 add a set at the same weight), with no red and no down arrows |
 | `player.edit` and `player.finish` | **Keep** | |
 
-**After:** ① check and title ② one stats line ③ Next time (changes only) ④ Something was different ⑤ Done.
+**After:** ① check and title ② one stats line ③ Next time (increases only) ④ Something was different ⑤ Done.
 
 ## 5. Run-walk and walk
 
@@ -174,7 +174,7 @@ On a rain day the card reads "28 min · rain swapped your run", with **[ I'll ru
 | Element (id) | Decision | Why |
 |---|---|---|
 | `progress.phase` | **Move to the top under the title:** "Phase 1 · week 1 of 6", with "Week 1 of about 20" quieter beneath it (Advisor) | It is the frame for everything below |
-| `progress.weight` | **Becomes the hero number:** "82.7 kg", with "7-day average · −0.7 kg this week" under it | One hero number per screen (`direction.md`) |
+| `progress.weight` | **Becomes the hero number:** "82.7 kg", with "7-day average · −1.1 kg since start" under it | One hero number per screen (`direction.md`). Advisor: change since start is the honest number; week on week is mostly water |
 | `progress.weightChart` | **Keep**, without its own section header | |
 | Strength empty state ("Your lifts appear here…") | **Hide until there is data**; `progress.lift.*` rows then appear | Rule 4 |
 | Photos card (`progress.nextPhotos`, thumbnails, `progress.photoSet.*`) | **One disclosure row:** "Photos · next Mon 7 Dec ›". **`progress.photoDay` shows as a card only on photo day** | Shown only when it needs him |
@@ -191,12 +191,12 @@ On a rain day the card reads "28 min · rain swapped your run", with **[ I'll ru
 | Element (id) | Decision | Why |
 |---|---|---|
 | `onboarding.title` | **Keep** | |
-| The four Guess rows: `onboarding.row.paperStart`, `.sleep`, `.work`, `.longest` | **Keep, at the top, together**, under "Check these 4" | These are the only rows that need a glance |
-| The other eight rows (`.you`, `.goal`, `.hurts`, `.office`, `.fixed`, `.kit`, `.cues`, `.checkIn`) | **Move into one disclosure:** "Everything else (8) · from what you told us ›" (new id `onboarding.more`) | They are confirmed already; showing them is admin |
+| The four Guess rows (`onboarding.row.paperStart`, `.sleep`, `.work`, `.longest`) plus `.hurts` | **Keep, at the top, together**, under "Check these 5" | These are the only rows that need a glance. "Anything that hurts" is a safety default he has never confirmed (Advisor) |
+| The other seven rows (`.you`, `.goal`, `.office`, `.fixed`, `.kit`, `.cues`, `.checkIn`) | **Move into one disclosure:** "Everything else (7) · from what you told us ›" (new id `onboarding.more`) | They are confirmed already; showing them is admin |
 | Section headers (Week, Training, Coach) | **Cut** | Rows read on their own |
 | `onboarding.confirm` "Looks right" | **Keep** | |
 
-**After:** ① title ② the 4 Guess rows ③ Everything else ④ Looks right.
+**After:** ① title ② the 5 rows to check ③ Everything else ④ Looks right.
 
 ## 12. Permissions
 
@@ -230,7 +230,7 @@ Every identifier keeps its name. These tests need one extra tap, or a check for 
 |---|---|
 | `SundayPromptUITests` (3 taps of `today.planWeekToolbar`) | Tap `today.more` first |
 | `AlarmPermissionUITests` and the M0-11b check (`home.spikeTests`) | Tap `today.more` first; the item exists only in spike and debug modes |
-| `OnboardingUITests`, rows `you`, `goal`, `hurts`, `office`, `fixed`, `kit`, `cues`, `checkIn` | Tap `onboarding.more` first. `onboarding.row.longest` stays above the fold |
+| `OnboardingUITests`, rows `you`, `goal`, `office`, `fixed`, `kit`, `cues`, `checkIn` | Tap `onboarding.more` first. `onboarding.row.longest` and `onboarding.row.hurts` stay above the fold |
 | Any check that `today.alarmBanner` exists after a re-set | Now asserts it **doesn't** appear; the re-set is visible in `debug.launch` (`alarms=`) |
 | `ProgressUITests` / `CoachImportUITests` (`progress.weight`) | No change; it is still on Progress, now as the hero |
 | `MealsUITests` (`meals.totals`) | No change to the id; the element is now a line, not a card |
@@ -243,6 +243,18 @@ Every identifier keeps its name. These tests need one extra tap, or a check for 
 3. **Today date line:** "Mon 23 Nov · Week 1" (default), or no date line.
 4. Still open from `direction.md`: accent colour, always-dark, app icon, rounded numerals.
 
-## Advisor review
+## Advisor and Head of Engineering review
 
-Round 1 of 2: pending.
+**Head of Engineering, round 1 (17 Nov):** approved. The old P3 item is renamed UI-12b; the ⋯ menu is approved and supersedes #72's button; the test-impact list is accepted (the `today.alarmBanner` cut is fine because `today.alarmWarning` stays, QA-1).
+
+**Advisor, round 1 (17 Nov):** a strong cut that keeps every coaching signal. The admin check passes: in normal use the taps are still Start, Next, Done and the Sunday prompt.
+
+| # | Advisor point | Answer | Where |
+|---|---|---|---|
+| 1 | Must: "Next time" shows every increase (load, sets, rep band), not only load; otherwise "N others the same" is false in week 1→2 | **Accepted** | §4 |
+| 2 | Must: "Anything that hurts" stays in the top group, "Check these 5"; it's an unconfirmed safety default | **Accepted** | §11, test impact |
+| 3 | Progress hero sub-line "−1.1 kg since start", not "this week" | **Accepted** | §10 |
+| 4 | "3 in reserve" is jargon; use "stop 3 short" | **Accepted** | §2 |
+| 5 | Callouts on set 1 then Fix only; Fine / Still sore; meals one line with no targets; easy pace on the warm-up and first jog; banner cut; weather swap as meta line plus secondary; ⋯ menu; lunch card; magnifier; footer once | **Accepted as written** | §1–9 |
+
+All points are accepted, so no second round is needed. This is the final version for the iOS Interface Engineer.
