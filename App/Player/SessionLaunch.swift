@@ -26,7 +26,10 @@ struct SessionLaunch: Identifiable {
             guard let script = WorkoutScript.make(sessionID: slot.id, programme: programme, week: week, history: history) else { return nil }
             return SessionLaunch(player: .strength(WorkoutPlayerModel(
                 script: script, catalogue: content.exercises, programmeID: programme.id,
-                recovery: recovery, voiceCues: strengthVoice, now: now)))
+                recovery: recovery, voiceCues: strengthVoice, now: now,
+                nextTime: { log in
+                    NextTime.lines(sessionID: slot.id, programme: programme, week: week, history: history + [log])
+                })))
         case let .runWalk(run):
             guard let plan = RunWalkPlan.make(sessionID: slot.id, session: run, week: week) else { return nil }
             return SessionLaunch(player: .runWalk(RunWalkModel(
