@@ -21,7 +21,7 @@ struct RestTimerLockScreenView: View {
             }
             Spacer()
             RestCountdown(endsAt: endsAt)
-                .font(.system(size: 44, weight: .bold).monospacedDigit())
+                .font(.coachNumber(44))
         }
         .padding()
         .foregroundStyle(.white)
@@ -49,7 +49,7 @@ struct RunWalkLockScreenView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(title).font(.subheadline).foregroundStyle(.secondary)
                 Text(state.label)
-                    .font(.system(size: 34, weight: .heavy))
+                    .font(.coachNumber(34, weight: .heavy))
                     .foregroundStyle(state.isJog ? .green : .blue)
                 Text("\(state.progress) · \(state.nextUp)")
                     .font(.subheadline)
@@ -58,7 +58,7 @@ struct RunWalkLockScreenView: View {
             }
             Spacer()
             RunWalkClock(state: state)
-                .font(.system(size: 44, weight: .bold).monospacedDigit())
+                .font(.coachNumber(44))
         }
         .padding()
         .foregroundStyle(.white)

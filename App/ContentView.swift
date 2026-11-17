@@ -12,7 +12,10 @@ struct ContentView: View {
         case let mode?:
             NavigationStack { SpikeTestsView(screenshot: mode) }
         case nil:
+            // UI-1: one dark look everywhere, green accent (rest and walk stay blue).
             RootView()
+                .preferredColorScheme(.dark)
+                .tint(.go)
         }
     }
 }
@@ -64,6 +67,8 @@ private struct RootView: View {
                         }
                     }
                     .tabBarMinimizeBehavior(.onScrollDown)
+                    // UI-2: Start gets the medium impact as the session opens.
+                    .sensoryFeedback(trigger: playing != nil) { _, started in started ? .impact(weight: .medium) : nil }
                     .fullScreenCover(item: $playing) { launch in
                         launch.view { log in
                             do {

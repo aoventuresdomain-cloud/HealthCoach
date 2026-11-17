@@ -16,7 +16,7 @@ struct RunWalkView: View {
                     Image(systemName: "xmark")
                         .font(.headline)
                         .frame(width: 44, height: 44)
-                        .background(Color(.tertiarySystemFill), in: .circle)
+                        .glassEffect(.regular.interactive(), in: .circle) // UI-5: glass chrome
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("End run")
@@ -33,7 +33,16 @@ struct RunWalkView: View {
             }
             .frame(maxHeight: .infinity, alignment: .top)
         }
-        .background(Color(.systemGroupedBackground))
+        // UI-10: the screen is washed in the interval's colour, readable from across the room.
+        .background {
+            ZStack {
+                Color(.systemGroupedBackground)
+                (model.segment?.isJog == true ? Color.go : Color.rest)
+                    .opacity(model.finished ? 0 : 0.12)
+            }
+            .ignoresSafeArea()
+            .animation(.coach, value: model.index)
+        }
         .safeAreaInset(edge: .bottom) {
             ActionBar {
                 if model.finished {
@@ -47,6 +56,9 @@ struct RunWalkView: View {
                 }
             }
         }
+        // UI-2: heavy on each interval change, success when the run-walk ends.
+        .sensoryFeedback(.impact(weight: .heavy), trigger: model.index)
+        .sensoryFeedback(trigger: model.finished) { _, new in new ? .success : nil }
         .onAppear { model.begin() }
         .confirmationDialog("End this run?", isPresented: $confirmingEnd, titleVisibility: .visible) {
             Button("End run", role: .destructive) { onClose(model.close(now: AppClock.now())) }
@@ -69,12 +81,13 @@ struct RunWalkView: View {
                     .font(.headline).foregroundStyle(.secondary)
                     .padding(.top, 32)
                 Text(RunWalkFormat.label(segment.kind))
-                    .font(.system(size: segment.kind == .jog || segment.kind == .walk ? 88 : 44, weight: .heavy))
-                    .foregroundStyle(segment.isJog ? .green : .blue)
+                    .font(.coachNumber(segment.kind == .jog || segment.kind == .walk ? 88 : 44, weight: .heavy))
+                    .foregroundStyle(segment.isJog ? Color.go : Color.rest)
                     .accessibilityIdentifier("run.label")
                 let left = model.pausedRemaining ?? model.endsAt.map { max(0, Int($0.timeIntervalSince(date).rounded(.up))) } ?? 0
                 Text(PlayerFormat.clock(left))
-                    .font(.system(size: 112, weight: .bold).monospacedDigit())
+                    .font(.coachNumber(112))
+                    .rollingNumber(left, countsDown: true)
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
                     .accessibilityIdentifier("run.clock")
@@ -134,7 +147,7 @@ private struct SegmentBar: View {
 
     private func colour(_ i: Int, _ segment: RunWalkPlan.Segment) -> Color {
         if i > current { return Color(.tertiarySystemFill) }
-        return segment.isJog ? .green.opacity(i == current ? 0.5 : 1) : .blue.opacity(i == current ? 0.5 : 1)
+        return segment.isJog ? Color.go.opacity(i == current ? 0.5 : 1) : Color.rest.opacity(i == current ? 0.5 : 1)
     }
 }
 
@@ -153,7 +166,7 @@ struct WalkView: View {
             if let minutes { Text("About \(minutes) min, at your pace").foregroundStyle(.secondary) }
             TimelineView(.periodic(from: .now, by: 1)) { context in
                 Text(PlayerFormat.clock(Int(context.date.timeIntervalSince(log.startedAt))))
-                    .font(.system(size: 96, weight: .bold).monospacedDigit())
+                    .font(.coachNumber(96))
             }
             Spacer()
         }

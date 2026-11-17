@@ -28,6 +28,10 @@ final class ProgressUITests: XCTestCase {
         XCTAssertTrue(app.buttons["photo.take.front"].waitForExistence(timeout: 5))
         app.buttons["photo.take.front"].tap()
         app.buttons["photo.take.side"].tap()
+        // QA-23: shoot once the side button has settled on "Retake".
+        let settled = NSPredicate(format: "label == 'Retake'")
+        expectation(for: settled, evaluatedWith: app.buttons["photo.take.side"])
+        waitForExpectations(timeout: 5)
         attach(app, "photo-day")
         app.buttons["photo.save"].tap()
 

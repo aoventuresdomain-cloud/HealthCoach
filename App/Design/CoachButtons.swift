@@ -10,8 +10,8 @@ struct PrimaryActionStyle: ButtonStyle {
         configuration.label
             .font(.title2.bold())
             .frame(maxWidth: .infinity, minHeight: 76)
-            .foregroundStyle(.black)
-            .background(Color.green.opacity(configuration.isPressed ? 0.75 : 1), in: .rect(cornerRadius: 22))
+            .foregroundStyle(Color.onGo)
+            .background(Color.go.opacity(configuration.isPressed ? 0.75 : 1), in: .rect(cornerRadius: 22))
             .contentShape(.rect)
     }
 }
@@ -22,7 +22,8 @@ struct SecondaryActionStyle: ButtonStyle {
             .font(.headline)
             .frame(maxWidth: .infinity, minHeight: 50)
             .foregroundStyle(.primary)
-            .background(Color(.tertiarySystemFill).opacity(configuration.isPressed ? 0.6 : 1), in: .rect(cornerRadius: 16))
+            // UI-5: Liquid Glass on secondary chrome; the primary stays solid green.
+            .glassEffect(.regular.interactive(), in: .rect(cornerRadius: Radius.secondary))
             .contentShape(.rect)
     }
 }
@@ -40,7 +41,7 @@ struct ActionBar<Primary: View, Secondary: View>: View {
         .padding(.horizontal, 16)
         .padding(.top, 8)
         .padding(.bottom, 8)
-        .background(Color(.systemGroupedBackground))
+        // UI-5: no opaque fill, so the glass secondary sits on the canvas.
     }
 }
 

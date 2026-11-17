@@ -167,9 +167,11 @@ private struct WeightHero: View {
             .chartXAxis {
                 AxisMarks(values: .stride(by: .weekOfYear)) { _ in
                     AxisGridLine()
-                    AxisValueLabel(format: .dateTime.day().month(.abbreviated))
+                    AxisValueLabel(format: .dateTime.day().month(.abbreviated), collisionResolution: .greedy)
                 }
             }
+            // QA-22: room for the last date label at the right edge.
+            .padding(.trailing, 12)
             .frame(height: 160)
             .accessibilityLabel("Weight, 7-day average over the last 4 weeks")
             .accessibilityIdentifier("progress.weightChart")
