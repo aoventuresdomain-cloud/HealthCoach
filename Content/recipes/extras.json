@@ -1,0 +1,254 @@
+{
+  "schemaVersion": 0,
+  "note": "Provisional (M3-01 follow-up). Extras the meal planner adds to a day when the calorie target is above what the base recipes reach (e.g. the engine raising calories, or maintenance at ~2,450). Ingredient ids refer to recipes/recipes.json `ingredients`, plus the new ones below. Cooked extras make 2 portions; snacks for the owner only make 1. No raw fish. qty is the total for all portions.",
+  "ingredients": {
+    "avocado": {
+      "name": "Ripe avocados",
+      "aisle": "produce",
+      "staple": false,
+      "per100": {
+        "kcal": 160,
+        "protein": 2
+      },
+      "unit": "each",
+      "gramsEach": 150,
+      "search": "ripe avocados"
+    }
+  },
+  "usage": {
+    "proteinFirst": {
+      "extra": "dinner-chicken-boost",
+      "whenPlannedProteinBelow": 150
+    },
+    "order": [
+      "side-rice|side-potatoes|side-bread",
+      "second-snack-yogurt",
+      "breakfast-eggs-avocado",
+      "second-snack-toast"
+    ],
+    "sideTiming": "On training days, add the side to the first meal after the session.",
+    "maxPerDay": {
+      "side": 1,
+      "second-snack": 1,
+      "richer-breakfast": 1,
+      "protein-boost": 1
+    },
+    "note": "The chicken boost goes in first whenever planned protein is under 150 g. Then add in this order until the day is inside the band: carbs and protein before fat, lowest protein per kcal last (Advisor, 17 Nov)."
+  },
+  "extras": [
+    {
+      "id": "side-rice",
+      "name": "Basmati rice on the side",
+      "kind": "side",
+      "addsTo": [
+        "dinner",
+        "box-night",
+        "sunday-cook"
+      ],
+      "portions": 2,
+      "minutes": 2,
+      "perPortion": {
+        "kcal": 200,
+        "protein": 4
+      },
+      "ingredients": [
+        {
+          "ingredient": "rice-pouch",
+          "qty": 1
+        }
+      ],
+      "method": [
+        "Microwave the pouch as the pack says; split between two plates."
+      ]
+    },
+    {
+      "id": "side-potatoes",
+      "name": "Buttered new potatoes",
+      "kind": "side",
+      "addsTo": [
+        "dinner",
+        "box-night",
+        "sunday-cook"
+      ],
+      "portions": 2,
+      "minutes": 20,
+      "perPortion": {
+        "kcal": 190,
+        "protein": 3
+      },
+      "ingredients": [
+        {
+          "ingredient": "new-potatoes",
+          "qty": 400
+        },
+        {
+          "ingredient": "butter",
+          "qty": 10
+        }
+      ],
+      "method": [
+        "Boil the potatoes for 15–20 minutes until tender; toss with the butter."
+      ]
+    },
+    {
+      "id": "side-bread",
+      "name": "Sourdough with olive oil",
+      "kind": "side",
+      "addsTo": [
+        "dinner",
+        "box-night",
+        "lunch"
+      ],
+      "portions": 2,
+      "minutes": 2,
+      "perPortion": {
+        "kcal": 160,
+        "protein": 5
+      },
+      "ingredients": [
+        {
+          "ingredient": "wholemeal-bread",
+          "qty": 100
+        },
+        {
+          "ingredient": "olive-oil",
+          "qty": 10
+        }
+      ],
+      "method": [
+        "Slice and warm the bread; drizzle with the oil."
+      ]
+    },
+    {
+      "id": "dinner-chicken-boost",
+      "name": "Extra chicken with dinner",
+      "kind": "protein-boost",
+      "addsTo": [
+        "box-night",
+        "dinner"
+      ],
+      "portions": 2,
+      "minutes": 2,
+      "perPortion": {
+        "kcal": 150,
+        "protein": 31
+      },
+      "ingredients": [
+        {
+          "ingredient": "cooked-chicken",
+          "qty": 200
+        }
+      ],
+      "method": [
+        "Warm the cooked chicken in the pan for the last 3 minutes, or serve cold on the side."
+      ],
+      "note": "For box recipes that come in under 40 g protein."
+    },
+    {
+      "id": "second-snack-yogurt",
+      "name": "Yogurt, granola and berries (small)",
+      "kind": "second-snack",
+      "addsTo": [
+        "snack"
+      ],
+      "portions": 1,
+      "minutes": 2,
+      "perPortion": {
+        "kcal": 320,
+        "protein": 25
+      },
+      "ingredients": [
+        {
+          "ingredient": "greek-yogurt-0",
+          "qty": 200
+        },
+        {
+          "ingredient": "granola",
+          "qty": 40
+        },
+        {
+          "ingredient": "frozen-berries",
+          "qty": 80
+        }
+      ],
+      "method": [
+        "Yogurt in a bowl, topped with berries and granola."
+      ],
+      "note": "One portion: the owner only."
+    },
+    {
+      "id": "second-snack-toast",
+      "name": "Cheese on toast and an apple",
+      "kind": "second-snack",
+      "addsTo": [
+        "snack"
+      ],
+      "portions": 1,
+      "minutes": 3,
+      "perPortion": {
+        "kcal": 390,
+        "protein": 19
+      },
+      "ingredients": [
+        {
+          "ingredient": "wholemeal-bread",
+          "qty": 80
+        },
+        {
+          "ingredient": "light-cheddar",
+          "qty": 40
+        },
+        {
+          "ingredient": "apple",
+          "qty": 1
+        }
+      ],
+      "method": [
+        "Toast the bread, top with sliced cheese; apple on the side."
+      ],
+      "note": "One portion: the owner only."
+    },
+    {
+      "id": "breakfast-eggs-avocado",
+      "name": "Eggs, avocado, feta and toast",
+      "kind": "richer-breakfast",
+      "addsTo": [
+        "breakfast"
+      ],
+      "portions": 2,
+      "minutes": 12,
+      "perPortion": {
+        "kcal": 690,
+        "protein": 38
+      },
+      "ingredients": [
+        {
+          "ingredient": "eggs",
+          "qty": 6
+        },
+        {
+          "ingredient": "wholemeal-bread",
+          "qty": 200
+        },
+        {
+          "ingredient": "avocado",
+          "qty": 1
+        },
+        {
+          "ingredient": "feta",
+          "qty": 40
+        },
+        {
+          "ingredient": "butter",
+          "qty": 10
+        }
+      ],
+      "method": [
+        "Toast the bread.",
+        "Scramble or fry the eggs in the butter until set.",
+        "Serve on the toast with sliced avocado and crumbled feta."
+      ],
+      "note": "Replaces the planned breakfast on higher-calorie days."
+    }
+  ]
+}

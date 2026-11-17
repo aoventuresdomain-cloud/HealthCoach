@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 0,
+  "note": "Provisional shape (M3-01). Office-day lunch orders within about 8 minutes' walk of St James's Market (SW1Y). Walk times are estimates; prices are approximate (Nov 2026). Nutrition is the chain's published figure unless `nutritionSource` says estimate. Re-check monthly; swap any entry in Settings.",
+  "origin": {
+    "name": "St James's Market",
+    "postcode": "SW1Y 4AH",
+    "maxWalkMinutes": 8
+  },
+  "orders": [
+    {
+      "id": "pret-protein-plate",
+      "place": "Pret A Manger",
+      "address": "163 Piccadilly, W1J 9ED",
+      "walkMinutes": 5,
+      "cuisine": "café",
+      "order": "Chicken & Greens Protein Plate + Chicken & Edamame Protein Pot",
+      "kcal": 480,
+      "protein": 61,
+      "priceGBP": 12.9,
+      "nutritionSource": "pret.co.uk",
+      "goodFor": "lighter day or a big dinner ahead"
+    },
+    {
+      "id": "pret-chipotle-chicken",
+      "place": "Pret A Manger",
+      "address": "163 Piccadilly, W1J 9ED",
+      "walkMinutes": 5,
+      "cuisine": "café",
+      "order": "Chipotle Chicken bowl",
+      "kcal": 710,
+      "protein": 50,
+      "priceGBP": 12.95,
+      "nutritionSource": "pret.co.uk",
+      "goodFor": "training day"
+    },
+    {
+      "id": "itsu-teriyaki",
+      "place": "itsu",
+      "address": "167 Piccadilly, W1J 9EG",
+      "walkMinutes": 5,
+      "cuisine": "Asian",
+      "order": "Chicken teriyaki rice bowl + loaded chicken miso soup",
+      "kcal": 620,
+      "protein": 53,
+      "priceGBP": 13.0,
+      "nutritionSource": "itsu.com",
+      "goodFor": "any day",
+      "note": "Cooked chicken only; skip the sushi and poke (raw fish)."
+    },
+    {
+      "id": "farmer-j-fieldtray",
+      "place": "Farmer J",
+      "address": "210 Piccadilly, W1J 9HL",
+      "walkMinutes": 4,
+      "cuisine": "grain bowls",
+      "order": "Fieldtray: chicken, one grain base, two veg sides, greens",
+      "kcal": 700,
+      "protein": 45,
+      "priceGBP": 13.5,
+      "nutritionSource": "estimate",
+      "goodFor": "any day",
+      "note": "No published nutrition found; figures estimated from a chicken, grain and veg tray."
+    },
+    {
+      "id": "chipotle-bowl",
+      "place": "Chipotle",
+      "address": "St Martin's Lane, WC2N 4ER",
+      "walkMinutes": 8,
+      "cuisine": "Mexican",
+      "order": "Burrito bowl: chicken, brown rice, black beans, fajita veg, tomato salsa, cheese",
+      "kcal": 600,
+      "protein": 45,
+      "priceGBP": 11.5,
+      "nutritionSource": "chipotle UK nutrition 2024",
+      "goodFor": "training day"
+    },
+    {
+      "id": "chipotle-salad-double",
+      "place": "Chipotle",
+      "address": "St Martin's Lane, WC2N 4ER",
+      "walkMinutes": 8,
+      "cuisine": "Mexican",
+      "order": "Salad bowl: double chicken, black beans, fajita veg, tomato salsa",
+      "kcal": 520,
+      "protein": 63,
+      "priceGBP": 13.5,
+      "nutritionSource": "chipotle UK nutrition 2024",
+      "goodFor": "lighter day, high protein"
+    }
+  ]
+}
