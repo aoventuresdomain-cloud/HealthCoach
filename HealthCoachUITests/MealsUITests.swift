@@ -42,6 +42,11 @@ final class MealsUITests: XCTestCase {
         let tick = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'shopping.tick.'")).firstMatch
         XCTAssertTrue(tick.waitForExistence(timeout: 5))
         XCTAssertEqual(tick.label, "To buy")
+        // Plan §4.4: every bought item links to the shop's search (not tapped: it leaves the app).
+        let search = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "identifier BEGINSWITH 'shopping.search.'")).firstMatch
+        XCTAssertTrue(search.exists)
+        XCTAssertTrue(search.label.hasPrefix("Search Waitrose for "))
         tick.tap()
         XCTAssertEqual(tick.label, "Got it")
         attach(app, "shopping")

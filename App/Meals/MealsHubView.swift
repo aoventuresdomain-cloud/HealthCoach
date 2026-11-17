@@ -191,8 +191,18 @@ struct MealsHubView: View {
             }
             Spacer()
             if let url = item.searchURL {
-                Link(destination: url) { Image(systemName: "magnifyingglass") }
-                    .accessibilityLabel("Search the shop for \(item.name)")
+                // Plan §4.4: opens the shop's search in Safari. Outbound only; nothing is sent.
+                let shop = content.nutrition.shop.default.capitalized
+                Link(destination: url) {
+                    Label(shop, systemImage: "magnifyingglass")
+                        .font(.subheadline.weight(.semibold))
+                        .padding(.horizontal, Space.m)
+                        .padding(.vertical, Space.xs + 2)
+                        .background(.go.opacity(0.15), in: .capsule)
+                }
+                .buttonStyle(.borderless)
+                .accessibilityLabel("Search \(shop) for \(item.name)")
+                .accessibilityIdentifier("shopping.search.\(item.id)")
             }
         }
         .accessibilityIdentifier("shopping.row.\(item.id)")
