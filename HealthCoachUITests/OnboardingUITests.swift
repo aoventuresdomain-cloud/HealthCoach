@@ -18,17 +18,31 @@ final class OnboardingUITests: XCTestCase {
         // Every row shows a value without any input (decision E6 defaults).
         // Ordered top to bottom: a Dictionary's order is random per run, and a
         // row scrolled above the fold is never found by swiping up again.
-        let expected: [(row: String, text: String)] = [
-            ("you", "178 cm · 82 kg"),
-            ("hurts", "Nothing"),
+        // UI-12: "Check these 5" first; the other seven sit behind onboarding.more.
+        let toCheck: [(row: String, text: String)] = [
             ("paperStart", "16 Nov"),
             ("sleep", "7.5 h asleep"),
             ("work", "09:00–18:00"),
+            ("hurts", "Nothing"),
+        ]
+        let rest: [(row: String, text: String)] = [
+            ("you", "178 cm · 82 kg"),
             ("office", "Asked each Sunday"),
             ("fixed", "Basketball"),
             ("kit", "Dumbbells to 24 kg"),
         ]
-        for (row, text) in expected {
+        XCTAssertFalse(app.buttons["onboarding.row.you"].exists, "confirmed rows start folded away")
+        for (row, text) in toCheck {
+            let button = app.buttons["onboarding.row.\(row)"]
+            scrollIntoView(button, in: app)
+            XCTAssertTrue(button.exists && button.isHittable, row)
+            XCTAssertTrue(button.label.contains(text), "\(row): \(button.label)")
+        }
+        attach(app, "onboarding-confirm-more")
+        let more = app.buttons["onboarding.more"]
+        scrollIntoView(more, in: app)
+        more.tap()
+        for (row, text) in rest {
             let button = app.buttons["onboarding.row.\(row)"]
             // Lists only build what's on screen: scroll down to it, and back up
             // if it is already above the fold.
@@ -36,7 +50,7 @@ final class OnboardingUITests: XCTestCase {
             XCTAssertTrue(button.exists && button.isHittable, row)
             XCTAssertTrue(button.label.contains(text), "\(row): \(button.label)")
         }
-        attach(app, "onboarding-confirm")
+        attach(app, "onboarding-confirm-more")
 
         let confirm = app.buttons["onboarding.confirm"]
         for _ in 0..<6 where !(confirm.exists && confirm.isHittable) { app.swipeUp() }
