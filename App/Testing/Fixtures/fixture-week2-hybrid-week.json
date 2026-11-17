@@ -1,0 +1,24 @@
+{
+  "profile": {
+    "schemaVersion": 1,
+    "confirmed": true,
+    "programme": {
+      "programmeID": "phase-1",
+      "startDate": "2026-11-16T00:00:00Z",
+      "confirmedOn": "2026-11-22T18:00:00Z"
+    }
+  },
+  "weekAnswers": {
+    "2026-11-23": {
+      "officeDays": ["monday", "tuesday", "thursday"],
+      "earlyStarts": { "tuesday": "08:00" },
+      "lateFinishes": { "thursday": "19:00" }
+    }
+  },
+  "logs": [
+    { "sessionID": "upper-a", "week": 2, "startedAt": "2026-11-23T07:35:00Z" },
+    { "sessionID": "run-1", "week": 2, "startedAt": "2026-11-24T06:50:00Z" },
+    { "sessionID": "full-body", "week": 2, "startedAt": "2026-11-27T08:05:00Z" },
+    { "sessionID": "upper-b", "week": 2, "startedAt": "2026-11-28T09:00:00Z" }
+  ]
+}
