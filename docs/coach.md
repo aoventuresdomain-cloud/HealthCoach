@@ -19,7 +19,7 @@ One call gives everything the coach decides for a day: calories, dropped session
 - After a planned change of 200 kcal or more (into or out of maintenance, or an import), the next 2 checks are skipped; after a smaller import, 1.
 - `CalorieTarget.dayBand` is the band the meal planner (M3-02) plans each day inside: the weekly target ±150, never under 1,700.
 
-Phase 3's step thresholds (0.2 and 0.8) follow the same offsets from the aim as phases 1–2; the Advisor ruled only the aim, so this is flagged for confirmation.
+The Advisor confirmed phase 3's step thresholds (0.2 and 0.8) on 17 Nov 2026.
 
 **Load.** Progression (M1-08) as before. `Programme.prescription(for:week:history:blocks:on:)` adds imported loads: an imported weight holds until the owner next logs that exercise, at the bottom of the range (`step == .coach`); after that the logged weight leads, as usual.
 
@@ -29,7 +29,7 @@ Phase 3's step thresholds (0.2 and 0.8) follow the same offsets from the aim as 
 
 - `stall(.weightFlat)`: the 2-week rate under 0.2 kg a week (or a gain) at two consecutive checks.
 - `stall(.calorieFloor)`: the last check wanted to go below 1,850.
-- `stall(.losingTooFast)`: over 1.2 kg a week at two consecutive checks while at the 2,200 ceiling (muscle-loss risk).
+- `stall(.losingTooFast)`: over 1.2 kg a week (1.0 in phase 3) at two consecutive checks while at the 2,200 ceiling (muscle-loss risk).
 - `checkpoint(n)`: from the Saturday of week 6, 14 or 20 to the end of the following week.
 
 Any flag clears once a block is imported after it was raised. `CoachFlag.line` is the one line for Today.

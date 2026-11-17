@@ -19,7 +19,7 @@ public enum CoachFlag: Sendable, Equatable {
         case weightFlat
         /// The last check wanted fewer calories than the floor allows.
         case calorieFloor
-        /// Losing over 1.2 kg a week for two checks while at the ceiling: muscle-loss risk.
+        /// Losing over 1.2 kg a week (1.0 in phase 3) for two checks while at the ceiling: muscle-loss risk.
         case losingTooFast
     }
 
@@ -74,7 +74,7 @@ public struct CoachReview: Sendable, Equatable {
         }
 
         var flags: [CoachFlag] = []
-        if let stall = stallReason(checks: replay.checks, blocks: blocks, now: now, week: week, calendar: calendar) {
+        if let stall = stallReason(checks: replay.checks, blocks: blocks, now: now, week: week, phase: programme.phase) {
             flags.append(.stall(stall))
         }
         if let checkpoint = checkpointDue(now: now, start: start, blocks: blocks, calendar: calendar) {
@@ -90,7 +90,7 @@ public struct CoachReview: Sendable, Equatable {
     /// weeks, and none once a block has been imported since the second check
     /// (the owner has already asked).
     static func stallReason(checks: [CalorieCheck], blocks: [CoachBlock], now: Date,
-                            week: Int, calendar: Calendar) -> CoachFlag.StallReason? {
+                            week: Int, phase: Int) -> CoachFlag.StallReason? {
         guard !CalorieRules.isMaintenance(week: week), let last = checks.last else { return nil }
         if blocks.contains(where: { ($0.importedAt ?? .distantPast) >= last.date }) { return nil }
         if last.outcome == .atFloor { return .calorieFloor }
@@ -101,7 +101,7 @@ public struct CoachReview: Sendable, Equatable {
         let rates = pair.compactMap(\.lossRateKg)
         guard rates.count == 2 else { return nil }
         if rates.allSatisfy({ $0 < CalorieRules.stallRateKg }) { return .weightFlat }
-        if rates.allSatisfy({ $0 > CalorieRules.tooFastRateKg }),
+        if rates.allSatisfy({ $0 > CalorieRules.tooFastRateKg(phase: phase) }),
            pair.allSatisfy({ $0.kcalAfter >= CalorieRules.cutBand.upperBound }) {
             return .losingTooFast
         }

@@ -43,6 +43,24 @@ import Testing
         #expect(try review(at: f.monday(5), weights: fast).flags == [.stall(.losingTooFast)])
     }
 
+    @Test func phase3FlagsLosingTooFastFromOneKiloAWeek() {
+        // 1.1 kg a week at the ceiling, two checks running: fine in phases 1–2, flagged in phase 3.
+        let checks = [16, 17].map { week in
+            CalorieCheck(date: f.monday(week), week: week, lossRateKg: 1.1,
+                         kcalBefore: 2_200, kcalAfter: 2_200, outcome: .atCeiling)
+        }
+        func reason(_ phase: Int) -> CoachFlag.StallReason? {
+            CoachReview.stallReason(checks: checks, blocks: [], now: f.monday(17), week: 17, phase: phase)
+        }
+        #expect(reason(2) == nil)
+        #expect(reason(3) == .losingTooFast)
+        // Only one check over the line is not enough.
+        var single = checks
+        single[0] = CalorieCheck(date: f.monday(16), week: 16, lossRateKg: 0.9,
+                                 kcalBefore: 2_200, kcalAfter: 2_200, outcome: .atCeiling)
+        #expect(CoachReview.stallReason(checks: single, blocks: [], now: f.monday(17), week: 17, phase: 3) == nil)
+    }
+
     @Test func importingAfterAFlagClearsIt() throws {
         let flat = f.weights(to: 40) { _ in 82 }
         let blocks = [f.block(on: 22, kcal: 1_950)] // Tuesday of week 4

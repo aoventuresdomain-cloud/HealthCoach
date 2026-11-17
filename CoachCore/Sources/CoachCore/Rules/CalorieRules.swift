@@ -36,8 +36,9 @@ public enum CalorieRules {
 
     /// Stall flag: a 2-week rate below this (kg lost a week), two checks running.
     public static let stallRateKg = 0.2
-    /// Muscle-loss risk: a 2-week rate above this, two checks running, at the ceiling.
-    public static let tooFastRateKg = 1.2
+    /// Muscle-loss risk: a 2-week rate above this, two checks running, at the
+    /// ceiling. Lower in phase 3, when leaner (Advisor).
+    public static func tooFastRateKg(phase: Int) -> Double { phase >= 3 ? 1.0 : 1.2 }
 
     /// Target loss per week by phase, and the rates that move calories.
     public struct LossRate: Sendable, Equatable {
