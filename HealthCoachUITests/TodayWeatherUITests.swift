@@ -18,6 +18,13 @@ final class TodayWeatherUITests: XCTestCase {
         XCTAssertTrue(note.label.contains("instead, same time"), note.label)
         let title = app.staticTexts["today.title"]
         XCTAssertFalse(title.label.lowercased().contains("run"), "the swapped title still names the run: \(title.label)")
+        // QA-20: the timeline row follows the swap too.
+        let row = app.descendants(matching: .any)["today.timeline.session"]
+        for _ in 0..<4 where !row.exists { app.swipeUp() }
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        XCTAssertFalse(row.label.lowercased().contains("run"), "the timeline row still names the run: \(row.label)")
+        XCTAssertTrue(row.label.contains(title.label.components(separatedBy: " at ").first ?? "∅"),
+                      "row \(row.label) vs header \(title.label)")
         let shot = XCTAttachment(screenshot: app.screenshot())
         shot.name = "today-weather-swap"
         shot.lifetime = .keepAlways
@@ -26,5 +33,6 @@ final class TodayWeatherUITests: XCTestCase {
         app.buttons["today.runAnyway"].tap()
         XCTAssertTrue(note.waitForNonExistence(timeout: 5))
         XCTAssertTrue(title.label.lowercased().contains("run"), title.label)
+        XCTAssertTrue(row.label.lowercased().contains("run"), row.label)
     }
 }

@@ -47,6 +47,12 @@ final class WorkoutPlayerUITests: XCTestCase {
                     let top = springboard.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.005))
                     top.press(forDuration: 0.1, thenDragTo: springboard.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.7)))
                     sleep(2)
+                    // QA-19: the rest activity itself, not a leftover run-walk one.
+                    let restTitle = springboard.staticTexts["Rest"]
+                    XCTAssertTrue(restTitle.waitForExistence(timeout: 5), "no rest Live Activity in the Notification Centre")
+                    let leftoverRun = springboard.staticTexts.matching(
+                        NSPredicate(format: "label CONTAINS[c] 'run-walk · Week'"))
+                    XCTAssertEqual(leftoverRun.count, 0, "a run-walk Live Activity is still showing")
                     let lockScreen = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
                     lockScreen.name = "player-rest-live-activity"
                     lockScreen.lifetime = .keepAlways

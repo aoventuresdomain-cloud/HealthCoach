@@ -16,12 +16,15 @@ import Testing
 
     /// Tuesday 24 Nov 2026, week 1: the run-walk.
     private func tuesdayRun(_ programme: Programme) throws -> DayPlan.SessionSlot {
+        try #require(tuesdayPlan(programme).session)
+    }
+
+    private func tuesdayPlan(_ programme: Programme) throws -> DayPlan {
         var profile = Profile()
         profile.confirmed = true
         profile.programme.startDate = calendar.date(from: DateComponents(year: 2026, month: 11, day: 23))!
         let tuesday = calendar.date(from: DateComponents(year: 2026, month: 11, day: 24, hour: 7))!
-        let plan = try #require(DayPlan.make(for: tuesday, programme: programme, profile: profile, calendar: calendar))
-        return try #require(plan.session)
+        return try #require(DayPlan.make(for: tuesday, programme: programme, profile: profile, calendar: calendar))
     }
 
     private func swap(from: String, to: String = "indoor-circuit", start: TimeOfDay) -> WeatherSwap {
@@ -44,5 +47,20 @@ import Testing
         let run = try tuesdayRun(programme)
         #expect(run.swapped(by: swap(from: "upper-a", start: run.start), programme: programme) == nil)
         #expect(run.swapped(by: swap(from: run.id, to: "no-such-session", start: run.start), programme: programme) == nil)
+    }
+
+    /// QA-20: the timeline row follows the swap, not just the header.
+    @Test func timelineRowFollowsTheSwap() throws {
+        let programme = try phase1()
+        let plan = try tuesdayPlan(programme)
+        let run = try #require(plan.session)
+        let swapped = plan.swapped(by: swap(from: run.id, start: run.start), programme: programme)
+        let row = try #require(swapped.timeline.first { $0.kind == .session })
+        #expect(swapped.session?.id == "indoor-circuit")
+        #expect(row.title == programme.sessions["indoor-circuit"]?.name)
+        #expect(row.detail == "Done by \(run.start.adding(minutes: 28))")
+        #expect(swapped.timeline.count == plan.timeline.count)
+        #expect(plan.swapped(by: nil, programme: programme) == plan)
+        #expect(plan.swapped(by: swap(from: "upper-a", start: run.start), programme: programme) == plan)
     }
 }

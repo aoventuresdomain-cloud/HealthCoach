@@ -10,3 +10,21 @@ extension DayPlan.SessionSlot {
                                    minutes: swap.durationMinutes, movedFrom: movedFrom)
     }
 }
+
+extension DayPlan {
+    /// The whole day after a weather swap (QA-20): the session and its
+    /// timeline row both become the indoor session, so the row never says
+    /// "Run-walk" under an "Indoor circuit" header. Unchanged when there's no
+    /// swap or it isn't for today's session.
+    public func swapped(by swap: WeatherSwap?, programme: Programme) -> DayPlan {
+        guard let swap, let slot = session, let indoor = slot.swapped(by: swap, programme: programme) else { return self }
+        let timeline = timeline.map { item in
+            item.kind == .session
+                ? TimelineItem(kind: .session, time: indoor.start, title: indoor.name,
+                               detail: indoor.end.map { "Done by \($0)" })
+                : item
+        }
+        return DayPlan(planned: planned, alarm: alarm, session: indoor, leave: leave,
+                       windDown: windDown, lightsOut: lightsOut, timeline: timeline)
+    }
+}

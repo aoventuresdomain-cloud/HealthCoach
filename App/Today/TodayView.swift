@@ -65,7 +65,8 @@ struct TodayView: View {
                 }
                 if let plan {
                     card(plan)
-                    TimelineCard(items: plan.timeline, now: dayOffset == 0 ? TodayFormat.timeOfDay(now, calendar) : nil)
+                    // QA-20: the session row follows a weather swap, like the header.
+                    TimelineCard(items: plan.swapped(by: dayOffset == 0 ? weatherSwap : nil, programme: programme).timeline, now: dayOffset == 0 ? TodayFormat.timeOfDay(now, calendar) : nil)
                 }
             }
             .padding(.horizontal, 16)

@@ -7,9 +7,15 @@ public struct ContentLibrary: Sendable {
     public let exercises: ExerciseCatalogue
     /// Keyed by programme id ("phase-1").
     public let programmes: [String: Programme]
+    /// Recipes, ingredients, box night and daily targets (M3).
+    public let nutrition: NutritionContent
+    /// Office-day lunch orders (M3).
+    public let lunchOrders: LunchOrders
 
     public static let exercisesPath = "exercises/exercises.json"
     public static let programmesFolder = "programmes"
+    public static let recipesPath = "recipes/recipes.json"
+    public static let lunchOrdersPath = "lunch-orders.json"
 
     /// Loads and validates. Throws the first file's error, so a broken file
     /// is named rather than half-loaded.
@@ -32,7 +38,11 @@ public struct ContentLibrary: Sendable {
             try require(problems, file: name)
             programmes[programme.id] = programme
         }
-        return ContentLibrary(exercises: exercises, programmes: programmes)
+        let nutrition = try loadFile(NutritionContent.self, root.appendingPathComponent(recipesPath), name: recipesPath)
+        try require(nutrition.problems(), file: recipesPath)
+        let lunchOrders = try loadFile(LunchOrders.self, root.appendingPathComponent(lunchOrdersPath), name: lunchOrdersPath)
+        try require(lunchOrders.problems(), file: lunchOrdersPath)
+        return ContentLibrary(exercises: exercises, programmes: programmes, nutrition: nutrition, lunchOrders: lunchOrders)
     }
 
     static func loadFile<T: VersionedFormat>(_ type: T.Type, _ url: URL, name: String) throws -> T {

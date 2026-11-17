@@ -20,6 +20,7 @@ let contentRoot = URL(fileURLWithPath: #filePath)
         while let path = enumerator?.nextObject() as? String {
             guard path.hasSuffix(".json") else { continue }
             let known = path == ContentLibrary.exercisesPath
+                || path == ContentLibrary.recipesPath || path == ContentLibrary.lunchOrdersPath
                 || (path.hasPrefix(ContentLibrary.programmesFolder + "/")
                     && library.programmes[URL(fileURLWithPath: path).deletingPathExtension().lastPathComponent] != nil)
             if !known { unknown.append(path) }

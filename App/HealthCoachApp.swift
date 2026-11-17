@@ -13,6 +13,7 @@ struct HealthCoachApp: App {
         // Never crashes: a store that won't open is kept aside and the app
         // starts fresh (AppStore.recovery says so).
         container = AppStore.open(options: options)
+        LiveActivityCleanup.endLeftoversAtLaunch()
         if options.isUITest {
             UIView.setAnimationsEnabled(false)
             if !options.keepCoachBlocks { CoachBlockStore.resetForUITest() }

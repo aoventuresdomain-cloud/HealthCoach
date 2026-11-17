@@ -1,0 +1,1451 @@
+{
+  "schemaVersion": 1,
+  "note": "Schema v1 (M3-02, Planner Engineer). Every recipe makes exactly 2 portions (the protein shake is 1: it is the owner's only); ingredient qty is the total for all portions. perPortion is one person's share. Values are estimates from typical UK label figures; tracking is loose by design. No raw fish anywhere.",
+  "shop": {
+    "default": "waitrose",
+    "searchUrl": "https://www.waitrose.com/ecom/shop/search?searchTerm={search}",
+    "decision": "E5"
+  },
+  "aisleOrder": [
+    "produce",
+    "bakery",
+    "meat-and-fish",
+    "dairy-and-eggs",
+    "chilled",
+    "frozen",
+    "tins-and-jars",
+    "rice-pasta-grains",
+    "cereals",
+    "oils-sauces-and-spices",
+    "nuts-and-snacks",
+    "sports-nutrition"
+  ],
+  "dailyTargets": {
+    "phase-1": {
+      "kcal": 2000,
+      "kcalBandPlusMinus": 150,
+      "kcalFloor": 1700,
+      "protein": 160,
+      "proteinMin": 150,
+      "eatingMoments": 4,
+      "proteinPerMoment": 40,
+      "socialMealsPerWeek": 2,
+      "socialMealsTracked": false,
+      "note": "kcal is the starting target; the rules engine moves it week to week. Plan only days within ±kcalBandPlusMinus of the current target, never below kcalFloor, with at least proteinMin."
+    }
+  },
+  "snackRule": {
+    "default": "yogurt-pot",
+    "replaceWith": "protein-shake",
+    "whenPlannedProteinBelow": 150,
+    "wednesdayTime": "17:30",
+    "note": "On Wednesdays the snack is eaten at 17:30, before basketball."
+  },
+  "supplements": {
+    "preTicked": true,
+    "with": "breakfast",
+    "items": [
+      {
+        "ingredient": "creatine",
+        "label": "Creatine",
+        "qty": 5,
+        "unit": "g",
+        "months": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ]
+      },
+      {
+        "ingredient": "vitamin-d",
+        "label": "Vitamin D",
+        "qty": 1,
+        "unit": "each",
+        "dose": "10 µg",
+        "months": [
+          10,
+          11,
+          12,
+          1,
+          2,
+          3
+        ],
+        "note": "NHS advice for the UK autumn and winter."
+      }
+    ],
+    "note": "Plan §4.3. One pre-ticked line with breakfast; never a question."
+  },
+  "boxNight": {
+    "id": "box-night",
+    "name": "Recipe box dinner",
+    "kind": "dinner",
+    "portions": 2,
+    "perPortion": {
+      "kcal": 650,
+      "protein": 40
+    },
+    "nightsPerWeek": {
+      "min": 3,
+      "max": 4
+    },
+    "shopping": false,
+    "note": "One fixed entry per box night, recorded at these per-portion values. Pick the box's high-protein or calorie-smart recipes when choosing. No raw fish recipes. The box brings its own ingredients, so box nights add nothing to the top-up list.",
+    "defaultNights": [
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday"
+    ]
+  },
+  "ingredients": {
+    "greek-yogurt-0": {
+      "name": "0% fat Greek yogurt",
+      "aisle": "dairy-and-eggs",
+      "staple": false,
+      "per100": {
+        "kcal": 54,
+        "protein": 10.3
+      },
+      "unit": "g",
+      "search": "0% fat greek yogurt 1kg"
+    },
+    "granola": {
+      "name": "Low-sugar granola",
+      "aisle": "cereals",
+      "staple": true,
+      "per100": {
+        "kcal": 450,
+        "protein": 9
+      },
+      "unit": "g",
+      "search": "low sugar granola"
+    },
+    "frozen-berries": {
+      "name": "Frozen mixed berries",
+      "aisle": "frozen",
+      "staple": false,
+      "per100": {
+        "kcal": 45,
+        "protein": 1
+      },
+      "unit": "g",
+      "search": "frozen mixed berries"
+    },
+    "honey": {
+      "name": "Honey",
+      "aisle": "oils-sauces-and-spices",
+      "staple": true,
+      "per100": {
+        "kcal": 330,
+        "protein": 0.3
+      },
+      "unit": "g",
+      "search": "runny honey"
+    },
+    "almonds": {
+      "name": "Flaked almonds",
+      "aisle": "nuts-and-snacks",
+      "staple": true,
+      "per100": {
+        "kcal": 600,
+        "protein": 21
+      },
+      "unit": "g",
+      "search": "flaked almonds"
+    },
+    "eggs": {
+      "name": "Free-range eggs, large",
+      "aisle": "dairy-and-eggs",
+      "staple": false,
+      "per100": {
+        "kcal": 131,
+        "protein": 12.6
+      },
+      "unit": "each",
+      "gramsEach": 60,
+      "search": "free range large eggs 12"
+    },
+    "egg-whites": {
+      "name": "Liquid egg whites",
+      "aisle": "dairy-and-eggs",
+      "staple": false,
+      "per100": {
+        "kcal": 48,
+        "protein": 11
+      },
+      "unit": "g",
+      "search": "liquid egg whites"
+    },
+    "wholemeal-bread": {
+      "name": "Wholemeal sourdough loaf",
+      "aisle": "bakery",
+      "staple": false,
+      "per100": {
+        "kcal": 240,
+        "protein": 10
+      },
+      "unit": "g",
+      "search": "wholemeal sourdough"
+    },
+    "butter": {
+      "name": "Butter",
+      "aisle": "dairy-and-eggs",
+      "staple": true,
+      "per100": {
+        "kcal": 740,
+        "protein": 0.6
+      },
+      "unit": "g",
+      "search": "salted butter"
+    },
+    "cherry-tomatoes": {
+      "name": "Cherry tomatoes",
+      "aisle": "produce",
+      "staple": false,
+      "per100": {
+        "kcal": 18,
+        "protein": 0.9
+      },
+      "unit": "g",
+      "search": "cherry tomatoes"
+    },
+    "oats": {
+      "name": "Porridge oats",
+      "aisle": "cereals",
+      "staple": true,
+      "per100": {
+        "kcal": 375,
+        "protein": 11
+      },
+      "unit": "g",
+      "search": "porridge oats"
+    },
+    "milk": {
+      "name": "Semi-skimmed milk",
+      "aisle": "dairy-and-eggs",
+      "staple": false,
+      "per100": {
+        "kcal": 47,
+        "protein": 3.6
+      },
+      "unit": "ml",
+      "search": "semi skimmed milk 2 pints"
+    },
+    "whey": {
+      "name": "Whey protein, vanilla",
+      "aisle": "sports-nutrition",
+      "staple": true,
+      "per100": {
+        "kcal": 400,
+        "protein": 78
+      },
+      "unit": "g",
+      "search": "whey protein powder"
+    },
+    "banana": {
+      "name": "Bananas",
+      "aisle": "produce",
+      "staple": false,
+      "per100": {
+        "kcal": 90,
+        "protein": 1.1
+      },
+      "unit": "each",
+      "gramsEach": 120,
+      "search": "bananas"
+    },
+    "tortilla": {
+      "name": "Wholemeal tortilla wraps",
+      "aisle": "bakery",
+      "staple": false,
+      "per100": {
+        "kcal": 285,
+        "protein": 8.9
+      },
+      "unit": "each",
+      "gramsEach": 62,
+      "search": "wholemeal tortilla wraps"
+    },
+    "light-cheddar": {
+      "name": "Reduced-fat mature cheddar",
+      "aisle": "dairy-and-eggs",
+      "staple": false,
+      "per100": {
+        "kcal": 314,
+        "protein": 27.5
+      },
+      "unit": "g",
+      "search": "reduced fat mature cheddar"
+    },
+    "spinach": {
+      "name": "Baby spinach",
+      "aisle": "produce",
+      "staple": false,
+      "per100": {
+        "kcal": 25,
+        "protein": 2.8
+      },
+      "unit": "g",
+      "search": "baby spinach"
+    },
+    "cooked-chicken": {
+      "name": "Cooked chicken breast pieces",
+      "aisle": "meat-and-fish",
+      "staple": false,
+      "per100": {
+        "kcal": 150,
+        "protein": 31
+      },
+      "unit": "g",
+      "search": "cooked chicken breast pieces"
+    },
+    "hummus": {
+      "name": "Reduced-fat houmous",
+      "aisle": "chilled",
+      "staple": false,
+      "per100": {
+        "kcal": 250,
+        "protein": 7
+      },
+      "unit": "g",
+      "search": "reduced fat houmous"
+    },
+    "salad-leaves": {
+      "name": "Mixed salad leaves",
+      "aisle": "produce",
+      "staple": false,
+      "per100": {
+        "kcal": 20,
+        "protein": 1.5
+      },
+      "unit": "g",
+      "search": "mixed salad leaves"
+    },
+    "cucumber": {
+      "name": "Cucumber",
+      "aisle": "produce",
+      "staple": false,
+      "per100": {
+        "kcal": 12,
+        "protein": 0.6
+      },
+      "unit": "each",
+      "gramsEach": 300,
+      "search": "cucumber"
+    },
+    "tuna": {
+      "name": "Tuna steak in spring water (tin)",
+      "aisle": "tins-and-jars",
+      "staple": true,
+      "per100": {
+        "kcal": 109,
+        "protein": 25
+      },
+      "unit": "each",
+      "gramsEach": 110,
+      "search": "tuna in spring water"
+    },
+    "cannellini": {
+      "name": "Cannellini beans (tin)",
+      "aisle": "tins-and-jars",
+      "staple": true,
+      "per100": {
+        "kcal": 95,
+        "protein": 7
+      },
+      "unit": "each",
+      "gramsEach": 240,
+      "search": "cannellini beans"
+    },
+    "red-onion": {
+      "name": "Red onions",
+      "aisle": "produce",
+      "staple": false,
+      "per100": {
+        "kcal": 40,
+        "protein": 1.1
+      },
+      "unit": "each",
+      "gramsEach": 150,
+      "search": "red onions"
+    },
+    "rocket": {
+      "name": "Rocket",
+      "aisle": "produce",
+      "staple": false,
+      "per100": {
+        "kcal": 25,
+        "protein": 2.6
+      },
+      "unit": "g",
+      "search": "wild rocket"
+    },
+    "olive-oil": {
+      "name": "Extra virgin olive oil",
+      "aisle": "oils-sauces-and-spices",
+      "staple": true,
+      "per100": {
+        "kcal": 900,
+        "protein": 0
+      },
+      "unit": "ml",
+      "search": "extra virgin olive oil"
+    },
+    "feta": {
+      "name": "Feta",
+      "aisle": "dairy-and-eggs",
+      "staple": false,
+      "per100": {
+        "kcal": 270,
+        "protein": 17
+      },
+      "unit": "g",
+      "search": "greek feta"
+    },
+    "pitta": {
+      "name": "Wholemeal pitta",
+      "aisle": "bakery",
+      "staple": false,
+      "per100": {
+        "kcal": 250,
+        "protein": 10
+      },
+      "unit": "each",
+      "gramsEach": 60,
+      "search": "wholemeal pitta"
+    },
+    "rice-pouch": {
+      "name": "Microwave basmati rice pouch",
+      "aisle": "rice-pasta-grains",
+      "staple": true,
+      "per100": {
+        "kcal": 160,
+        "protein": 3.5
+      },
+      "unit": "each",
+      "gramsEach": 250,
+      "search": "microwave basmati rice"
+    },
+    "cooked-prawns": {
+      "name": "Cooked king prawns",
+      "aisle": "meat-and-fish",
+      "staple": false,
+      "per100": {
+        "kcal": 70,
+        "protein": 16
+      },
+      "unit": "g",
+      "search": "cooked king prawns"
+    },
+    "peas": {
+      "name": "Frozen peas",
+      "aisle": "frozen",
+      "staple": true,
+      "per100": {
+        "kcal": 70,
+        "protein": 5.5
+      },
+      "unit": "g",
+      "search": "frozen garden peas"
+    },
+    "soy-sauce": {
+      "name": "Reduced-salt soy sauce",
+      "aisle": "oils-sauces-and-spices",
+      "staple": true,
+      "per100": {
+        "kcal": 50,
+        "protein": 8
+      },
+      "unit": "ml",
+      "search": "reduced salt soy sauce"
+    },
+    "sesame-oil": {
+      "name": "Toasted sesame oil",
+      "aisle": "oils-sauces-and-spices",
+      "staple": true,
+      "per100": {
+        "kcal": 900,
+        "protein": 0
+      },
+      "unit": "ml",
+      "search": "toasted sesame oil"
+    },
+    "spring-onions": {
+      "name": "Spring onions",
+      "aisle": "produce",
+      "staple": false,
+      "per100": {
+        "kcal": 30,
+        "protein": 1.8
+      },
+      "unit": "each",
+      "gramsEach": 15,
+      "search": "spring onions"
+    },
+    "chicken-breast": {
+      "name": "Chicken breast fillets",
+      "aisle": "meat-and-fish",
+      "staple": false,
+      "per100": {
+        "kcal": 110,
+        "protein": 24
+      },
+      "unit": "g",
+      "search": "chicken breast fillets"
+    },
+    "egg-noodles": {
+      "name": "Medium egg noodles (dried)",
+      "aisle": "rice-pasta-grains",
+      "staple": true,
+      "per100": {
+        "kcal": 360,
+        "protein": 12
+      },
+      "unit": "g",
+      "search": "medium egg noodles"
+    },
+    "stir-fry-veg": {
+      "name": "Stir-fry vegetables",
+      "aisle": "produce",
+      "staple": false,
+      "per100": {
+        "kcal": 35,
+        "protein": 2
+      },
+      "unit": "g",
+      "search": "stir fry vegetables"
+    },
+    "garlic": {
+      "name": "Garlic",
+      "aisle": "produce",
+      "staple": true,
+      "per100": {
+        "kcal": 0,
+        "protein": 0
+      },
+      "unit": "each",
+      "gramsEach": 5,
+      "search": "garlic"
+    },
+    "ginger": {
+      "name": "Fresh ginger",
+      "aisle": "produce",
+      "staple": true,
+      "per100": {
+        "kcal": 0,
+        "protein": 0
+      },
+      "unit": "g",
+      "search": "root ginger"
+    },
+    "salmon": {
+      "name": "Salmon fillets, skin on",
+      "aisle": "meat-and-fish",
+      "staple": false,
+      "per100": {
+        "kcal": 200,
+        "protein": 20
+      },
+      "unit": "g",
+      "search": "salmon fillets 2 pack"
+    },
+    "new-potatoes": {
+      "name": "New potatoes",
+      "aisle": "produce",
+      "staple": false,
+      "per100": {
+        "kcal": 75,
+        "protein": 1.7
+      },
+      "unit": "g",
+      "search": "new potatoes"
+    },
+    "tenderstem": {
+      "name": "Tenderstem broccoli",
+      "aisle": "produce",
+      "staple": false,
+      "per100": {
+        "kcal": 35,
+        "protein": 3.5
+      },
+      "unit": "g",
+      "search": "tenderstem broccoli"
+    },
+    "lemon": {
+      "name": "Lemons",
+      "aisle": "produce",
+      "staple": false,
+      "per100": {
+        "kcal": 0,
+        "protein": 0
+      },
+      "unit": "each",
+      "gramsEach": 100,
+      "search": "lemons"
+    },
+    "dill": {
+      "name": "Fresh dill",
+      "aisle": "produce",
+      "staple": false,
+      "per100": {
+        "kcal": 0,
+        "protein": 0
+      },
+      "unit": "g",
+      "search": "fresh dill"
+    },
+    "chicken-thighs": {
+      "name": "Skinless boneless chicken thighs",
+      "aisle": "meat-and-fish",
+      "staple": false,
+      "per100": {
+        "kcal": 140,
+        "protein": 19
+      },
+      "unit": "g",
+      "search": "skinless boneless chicken thighs"
+    },
+    "carrots": {
+      "name": "Carrots",
+      "aisle": "produce",
+      "staple": false,
+      "per100": {
+        "kcal": 40,
+        "protein": 0.6
+      },
+      "unit": "g",
+      "search": "carrots"
+    },
+    "broccoli": {
+      "name": "Broccoli",
+      "aisle": "produce",
+      "staple": false,
+      "per100": {
+        "kcal": 35,
+        "protein": 3.5
+      },
+      "unit": "g",
+      "search": "broccoli"
+    },
+    "gravy": {
+      "name": "Chicken gravy granules",
+      "aisle": "oils-sauces-and-spices",
+      "staple": true,
+      "per100": {
+        "kcal": 350,
+        "protein": 5
+      },
+      "unit": "g",
+      "search": "chicken gravy granules"
+    },
+    "rosemary": {
+      "name": "Fresh rosemary",
+      "aisle": "produce",
+      "staple": false,
+      "per100": {
+        "kcal": 0,
+        "protein": 0
+      },
+      "unit": "g",
+      "search": "fresh rosemary"
+    },
+    "apple": {
+      "name": "Apples",
+      "aisle": "produce",
+      "staple": false,
+      "per100": {
+        "kcal": 50,
+        "protein": 0.3
+      },
+      "unit": "each",
+      "gramsEach": 150,
+      "search": "apples"
+    },
+    "creatine": {
+      "name": "Creatine monohydrate powder",
+      "aisle": "sports-nutrition",
+      "staple": true,
+      "per100": {
+        "kcal": 0,
+        "protein": 0
+      },
+      "unit": "g",
+      "search": "creatine monohydrate"
+    },
+    "vitamin-d": {
+      "name": "Vitamin D 10 µg tablets",
+      "aisle": "sports-nutrition",
+      "staple": true,
+      "per100": {
+        "kcal": 0,
+        "protein": 0
+      },
+      "unit": "each",
+      "search": "vitamin d 10ug"
+    },
+    "avocado": {
+      "name": "Ripe avocados",
+      "aisle": "produce",
+      "staple": false,
+      "per100": {
+        "kcal": 160,
+        "protein": 2
+      },
+      "unit": "each",
+      "gramsEach": 150,
+      "search": "ripe avocados"
+    }
+  },
+  "recipes": [
+    {
+      "id": "yogurt-bowl",
+      "name": "Greek yogurt, berries and granola",
+      "kind": "breakfast",
+      "portions": 2,
+      "minutes": 5,
+      "perPortion": {
+        "kcal": 510,
+        "protein": 39
+      },
+      "ingredients": [
+        {
+          "ingredient": "greek-yogurt-0",
+          "qty": 600
+        },
+        {
+          "ingredient": "granola",
+          "qty": 80
+        },
+        {
+          "ingredient": "frozen-berries",
+          "qty": 200
+        },
+        {
+          "ingredient": "honey",
+          "qty": 20
+        },
+        {
+          "ingredient": "almonds",
+          "qty": 30
+        }
+      ],
+      "method": [
+        "Spoon the yogurt into two bowls.",
+        "Top with berries (straight from frozen is fine), granola and almonds.",
+        "Drizzle with honey."
+      ]
+    },
+    {
+      "id": "eggs-on-toast",
+      "name": "Scrambled eggs on toast with tomatoes",
+      "kind": "breakfast",
+      "portions": 2,
+      "minutes": 10,
+      "perPortion": {
+        "kcal": 530,
+        "protein": 42
+      },
+      "ingredients": [
+        {
+          "ingredient": "eggs",
+          "qty": 6
+        },
+        {
+          "ingredient": "egg-whites",
+          "qty": 200
+        },
+        {
+          "ingredient": "wholemeal-bread",
+          "qty": 160
+        },
+        {
+          "ingredient": "butter",
+          "qty": 10
+        },
+        {
+          "ingredient": "cherry-tomatoes",
+          "qty": 160
+        }
+      ],
+      "method": [
+        "Whisk eggs and egg whites with a pinch of salt.",
+        "Toast the bread; halve the tomatoes.",
+        "Melt the butter on a low heat, add the eggs and stir slowly until just set.",
+        "Serve on the toast with the tomatoes."
+      ]
+    },
+    {
+      "id": "protein-oats",
+      "name": "Overnight protein oats",
+      "kind": "breakfast",
+      "portions": 2,
+      "minutes": 5,
+      "perPortion": {
+        "kcal": 490,
+        "protein": 47
+      },
+      "ingredients": [
+        {
+          "ingredient": "oats",
+          "qty": 100
+        },
+        {
+          "ingredient": "milk",
+          "qty": 300
+        },
+        {
+          "ingredient": "greek-yogurt-0",
+          "qty": 300
+        },
+        {
+          "ingredient": "whey",
+          "qty": 50
+        },
+        {
+          "ingredient": "banana",
+          "qty": 1
+        }
+      ],
+      "method": [
+        "The night before: stir oats, milk, yogurt and whey in two jars.",
+        "Fridge overnight.",
+        "In the morning, slice half a banana on each."
+      ],
+      "note": "Made the night before for the next morning only; not batch cooking."
+    },
+    {
+      "id": "breakfast-wrap",
+      "name": "Egg, spinach and cheese wraps",
+      "kind": "breakfast",
+      "portions": 2,
+      "minutes": 10,
+      "perPortion": {
+        "kcal": 480,
+        "protein": 41
+      },
+      "ingredients": [
+        {
+          "ingredient": "eggs",
+          "qty": 4
+        },
+        {
+          "ingredient": "egg-whites",
+          "qty": 200
+        },
+        {
+          "ingredient": "tortilla",
+          "qty": 2
+        },
+        {
+          "ingredient": "light-cheddar",
+          "qty": 60
+        },
+        {
+          "ingredient": "spinach",
+          "qty": 60
+        }
+      ],
+      "method": [
+        "Whisk eggs and egg whites.",
+        "Wilt the spinach in a non-stick pan, add the eggs and scramble until set.",
+        "Pile into the wraps, add the cheese, roll and toast in the dry pan for a minute a side."
+      ]
+    },
+    {
+      "id": "chicken-wrap",
+      "name": "Chicken, houmous and salad wraps",
+      "kind": "lunch",
+      "portions": 2,
+      "minutes": 5,
+      "perPortion": {
+        "kcal": 470,
+        "protein": 49
+      },
+      "ingredients": [
+        {
+          "ingredient": "cooked-chicken",
+          "qty": 260
+        },
+        {
+          "ingredient": "tortilla",
+          "qty": 2
+        },
+        {
+          "ingredient": "hummus",
+          "qty": 60
+        },
+        {
+          "ingredient": "salad-leaves",
+          "qty": 60
+        },
+        {
+          "ingredient": "cucumber",
+          "qty": 0.5
+        },
+        {
+          "ingredient": "cherry-tomatoes",
+          "qty": 100
+        }
+      ],
+      "method": [
+        "Spread houmous down each wrap.",
+        "Add chicken, leaves, sliced cucumber and halved tomatoes.",
+        "Roll tightly and cut in half."
+      ]
+    },
+    {
+      "id": "tuna-bean-salad",
+      "name": "Tuna, bean and feta salad with pitta",
+      "kind": "lunch",
+      "portions": 2,
+      "minutes": 10,
+      "perPortion": {
+        "kcal": 570,
+        "protein": 49
+      },
+      "ingredients": [
+        {
+          "ingredient": "tuna",
+          "qty": 2
+        },
+        {
+          "ingredient": "cannellini",
+          "qty": 1
+        },
+        {
+          "ingredient": "red-onion",
+          "qty": 0.5
+        },
+        {
+          "ingredient": "cherry-tomatoes",
+          "qty": 150
+        },
+        {
+          "ingredient": "rocket",
+          "qty": 60
+        },
+        {
+          "ingredient": "feta",
+          "qty": 60
+        },
+        {
+          "ingredient": "olive-oil",
+          "qty": 15
+        },
+        {
+          "ingredient": "lemon",
+          "qty": 0.5
+        },
+        {
+          "ingredient": "pitta",
+          "qty": 2
+        }
+      ],
+      "method": [
+        "Drain and rinse the beans; drain the tuna.",
+        "Finely slice the onion; halve the tomatoes.",
+        "Toss everything except the pitta with the oil and lemon juice; crumble over the feta.",
+        "Warm the pittas and serve alongside."
+      ]
+    },
+    {
+      "id": "prawn-fried-rice",
+      "name": "Prawn and egg fried rice",
+      "kind": "lunch",
+      "portions": 2,
+      "minutes": 12,
+      "perPortion": {
+        "kcal": 540,
+        "protein": 46
+      },
+      "ingredients": [
+        {
+          "ingredient": "rice-pouch",
+          "qty": 1
+        },
+        {
+          "ingredient": "cooked-prawns",
+          "qty": 300
+        },
+        {
+          "ingredient": "eggs",
+          "qty": 3
+        },
+        {
+          "ingredient": "peas",
+          "qty": 160
+        },
+        {
+          "ingredient": "spring-onions",
+          "qty": 3
+        },
+        {
+          "ingredient": "soy-sauce",
+          "qty": 30
+        },
+        {
+          "ingredient": "sesame-oil",
+          "qty": 10
+        }
+      ],
+      "method": [
+        "Heat the sesame oil in a wok; scramble the eggs and set aside.",
+        "Add the rice, peas and prawns; stir-fry 4 minutes until piping hot.",
+        "Return the egg, add soy sauce and sliced spring onions."
+      ],
+      "note": "Prawns are bought cooked and heated through until piping hot."
+    },
+    {
+      "id": "chicken-stir-fry",
+      "name": "Chicken and vegetable noodle stir-fry",
+      "kind": "dinner",
+      "portions": 2,
+      "minutes": 25,
+      "perPortion": {
+        "kcal": 540,
+        "protein": 55
+      },
+      "ingredients": [
+        {
+          "ingredient": "chicken-breast",
+          "qty": 350
+        },
+        {
+          "ingredient": "egg-noodles",
+          "qty": 125
+        },
+        {
+          "ingredient": "stir-fry-veg",
+          "qty": 400
+        },
+        {
+          "ingredient": "soy-sauce",
+          "qty": 30
+        },
+        {
+          "ingredient": "sesame-oil",
+          "qty": 10
+        },
+        {
+          "ingredient": "garlic",
+          "qty": 2
+        },
+        {
+          "ingredient": "ginger",
+          "qty": 10
+        }
+      ],
+      "method": [
+        "Cook the noodles as the pack says; drain.",
+        "Slice the chicken into strips; stir-fry in the oil on a high heat for 6–7 minutes until cooked through.",
+        "Add garlic, ginger and vegetables; stir-fry 3 minutes.",
+        "Toss in the noodles and soy sauce."
+      ],
+      "note": "For a night the box does not cover."
+    },
+    {
+      "id": "salmon-potatoes",
+      "name": "Baked salmon, new potatoes and greens",
+      "kind": "dinner",
+      "portions": 2,
+      "minutes": 30,
+      "perPortion": {
+        "kcal": 560,
+        "protein": 42
+      },
+      "ingredients": [
+        {
+          "ingredient": "salmon",
+          "qty": 300
+        },
+        {
+          "ingredient": "new-potatoes",
+          "qty": 400
+        },
+        {
+          "ingredient": "tenderstem",
+          "qty": 200
+        },
+        {
+          "ingredient": "olive-oil",
+          "qty": 10
+        },
+        {
+          "ingredient": "lemon",
+          "qty": 1
+        },
+        {
+          "ingredient": "greek-yogurt-0",
+          "qty": 100
+        },
+        {
+          "ingredient": "dill",
+          "qty": 5
+        }
+      ],
+      "method": [
+        "Boil the potatoes for 15–20 minutes.",
+        "Bake the salmon at 200 °C for 12–15 minutes until it flakes and is opaque all the way through.",
+        "Steam or boil the broccoli for 4 minutes.",
+        "Stir dill and lemon juice into the yogurt for the sauce."
+      ],
+      "note": "Salmon is fully cooked; no raw fish."
+    },
+    {
+      "id": "sunday-traybake",
+      "name": "Sunday chicken traybake with roast potatoes and gravy",
+      "kind": "sunday-cook",
+      "portions": 2,
+      "minutes": 60,
+      "perPortion": {
+        "kcal": 710,
+        "protein": 56
+      },
+      "ingredients": [
+        {
+          "ingredient": "chicken-thighs",
+          "qty": 500
+        },
+        {
+          "ingredient": "new-potatoes",
+          "qty": 400
+        },
+        {
+          "ingredient": "carrots",
+          "qty": 200
+        },
+        {
+          "ingredient": "red-onion",
+          "qty": 1
+        },
+        {
+          "ingredient": "broccoli",
+          "qty": 200
+        },
+        {
+          "ingredient": "olive-oil",
+          "qty": 15
+        },
+        {
+          "ingredient": "garlic",
+          "qty": 3
+        },
+        {
+          "ingredient": "rosemary",
+          "qty": 5
+        },
+        {
+          "ingredient": "gravy",
+          "qty": 20
+        }
+      ],
+      "method": [
+        "Heat the oven to 200 °C.",
+        "Halve the potatoes, cut the carrots into batons and the onion into wedges; toss with oil, garlic and rosemary in a large tray. Roast 20 minutes.",
+        "Add the chicken thighs to the tray; roast 25–30 minutes until the chicken is cooked through and the juices run clear.",
+        "Boil the broccoli for 4 minutes; make the gravy with boiling water."
+      ],
+      "note": "Sized for two exactly; nothing left over."
+    },
+    {
+      "id": "yogurt-pot",
+      "name": "Greek yogurt, honey and an apple",
+      "kind": "snack",
+      "portions": 2,
+      "minutes": 2,
+      "perPortion": {
+        "kcal": 220,
+        "protein": 21
+      },
+      "ingredients": [
+        {
+          "ingredient": "greek-yogurt-0",
+          "qty": 400
+        },
+        {
+          "ingredient": "honey",
+          "qty": 20
+        },
+        {
+          "ingredient": "apple",
+          "qty": 2
+        }
+      ],
+      "method": [
+        "Yogurt in a bowl with honey; apple on the side."
+      ]
+    },
+    {
+      "id": "protein-shake",
+      "name": "Protein shake",
+      "kind": "snack",
+      "portions": 1,
+      "minutes": 2,
+      "perPortion": {
+        "kcal": 260,
+        "protein": 34
+      },
+      "ingredients": [
+        {
+          "ingredient": "whey",
+          "qty": 30
+        },
+        {
+          "ingredient": "milk",
+          "qty": 300
+        }
+      ],
+      "method": [
+        "Shake whey and cold milk together."
+      ],
+      "note": "One portion: for the owner only. Planned only when the day would otherwise fall short of protein (see snackRule)."
+    },
+    {
+      "id": "side-rice",
+      "name": "Basmati rice on the side",
+      "kind": "extra",
+      "extraKind": "side",
+      "addsTo": [
+        "dinner",
+        "box-night",
+        "sunday-cook"
+      ],
+      "portions": 2,
+      "minutes": 2,
+      "perPortion": {
+        "kcal": 200,
+        "protein": 4
+      },
+      "ingredients": [
+        {
+          "ingredient": "rice-pouch",
+          "qty": 1
+        }
+      ],
+      "method": [
+        "Microwave the pouch as the pack says; split between two plates."
+      ]
+    },
+    {
+      "id": "side-potatoes",
+      "name": "Buttered new potatoes",
+      "kind": "extra",
+      "extraKind": "side",
+      "addsTo": [
+        "dinner",
+        "box-night",
+        "sunday-cook"
+      ],
+      "portions": 2,
+      "minutes": 20,
+      "perPortion": {
+        "kcal": 190,
+        "protein": 3
+      },
+      "ingredients": [
+        {
+          "ingredient": "new-potatoes",
+          "qty": 400
+        },
+        {
+          "ingredient": "butter",
+          "qty": 10
+        }
+      ],
+      "method": [
+        "Boil the potatoes for 15–20 minutes until tender; toss with the butter."
+      ]
+    },
+    {
+      "id": "side-bread",
+      "name": "Sourdough with olive oil",
+      "kind": "extra",
+      "extraKind": "side",
+      "addsTo": [
+        "dinner",
+        "box-night",
+        "lunch"
+      ],
+      "portions": 2,
+      "minutes": 2,
+      "perPortion": {
+        "kcal": 160,
+        "protein": 5
+      },
+      "ingredients": [
+        {
+          "ingredient": "wholemeal-bread",
+          "qty": 100
+        },
+        {
+          "ingredient": "olive-oil",
+          "qty": 10
+        }
+      ],
+      "method": [
+        "Slice and warm the bread; drizzle with the oil."
+      ]
+    },
+    {
+      "id": "dinner-chicken-boost",
+      "name": "Extra chicken with dinner",
+      "kind": "extra",
+      "extraKind": "protein-boost",
+      "addsTo": [
+        "box-night",
+        "dinner"
+      ],
+      "portions": 2,
+      "minutes": 2,
+      "perPortion": {
+        "kcal": 150,
+        "protein": 31
+      },
+      "ingredients": [
+        {
+          "ingredient": "cooked-chicken",
+          "qty": 200
+        }
+      ],
+      "method": [
+        "Warm the cooked chicken in the pan for the last 3 minutes, or serve cold on the side."
+      ],
+      "note": "For box recipes that come in under 40 g protein."
+    },
+    {
+      "id": "second-snack-yogurt",
+      "name": "Yogurt, granola and berries (small)",
+      "kind": "extra",
+      "extraKind": "second-snack",
+      "addsTo": [
+        "snack"
+      ],
+      "portions": 1,
+      "minutes": 2,
+      "perPortion": {
+        "kcal": 320,
+        "protein": 25
+      },
+      "ingredients": [
+        {
+          "ingredient": "greek-yogurt-0",
+          "qty": 200
+        },
+        {
+          "ingredient": "granola",
+          "qty": 40
+        },
+        {
+          "ingredient": "frozen-berries",
+          "qty": 80
+        }
+      ],
+      "method": [
+        "Yogurt in a bowl, topped with berries and granola."
+      ],
+      "note": "One portion: the owner only."
+    },
+    {
+      "id": "second-snack-toast",
+      "name": "Cheese on toast and an apple",
+      "kind": "extra",
+      "extraKind": "second-snack",
+      "addsTo": [
+        "snack"
+      ],
+      "portions": 1,
+      "minutes": 3,
+      "perPortion": {
+        "kcal": 390,
+        "protein": 19
+      },
+      "ingredients": [
+        {
+          "ingredient": "wholemeal-bread",
+          "qty": 80
+        },
+        {
+          "ingredient": "light-cheddar",
+          "qty": 40
+        },
+        {
+          "ingredient": "apple",
+          "qty": 1
+        }
+      ],
+      "method": [
+        "Toast the bread, top with sliced cheese; apple on the side."
+      ],
+      "note": "One portion: the owner only."
+    },
+    {
+      "id": "breakfast-eggs-avocado",
+      "name": "Eggs, avocado, feta and toast",
+      "kind": "extra",
+      "extraKind": "richer-breakfast",
+      "addsTo": [
+        "breakfast"
+      ],
+      "replaces": "breakfast",
+      "portions": 2,
+      "minutes": 12,
+      "perPortion": {
+        "kcal": 690,
+        "protein": 38
+      },
+      "ingredients": [
+        {
+          "ingredient": "eggs",
+          "qty": 6
+        },
+        {
+          "ingredient": "wholemeal-bread",
+          "qty": 200
+        },
+        {
+          "ingredient": "avocado",
+          "qty": 1
+        },
+        {
+          "ingredient": "feta",
+          "qty": 40
+        },
+        {
+          "ingredient": "butter",
+          "qty": 10
+        }
+      ],
+      "method": [
+        "Toast the bread.",
+        "Scramble or fry the eggs in the butter until set.",
+        "Serve on the toast with sliced avocado and crumbled feta."
+      ],
+      "note": "Replaces the planned breakfast on higher-calorie days."
+    }
+  ],
+  "extraRules": {
+    "proteinFirst": {
+      "extra": "dinner-chicken-boost",
+      "whenPlannedProteinBelow": 150
+    },
+    "order": [
+      "side-rice|side-potatoes|side-bread",
+      "second-snack-yogurt",
+      "breakfast-eggs-avocado",
+      "second-snack-toast"
+    ],
+    "maxPerDay": 2,
+    "maxPerKind": 1,
+    "sideTiming": "On training days, add the side to the first meal after the session.",
+    "note": "Extras close a day still under the band (a raised weekly target, maintenance). The protein boost goes first whenever planned protein is under the line; then add in `order` (a|b|c = one of these) until the day is inside the band: carbs and protein before fat, lowest protein per kcal last (Advisor, 17 Nov). At most 2 extras a day (Head of Engineering) and one of each kind. An extra with `replaces` swaps out that meal."
+  }
+}
