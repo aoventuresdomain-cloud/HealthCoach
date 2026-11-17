@@ -1,3 +1,4 @@
+import CoachCore
 import Foundation
 
 /// Launch arguments that open the app straight onto a spike state, so CI

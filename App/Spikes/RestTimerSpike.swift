@@ -1,3 +1,4 @@
+import CoachCore
 import ActivityKit
 import Foundation
 import Observation

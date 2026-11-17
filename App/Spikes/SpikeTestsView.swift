@@ -1,3 +1,4 @@
+import CoachCore
 import SwiftUI
 
 /// Gate 0 scaffolding (board M0-11): one-tap tests for spikes S1, S1b and S3.
