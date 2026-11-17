@@ -33,17 +33,19 @@ One scripted week on the injected clock: a hybrid week 2 (office Mon, Tue, Thu; 
 | A9 | Fri 07:00 · Today | **The moved session is still there, with its alarm (QA-15)** | shot + debug line |
 | A10 | Sat · Today | Upper B at the day-off time; Saturday's wind-down matches the weekday median (E14) | shot |
 | A11 | Sun · Today | Optional walk shown, no alarm; Sunday prompt notification due at its time, not in quiet hours | shot + unit test |
-| A12 | Any day · weight | 7-day weight trend and steps from sample data (M2-04) | shot |
+| A12 | Any day · weight | 7-day weight trend and steps from sample data (M2-04) | shot (`week2-hybrid` fixture Health data: 81.7 kg on Mon 23 Nov, down 0.5 kg; steps must be visible somewhere, QA-30) |
 | A13 | Mon–Sun · Today's daily band | Meals for the day shown in the band, pre-ticked, protein about 160 g and calories at the phase target; nothing to tap if eaten as planned (M3-02) | shot + CoachCore |
 | A14 | Sun 18:05 · top-up list | One merged list for the week, sorted by aisle, staples once, a search link per item (M3-03) | shot |
 | A15 | Mon, Tue, Thu · office lunch | The lunch card suggests one order on office days only (M3-04) | shot |
 | A16 | Sun · Progress | Weight trend, sessions done, loads; "Ask the coach now" builds a summary and opens the share sheet (M4-03, M4-02) | shot |
 | A17 | Sun · import | A valid Claude block pasted changes next week's plan; a bad one is rejected plainly and the plan stays (M4-02) | UI test + CoachCore |
+| A18 | Mon 07:00 · Today | "Tomorrow changed" opens tomorrow's answers only; saving re-plans that one day (alarm, timeline, notifications) and leaves today and every other day as they were; ignoring the button changes nothing (M2-06) | UI test + shot + debug line (`alarms=` and `next=`) |
+| A19 | Every Today and Onboarding shot | No wrench (Spike tests) on Today or Onboarding in any normal or review shot; Spike tests still reachable with `-spikeAlarms` (M0-11b) | all shots + `AlarmPermissionUITests` green |
 
 **Guiding-rule judgement (QA + Advisor):** count every tap in §A that isn't next, done or the Sunday prompt. Each one is a major unless the Advisor accepts it.
 
 **Advisor's provisional rulings (17 Nov 12:10 UTC; confirmed in the fix window):**
-- **Taps accepted** (optional, and ignoring them gives the right result): the Fine/Sore row (pre-set to Fine), "I'll run anyway", "Something was different", the tap counter, "+30 s", and A16–A17 (started by the CEO). **Majors:** any required tap, a confirmation dialog, a permission re-prompt after onboarding, or a meal that must be ticked to count.
+- **Taps accepted** (optional, and ignoring them gives the right result): the Fine/Sore row (pre-set to Fine), "I'll run anyway", "Something was different", "Tomorrow changed", the tap counter, "+30 s", and A16–A17 (started by the CEO). **Majors:** any required tap, a confirmation dialog, a permission re-prompt after onboarding, or a meal that must be ticked to count.
 - **A8:** Thursday full body moving to Friday, the day before Saturday's Upper B, is a legal outcome at week-2 effort, not a defect. QA-15 stays a blocker.
 - **Pre-ticked meals** are accepted as the logging model, not a stopgap. The engine steers by the scale.
 - **Values to test against** (the code may lag): protein 160 g · Phase 1 target 2,000 kcal · each day within the weekly target ±150 kcal, never under 1,700 (A13 tests this relative to the target, replacing the fixed 1,850–2,150 band) · engine floor 1,850, cut ceiling 2,200, maintenance 2,450 · steps of at most 100 kcal a week on a 2-week trend, none in weeks 1–2 · import bands: calories 1,850–2,200 (2,300–2,600 in maintenance), protein 140–180 g, loads up to 24 kg.
@@ -64,6 +66,7 @@ One scripted week on the injected clock: a hybrid week 2 (office Mon, Tue, Thu; 
 - [ ] **M2-02** 7–14 days of alarms kept across simulated opens with no owner action · "tomorrow changed" re-plans one day only · empty-plan guard · zero alarms always warns on Today (QA-1) · XCUITest: Allow → 14 set → relaunch → "All alarms set (14)" (QA-2 re-verify) · alarm days per E14 (QA-11).
 - [ ] **M2-03** Bad forecast swaps the run indoors, same length, same wake · offline means no swap, no error.
 - [ ] **M2-04** 7-day weight average from sample Health data · no health data leaves the phone (diff: only Open-Meteo calls).
+- [ ] **M2-06** "Tomorrow changed" button on Today re-plans one day only through `AlarmSchedule.replacingDay`; every other day's alarm untouched (A18) · optional tap, so it is not a required tap.
 - [ ] **M2-05** Sunday prompt under 20 s of taps (UI test) · no notification fires 22:30–06:00 (unit test) · full Today timeline.
 
 ## C2. M3 · Meals (Done when lines, as re-planned)
@@ -123,6 +126,8 @@ Any line that fails is a minor, unless it adds a required tap or hides next or d
 | QA-15 | E13 move survives the next day, with its alarm | **blocker, open** |
 | QA-16, QA-17 | Evening start stays put; held-at-week-6 flag visible to the team | minor, open |
 | M0-11 | Spike tests screen hidden outside test modes | done (#34); re-check on a normal launch shot |
+| M0-11b | Wrench hidden on Today and Onboarding (gap found 17 Nov; still visible on b59f62d shots) | fix PR tonight; check as A19 |
+| QA-30 | Steps are read from Health (`BodyStats.steps`) but shown nowhere, so A12's "and steps" can't pass | minor, open (dry run b59f62d) |
 
 ## E. Hygiene
 
