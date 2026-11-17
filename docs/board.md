@@ -45,15 +45,17 @@ The CEO is training from paper and will not be asked anything until Gate 2. The 
 
 Order now: M0-12 (first real compile) → simulator checks of M0-04, M0-05 and M0-06 → M0-10 → Gate 0a. M1 design and content (M1-01 to M1-03) start now in parallel, so code can follow Gate 0a straight away.
 
-## Open QA items (updated 17 Nov)
+## Open QA items (updated 17 Nov, afternoon)
 
 | ID | Item | Owner | Due |
 |---|---|---|---|
-| QA-5b | One UI-test shot backgrounded mid-rest (Live Activity) | iOS Interface Engineer | Gate 1 |
-| QA-10, QA-13 | Onboarding row and "Next time" loads in the player (in PR #38) | iOS Interface Engineer | Gate 1 |
-| E13 check | Verify start week and passed-session moves on main (PR #40) | Head of QA | Gate 1 |
+| QA-5b | One UI-test shot backgrounded mid-rest (Live Activity) | iOS Interface Engineer | in review (cleared by QA-19, PR #58) |
+| QA-19 | Leftover Live Activities ended at launch (also clears QA-5b) | iOS Interface Engineer | in review (PR #58) |
+| QA-20 | Timeline row follows a weather swap (A6) | iOS Interface Engineer | in review (PR #58) |
+| E13 check | Verify start week and passed-session moves on main (PR #40, #48, #56) | Head of QA | Gate 1 |
 
-Closed: QA-1 UI, QA-5, QA-6, QA-8, M0-11 hide (PR #32, #34); QA-9, QA-11, QA-12 (PR #39, QA re-check 17 Nov). QA-7 deferred to payment.
+Closed: QA-10, QA-13 (PR #38); QA-15, QA-16, QA-17 (PR #48); QA-18 moved sessions hold until their slot ends (PR #56).
+Earlier closed: QA-1 UI, QA-5, QA-6, QA-8, M0-11 hide (PR #32, #34); QA-9, QA-11, QA-12 (PR #39, QA re-check 17 Nov). QA-7 deferred to payment.
 
 ## Done when
 
@@ -148,14 +150,14 @@ Device-only Done when lines from plan §7 are rewritten as simulator or UI-test 
 | M2-02 | 14-day alarm schedule through the reconcile, "tomorrow changed" re-plan, missing-alarm warning on Today | Planner Engineer | core | done (PR #30; Today warning UI with iOS Interface Engineer) |
 | M2-03 | Weather swap (Open-Meteo, no key) when the morning brief opens | Planner Engineer | core | done (PR #39; Advisor to confirm thresholds before Gate 1) |
 | M2-04 | Health: weight 7-day trend and steps (read-only) | Planner Engineer | core | done (PR #39) |
-| M2-05 | Sunday prompt screen, full Today timeline, local notifications with quiet hours 22:30–06:00 | iOS Interface Engineer | interface | in progress (part 1 PR #38; E13 core done PR #40) |
-| M3-01 | Recipes (box nights, breakfasts, home lunches, Sunday cook; 2 portions, no raw fish, no batch cooking) and office lunch list | Researcher (Advisor reviews) | docs | in progress |
-| M3-02 | Meal plan and tracking: pre-ticked meals, evening "anything different?", 2 untracked social meals | Planner Engineer | core | todo |
-| M3-03 | Top-up list: merged quantities, aisle order, staples, search links to the default shop | Planner Engineer | core | todo |
+| M2-05 | Sunday prompt screen, full Today timeline, local notifications with quiet hours 22:30–06:00 | iOS Interface Engineer | interface | done (PR #38; E13 core PR #40, replay PR #48, QA-18 PR #56) |
+| M3-01 | Recipes (box nights, breakfasts, home lunches, Sunday cook; 2 portions, no raw fish, no batch cooking) and office lunch list | Researcher (Advisor reviews) | docs | done (folded into PR #59; #44 closed) |
+| M3-02 | Meal plan and tracking: pre-ticked meals, day band and extras (evening "anything different?" and social meals cut, re-plan 17 Nov) | Planner Engineer | core | done (PR #59) |
+| M3-03 | Top-up list: merged quantities, aisle order, staples, search links to the default shop | Planner Engineer | core | done (PR #59) |
 | M3-04 | Meals, shopping and lunch screens | iOS Interface Engineer | interface | todo |
-| M4-01 | Rules engine: calories from trend, load from logs, volume from recovery, stall flag | Planner Engineer | core | in progress |
-| M4-02 | Claude summary and share; clipboard import of a versioned block, rejected safely when bad | Planner Engineer | core | todo |
-| M4-03 | Progress view, photos every 2 weeks with a ghost outline, optional mood check, "Ask the coach now" | iOS Interface Engineer | interface | todo |
+| M4-01 | Rules engine: calories from trend, load from logs, volume from recovery, stall flag | Coach Engineer | core | done (PR #53) |
+| M4-02 | Claude summary and share; clipboard import of a versioned block, rejected safely when bad | Coach Engineer | core | done (PR #53, import button PR #54; A17 plan wiring in review PR #60) |
+| M4-03 | Progress view, photos every 2 weeks, "Ask the coach now" (ghost outline and mood check cut, re-plan 17 Nov) | iOS Interface Engineer | interface | done (PR #57) |
 | G2-01 | Gate 2 pack | Head of Engineering | docs | todo |
 
 ### Done when (M1–M4)
@@ -174,7 +176,7 @@ Device-only Done when lines from plan §7 are rewritten as simulator or UI-test 
 **M2-04** · The 7-day weight average reads from Health in the simulator (sample data) · no health data leaves the phone.
 **M2-05** · The Sunday prompt takes under 20 seconds of taps in a UI test · no notification fires in quiet hours (unit-tested).
 **M3-01** · The box-night calories and protein entry · 3–4 breakfasts, home lunches and 1 Sunday cook, all 2 portions, with calories and protein · 5–6 lunch orders within 8 minutes' walk of St James's Market.
-**M3-02** · A simulated week of eating needs only the evening question · daily protein is planned at about 160 g, and calories match the phase target.
+**M3-02** · A simulated week of eating needs no questions (evening question cut, re-plan 17 Nov) · daily protein is planned at about 160 g, and calories match the phase target.
 **M3-03** · One merged weekly list sorted by aisle · staples are ticked once · each item has a search link to the default shop (E5).
 **M3-04** · Screens walked in the simulator; the lunch card suggests one order on office days.
 **M4-01** · A simulated 2-week stall raises a flag · calories adjust from the 7-day trend within safe bounds (Advisor-reviewed).
@@ -184,6 +186,7 @@ Device-only Done when lines from plan §7 are rewritten as simulator or UI-test 
 
 ## Done
 
+- 2026-11-17 · M3-01, M3-02, M3-03 · PR #59 (meal plan, day band ±150 kcal, floor 1,700, protein ≥150 g, extras; top-up list; folds in #44) · M4-03 · PR #57 · M2-05 · PR #38 · QA-18 · PR #56 · M4-01, M4-02 · PR #53, #54 · QA-15/16/17 · PR #48 · Gate 1 §A fixtures · PR #55
 - 2026-11-16 · M1-04, M1-05, M1-06, M1-07 · PR #22 (all M1 screens; QA M1 sanity check passed, PR #31) · M2-02 · PR #30 (14-day wake alarms; AlarmKit burst refusal fixed with retry and backoff; reduced week drops Thursday's alarm)
 - 2026-11-16 · M2-01 · PR #28 (week planner, CoachCore only; decision E10) · M1-08 · PR #27 (progression engine, SwiftData store recovery and SchemaV1, QA-2 alarm XCUITest) · M1-01 · PR #21
 - 2026-11-16 · M1-02 · PR #19 (Phase 1 programme, all callouts; Advisor signed off) · M1-03 · PR #18 (15 screens; taste decisions held for Gate 2)
