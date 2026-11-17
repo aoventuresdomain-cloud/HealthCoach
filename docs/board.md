@@ -45,16 +45,15 @@ The CEO is training from paper and will not be asked anything until Gate 2. The 
 
 Order now: M0-12 (first real compile) → simulator checks of M0-04, M0-05 and M0-06 → M0-10 → Gate 0a. M1 design and content (M1-01 to M1-03) start now in parallel, so code can follow Gate 0a straight away.
 
-## Open QA items (from the M1 sanity check, PR #31)
+## Open QA items (updated 17 Nov)
 
 | ID | Item | Owner | Due |
 |---|---|---|---|
-| QA-5 | Export UI-test attachments as PNGs to `qa/gate-0a-shots` on dispatched runs; one shot backgrounded mid-rest (Live Activity) | Planner Engineer (CI) | Gate 1 |
-| QA-6 | Cut macOS minutes (~21 min a run): UI tests on dispatch only, no spike shots on PRs, one full run per gate | Planner Engineer (CI) | now |
-| QA-8 | Voice heads-up line moves to CoachCore with a unit test | iOS Interface Engineer | Gate 1 |
-| QA-9 | CoachCore sweep of all 42 days of weeks 1–6 for Today | Planner Engineer | Gate 1 |
-| QA-1 UI | Today shows a warning when `WakeAlarms.coverage` is `.noAlarms` | iOS Interface Engineer | Gate 1 |
-| M0-11 | Hide the Spike tests screen outside `-uitest` / `-spikeAlarms` | iOS Interface Engineer | Gate 1 |
+| QA-5b | One UI-test shot backgrounded mid-rest (Live Activity) | iOS Interface Engineer | Gate 1 |
+| QA-10, QA-13 | Onboarding row and "Next time" loads in the player (in PR #38) | iOS Interface Engineer | Gate 1 |
+| E13 check | Verify start week and passed-session moves on main (PR #40) | Head of QA | Gate 1 |
+
+Closed: QA-1 UI, QA-5, QA-6, QA-8, M0-11 hide (PR #32, #34); QA-9, QA-11, QA-12 (PR #39, QA re-check 17 Nov). QA-7 deferred to payment.
 
 ## Done when
 
@@ -147,14 +146,14 @@ Device-only Done when lines from plan §7 are rewritten as simulator or UI-test 
 | M1-08 | Progression: reps → sets → tempo → weight, dumbbell-limit flag, drop to 2 strength sessions after two low recovery checks | Planner Engineer | core | done (PR #27) |
 | M2-01 | Week planner: Sunday prompt answers, session placement around basketball and office days, wake time | Planner Engineer | core | done (PR #28) |
 | M2-02 | 14-day alarm schedule through the reconcile, "tomorrow changed" re-plan, missing-alarm warning on Today | Planner Engineer | core | done (PR #30; Today warning UI with iOS Interface Engineer) |
-| M2-03 | Weather swap (Open-Meteo, no key) when the morning brief opens | Planner Engineer | core | todo |
-| M2-04 | Health: weight 7-day trend and steps (read-only) | Planner Engineer | core | todo |
-| M2-05 | Sunday prompt screen, full Today timeline, local notifications with quiet hours 22:30–06:00 | iOS Interface Engineer | interface | todo |
-| M3-01 | Recipes (box nights, breakfasts, home lunches, Sunday cook; 2 portions, no raw fish, no batch cooking) and office lunch list | Researcher (Advisor reviews) | docs | todo |
+| M2-03 | Weather swap (Open-Meteo, no key) when the morning brief opens | Planner Engineer | core | done (PR #39; Advisor to confirm thresholds before Gate 1) |
+| M2-04 | Health: weight 7-day trend and steps (read-only) | Planner Engineer | core | done (PR #39) |
+| M2-05 | Sunday prompt screen, full Today timeline, local notifications with quiet hours 22:30–06:00 | iOS Interface Engineer | interface | in progress (part 1 PR #38; E13 core done PR #40) |
+| M3-01 | Recipes (box nights, breakfasts, home lunches, Sunday cook; 2 portions, no raw fish, no batch cooking) and office lunch list | Researcher (Advisor reviews) | docs | in progress |
 | M3-02 | Meal plan and tracking: pre-ticked meals, evening "anything different?", 2 untracked social meals | Planner Engineer | core | todo |
 | M3-03 | Top-up list: merged quantities, aisle order, staples, search links to the default shop | Planner Engineer | core | todo |
 | M3-04 | Meals, shopping and lunch screens | iOS Interface Engineer | interface | todo |
-| M4-01 | Rules engine: calories from trend, load from logs, volume from recovery, stall flag | Planner Engineer | core | todo |
+| M4-01 | Rules engine: calories from trend, load from logs, volume from recovery, stall flag | Planner Engineer | core | in progress |
 | M4-02 | Claude summary and share; clipboard import of a versioned block, rejected safely when bad | Planner Engineer | core | todo |
 | M4-03 | Progress view, photos every 2 weeks with a ghost outline, optional mood check, "Ask the coach now" | iOS Interface Engineer | interface | todo |
 | G2-01 | Gate 2 pack | Head of Engineering | docs | todo |
