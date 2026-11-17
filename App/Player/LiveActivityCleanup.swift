@@ -6,15 +6,21 @@ import Foundation
 /// Activity alive at launch is a leftover (a killed app, an earlier UI test).
 /// Ending them keeps the lock screen to the session actually running.
 enum LiveActivityCleanup {
-    /// Call once at launch. Takes the list first, so an activity a session
-    /// starts straight afterwards is never ended by mistake.
+    /// Call once at launch. Takes the ids first, so an activity a session
+    /// starts straight afterwards is never ended by mistake. Activities are
+    /// looked up inside the task (same pattern as RestClock.endActivity), so
+    /// no Activity value crosses an await (Swift 6 sending check).
     static func endLeftoversAtLaunch() {
-        let rests = Activity<RestTimerAttributes>.activities
-        let runs = Activity<RunWalkAttributes>.activities
-        guard !rests.isEmpty || !runs.isEmpty else { return }
+        let restIDs = Set(Activity<RestTimerAttributes>.activities.map(\.id))
+        let runIDs = Set(Activity<RunWalkAttributes>.activities.map(\.id))
+        guard !restIDs.isEmpty || !runIDs.isEmpty else { return }
         Task {
-            for activity in rests { await activity.end(nil, dismissalPolicy: .immediate) }
-            for activity in runs { await activity.end(nil, dismissalPolicy: .immediate) }
+            for live in Activity<RestTimerAttributes>.activities where restIDs.contains(live.id) {
+                await live.end(nil, dismissalPolicy: .immediate)
+            }
+            for live in Activity<RunWalkAttributes>.activities where runIDs.contains(live.id) {
+                await live.end(nil, dismissalPolicy: .immediate)
+            }
         }
     }
 }
