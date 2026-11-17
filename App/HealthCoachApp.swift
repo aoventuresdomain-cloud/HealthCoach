@@ -15,7 +15,7 @@ struct HealthCoachApp: App {
         container = AppStore.open(options: options)
         if options.isUITest {
             UIView.setAnimationsEnabled(false)
-            CoachBlockStore.resetForUITest()
+            if !options.keepCoachBlocks { CoachBlockStore.resetForUITest() }
         }
         if let name = options.fixture {
             do {

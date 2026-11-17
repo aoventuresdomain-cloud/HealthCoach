@@ -13,6 +13,7 @@ import Foundation
 ///     -spikeAlarms                 the spike screen keeps the alarms even with a planned profile (QA-2)
 ///     -weather rain|dry|offline    fake forecast for the weather swap (M2-03); UI tests are offline without it
 ///     -clipboard <text>            what "Import Claude's reply" reads instead of the clipboard (M4-02, QA A17)
+///     -keepCoachBlocks             with -uitest: imported blocks survive the relaunch (A17 "next day" check)
 ///
 /// Debug builds only. Release builds ignore every flag, like the Spike tests screen.
 struct LaunchOptions: Equatable {
@@ -24,6 +25,7 @@ struct LaunchOptions: Equatable {
     var weather: String?
     var denyAlarms = false
     var clipboard: String?
+    var keepCoachBlocks = false
 
     static let current = LaunchOptions(arguments: ProcessInfo.processInfo.arguments)
 
@@ -47,6 +49,7 @@ struct LaunchOptions: Equatable {
         weather = value(after: "-weather")
         denyAlarms = arguments.contains("-denyAlarms")
         clipboard = value(after: "-clipboard")
+        keepCoachBlocks = arguments.contains("-keepCoachBlocks")
         #endif
     }
 }

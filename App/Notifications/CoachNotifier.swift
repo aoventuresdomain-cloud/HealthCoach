@@ -31,7 +31,9 @@ final class CoachNotifier {
         let planned = NotificationPlanner.plan(
             now: now, programme: programme, profile: profile,
             answers: { answers.answers(weekStarting: $0, calendar: calendar) },
-            dropping: Set(programme.droppedSessions(history: history)), calendar: calendar)
+            dropping: CoachBlockStore().droppedSessions(programme: programme, history: history,
+                                                        profile: profile, on: now, calendar: calendar),
+            calendar: calendar)
         lastPlanned = planned
 
         guard let center else { return }

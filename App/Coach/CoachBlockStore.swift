@@ -22,6 +22,18 @@ final class CoachBlockStore {
         }
     }
 
+    /// Sessions to leave out on `date`: the reduced week (R2) plus any an
+    /// accepted Claude block drops. Today, the alarms and the notifications
+    /// all use this, so an import changes the same plan everywhere.
+    func droppedSessions(programme: Programme, history: [SessionLog], profile: Profile,
+                         on date: Date, calendar: Calendar = .coach) -> Set<String> {
+        var dropped = Set(programme.droppedSessions(history: history))
+        if let start = profile.programme.startDate {
+            dropped.formUnion(CoachBlock.droppedSessions(all, on: date, start: start, calendar: calendar))
+        }
+        return dropped
+    }
+
     /// Empties the UI-test suite. Called once at launch in `-uitest` mode.
     static func resetForUITest() {
         UserDefaults(suiteName: uiTestSuite)?.removePersistentDomain(forName: uiTestSuite)

@@ -23,7 +23,10 @@ struct SessionLaunch: Identifiable {
         let strengthVoice = voiceCues && !LaunchOptions.current.isUITest
         switch slot.session {
         case .strength:
-            guard let script = WorkoutScript.make(sessionID: slot.id, programme: programme, week: week, history: history) else { return nil }
+            // Imported loads (M4-02) hold until that exercise is next logged.
+            guard let script = WorkoutScript.make(sessionID: slot.id, programme: programme, week: week, history: history,
+                                                  blocks: CoachBlockStore().all, on: now,
+                                                  calendar: .coach) else { return nil }
             return SessionLaunch(player: .strength(WorkoutPlayerModel(
                 script: script, catalogue: content.exercises, programmeID: programme.id,
                 recovery: recovery, voiceCues: strengthVoice, now: now,
