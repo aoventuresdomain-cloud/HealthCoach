@@ -19,6 +19,9 @@ final class ProgressUITests: XCTestCase {
         let steps = app.staticTexts["progress.steps"]
         XCTAssertTrue(steps.waitForExistence(timeout: 5))
         XCTAssertTrue(steps.label.hasPrefix("Steps: 3,200 today"), steps.label)
+        // UI-12: the hero is the 7-day average alone, with its change since the start under it.
+        XCTAssertTrue(app.staticTexts["progress.weight"].label.hasSuffix(" kg"), app.staticTexts["progress.weight"].label)
+        XCTAssertTrue(app.staticTexts["progress.weightChange"].label.hasPrefix("7-day average"))
         return app
     }
 
@@ -39,7 +42,8 @@ final class ProgressUITests: XCTestCase {
         attach(app, "photo-day")
         app.buttons["photo.save"].tap()
 
-        XCTAssertTrue(app.staticTexts["progress.nextPhotos"].waitForExistence(timeout: 5))
+        // UI-12: photos are one disclosure row now (a button), not a text line.
+        XCTAssertTrue(app.descendants(matching: .any)["progress.nextPhotos"].waitForExistence(timeout: 5))
         XCTAssertFalse(photoDay.exists)
         attach(app, "progress-after-photos")
     }

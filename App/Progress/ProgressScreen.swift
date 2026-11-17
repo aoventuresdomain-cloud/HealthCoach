@@ -32,6 +32,8 @@ struct ProgressScreen: View {
         let history = (try? SessionLogStore(context: context).all()) ?? []
         let sets = store.sets(calendar: calendar)
         List {
+            // UI-12: no section headers; the content says what it is. Phase lines
+            // frame the screen, then one hero number, its chart, and steps.
             Section {
                 if let lines = PhaseLine.lines(programme: programme, start: profile.programme.startDate,
                                                on: now, calendar: calendar) {
@@ -42,57 +44,122 @@ struct ProgressScreen: View {
                     .accessibilityElement(children: .combine)
                     .accessibilityIdentifier("progress.phase")
                 }
+                VStack(alignment: .leading, spacing: Space.xs) {
+                    if let weight = BodyStats.shared.weight {
+                        Text("\(WeightTrend.oneDecimal(weight.averageKg)) kg")
+                            .font(.coachNumber(48))
+                            .accessibilityIdentifier("progress.weight")
+                        let change = WeightTrend.changeSinceStart(samples: BodyStats.shared.weightSamples,
+                                                                  start: profile.programme.startDate,
+                                                                  now: now, calendar: calendar)
+                        Text(WeightTrend.heroSubline(changeSinceStart: change))
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                            .accessibilityIdentifier("progress.weightChange")
+                    } else {
+                        Text("No trend yet. It needs 3 weigh-ins in a week from the scale.")
+                            .foregroundStyle(.secondary)
+                            .accessibilityIdentifier("progress.weight")
+                    }
+                    // QA-30: steps were read but shown nowhere; one quiet line under the hero.
+                    if let steps = BodyStats.shared.steps {
+                        Text(Self.stepsLine(steps))
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                            .accessibilityIdentifier("progress.steps")
+                    }
+                }
+                .accessibilityElement(children: .contain)
                 WeightHero(samples: BodyStats.shared.weightSamples, now: now, calendar: calendar)
-                if let weight = BodyStats.shared.weight {
-                    Text(weight.summary).accessibilityIdentifier("progress.weight")
-                } else {
-                    Text("No trend yet. It needs 3 weigh-ins in a week from the scale.")
-                        .foregroundStyle(.secondary)
-                        .accessibilityIdentifier("progress.weight")
-                }
-                // QA-30: steps were read but shown nowhere; one quiet line.
-                if let steps = BodyStats.shared.steps {
-                    Text(Self.stepsLine(steps))
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .accessibilityIdentifier("progress.steps")
-                }
-            } header: {
-                Text("Weight")
             }
 
-            Section("Strength") {
-                let lifts = StrengthProgress.lifts(from: history)
-                if lifts.isEmpty {
-                    Text("Your lifts appear here after the first session.").foregroundStyle(.secondary)
-                }
-                ForEach(lifts, id: \.exercise) { lift in
-                    HStack {
-                        Text(content.exercises.exercise(lift.exercise)?.name ?? lift.exercise)
-                        Spacer()
-                        // Up is green; held or lighter stays neutral grey, never red (UI pass).
-                        Text(StrengthProgress.change(lift))
-                            .foregroundStyle(StrengthProgress.loadWentUp(lift) ? AnyShapeStyle(.green) : AnyShapeStyle(.secondary))
-                            .monospacedDigit()
+            // Hidden until there is data (rule 4).
+            let lifts = StrengthProgress.lifts(from: history)
+            if !lifts.isEmpty {
+                Section {
+                    ForEach(lifts, id: \.exercise) { lift in
+                        HStack {
+                            Text(content.exercises.exercise(lift.exercise)?.name ?? lift.exercise)
+                            Spacer()
+                            // Up is green; held or lighter stays neutral grey, never red (UI pass).
+                            Text(StrengthProgress.change(lift))
+                                .foregroundStyle(StrengthProgress.loadWentUp(lift) ? AnyShapeStyle(.go) : AnyShapeStyle(.secondary))
+                                .monospacedDigit()
+                        }
+                        .accessibilityElement(children: .combine)
+                        .accessibilityIdentifier("progress.lift.\(lift.exercise)")
                     }
-                    .accessibilityElement(children: .combine)
-                    .accessibilityIdentifier("progress.lift.\(lift.exercise)")
                 }
             }
 
             Section {
                 if PhotoSchedule.isDue(on: now, start: profile.programme.startDate, taken: sets.map(\.date), calendar: calendar) {
+                    // A card only on photo day.
                     Button { photoDay = true } label: {
                         Label("Photo day: front and side, 1 minute", systemImage: "camera")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity, minHeight: 56, alignment: .leading)
                     }
                     .accessibilityIdentifier("progress.photoDay")
-                } else if let start = profile.programme.startDate,
-                          let next = PhotoSchedule.nextPhotoDay(after: now, start: start, calendar: calendar) {
-                    Text("Next photos \(next.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated))).")
-                        .foregroundStyle(.secondary)
-                        .accessibilityIdentifier("progress.nextPhotos")
                 }
-                ForEach(sets.reversed()) { set in
+                // Otherwise one disclosure row; the photos themselves are one tap away.
+                let next = profile.programme.startDate.flatMap {
+                    PhotoSchedule.nextPhotoDay(after: now, start: $0, calendar: calendar)
+                }
+                if next != nil || !sets.isEmpty {
+                    NavigationLink { PhotoSetsView(sets: Array(sets.reversed())) } label: {
+                        Text(next.map { "Photos · next \($0.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated)))" } ?? "Photos")
+                    }
+                    .accessibilityIdentifier("progress.nextPhotos")
+                }
+            }
+
+            // Optional actions, out of the way at the bottom.
+            Section {
+                let blocks = CoachBlockStore().all
+                let weights = BodyStats.shared.weightSamples
+                if let review = CoachReview.make(programme: programme, profile: profile, history: history,
+                                                 weights: weights, blocks: blocks, now: now, calendar: calendar) {
+                    ForEach(Array(review.flags.enumerated()), id: \.offset) { index, flag in
+                        Label(flag.line, systemImage: "flag")
+                            .foregroundStyle(.caution)
+                            .accessibilityIdentifier("progress.flag.\(index)")
+                    }
+                    if let note = review.block?.note, !note.isEmpty {
+                        Text(note).foregroundStyle(.secondary).accessibilityIdentifier("progress.coachNote")
+                    }
+                }
+                // M4-02: the summary is text only; no photos, no raw Health samples.
+                if let summary = CoachSummary.text(programme: programme, profile: profile, history: history,
+                                                   weights: weights, blocks: blocks, now: now, calendar: calendar) {
+                    ShareLink(item: summary) {
+                        Label("Ask the coach now", systemImage: "bubble.left.and.text.bubble.right")
+                    }
+                    .accessibilityIdentifier("progress.askCoach")
+                }
+                // Coach Engineer's import (#54): copy Claude's reply, then tap.
+                CoachImportButton(profile: profile) { version += 1 }
+            }
+        }
+        .navigationTitle("Progress")
+        .sheet(isPresented: $photoDay, onDismiss: { version += 1 }) {
+            PhotoDayView(date: now, calendar: calendar)
+        }
+    }
+}
+
+/// Photos every 2 weeks (UI-12: behind one row on Progress).
+private struct PhotoSetsView: View {
+    let sets: [ProgressStore.PhotoSet]
+    private var store: ProgressStore { .shared }
+
+    var body: some View {
+        List {
+            Section {
+                if sets.isEmpty {
+                    Text("Your first photos are on photo day.").foregroundStyle(.secondary)
+                }
+                ForEach(sets) { set in
                     HStack(spacing: 8) {
                         ForEach(ProgressStore.Pose.allCases) { pose in
                             if let image = store.image(day: set.day, pose: pose) {
@@ -110,44 +177,12 @@ struct ProgressScreen: View {
                     }
                     .accessibilityIdentifier("progress.photoSet.\(set.day)")
                 }
-            } header: {
-                Text("Photos every 2 weeks")
             } footer: {
                 Text("Kept on this phone and in your own iCloud backup. Never shared.")
             }
-
-            Section {
-                let blocks = CoachBlockStore().all
-                let weights = BodyStats.shared.weightSamples
-                if let review = CoachReview.make(programme: programme, profile: profile, history: history,
-                                                 weights: weights, blocks: blocks, now: now, calendar: calendar) {
-                    ForEach(Array(review.flags.enumerated()), id: \.offset) { index, flag in
-                        Label(flag.line, systemImage: "flag")
-                            .foregroundStyle(.orange)
-                            .accessibilityIdentifier("progress.flag.\(index)")
-                    }
-                    if let note = review.block?.note, !note.isEmpty {
-                        Text(note).foregroundStyle(.secondary).accessibilityIdentifier("progress.coachNote")
-                    }
-                }
-                // M4-02: the summary is text only; no photos, no raw Health samples.
-                if let summary = CoachSummary.text(programme: programme, profile: profile, history: history,
-                                                   weights: weights, blocks: blocks, now: now, calendar: calendar) {
-                    ShareLink(item: summary) {
-                        Label("Ask the coach now", systemImage: "bubble.left.and.text.bubble.right")
-                    }
-                    .accessibilityIdentifier("progress.askCoach")
-                }
-                // Coach Engineer's import (#54): copy Claude's reply, then tap.
-                CoachImportButton(profile: profile) { version += 1 }
-            } footer: {
-                Text("Builds a short summary, with no photos, for you to send to Claude. Then copy Claude's reply and import it.")
-            }
         }
-        .navigationTitle("Progress")
-        .sheet(isPresented: $photoDay, onDismiss: { version += 1 }) {
-            PhotoDayView(date: now, calendar: calendar)
-        }
+        .navigationTitle("Photos every 2 weeks")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 

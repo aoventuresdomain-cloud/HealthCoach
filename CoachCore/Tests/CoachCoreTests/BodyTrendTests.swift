@@ -36,6 +36,24 @@ import Testing
         #expect(trend.summary == "83.4 kg (7-day average), down 0.6 kg on last week")
     }
 
+    /// UI-12: the Progress hero compares with the first average from the start day on.
+    @Test func changeSinceStartUsesTheFirstAverageFromTheStart() throws {
+        let before = (17...23).map { WeightSample(date: at(11, $0), kg: 84.0) }
+        let after = (24...30).map { WeightSample(date: at(11, $0), kg: 82.9) }
+        let change = try #require(WeightTrend.changeSinceStart(samples: before + after, start: at(11, 23),
+                                                               now: at(11, 30), calendar: calendar))
+        #expect(abs(change + 1.1) < 0.0001)
+        #expect(WeightTrend.heroSubline(changeSinceStart: change) == "7-day average · \u{2212}1.1 kg since start")
+        // No weigh-ins before the start: the first full window after it is the baseline.
+        let late = try #require(WeightTrend.changeSinceStart(samples: after, start: at(11, 23),
+                                                             now: at(11, 30), calendar: calendar))
+        #expect(abs(late) < 0.0001)
+        #expect(WeightTrend.heroSubline(changeSinceStart: late) == "7-day average · level since start")
+        #expect(WeightTrend.changeSinceStart(samples: after, start: nil, now: at(11, 30), calendar: calendar) == nil)
+        #expect(WeightTrend.heroSubline(changeSinceStart: nil) == "7-day average")
+        #expect(WeightTrend.heroSubline(changeSinceStart: 0.44) == "7-day average · +0.4 kg since start")
+    }
+
     @Test func severalWeighInsInADayCountOnce() throws {
         // Two readings on 28 Nov average to 83; the day isn't double-counted.
         let samples = [
