@@ -4,14 +4,23 @@ import SwiftUI
 /// Draws the rest-timer Live Activity layouts in-app for CI screenshots
 /// (`-screenshot live-activity`). Same views as the widget, counting live.
 struct LiveActivityPreviewView: View {
+    @State private var startedAt = Date.now
     @State private var endsAt = Date.now.addingTimeInterval(TimeInterval(RestTimerSpike.defaultRestSeconds))
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 caption("Lock screen")
-                RestTimerLockScreenView(title: "Rest", nextUp: "Next: Goblet squat, set 2", endsAt: endsAt)
+                RestTimerLockScreenView(title: "Rest", nextUp: "Next: Goblet squat, set 2", endsAt: endsAt,
+                                        nextKg: 24, startedAt: startedAt)
                     .background(.black.opacity(0.8), in: .rect(cornerRadius: 22))
+                    .accessibilityIdentifier("liveActivity.lockScreen")
+
+                caption("Lock screen, bodyweight next")
+                RestTimerLockScreenView(title: "Rest", nextUp: "Next: Push-up, set 2", endsAt: endsAt,
+                                        startedAt: startedAt)
+                    .background(.black.opacity(0.8), in: .rect(cornerRadius: 22))
+                    .accessibilityIdentifier("liveActivity.lockScreen.bodyweight")
 
                 caption("Dynamic Island, expanded")
                 VStack(alignment: .leading, spacing: 8) {

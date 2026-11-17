@@ -53,6 +53,10 @@ final class WorkoutPlayerUITests: XCTestCase {
                     let leftoverRun = springboard.staticTexts.matching(
                         NSPredicate(format: "label CONTAINS[c] 'run-walk · Week'"))
                     XCTAssertEqual(leftoverRun.count, 0, "a run-walk Live Activity is still showing")
+                    // UI-11: the next set is the 10 kg bench press, so the lock screen says what to dial.
+                    let dialTo = springboard.descendants(matching: .any)
+                        .matching(NSPredicate(format: "label BEGINSWITH[c] 'Dial to'")).firstMatch
+                    XCTAssertTrue(dialTo.waitForExistence(timeout: 3), "no DIAL TO weight on the rest Live Activity")
                     let lockScreen = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
                     lockScreen.name = "player-rest-live-activity"
                     lockScreen.lifetime = .keepAlways
