@@ -6,6 +6,17 @@ public struct PlannedDay: Equatable, Sendable {
     public let week: Int?
     public let weekday: Weekday
     public let entry: Entry
+    /// The date is past the programme's last week, so the last week repeats
+    /// (decision E13) until the next phase's file exists. A flag for the team,
+    /// never shown to the owner.
+    public let heldAtLastWeek: Bool
+
+    public init(week: Int?, weekday: Weekday, entry: Entry, heldAtLastWeek: Bool = false) {
+        self.week = week
+        self.weekday = weekday
+        self.entry = entry
+        self.heldAtLastWeek = heldAtLastWeek
+    }
 
     public enum Entry: Equatable, Sendable {
         case session(id: String, Session)
@@ -23,20 +34,22 @@ extension Programme {
         let weekday = Weekday(calendarWeekday: calendar.component(.weekday, from: date))
         let days = calendar.dateComponents([.day], from: calendar.startOfDay(for: start), to: calendar.startOfDay(for: date)).day ?? 0
         guard days >= 0 else { return PlannedDay(week: nil, weekday: weekday, entry: .beforeStart) }
-        let week = days / 7 + 1
-        guard week <= weeks, let scheduled = schedule.first(where: { $0.week == week }) else {
+        // E13: past the last week, hold at it until the next phase exists.
+        let held = days / 7 + 1 > weeks
+        let week = min(days / 7 + 1, weeks)
+        guard let scheduled = schedule.first(where: { $0.week == week }) else {
             return PlannedDay(week: nil, weekday: weekday, entry: .afterEnd)
         }
         guard let id = scheduled.days[weekday] ?? nil else {
-            return PlannedDay(week: week, weekday: weekday, entry: .rest)
+            return PlannedDay(week: week, weekday: weekday, entry: .rest, heldAtLastWeek: held)
         }
         if let session = sessions[id] {
-            return PlannedDay(week: week, weekday: weekday, entry: .session(id: id, session))
+            return PlannedDay(week: week, weekday: weekday, entry: .session(id: id, session), heldAtLastWeek: held)
         }
         if let event = fixed.first(where: { $0.id == id }) {
-            return PlannedDay(week: week, weekday: weekday, entry: .fixed(event))
+            return PlannedDay(week: week, weekday: weekday, entry: .fixed(event), heldAtLastWeek: held)
         }
         // Unknown ids are caught by validation; treat as rest rather than crash.
-        return PlannedDay(week: week, weekday: weekday, entry: .rest)
+        return PlannedDay(week: week, weekday: weekday, entry: .rest, heldAtLastWeek: held)
     }
 }

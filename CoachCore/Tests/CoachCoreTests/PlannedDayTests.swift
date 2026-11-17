@@ -48,7 +48,11 @@ import Testing
     @Test func beforeStartAndAfterEnd() throws {
         let programme = try phase1()
         #expect(programme.plannedDay(on: date(2026, 11, 22), start: start, calendar: calendar).entry == .beforeStart)
-        #expect(programme.plannedDay(on: date(2027, 1, 4), start: start, calendar: calendar).entry == .afterEnd)
+        // E13: past week 6, hold at week 6 (flagged for the team) until Phase 2 exists.
+        let past = programme.plannedDay(on: date(2027, 1, 4), start: start, calendar: calendar)
+        #expect(past.week == 6)
+        #expect(past.heldAtLastWeek)
+        #expect(past.entry != .afterEnd)
         #expect(programme.plannedDay(on: date(2027, 1, 3), start: start, calendar: calendar).week == 6)
     }
 

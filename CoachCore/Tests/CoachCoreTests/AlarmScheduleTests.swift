@@ -57,9 +57,10 @@ private actor ClockedRegistrar: AlarmRegistering {
         return p
     }
 
-    private func make(now: Date, profile: Profile? = nil, answers: WeekAnswers = WeekAnswers()) throws -> [PlannedAlarm] {
+    private func make(now: Date, profile: Profile? = nil, answers: WeekAnswers = WeekAnswers(),
+                      completed: Set<String> = []) throws -> [PlannedAlarm] {
         AlarmSchedule.make(now: now, programme: try phase1(), profile: profile ?? self.profile(),
-                           answers: { _ in answers }, calendar: calendar)
+                           answers: { _ in answers }, completed: completed, calendar: calendar)
     }
 
     private func hm(_ date: Date) -> String {
@@ -146,7 +147,8 @@ private actor ClockedRegistrar: AlarmRegistering {
 
     @Test func idsAreStableAcrossOpens() throws {
         let morning = try make(now: at(2026, 11, 23, 5, 0))
-        let evening = try make(now: at(2026, 11, 23, 21, 0))
+        // Monday's Upper A was done (logged), so nothing moves (E13).
+        let evening = try make(now: at(2026, 11, 23, 21, 0), completed: ["upper-a"])
         // Same horizon (today + 13 days); only Monday's alarm has passed by the evening.
         #expect(evening.count == 7)
         let shared = Set(morning.dropFirst().map(\.id)).intersection(evening.map(\.id))

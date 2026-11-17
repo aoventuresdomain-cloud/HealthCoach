@@ -19,3 +19,5 @@
 **Reduced week.** Pass `Programme.droppedSessions(history:)` as `dropping`. Those sessions are left out, and their days become free for a move.
 
 Defaults (requirements §2 and §12): commute 25 min, shower 15 min, buffer 15 min. All live in `Profile.schedule`, so onboarding and Settings can change them.
+
+**Start week and passed sessions (E13).** `Profile.programme.startDate` is the paper start date (onboarding pre-fills Mon 16 Nov 2026 as a guess), so week = floor((day − start) / 7) + 1. Past the last week the plan holds at it (`PlannedDay.heldAtLastWeek`, a flag for the team, never shown) until the next phase's file exists. Given `now` and the sessions logged today (`completed`), a session of today's whose slot has ended moves: to this evening if it ends at least 2 h before tonight's wind-down; else to the next session-free day later this week that its placement rules allow; else it is dropped quietly (listed in `unplaced`, with no copy for the owner). Never two sessions in a day, never into next week. Today, the alarm reconcile and the weather check all pass `now`, so they agree.

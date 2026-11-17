@@ -13,6 +13,7 @@ public enum AlarmSchedule {
     /// the latest answers (the app's job). Empty when there's no start date.
     public static func make(now: Date, programme: Programme, profile: Profile,
                             answers: (Date) -> WeekAnswers, dropping: Set<String> = [],
+                            completed: Set<String> = [],
                             calendar: Calendar = .current) -> [PlannedAlarm] {
         guard profile.programme.startDate != nil else { return [] }
         let today = calendar.startOfDay(for: now)
@@ -23,7 +24,8 @@ public enum AlarmSchedule {
             let monday = mondayOf(date, calendar: calendar)
             if plans[monday] == nil {
                 plans[monday] = WeekPlanner.plan(weekStarting: monday, programme: programme, profile: profile,
-                                                 answers: answers(monday), dropping: dropping, calendar: calendar)
+                                                 answers: answers(monday), dropping: dropping,
+                                                 now: now, completed: completed, calendar: calendar)
             }
             guard let day = plans[monday]?.days.first(where: { calendar.isDate($0.date, inSameDayAs: date) }),
                   let alarm = alarm(for: day, programme: programme, calendar: calendar),

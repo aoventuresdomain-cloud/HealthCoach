@@ -47,10 +47,12 @@ public struct DayPlan: Equatable, Sendable {
     /// The plan for `date`, or nil until onboarding has set a start date.
     /// `answers` and `dropping` must be what the alarm reconcile used (the
     /// Sunday prompt's answers for the week starting a Monday, and the reduced
-    /// week), so Today and the alarm agree.
+    /// week), so Today and the alarm agree. `now` and `completed` (session ids
+    /// logged today) move a session whose time has passed (E13).
     public static func make(for date: Date, programme: Programme, profile: Profile,
                             answers: (Date) -> WeekAnswers = { _ in WeekAnswers() },
                             dropping: Set<String> = [],
+                            now: Date? = nil, completed: Set<String> = [],
                             calendar: Calendar = .current) -> DayPlan? {
         guard let start = profile.programme.startDate else { return nil }
         let planned = programme.plannedDay(on: date, start: start, calendar: calendar)
@@ -59,7 +61,8 @@ public struct DayPlan: Equatable, Sendable {
         func plannerDay(_ date: Date) -> WeekPlan.Day? {
             let monday = AlarmSchedule.mondayOf(date, calendar: calendar)
             return WeekPlanner.plan(weekStarting: monday, programme: programme, profile: profile,
-                                    answers: answers(monday), dropping: dropping, calendar: calendar)
+                                    answers: answers(monday), dropping: dropping,
+                                    now: now, completed: completed, calendar: calendar)
                 .days.first { calendar.isDate($0.date, inSameDayAs: date) }
         }
         let today = plannerDay(date)
