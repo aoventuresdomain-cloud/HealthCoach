@@ -8,7 +8,7 @@ For review at 20:00 on 18 Nov 2026. Kept by the Head of Engineering (board G2-01
 
 ## 1. What the app does today
 
-- **Onboarding in two taps.** Everything is pre-filled from your requirements: height, weight, equipment, paper start date (16 Nov) and office pattern. You confirm it once.
+- **Onboarding in two taps.** Everything is pre-filled from your requirements: height, weight, equipment and paper start date (16 Nov). You confirm it once.
 - **Today screen.** It shows the day's session, the wake time and the timeline, and warns you if no alarms are set. It knows which week you are in from your paper start.
 - **The Sunday prompt.** Office days and early or late starts for the week take under 20 seconds. The planner then places Upper A, run-walk, full body and Upper B around basketball and the office, never on a Wednesday, and protects 7.5 hours of sleep.
 - **Wake alarms.** These are set 14 days ahead and re-checked each time the app opens. They only go off on days with a fixed start.
