@@ -28,6 +28,8 @@ final class TodayUITests: XCTestCase {
             let title = app.staticTexts["today.title"]
             XCTAssertTrue(title.waitForExistence(timeout: 15), day.date)
             XCTAssertTrue(title.label.hasPrefix(day.title), "\(day.date): \(title.label)")
+            // QA-31: a fixture launch finds its alarms already set, so no "missing" banner.
+            XCTAssertFalse(app.descendants(matching: .any)["today.alarmBanner"].waitForExistence(timeout: 2), day.date)
             let attachment = XCTAttachment(screenshot: app.screenshot())
             attachment.name = "today-\(day.date)"
             attachment.lifetime = .keepAlways
@@ -47,5 +49,20 @@ final class TodayUITests: XCTestCase {
         next.tap()
         XCTAssertTrue(app.staticTexts["today.title"].label.hasPrefix("Upper B at"), app.staticTexts["today.title"].label)
         XCTAssertTrue(app.buttons["today.backToToday"].exists)
+    }
+
+    /// UI-12 (U2): even when alarms were missing and set again there is no banner;
+    /// the re-set shows only in the debug line.
+    @MainActor
+    func testMissingAlarmsAreSetAgainWithoutABanner() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uitest", "-now", "2026-11-23T06:20:00Z", "-fixture", "week1-monday", "-missingAlarms"]
+        app.launch()
+        XCTAssertTrue(app.staticTexts["today.title"].waitForExistence(timeout: 15))
+        let status = app.staticTexts["debug.launch"]
+        XCTAssertTrue(status.waitForExistence(timeout: 5))
+        expectation(for: NSPredicate(format: "label CONTAINS 'alarms=8'"), evaluatedWith: status)
+        waitForExpectations(timeout: 10)
+        XCTAssertFalse(app.descendants(matching: .any)["today.alarmBanner"].exists)
     }
 }

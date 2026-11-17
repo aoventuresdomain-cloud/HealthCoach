@@ -10,6 +10,12 @@ struct OnboardingConfirmView: View {
     var onConfirm: () -> Void
 
     @State private var editing: Row?
+    @State private var showingMore = false
+
+    /// UI-12: the guesses and the safety default, which need a glance (Advisor).
+    static let toCheck: [Row] = [.paperStart, .sleep, .work, .longest, .hurts]
+    /// Confirmed already from what the owner said; one tap away.
+    static let rest: [Row] = [.you, .goal, .office, .fixed, .kit, .cues, .checkIn]
 
     enum Row: String, CaseIterable, Identifiable {
         case you, goal, hurts, paperStart, sleep, work, office, fixed, kit, longest, cues, checkIn
@@ -22,9 +28,6 @@ struct OnboardingConfirmView: View {
                 Text("Check this, then you're set")
                     .font(.largeTitle.bold())
                     .accessibilityIdentifier("onboarding.title")
-                Text("Filled in from what you've told us. Tap a line to change it here. Only the lines marked \(Text("GUESS").bold().foregroundStyle(.orange)) need a look.")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
                 if LaunchOptions.current.isUITest {
                     UITestStatus()
                 }
@@ -32,25 +35,33 @@ struct OnboardingConfirmView: View {
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
 
-            Section("You and your goal") {
-                row(.you)
-                row(.goal)
-                row(.hurts)
-                row(.paperStart)
+            Section {
+                ForEach(Self.toCheck) { row($0) }
+            } header: {
+                Text("Check these \(Self.toCheck.count)")
             }
-            Section("Week") {
-                row(.sleep)
-                row(.work)
-                row(.office)
-                row(.fixed)
-            }
-            Section("Training") {
-                row(.kit)
-                row(.longest)
-                row(.cues)
-            }
-            Section("Coach") {
-                row(.checkIn)
+            Section {
+                Button {
+                    withAnimation(.snappy) { showingMore.toggle() }
+                } label: {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Everything else (\(Self.rest.count))").foregroundStyle(.primary)
+                            Text("From what you told us").font(.subheadline).foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .foregroundStyle(.secondary)
+                            .rotationEffect(.degrees(showingMore ? 90 : 0))
+                    }
+                    .contentShape(.rect)
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(showingMore ? .isSelected : [])
+                .accessibilityIdentifier("onboarding.more")
+                if showingMore {
+                    ForEach(Self.rest) { row($0) }
+                }
             }
         }
         .listStyle(.insetGrouped)

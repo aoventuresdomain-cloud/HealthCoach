@@ -16,7 +16,12 @@ final class TomorrowChangedUITests: XCTestCase {
         app.launch()
         let title = app.staticTexts["today.title"]
         XCTAssertTrue(title.waitForExistence(timeout: 15))
+        // M0-11b: no spike link, even inside the ⋯ menu, without -spikeAlarms.
+        app.buttons["today.more"].tap()
+        XCTAssertTrue(app.buttons["today.tomorrowChanged"].waitForExistence(timeout: 5))
         XCTAssertFalse(app.buttons["home.spikeTests"].exists, "M0-11b: no wrench in review launches")
+        app.buttons["today.tomorrowChanged"].tap()
+        app.buttons["tomorrow.cancel"].tap()
 
         let todayTitle = title.label
         let todayWake = app.descendants(matching: .any)["today.timeline.wake"]
@@ -24,9 +29,8 @@ final class TomorrowChangedUITests: XCTestCase {
         let todayWakeLabel = todayWake.label
         XCTAssertFalse(app.descendants(matching: .any)["today.timeline.leave"].exists)
 
-        let changed = app.buttons["today.tomorrowChanged"]
-        XCTAssertTrue(changed.waitForExistence(timeout: 5))
-        changed.tap()
+        // UI-12: "Tomorrow changed" is in the ⋯ menu.
+        openTomorrowChanged(app)
         let office = app.buttons["tomorrow.office"]
         XCTAssertTrue(office.waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["tomorrow.home"].isSelected, "pre-filled from the week: home")
@@ -50,10 +54,20 @@ final class TomorrowChangedUITests: XCTestCase {
         XCTAssertFalse(app.descendants(matching: .any)["today.timeline.leave"].exists)
 
         // Reopening shows tomorrow's saved answer.
-        app.buttons["today.tomorrowChanged"].tap()
+        openTomorrowChanged(app)
         XCTAssertTrue(app.buttons["tomorrow.office"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["tomorrow.office"].isSelected)
         app.buttons["tomorrow.cancel"].tap()
+    }
+
+    @MainActor
+    private func openTomorrowChanged(_ app: XCUIApplication) {
+        let more = app.buttons["today.more"]
+        XCTAssertTrue(more.waitForExistence(timeout: 5))
+        more.tap()
+        let item = app.buttons["today.tomorrowChanged"]
+        XCTAssertTrue(item.waitForExistence(timeout: 5))
+        item.tap()
     }
 
     @MainActor

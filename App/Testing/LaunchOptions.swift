@@ -17,6 +17,8 @@ import Foundation
 ///     -clipboard <text>            what "Import Claude's reply" reads instead of the clipboard (M4-02, QA A17)
 ///     -clipboardBase64 <base64>    the same, base64 UTF-8, for multi-line text (a raw argument with
 ///                                  newlines and quotes didn't reach the app intact in A17's UI test)
+///     -missingAlarms               with -uitest: the fake alarm store starts empty, so Today says alarms
+///                                  were missing and set again (otherwise it starts with the plan, QA-31)
 ///     -keepCoachBlocks             with -uitest: imported blocks survive the relaunch (A17 "next day" check)
 ///
 /// Debug builds only. Release builds ignore every flag, like the Spike tests screen.
@@ -30,6 +32,7 @@ struct LaunchOptions: Equatable {
     var denyAlarms = false
     var clipboard: String?
     var keepCoachBlocks = false
+    var missingAlarms = false
 
     static let current = LaunchOptions(arguments: ProcessInfo.processInfo.arguments)
 
@@ -57,6 +60,7 @@ struct LaunchOptions: Equatable {
             .flatMap { String(data: $0, encoding: .utf8) }
             ?? value(after: "-clipboard")
         keepCoachBlocks = arguments.contains("-keepCoachBlocks")
+        missingAlarms = arguments.contains("-missingAlarms")
         #endif
     }
 }

@@ -17,6 +17,8 @@ struct MealsHubView: View {
     @State private var tab = Tab.meals
     @State private var dayOffset = 0
     @State private var version = 0
+    /// Lunch: "Another" steps through the other orders from today's suggestion.
+    @State private var lunchStep = 0
 
     private let calendar = Calendar.coach
     private var ticks: MealTicks { .shared }
@@ -53,8 +55,28 @@ struct MealsHubView: View {
             }
         }
         .background(Color.canvas)
-        .navigationTitle(tab.rawValue)
+        // UI-12: the tab bar already says Meals. On the Meals tab the nav bar
+        // carries the day, with ‹ › either side; the other tabs have no title.
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if tab == .meals {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button { dayOffset -= 1 } label: { Image(systemName: "chevron.left") }
+                        .accessibilityLabel("Previous day")
+                        .accessibilityIdentifier("meals.previousDay")
+                }
+                ToolbarItem(placement: .principal) {
+                    Text(dayOffset == 0 ? "Today" : date.formatted(.dateTime.weekday(.wide).day().month(.abbreviated)))
+                        .font(.headline)
+                        .accessibilityIdentifier("meals.day")
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button { dayOffset += 1 } label: { Image(systemName: "chevron.right") }
+                        .accessibilityLabel("Next day")
+                        .accessibilityIdentifier("meals.nextDay")
+                }
+            }
+        }
     }
 
     // MARK: Meals
@@ -62,36 +84,10 @@ struct MealsHubView: View {
     @ViewBuilder
     private func meals(_ day: MealDay?, date: Date) -> some View {
         List {
-            Section {
-                HStack {
-                    Button { dayOffset -= 1 } label: { Image(systemName: "chevron.left") }
-                        .accessibilityLabel("Previous day")
-                        .accessibilityIdentifier("meals.previousDay")
-                    Spacer()
-                    Text(dayOffset == 0 ? "Today" : date.formatted(.dateTime.weekday(.wide).day().month(.abbreviated)))
-                        .font(.headline)
-                        .accessibilityIdentifier("meals.day")
-                    Spacer()
-                    Button { dayOffset += 1 } label: { Image(systemName: "chevron.right") }
-                        .accessibilityLabel("Next day")
-                        .accessibilityIdentifier("meals.nextDay")
-                }
-                .buttonStyle(.borderless)
-            }
             if let day {
                 let eaten = day.meals.filter { ticks.isTicked($0, on: date, calendar: calendar) }
                 let kcal = eaten.map(\.kcal).reduce(0, +)
                 let protein = eaten.map(\.protein).reduce(0, +)
-                Section {
-                    HStack {
-                        Totals(value: kcal, unit: "kcal", target: day.target.kcal,
-                               ok: (day.target.kcalMin...day.target.kcalMax).contains(kcal))
-                        Totals(value: protein, unit: "g protein", target: day.target.protein,
-                               ok: protein >= day.target.proteinMin)
-                    }
-                    .accessibilityElement(children: .combine)
-                    .accessibilityIdentifier("meals.totals")
-                }
                 Section {
                     ForEach(day.meals, id: \.id) { meal in
                         mealRow(meal, date: date)
@@ -99,8 +95,18 @@ struct MealsHubView: View {
                     ForEach(day.supplements, id: \.self) { line in
                         Label(line, systemImage: "pills").foregroundStyle(.secondary)
                     }
+                } header: {
+                    // UI-12: one quiet line, no targets; the engine steers by the scale.
+                    Text("\(kcal.formatted()) kcal · \(protein) g protein")
+                        .font(.subheadline.monospacedDigit())
+                        .foregroundStyle(.secondary)
+                        .textCase(nil)
+                        .accessibilityIdentifier("meals.totals")
                 } footer: {
-                    Text("Planned meals count as eaten. Untick anything you skipped.")
+                    // Needed once; obvious after the first untick.
+                    if !ticks.hasEverUnticked {
+                        Text("Planned meals count as eaten. Untick anything you skipped.")
+                    }
                 }
             } else {
                 Text("No meal plan for this day.").foregroundStyle(.secondary)
@@ -137,7 +143,6 @@ struct MealsHubView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(slotTitle(meal)).font(.caption.weight(.semibold)).foregroundStyle(.secondary).textCase(.uppercase)
                     Text(meal.name).font(.body)
-                    Text("\(meal.kcal) kcal · \(meal.protein) g protein").font(.subheadline).foregroundStyle(.secondary)
                 }
                 .opacity(ticked ? 1 : 0.5)
             }
@@ -158,7 +163,17 @@ struct MealsHubView: View {
     private func shopping(_ plan: MealPlan, monday: Date) -> some View {
         let items = ShoppingList.week(plan, content: content.nutrition, tickedStaples: ticks.tickedStaples)
         let aisles = items.reduce(into: [String]()) { if !$0.contains($1.aisle) { $0.append($1.aisle) } }
+        let toGet = items.filter { !ticks.isTicked($0, week: monday, calendar: calendar) }.count
         return List {
+            if !items.isEmpty {
+                // UI-12: the shop is named once, with a count that shrinks as you tick.
+                Text("\(shopName) · \(toGet) to get")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets(top: 0, leading: Space.xs, bottom: 0, trailing: Space.xs))
+                    .accessibilityIdentifier("shopping.header")
+            }
             ForEach(aisles, id: \.self) { aisle in
                 Section(aisle.prefix(1).uppercased() + aisle.dropFirst()) {  // QA-29: "Produce", not "produce"
                     ForEach(items.filter { $0.aisle == aisle }) { item in
@@ -196,16 +211,16 @@ struct MealsHubView: View {
             Spacer()
             if let url = item.searchURL {
                 // Plan §4.4: opens the shop's search in Safari. Outbound only; nothing is sent.
-                let shop = content.nutrition.shop.default.capitalized
+                // UI-12: a quiet 44 pt magnifier; the shop is named once in the header.
                 Link(destination: url) {
-                    Label(shop, systemImage: "magnifyingglass")
-                        .font(.subheadline.weight(.semibold))
-                        .padding(.horizontal, Space.m)
-                        .padding(.vertical, Space.xs + 2)
-                        .background(.go.opacity(0.15), in: .capsule)
+                    Image(systemName: "magnifyingglass")
+                        .font(.body)
+                        .foregroundStyle(.secondary)
+                        .frame(minWidth: 44, minHeight: 44)
+                        .contentShape(.rect)
                 }
                 .buttonStyle(.borderless)
-                .accessibilityLabel("Search \(shop) for \(item.name)")
+                .accessibilityLabel("Search \(shopName) for \(item.name)")
                 .accessibilityIdentifier("shopping.search.\(item.id)")
             }
         }
@@ -215,44 +230,84 @@ struct MealsHubView: View {
         .accessibilityIdentifier("shopping.row.\(item.id)")
     }
 
+    private var shopName: String { content.nutrition.shop.default.capitalized }
+
     // MARK: Lunch
 
+    /// UI-12: on an office day one order, large, with "Another"; otherwise one
+    /// line. The full list is one tap away either way.
     private func lunch(_ today: MealDay?) -> some View {
+        let orders = content.lunchOrders.orders
         let suggested = today?.meals.first(where: \.isOfficeLunch)?.lunchOrderID
-        return List {
-            if suggested == nil {
-                Text("Today isn't an office day, so there's no lunch order to suggest.")
-                    .foregroundStyle(.secondary)
+        let first = orders.firstIndex { $0.id == suggested }
+        let shown = first.map { orders[($0 + lunchStep) % max(orders.count, 1)] }
+        return ScrollView {
+            VStack(alignment: .leading, spacing: Space.l) {
+                if let shown {
+                    NavigationLink { LunchOrderDetail(order: shown) } label: {
+                        VStack(alignment: .leading, spacing: Space.s) {
+                            Text("TODAY").font(.coachLabel).foregroundStyle(.go)
+                            Text(shown.order).font(.title2.bold()).multilineTextAlignment(.leading)
+                            Text("\(shown.place) · \(shown.walkMinutes) min · \(shown.protein) g protein")
+                                .foregroundStyle(.secondary)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(Space.xl)
+                        .background(Color.surface, in: .rect(cornerRadius: Radius.card))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("lunch.suggestion")
+                    if orders.count > 1 {
+                        Button("Another") { lunchStep += 1 }
+                            .buttonStyle(SecondaryActionStyle())
+                            .accessibilityIdentifier("lunch.another")
+                    }
+                } else {
+                    Text("No office today.")
+                        .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("lunch.noOffice")
+                }
+                NavigationLink {
+                    LunchOrdersList(orders: orders)
+                } label: {
+                    HStack {
+                        Text("All \(orders.count) orders")
+                        Spacer()
+                        Image(systemName: "chevron.right").foregroundStyle(.secondary)
+                    }
+                    .frame(minHeight: 44)
+                    .padding(.horizontal, Space.l)
+                    .background(Color.surface, in: .rect(cornerRadius: Radius.secondary))
+                    .contentShape(.rect)
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("lunch.all")
             }
-            ForEach(content.lunchOrders.orders) { order in
+            .padding(.horizontal, Space.l)
+            .padding(.top, Space.s)
+        }
+    }
+}
+
+/// Every lunch order, two lines each; kcal and price are on the detail screen.
+private struct LunchOrdersList: View {
+    let orders: [LunchOrder]
+
+    var body: some View {
+        List {
+            ForEach(orders) { order in
                 NavigationLink { LunchOrderDetail(order: order) } label: {
                     VStack(alignment: .leading, spacing: 2) {
-                        if order.id == suggested {
-                            Text("TODAY'S SUGGESTION").font(.coachLabel).foregroundStyle(.go)
-                        }
                         Text(order.order)
-                        Text("\(order.place) · \(order.walkMinutes) min walk · \(order.kcal) kcal · \(order.protein) g · £\(String(format: "%.2f", order.priceGBP))")
+                        Text("\(order.place) · \(order.walkMinutes) min · \(order.protein) g")
                             .font(.subheadline).foregroundStyle(.secondary)
                     }
                 }
                 .accessibilityIdentifier("lunch.row.\(order.id)")
             }
         }
-    }
-}
-
-private struct Totals: View {
-    let value: Int
-    let unit: String
-    let target: Int
-    let ok: Bool
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text("\(value)").font(.coachNumber(22)).foregroundStyle(ok ? Color.go : Color.primary)
-            Text("\(unit) of \(target)").font(.caption).foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .navigationTitle("Lunch orders")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 

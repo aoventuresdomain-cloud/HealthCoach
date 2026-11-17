@@ -30,7 +30,7 @@ struct SundayPromptView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-                    Text("Which days are you in the office?")
+                    Text("Office days, week of \(monday.formatted(.dateTime.day().month(.abbreviated)))?")
                         .font(.title2.bold())
                         .accessibilityIdentifier("sunday.question")
                     HStack(spacing: 8) {
@@ -57,7 +57,7 @@ struct SundayPromptView: View {
                 .padding(.top, 8)
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("Week of \(monday.formatted(.dateTime.day().month(.abbreviated)))")
+            // UI-12: the date is in the question; no nav title.
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

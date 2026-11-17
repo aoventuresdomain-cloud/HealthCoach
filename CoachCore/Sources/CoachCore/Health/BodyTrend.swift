@@ -92,6 +92,34 @@ public struct WeightTrend: Sendable, Equatable {
         return "\(average), \(rounded < 0 ? "down" : "up") \(Self.oneDecimal(abs(rounded))) kg on last week"
     }
 
+    /// UI-12 hero: change of the 7-day average since the programme started,
+    /// against the first average on or after the start day (the 7 days up to
+    /// it count). Nil without a start or without two averages to compare.
+    public static func changeSinceStart(samples: [WeightSample], start: Date?, now: Date,
+                                        calendar: Calendar) -> Double? {
+        guard let start else { return nil }
+        let first = calendar.startOfDay(for: start), last = calendar.startOfDay(for: now)
+        guard first <= last, let current = make(samples: samples, endingOn: last, calendar: calendar) else { return nil }
+        var day = first
+        while day <= last {
+            if let baseline = make(samples: samples, endingOn: day, calendar: calendar) {
+                return current.averageKg - baseline.averageKg
+            }
+            guard let next = calendar.date(byAdding: .day, value: 1, to: day) else { break }
+            day = next
+        }
+        return nil
+    }
+
+    /// "7-day average · −1.1 kg since start", "· level since start", or just
+    /// "7-day average" when there is nothing to compare yet. Unicode minus.
+    public static func heroSubline(changeSinceStart change: Double?) -> String {
+        guard let change else { return "7-day average" }
+        let rounded = (change * 10).rounded() / 10
+        if rounded == 0 { return "7-day average · level since start" }
+        return "7-day average · \(rounded < 0 ? "\u{2212}" : "+")\(oneDecimal(abs(rounded))) kg since start"
+    }
+
     /// One decimal place without `String(format:)`, which differs on Linux.
     public static func oneDecimal(_ value: Double) -> String {
         let tenths = Int((value * 10).rounded())

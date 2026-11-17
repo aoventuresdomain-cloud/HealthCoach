@@ -85,12 +85,16 @@ final class WakeAlarms {
 
     @ObservationIgnored private let registrar: any AlarmRegistering
     @ObservationIgnored private let isAuthorized: () -> Bool
+    /// QA-31: under -uitest the fake store is filled with the first plan, so
+    /// review shots don't all say "N alarms were missing" (not with -missingAlarms).
+    @ObservationIgnored private var seedFakeOnce = false
 
     private init() {
         if LaunchOptions.current.isUITest && !LaunchOptions.current.realAlarms {
             registrar = FakeAlarmRegistrar()
             let denied = LaunchOptions.current.denyAlarms
             isAuthorized = { !denied }
+            seedFakeOnce = !LaunchOptions.current.missingAlarms
         } else {
             let alarmKit = AlarmKitRegistrar()
             registrar = alarmKit
@@ -131,6 +135,10 @@ final class WakeAlarms {
         let planned = AlarmSchedule.make(now: now, programme: programme, profile: profile,
                                          answers: { answers.answers(weekStarting: $0) }, dropping: dropping,
                                          completed: SessionLog.sessionIDs(in: history, weekOf: now))
+        if seedFakeOnce, let fake = registrar as? FakeAlarmRegistrar {
+            seedFakeOnce = false
+            await fake.seed(planned)
+        }
         do {
             let outcome = try await AlarmReconciler.reconcile(planned: planned, using: registrar, now: now)
             let result = AlarmCoverage(outcome)

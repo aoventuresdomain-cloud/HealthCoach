@@ -19,6 +19,7 @@ struct TodayView: View {
     @State private var promptWeek: PromptWeek?
     /// Tomorrow's date while the "Tomorrow changed" sheet is open (M2-06).
     @State private var changingTomorrow: PromptWeek?
+    @State private var showSpikeTests = false
     /// Bumped after the prompt saves, so the "Plan next week" card re-reads the store.
     @State private var answersVersion = 0
     @Environment(\.modelContext) private var context
@@ -52,21 +53,16 @@ struct TodayView: View {
                 if dayOffset == 0, let banner = alarmBanner {
                     banner
                 }
-                if dayOffset == 0, let swap = weatherSwap {
-                    weatherCard(swap)
-                }
-                if dayOffset == 0, let weight = BodyStats.shared.weight {
-                    // M2-04: the 7-day trend from the scale, read from Health.
-                    Label(weight.summary, systemImage: "scalemass")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .accessibilityIdentifier("today.weight")
-                }
+                // UI-12: the weight line moved to Progress (progress.weight); the
+                // weather swap is the card's meta line plus "I'll run anyway" below.
                 if dayOffset == 0, let monday = promptDue(now: now) {
                     planWeekCard(monday)
                 }
                 if let plan {
-                    card(plan)
+                    // UI-12: no card on a no-session day; the title and timeline say it.
+                    if todaySlot(plan) != nil, plan.planned.week != nil {
+                        card(plan)
+                    }
                     // QA-20: the session row follows a weather swap, like the header.
                     let shown = plan.swapped(by: dayOffset == 0 ? weatherSwap : nil, programme: programme)
                     // QA-28: the current row is the first one not over yet (CoachCore).
@@ -80,23 +76,12 @@ struct TodayView: View {
         .background(Color(.systemGroupedBackground))
         .safeAreaInset(edge: .bottom) { actions(plan) }
         .toolbar {
-            if profile.programme.startDate != nil {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        promptWeek = PromptWeek(monday: SundayPrompt.monday(for: AppClock.now(), calendar: calendar))
-                    } label: { Image(systemName: "calendar") }
-                        .accessibilityLabel("Plan the week")
-                        .accessibilityIdentifier("today.planWeekToolbar")
-                }
-            }
-            if SpikeTests.showsLink {
-                ToolbarItem(placement: .topBarTrailing) {
-                    NavigationLink { SpikeTestsView() } label: { Image(systemName: "wrench.adjustable") }
-                        .accessibilityLabel("Spike tests")
-                        .accessibilityIdentifier("home.spikeTests")
-                }
+            // UI-12: one ⋯ menu instead of separate chrome icons.
+            if profile.programme.startDate != nil || SpikeTests.showsLink {
+                ToolbarItem(placement: .topBarTrailing) { moreMenu }
             }
         }
+        .navigationDestination(isPresented: $showSpikeTests) { SpikeTestsView() }
         .task { alarmStatus = await AlarmKitSpike.shared.reconcileStatus() }
         .sheet(item: $promptWeek) { week in
             SundayPromptView(monday: week.monday,
@@ -132,22 +117,34 @@ struct TodayView: View {
         return planned.swapped(by: swap, programme: programme) ?? planned
     }
 
-    private func weatherCard(_ swap: WeatherSwap) -> some View {
-        HStack(alignment: .top, spacing: 12) {
-            Image(systemName: "cloud.rain.fill")
-                .font(.title2)
-                .foregroundStyle(.secondary)
-            VStack(alignment: .leading, spacing: 8) {
-                Text(swap.note(programme: programme) + ".")
-                    .accessibilityIdentifier("today.weatherSwap")
-                Button("I'll run anyway") { MorningWeather.shared.runAnyway(calendar: calendar) }
-                    .font(.subheadline.weight(.semibold))
-                    .accessibilityIdentifier("today.runAnyway")
+    // MARK: ⋯ menu (UI-12)
+
+    /// Plan week, Tomorrow changed (M2-06) and, under -spikeAlarms only, Spike tests (M0-11b).
+    private var moreMenu: some View {
+        Menu {
+            if profile.programme.startDate != nil {
+                Button {
+                    promptWeek = PromptWeek(monday: SundayPrompt.monday(for: AppClock.now(), calendar: calendar))
+                } label: { Label("Plan the week", systemImage: "calendar") }
+                    .accessibilityIdentifier("today.planWeekToolbar")
             }
+            if let tomorrow = changeableTomorrow {
+                Button {
+                    changingTomorrow = PromptWeek(monday: tomorrow)
+                } label: { Label("Tomorrow changed", systemImage: "calendar.badge.clock") }
+                    .accessibilityIdentifier("today.tomorrowChanged")
+            }
+            if SpikeTests.showsLink {
+                Button {
+                    showSpikeTests = true
+                } label: { Label("Spike tests", systemImage: "wrench.adjustable") }
+                    .accessibilityIdentifier("home.spikeTests")
+            }
+        } label: {
+            Image(systemName: "ellipsis.circle")
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(16)
-        .background(Color.surface, in: .rect(cornerRadius: Radius.card))
+        .accessibilityLabel("More")
+        .accessibilityIdentifier("today.more")
     }
 
     // MARK: Sunday prompt
@@ -169,21 +166,16 @@ struct TodayView: View {
         Button {
             promptWeek = PromptWeek(monday: monday)
         } label: {
+            // UI-12: one line.
             HStack(spacing: 12) {
-                Image(systemName: "calendar.badge.clock")
-                    .font(.title2)
-                    .foregroundStyle(Color.accentColor)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Plan next week").font(.headline)
-                    Text("Which days are you in the office? 20 seconds.")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
+                Text("Plan next week").font(.headline)
+                Text("· 20 s").foregroundStyle(.secondary)
                 Spacer(minLength: 0)
                 Image(systemName: "chevron.right").foregroundStyle(.tertiary)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(16)
+            .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
             .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 20))
         }
         .buttonStyle(.plain)
@@ -211,9 +203,8 @@ struct TodayView: View {
     private func header(date: Date, plan: DayPlan?) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(TodayFormat.dateLine(date, week: plan?.planned.week, programme: programme, calendar: calendar))
-                .font(.footnote.weight(.semibold))
+                .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.secondary)
-                .textCase(.uppercase)
                 .accessibilityIdentifier("today.date")
             Text(title(plan, date: date))
                 .font(.largeTitle.bold())
@@ -241,37 +232,34 @@ struct TodayView: View {
 
     @ViewBuilder
     private func card(_ plan: DayPlan) -> some View {
+        // UI-12: the title already names the session, so the card is the meta
+        // line plus the Fine / Still sore picker (and the weather swap, if any).
         VStack(alignment: .leading, spacing: 12) {
             if let slot = todaySlot(plan), let week = plan.planned.week {
-                Text(slot.name).font(.title2.bold())
                 let summary = SessionSummary(slot: slot, week: week, content: content)
-                if let subtitle = summary.subtitle {
-                    Text(subtitle).foregroundStyle(.secondary)
-                }
-                // UI-4: one meta line instead of stacked chips.
-                if !summary.chips.isEmpty {
+                if let swap = weatherSwap {
+                    Text((summary.chips.prefix(1) + ["rain swapped your run"]).joined(separator: " · "))
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .accessibilityLabel(swap.note(programme: programme) + ". Rain swapped your run.")
+                        .accessibilityIdentifier("today.weatherSwap")
+                } else if !summary.chips.isEmpty {
                     Text(summary.chips.joined(separator: " · "))
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(.secondary)
                 }
                 if case .strength = slot.session, dayOffset == 0 {
-                    Divider()
-                    // UI-4: label on its own line, then a full-width, large picker. Fine stays pre-selected.
-                    VStack(alignment: .leading, spacing: Space.s) {
-                        Text("Still sore from last time?").foregroundStyle(.secondary)
-                        Picker("Still sore from last time?", selection: $recovery) {
-                            Text("Fine").tag(RecoveryCheck.fine)
-                            Text("Sore").tag(RecoveryCheck.sore)
-                        }
-                        .pickerStyle(.segmented)
-                        .controlSize(.large)
-                        .frame(maxWidth: .infinity)
-                        .accessibilityIdentifier("today.recovery")
+                    // Fine stays pre-selected; VoiceOver still reads the full question.
+                    Picker("Still sore from last time?", selection: $recovery) {
+                        Text("Fine").tag(RecoveryCheck.fine)
+                        Text("Still sore").tag(RecoveryCheck.sore)
                     }
+                    .pickerStyle(.segmented)
+                    .controlSize(.large)
+                    .frame(maxWidth: .infinity)
+                    .accessibilityLabel("Still sore from last time?")
+                    .accessibilityIdentifier("today.recovery")
                 }
-            } else {
-                Text(noSessionTitle(plan)).font(.title2.bold())
-                Text(noSessionDetail(plan)).foregroundStyle(.secondary)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -281,23 +269,6 @@ struct TodayView: View {
         .accessibilityIdentifier("today.card")
     }
 
-    private func noSessionTitle(_ plan: DayPlan) -> String {
-        switch plan.planned.entry {
-        case .beforeStart: "Week 1 hasn't started"
-        case .afterEnd: "Checkpoint time"
-        default: dayOffset == 0 ? "No session today" : "No session"
-        }
-    }
-
-    private func noSessionDetail(_ plan: DayPlan) -> String {
-        switch plan.planned.entry {
-        case let .fixed(event): event.note ?? event.name
-        case .beforeStart: "Keep going with the paper plan until then."
-        case .afterEnd: "Phase \(programme.phase) is done. Share the summary with Claude for the checkpoint review."
-        default: "Rest. A walk is always welcome."
-        }
-    }
-
     // MARK: Banner
 
     /// QA-1: once the planner owns the alarms, Today reads its coverage, and
@@ -305,10 +276,9 @@ struct TodayView: View {
     private var alarmBanner: AnyView? {
         let wake = WakeAlarms.shared
         if wake.isActive(profile: profile) {
+            // UI-12: "N alarms were missing, set again" is cut (it needs nothing);
+            // the re-set still shows in debug.launch (alarms=). Warnings stay (QA-1).
             switch wake.coverage {
-            case let .reSet(missing, _, _)?:
-                return AnyView(Banner(strong: "\(missing) \(missing == 1 ? "alarm was" : "alarms were") missing.",
-                                      rest: "They're set again, so nothing to do."))
             case let coverage? where coverage.needsWarning:
                 return AnyView(Banner(strong: "No alarms set.",
                                       rest: wake.lastError ?? "Allow alarms in Settings so the coach can wake you.",
@@ -319,12 +289,9 @@ struct TodayView: View {
             }
         }
         switch alarmStatus {
-        case let .reSet(missing, _):
-            return AnyView(Banner(strong: "\(missing) \(missing == 1 ? "alarm was" : "alarms were") missing.",
-                                  rest: "They're set again, so nothing to do."))
         case let .failed(reason):
             return AnyView(Banner(strong: "Alarm check failed.", rest: reason))
-        case .notYetRun, .allSet:
+        case .notYetRun, .allSet, .reSet:
             return nil
         }
     }
@@ -345,10 +312,11 @@ struct TodayView: View {
     @ViewBuilder
     private func actions(_ plan: DayPlan?) -> some View {
         ActionBar {
-            if let tomorrow = changeableTomorrow {
-                Button("Tomorrow changed") { changingTomorrow = PromptWeek(monday: tomorrow) }
+            // UI-12: the weather swap's "run anyway" is the one secondary.
+            if dayOffset == 0, weatherSwap != nil {
+                Button("I'll run anyway") { MorningWeather.shared.runAnyway(calendar: calendar) }
                     .buttonStyle(SecondaryActionStyle())
-                    .accessibilityIdentifier("today.tomorrowChanged")
+                    .accessibilityIdentifier("today.runAnyway")
             }
         } primary: {
             if dayOffset == 0, let plan, let slot = todaySlot(plan), let week = plan.planned.week {
@@ -434,7 +402,8 @@ struct TimelineCard: View {
                         .frame(width: 14)
                     VStack(alignment: .leading, spacing: 2) {
                         Text(item.title).font(.headline)
-                        if let detail = item.detail {
+                        // UI-12: "Alarm" under Wake and "Done by" under the session repeat what's visible.
+                        if let detail = item.detail, item.kind != .wake, item.kind != .session {
                             Text(detail).font(.subheadline).foregroundStyle(.secondary)
                         }
                     }
@@ -493,9 +462,10 @@ enum TodayFormat {
     }
 
     static func dateLine(_ date: Date, week: Int?, programme: Programme, calendar: Calendar) -> String {
-        let day = date.formatted(.dateTime.weekday(.wide).day().month(.abbreviated))
+        // UI-12: "Mon 23 Nov · Week 1"; the phase is on Progress.
+        let day = date.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated))
         guard let week else { return day }
-        return "\(day) · Week \(week) of Phase \(programme.phase)"
+        return "\(day) · Week \(week)"
     }
 
     static func timeOfDay(_ date: Date, _ calendar: Calendar) -> TimeOfDay {

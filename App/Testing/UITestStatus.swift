@@ -13,6 +13,9 @@ struct UITestStatus: View {
             .font(.caption2.monospaced())
             .foregroundStyle(.secondary)
             .accessibilityIdentifier("debug.launch")
+            // UI-12: tests read the label; review shots shouldn't show it.
+            .frame(maxWidth: .infinity, maxHeight: 1, alignment: .topLeading)
+            .clipped()
     }
 
     private var summary: String {
