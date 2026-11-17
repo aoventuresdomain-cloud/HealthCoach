@@ -73,11 +73,14 @@ public struct WeekPlan: Sendable, Equatable {
 /// placement rules allow. `dropping` leaves sessions out (the reduced week,
 /// `Programme.droppedSessions(history:)`).
 ///
-/// With `now` in this week, a session of today's whose slot has ended and
-/// isn't in `completed` moves (decision E13): to this evening if it ends at
-/// least 2 h before wind-down, else to the next session-free legal day this
-/// week, else it is dropped quietly (listed in `unplaced`, no copy for the
-/// owner). Never two sessions in a day, never into next week.
+/// With `now` in this week, every session on an earlier day since onboarding
+/// (`programme.confirmedOn`; earlier days were on paper), and today's once
+/// its slot has ended, that isn't in `completed` (this week's logged session
+/// ids, whatever day they were logged) moves (decision E13): to this evening's
+/// normal slot if it ends at least 2 h before wind-down, else to the next
+/// session-free legal day this week, else it is dropped quietly (listed in
+/// `unplaced`, no copy for the owner). Never two sessions in a day, never into
+/// next week.
 public enum WeekPlanner {
     /// Session start times are rounded down to this many minutes.
     public static let roundingMinutes = 5
@@ -224,42 +227,68 @@ public enum WeekPlanner {
 
         var days = buildDays()
 
-        // E13: today's session whose time has passed.
-        if let now, let index = dates.firstIndex(where: { calendar.isDate($0, inSameDayAs: now) }),
-           let passed = placements[planned[index].weekday], !completed.contains(passed.sessionID) {
-            let today = planned[index].weekday
+        // E13, replayed over the week (QA-15): stateless, so a move made yesterday
+        // is made again today. Every unlogged session on an earlier day has
+        // passed, and so has today's once its whole slot is over (opening the
+        // app just after the alarm, or mid-session, never moves it). In day
+        // order, each goes to this evening, else the next free legal day, else
+        // is dropped quietly. Never before today, never two in a day, never
+        // into next week.
+        if let now, let todayIndex = dates.firstIndex(where: { calendar.isDate($0, inSameDayAs: now) }) {
+            let today = planned[todayIndex].weekday
             let parts = calendar.dateComponents([.hour, .minute], from: now)
             let nowMinutes = (parts.hour ?? 0) * 60 + (parts.minute ?? 0)
-            // "Passed" means the whole slot is over, so opening the app just after
-            // the alarm (or mid-session) never moves the session under the owner.
-            if passed.end.minutesSinceMidnight <= nowMinutes {
-                placements[today] = nil
-                let week = planned[index].week
-                let length = minutes(passed.sessionID, week: week)
-                // Tonight's wind-down, from tomorrow's alarm (or the latest bedtime).
-                let lightsOut = (index + 1 < days.count ? days[index + 1].lightsOutBefore : nil) ?? s.latestBedtime
-                var windDown = lightsOut.minutesSinceMidnight - s.windDownMinutes
-                if windDown < 12 * 60 { windDown += 1440 }
+
+            /// Start of this evening's slot for `id`, if today is free and the slot
+            /// still works. The slot is the normal evening start (end of the work
+            /// day, or `workEnd` on a day off), never `now` (QA-16: no chasing the
+            /// clock). It holds until it is over; then the session has passed again.
+            func eveningToday(_ id: String, length: Int) -> Int? {
+                guard placements[today] == nil, allowed(id, on: today) else { return nil }
                 let k = kind(today)
-                let finish = k == .dayOff ? 0
+                let finish = k == .dayOff ? s.workEnd.minutesSinceMidnight
                     : (answers.lateFinishes[today] ?? s.workEnd).minutesSinceMidnight + (k == .office ? s.commuteMinutes : 0)
-                let begin = roundUp(max(finish, nowMinutes))
-                if begin + length <= windDown - Self.passedSessionMarginMinutes, begin + length < 1440 {
-                    placements[today] = .init(sessionID: passed.sessionID, slot: .evening, start: time(begin),
-                                              end: time(begin + length), movedFrom: nil)
-                } else if let target = planned[(index + 1)...].first(where: { day in
-                    placements[day.weekday] == nil && !sessionDays.contains(day.weekday)
-                        && allowed(passed.sessionID, on: day.weekday)
-                        && fit(passed.sessionID, week: week, on: day.weekday) != nil
-                }), let slot = fit(passed.sessionID, week: week, on: target.weekday) {
-                    placements[target.weekday] = .init(sessionID: passed.sessionID, slot: slot.0,
-                                                       start: time(slot.start), end: time(slot.end),
-                                                       movedFrom: passed.movedFrom ?? today)
-                } else {
-                    unplaced.append(.init(sessionID: passed.sessionID, scheduledOn: passed.movedFrom ?? today))
-                }
-                days = buildDays()
+                let begin = roundUp(finish)
+                guard nowMinutes < begin + length else { return nil }
+                // Tonight's wind-down, from tomorrow's alarm (or the latest bedtime).
+                let tomorrow = todayIndex + 1 < days.count ? days[todayIndex + 1].lightsOutBefore : nil
+                var windDown = (tomorrow ?? s.latestBedtime).minutesSinceMidnight - s.windDownMinutes
+                if windDown < 12 * 60 { windDown += 1440 }
+                guard begin + length <= windDown - Self.passedSessionMarginMinutes, begin + length < 1440 else { return nil }
+                return begin
             }
+
+            var passed: [(sessionID: String, from: Weekday, week: Int?)] = []
+            for index in 0...todayIndex {
+                let weekday = planned[index].weekday
+                guard let placement = placements[weekday], !completed.contains(placement.sessionID) else { continue }
+                // Days before onboarding were trained on paper: they count as done.
+                let replayed = profile.programme.confirmedOn.map { dates[index] >= calendar.startOfDay(for: $0) } ?? false
+                if (index < todayIndex && replayed) || (index == todayIndex && placement.end.minutesSinceMidnight <= nowMinutes) {
+                    passed.append((placement.sessionID, placement.movedFrom ?? weekday, planned[index].week))
+                    placements[weekday] = nil
+                }
+            }
+
+            for item in passed {
+                let length = minutes(item.sessionID, week: item.week)
+                if let evening = eveningToday(item.sessionID, length: length) {
+                    placements[today] = .init(sessionID: item.sessionID, slot: .evening, start: time(evening),
+                                              end: time(evening + length), movedFrom: nil)
+                } else if let target = planned[(todayIndex + 1)...].first(where: { day in
+                    placements[day.weekday] == nil && !sessionDays.contains(day.weekday)
+                        && allowed(item.sessionID, on: day.weekday)
+                        && fit(item.sessionID, week: item.week, on: day.weekday) != nil
+                }), let slot = fit(item.sessionID, week: item.week, on: target.weekday) {
+                    placements[target.weekday] = .init(sessionID: item.sessionID, slot: slot.0,
+                                                       start: time(slot.start), end: time(slot.end),
+                                                       movedFrom: item.from)
+                } else {
+                    unplaced.append(.init(sessionID: item.sessionID, scheduledOn: item.from))
+                }
+            }
+            if !passed.isEmpty { days = buildDays() }
+
         }
         return WeekPlan(days: days, unplaced: unplaced)
     }

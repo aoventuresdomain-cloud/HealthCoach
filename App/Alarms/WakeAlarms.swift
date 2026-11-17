@@ -105,10 +105,10 @@ final class WakeAlarms {
         // Two "Sore" answers in a row drop the reduced week's session (decision R2)
         // until a "Fine" answer lifts it; its day then gets no session alarm.
         let dropping = Set(programme.droppedSessions(history: history))
-        // E13: today's session whose time has passed moves unless it's logged.
+        // E13: an unlogged session whose time has passed moves (logged this week = done).
         let planned = AlarmSchedule.make(now: now, programme: programme, profile: profile,
                                          answers: { answers.answers(weekStarting: $0) }, dropping: dropping,
-                                         completed: SessionLog.sessionIDs(in: history, on: now))
+                                         completed: SessionLog.sessionIDs(in: history, weekOf: now))
         do {
             let outcome = try await AlarmReconciler.reconcile(planned: planned, using: registrar, now: now)
             let result = AlarmCoverage(outcome)

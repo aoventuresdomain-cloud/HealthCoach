@@ -46,8 +46,15 @@ struct UITestStatus: View {
         case let .keep(reason)?: weather = reason.rawValue
         case nil: weather = "pending"
         }
+        // QA-17: past the programme's last week the plan holds at it (E13).
+        var held = "0"
+        if let stored = try? ProfileStore(context: context).load(), let start = stored.programme.startDate,
+           let programme = (try? BundledContent.load())?.programmes[stored.programme.programmeID],
+           programme.plannedDay(on: AppClock.now(), start: start, calendar: .coach).heldAtLastWeek {
+            held = "1"
+        }
         let stats = BodyStats.shared
         let weight = !stats.hasRead ? "pending" : stats.weight.map { WeightTrend.oneDecimal($0.averageKg) } ?? "none"
-        return "now=\(now) profile=\(profile) content=\(content) alarms=\(alarms) weather=\(weather) weight=\(weight)"
+        return "now=\(now) profile=\(profile) content=\(content) alarms=\(alarms) weather=\(weather) weight=\(weight) held=\(held)"
     }
 }

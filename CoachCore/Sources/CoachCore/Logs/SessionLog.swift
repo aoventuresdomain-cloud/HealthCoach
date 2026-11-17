@@ -64,9 +64,13 @@ public struct SetLog: Codable, Sendable, Equatable {
 }
 
 extension SessionLog {
-    /// Session ids logged on `date`'s calendar day: done today, so a passed
-    /// slot doesn't move (decision E13).
-    public static func sessionIDs(in history: [SessionLog], on date: Date, calendar: Calendar = .current) -> Set<String> {
-        Set(history.filter { calendar.isDate($0.startedAt, inSameDayAs: date) }.map(\.sessionID))
+    /// Session ids logged in the Monday-to-Sunday week holding `date`, on
+    /// whatever day: done this week, so the planner never moves them (decision
+    /// E13, QA-15). Weekly ids are unique, so a session logged on a different
+    /// day than planned still counts.
+    public static func sessionIDs(in history: [SessionLog], weekOf date: Date, calendar: Calendar = .current) -> Set<String> {
+        let monday = AlarmSchedule.mondayOf(date, calendar: calendar)
+        guard let next = calendar.date(byAdding: .day, value: 7, to: monday) else { return [] }
+        return Set(history.filter { $0.startedAt >= monday && $0.startedAt < next }.map(\.sessionID))
     }
 }

@@ -32,6 +32,7 @@ struct OnboardingFlow: View {
             PermissionsView(skipSystemPrompts: skipSystemPrompts) {
                 var confirmed = profile
                 confirmed.confirmed = true
+                confirmed.programme.confirmedOn = AppClock.now()
                 confirmed.programme.programmeID = programme.id
                 if confirmed.programme.startDate == nil {
                     confirmed.programme.startDate = Programme.startDate(confirmedOn: AppClock.now(), calendar: .coach)
