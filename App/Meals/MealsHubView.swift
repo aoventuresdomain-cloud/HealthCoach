@@ -205,6 +205,9 @@ struct MealsHubView: View {
                 .accessibilityIdentifier("shopping.search.\(item.id)")
             }
         }
+        // .contain keeps the tick and search link as their own elements; an
+        // identifier on a bare stack is copied onto every child and hid them.
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("shopping.row.\(item.id)")
     }
 

@@ -40,7 +40,9 @@ final class MealsUITests: XCTestCase {
         let app = openMeals()
         app.segmentedControls["meals.tabs"].buttons["Shopping"].tap()
         let tick = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'shopping.tick.'")).firstMatch
-        XCTAssertTrue(tick.waitForExistence(timeout: 5))
+        let found = tick.waitForExistence(timeout: 5)
+        if !found { attach(app, "shopping-no-tick") }
+        XCTAssertTrue(found)
         XCTAssertEqual(tick.label, "To buy")
         // Plan §4.4: every bought item links to the shop's search (not tapped: it leaves the app).
         let search = app.descendants(matching: .any)
