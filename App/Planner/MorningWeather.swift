@@ -90,7 +90,7 @@ final class MorningWeather {
     /// Checks today's session against the forecast. Only fetches on a day with
     /// an outdoor session that hasn't finished yet.
     @discardableResult
-    func check(profile: Profile, now: Date = AppClock.now(), answers: WeekAnswersStore = WeekAnswersStore(),
+    func check(profile: Profile, now: Date = AppClock.now(), answers: WeekAnswersStore = .shared,
                calendar: Calendar = .current) async -> WeatherDecision {
         guard let content = try? BundledContent.load(),
               let programme = content.programmes[profile.programme.programmeID],

@@ -47,6 +47,16 @@ struct TodayView: View {
                 if dayOffset == 0, let banner = alarmBanner {
                     banner
                 }
+                if dayOffset == 0, let swap = weatherSwap {
+                    weatherCard(swap)
+                }
+                if dayOffset == 0, let weight = BodyStats.shared.weight {
+                    // M2-04: the 7-day trend from the scale, read from Health.
+                    Label(weight.summary, systemImage: "scalemass")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("today.weight")
+                }
                 if dayOffset == 0, let monday = promptDue(now: now) {
                     planWeekCard(monday)
                 }
@@ -86,6 +96,38 @@ struct TodayView: View {
                 save(answers, weekStarting: week.monday)
             }
         }
+    }
+
+    // MARK: Weather (M2-03)
+
+    /// Today's swap from the morning forecast; only ever for today.
+    private var weatherSwap: WeatherSwap? {
+        dayOffset == 0 ? MorningWeather.shared.decision?.swap : nil
+    }
+
+    /// The session to show and start: the indoor one when today's run is swapped.
+    private func todaySlot(_ plan: DayPlan) -> DayPlan.SessionSlot? {
+        guard let planned = plan.session else { return nil }
+        guard let swap = weatherSwap else { return planned }
+        return planned.swapped(by: swap, programme: programme) ?? planned
+    }
+
+    private func weatherCard(_ swap: WeatherSwap) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: "cloud.rain.fill")
+                .font(.title2)
+                .foregroundStyle(.blue)
+            VStack(alignment: .leading, spacing: 8) {
+                Text(swap.note(programme: programme) + ".")
+                    .accessibilityIdentifier("today.weatherSwap")
+                Button("I'll run anyway") { MorningWeather.shared.runAnyway(calendar: calendar) }
+                    .font(.subheadline.weight(.semibold))
+                    .accessibilityIdentifier("today.runAnyway")
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(Color.blue.opacity(0.12), in: .rect(cornerRadius: 20))
     }
 
     // MARK: Sunday prompt
@@ -140,6 +182,7 @@ struct TodayView: View {
                 await WakeAlarms.shared.reconcile(profile: profile, history: history)
             }
             await CoachNotifier.shared.reschedule(profile: profile, history: history)
+            await MorningWeather.shared.check(profile: profile)
         }
     }
 
@@ -163,7 +206,7 @@ struct TodayView: View {
 
     private func title(_ plan: DayPlan?, date: Date) -> String {
         guard let plan else { return "Today" }
-        if let slot = plan.session { return "\(slot.name) at \(slot.start)" }
+        if let slot = todaySlot(plan) { return "\(slot.name) at \(slot.start)" }
         switch plan.planned.entry {
         case let .fixed(event): return event.time == "evening" ? "\(event.name) tonight" : event.name
         case .beforeStart:
@@ -179,7 +222,7 @@ struct TodayView: View {
     @ViewBuilder
     private func card(_ plan: DayPlan) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            if let slot = plan.session, let week = plan.planned.week {
+            if let slot = todaySlot(plan), let week = plan.planned.week {
                 Text(slot.name).font(.title2.bold())
                 let summary = SessionSummary(slot: slot, week: week, content: content)
                 if let subtitle = summary.subtitle {
@@ -265,7 +308,7 @@ struct TodayView: View {
     @ViewBuilder
     private func actions(_ plan: DayPlan?) -> some View {
         ActionBar {
-            if dayOffset == 0, let slot = plan?.session, let week = plan?.planned.week {
+            if dayOffset == 0, let plan, let slot = todaySlot(plan), let week = plan.planned.week {
                 Button("Start \(slot.name)") { onStart(slot, week, recovery) }
                     .buttonStyle(PrimaryActionStyle())
                     .accessibilityIdentifier("today.start")
