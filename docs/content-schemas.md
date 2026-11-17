@@ -37,6 +37,28 @@ Strength items: `exercise`, `sets[]`, `repsInReserve[]`, exactly one of `reps` o
 
 Checked as well: schedule weeks 1…`weeks`; every scheduled id exists; nothing but fixed events on `neverOn` days; a scheduled run-walk has a plan for that week; indoor swaps point at a circuit; strength durations within `maxSessionMinutes`; every exercise named (warm-ups, items, graduate, autoSwap, circuit) exists in `exercises.json`.
 
+## `recipes/recipes.json` · `NutritionContent`
+
+Schema owner: Planner Engineer. Content owner: the Researcher (Advisor reviews). Notes for editors are in `docs/nutrition-content.md`.
+
+| Field | Meaning |
+|---|---|
+| `shop` | `default` shop and `searchUrl` with `{search}` (decision E5) |
+| `aisleOrder` | aisle ids in walking order; every ingredient's `aisle` must be one of them |
+| `dailyTargets.<programme>` | `kcal` (starting target), `kcalBandPlusMinus` (≤ 150), `kcalFloor` (≥ 1,700), `protein`, `proteinMin` (≥ 150) |
+| `snackRule` | `default` snack, `replaceWith` when the day is under `whenPlannedProteinBelow`, and the Wednesday `wednesdayTime` |
+| `supplements.items[]` | `ingredient`, `label`, `qty`, `unit`, optional `dose`, `months` (1–12) |
+| `boxNight` | the fixed entry: `perPortion`, `nightsPerWeek`, `defaultNights` (E15: Mon–Thu), `shopping: false` |
+| `extraRules` | `proteinFirst` (`extra`, `whenPlannedProteinBelow`), `order` ("a\|b" = one of), `maxPerDay` (2), `maxPerKind` (1), `sideTiming` |
+| `ingredients.<id>` | `name`, `aisle`, `staple`, `per100`, `unit` (`g`, `ml`, `each`), `gramsEach`, `search` |
+| `recipes[]` | `id`, `name`, `kind` (`breakfast`, `lunch`, `dinner`, `sunday-cook`, `snack`, `extra`), `portions` (2; the shake 1; an extra 1 or 2); extras also carry `extraKind`, `addsTo` and optional `replaces`, `minutes`, `perPortion`, `ingredients[]` (`qty` is the total for all portions), `method[]` |
+
+Validation (`problems()`): known ingredients and aisles, 2 portions, a method, no raw fish words, snack rule names snacks, supplement months 1–12, every meal kind present, box nights within `nightsPerWeek` and never Sunday, and the targets no looser than the Advisor's rule.
+
+## `lunch-orders.json` · `LunchOrders`
+
+`origin` (`maxWalkMinutes`) and `orders[]`: `id`, `place`, `address`, `walkMinutes`, `order`, `kcal`, `protein`, `priceGBP`, `nutritionSource` ("estimate" when none was published), `goodFor`, `note`. Validation: unique ids, within the walk, kcal and protein present, no raw fish.
+
 ## Profile record · `Profile`
 One record, stored by the app in SwiftData as this JSON (`ProfileRecord.payload`). Any field missing at any depth takes its default, so adding a field never needs a migration.
 
