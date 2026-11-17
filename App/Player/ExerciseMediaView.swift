@@ -9,6 +9,8 @@ import UIKit
 /// GIFs, so a local build still runs.
 struct ExerciseMediaView: View {
     let exercise: Exercise?
+    /// The rest card's small thumbnail: no angle badge, a smaller placeholder.
+    var compact = false
 
     var body: some View {
         ZStack(alignment: .topTrailing) {
@@ -17,12 +19,12 @@ struct ExerciseMediaView: View {
                     .accessibilityLabel("\(exercise?.name ?? "Exercise") demonstration")
             } else {
                 Image(systemName: "figure.strengthtraining.traditional")
-                    .font(.system(size: 72))
+                    .font(.system(size: compact ? 28 : 72))
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .accessibilityLabel("No demonstration in this build")
             }
-            if let angle = exercise?.media?.angle {
+            if !compact, let angle = exercise?.media?.angle {
                 Text("\(angle.rawValue.capitalized) · GIF")
                     .font(.caption.weight(.semibold))
                     .padding(.horizontal, 10)
@@ -33,8 +35,8 @@ struct ExerciseMediaView: View {
         }
         .frame(maxWidth: .infinity)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(.rect(cornerRadius: 20))
-        .accessibilityIdentifier("player.media")
+        .clipShape(.rect(cornerRadius: compact ? 12 : 20))
+        .accessibilityIdentifier(compact ? "player.restThumbnail" : "player.media")
     }
 
     static func url(for exercise: Exercise?) -> URL? {

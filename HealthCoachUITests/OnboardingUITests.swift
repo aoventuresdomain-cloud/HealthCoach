@@ -17,6 +17,8 @@ final class OnboardingUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["onboarding.title"].waitForExistence(timeout: 15))
         // Every row shows a value without any input (decision E6 defaults).
         let expected = [
+            "you": "178 cm · 82 kg",
+            "paperStart": "16 Nov",
             "hurts": "Nothing",
             "sleep": "7.5 h asleep",
             "work": "09:00–18:00",
@@ -26,12 +28,17 @@ final class OnboardingUITests: XCTestCase {
         ]
         for (row, text) in expected {
             let button = app.buttons["onboarding.row.\(row)"]
+            // Lower rows (kit) sit below the fold since the paper-start row was added;
+            // lists only build what's visible, so scroll until the row exists.
+            for _ in 0..<6 where !button.waitForExistence(timeout: 1) { app.swipeUp() }
             XCTAssertTrue(button.waitForExistence(timeout: 5), row)
             XCTAssertTrue(button.label.contains(text), "\(row): \(button.label)")
         }
         attach(app, "onboarding-confirm")
 
-        app.buttons["onboarding.confirm"].tap()
+        let confirm = app.buttons["onboarding.confirm"]
+        for _ in 0..<6 where !(confirm.exists && confirm.isHittable) { app.swipeUp() }
+        confirm.tap()
         XCTAssertTrue(app.staticTexts["permissions.title"].waitForExistence(timeout: 5))
         attach(app, "onboarding-permissions")
         app.buttons["permissions.continue"].tap()

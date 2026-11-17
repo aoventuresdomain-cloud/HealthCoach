@@ -14,6 +14,21 @@ final class WeekAnswersStore {
         self.defaults = defaults
     }
 
+    /// The app's store. UI tests (without -realAlarms) get a clean one every
+    /// launch, so a Sunday prompt test always starts unanswered.
+    static let shared: WeekAnswersStore = {
+        let options = LaunchOptions.current
+        guard options.isUITest && !options.realAlarms,
+              let suite = UserDefaults(suiteName: "uitest.weekAnswers") else { return WeekAnswersStore() }
+        suite.removePersistentDomain(forName: "uitest.weekAnswers")
+        return WeekAnswersStore(defaults: suite)
+    }()
+
+    /// True once the Sunday prompt has been answered for that exact week.
+    func hasAnswers(weekStarting monday: Date, calendar: Calendar = .current) -> Bool {
+        all[Self.key(monday, calendar: calendar)] != nil
+    }
+
     private var all: [String: WeekAnswers] {
         get {
             guard let data = defaults.data(forKey: key) else { return [:] }
@@ -93,7 +108,7 @@ final class WakeAlarms {
     /// onboarding asks. Without permission the coverage is `.noAlarms`.
     @discardableResult
     func reconcile(profile: Profile, history: [SessionLog] = [], now: Date = AppClock.now(),
-                   answers: WeekAnswersStore = WeekAnswersStore()) async -> AlarmCoverage {
+                   answers: WeekAnswersStore = .shared) async -> AlarmCoverage {
         lastError = nil
         ownsAlarms = true
         guard isAuthorized() else {
