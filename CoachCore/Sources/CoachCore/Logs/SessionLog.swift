@@ -62,3 +62,11 @@ public struct SetLog: Codable, Sendable, Equatable {
         self.slowTempo = slowTempo
     }
 }
+
+extension SessionLog {
+    /// Session ids logged on `date`'s calendar day: done today, so a passed
+    /// slot doesn't move (decision E13).
+    public static func sessionIDs(in history: [SessionLog], on date: Date, calendar: Calendar = .current) -> Set<String> {
+        Set(history.filter { calendar.isDate($0.startedAt, inSameDayAs: date) }.map(\.sessionID))
+    }
+}
