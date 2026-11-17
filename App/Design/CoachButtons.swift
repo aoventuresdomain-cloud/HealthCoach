@@ -42,6 +42,16 @@ struct ActionBar<Primary: View, Secondary: View>: View {
         .padding(.top, 8)
         .padding(.bottom, 8)
         // UI-5: no opaque fill, so the glass secondary sits on the canvas.
+        // QA-26: a short canvas-to-clear fade behind the bar so rows that
+        // scroll under it don't show through the glass at rest.
+        .background {
+            LinearGradient(stops: [.init(color: .canvas.opacity(0), location: 0),
+                                   .init(color: .canvas, location: 0.35),
+                                   .init(color: .canvas, location: 1)],
+                           startPoint: .top, endPoint: .bottom)
+                .ignoresSafeArea(edges: .bottom)
+                .allowsHitTesting(false)
+        }
     }
 }
 
