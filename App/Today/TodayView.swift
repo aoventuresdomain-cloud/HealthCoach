@@ -26,7 +26,7 @@ struct TodayView: View {
     var body: some View {
         let now = AppClock.now()
         let date = calendar.date(byAdding: .day, value: dayOffset, to: now) ?? now
-        _ = answersVersion
+        let _ = answersVersion
         // M2-05: the same plan as the alarms, with the Sunday prompt's answers
         // and the reduced week's dropped session.
         let history = (try? SessionLogStore(context: context).all()) ?? []
