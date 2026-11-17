@@ -29,3 +29,7 @@ Targets are in `dailyTargets` (2,000 kcal, 160 g protein, about 40 g at each of 
 ## Refresh
 
 The lunch list needs re-checking monthly (requirements §4.5): places close and menus change. Nothing in it needs a paid API.
+
+## Extras (`Content/recipes/extras.json`)
+
+The base recipes reach about 1,710–2,210 kcal a day. When the rules engine raises the target (up to 2,200 in the cut, about 2,450 at maintenance), the planner adds extras in this order until the day is inside the band: a richer breakfast (+~180 kcal over the base), one side with dinner or lunch (rice, potatoes or bread, 160–200 kcal), a second snack (320–390 kcal), and a chicken boost (150 kcal, 31 g) only when protein is short. Each is used at most once a day. With all of them, a day reaches about 2,600–2,900 kcal. Cooked extras make 2 portions; snacks for the owner alone make 1. No batch cooking, no raw fish.
