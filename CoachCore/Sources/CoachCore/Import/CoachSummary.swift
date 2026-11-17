@@ -60,7 +60,7 @@ public enum CoachSummary {
 
         lines.append("Food")
         lines.append("- Target: \(review.calories.summary) (\(reasonText(review.calories.reason)))")
-        lines.append("- Meals are planned and pre-ticked; one evening question covers changes. 2 social meals a week aren't tracked.")
+        lines.append("- Meals are planned and pre-ticked; unticked or swapped meals are adjusted in the app.")
         lines.append("")
 
         lines.append("Training (last 14 days)")
