@@ -104,9 +104,12 @@ public struct WorkoutScript: Equatable, Sendable {
     /// The script for `week`, with each item's targets and weight from
     /// `Programme.prescription` over `history` (board M1-08), so the player
     /// shows next session's numbers, not the programme's starting ones.
+    /// Accepted Claude `blocks` in force on `date` set a load until that
+    /// exercise is next logged (board M4-02).
     /// nil when `sessionID` isn't a strength session.
     public static func make(sessionID: String, programme: Programme, week: Int,
-                            history: [SessionLog] = []) -> WorkoutScript? {
+                            history: [SessionLog] = [], blocks: [CoachBlock] = [],
+                            on date: Date = .distantPast, calendar: Calendar = .current) -> WorkoutScript? {
         guard case let .strength(session) = programme.sessions[sessionID] else { return nil }
         let effort = programme.effort.first { $0.week == week }
 
@@ -114,7 +117,8 @@ public struct WorkoutScript: Equatable, Sendable {
         var exerciseNumber = 0
         for block in session.blocks {
             for item in block.items {
-                guard let prescription = programme.prescription(for: item, week: week, history: history) else { continue }
+                guard let prescription = programme.prescription(for: item, week: week, history: history,
+                                                                blocks: blocks, on: date, calendar: calendar) else { continue }
                 exerciseNumber += 1
                 let swap = programme.swapPrescription(for: item, week: week, history: history).flatMap { swapped in
                     item.autoSwap.map { rule in

@@ -129,6 +129,14 @@ import Testing
         let bench = try #require(upperA.blocks.flatMap(\.items).first { $0.exercise == "dumbbell-bench-press" })
         #expect(p.prescription(for: bench, week: 3, history: history, blocks: good.blocks, on: nextMonday,
                                calendar: f.calendar)?.kg == 12)
+        // The player shows it too, and without blocks it's the logged progression.
+        func benchKg(_ blocks: [CoachBlock]) -> Double? {
+            WorkoutScript.make(sessionID: "upper-a", programme: p, week: 3, history: history, blocks: blocks,
+                               on: nextMonday, calendar: f.calendar)?
+                .sets.first { $0.exercise == "dumbbell-bench-press" }?.kg
+        }
+        #expect(benchKg(good.blocks) == 12)
+        #expect(benchKg([]) != 12)
 
         // Bad: rejected plainly, and next week is exactly the baseline.
         let bad = CoachImport.importing(reply.replacingOccurrences(of: "\"schemaVersion\": 1", with: "\"schemaVersion\": 2"),

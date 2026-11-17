@@ -16,11 +16,22 @@ final class AlarmWarningUITests: XCTestCase {
         return app
     }
 
+    /// What was going on when an alarm check failed: app state (a crash shows
+    /// as notRunning), alerts over the app, and the debug line.
+    @MainActor
+    private func diagnosis(_ app: XCUIApplication) -> String {
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        let status = app.staticTexts["debug.launch"]
+        return "state=\(app.state.rawValue) appAlerts=\(app.alerts.count) "
+            + "springboardAlerts=\(springboard.alerts.allElementsBoundByIndex.map(\.label)) "
+            + "debug=\(status.exists ? status.label : "none")"
+    }
+
     @MainActor
     func testDeniedAlarmsShowAWarningNeverAllSet() throws {
         let app = launch(["-denyAlarms"])
         let warning = app.staticTexts["today.alarmWarning"]
-        XCTAssertTrue(warning.waitForExistence(timeout: 10))
+        XCTAssertTrue(warning.waitForExistence(timeout: 10), diagnosis(app))
         XCTAssertTrue(warning.label.contains("No alarms set."), warning.label)
         XCTAssertTrue(app.links["today.openSettings"].exists || app.buttons["today.openSettings"].exists)
         let allSet = app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] 'all set'"))
@@ -40,8 +51,8 @@ final class AlarmWarningUITests: XCTestCase {
         let status = app.staticTexts["debug.launch"]
         if status.waitForExistence(timeout: 5) {
             let reconciled = NSPredicate(format: "NOT (label CONTAINS 'alarms=pending')")
-            expectation(for: reconciled, evaluatedWith: status)
-            waitForExpectations(timeout: 10)
+            let outcome = XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: reconciled, object: status)], timeout: 10)
+            XCTAssertEqual(outcome, .completed, diagnosis(app))
         }
         XCTAssertFalse(app.staticTexts["today.alarmWarning"].exists)
     }
