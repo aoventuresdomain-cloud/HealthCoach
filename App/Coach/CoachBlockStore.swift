@@ -27,11 +27,13 @@ final class CoachBlockStore {
     /// all use this, so an import changes the same plan everywhere.
     func droppedSessions(programme: Programme, history: [SessionLog], profile: Profile,
                          on date: Date, calendar: Calendar = .coach) -> Set<String> {
-        var dropped = Set(programme.droppedSessions(history: history))
-        if let start = profile.programme.startDate {
-            dropped.formUnion(CoachBlock.droppedSessions(all, on: date, start: start, calendar: calendar))
-        }
-        return dropped
+        // Synchronous, no awaits. With no accepted block this is exactly the
+        // R2 set the app used before imports (the usual case, and every UI test
+        // that doesn't import).
+        let dropped = Set(programme.droppedSessions(history: history))
+        let blocks = all
+        guard !blocks.isEmpty, let start = profile.programme.startDate else { return dropped }
+        return dropped.union(CoachBlock.droppedSessions(blocks, on: date, start: start, calendar: calendar))
     }
 
     /// Empties the UI-test suite. Called once at launch in `-uitest` mode.

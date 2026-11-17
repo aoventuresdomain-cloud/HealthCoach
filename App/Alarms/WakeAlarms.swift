@@ -124,9 +124,9 @@ final class WakeAlarms {
         }
         // Two "Sore" answers in a row drop the reduced week's session (decision R2)
         // until a "Fine" answer lifts it; its day then gets no session alarm.
-        // BISECT (#60): main's line, to test whether the block-aware drop set
-        // is what stops launch-time reconcile in UI tests. Restored after.
-        let dropping = Set(programme.droppedSessions(history: history))
+        // An accepted Claude block's dropped sessions too (M4-02).
+        let dropping = CoachBlockStore().droppedSessions(programme: programme, history: history,
+                                                         profile: profile, on: now)
         // E13: an unlogged session whose time has passed moves (logged this week = done).
         let planned = AlarmSchedule.make(now: now, programme: programme, profile: profile,
                                          answers: { answers.answers(weekStarting: $0) }, dropping: dropping,
