@@ -55,9 +55,7 @@ private struct RootView: View {
                         }
                         Tab("Meals", systemImage: "fork.knife") {
                             NavigationStack {
-                                ContentUnavailableView("Meals", systemImage: "fork.knife",
-                                                       description: Text("Meals arrive with this week's recipes."))
-                                    .accessibilityIdentifier("meals.unavailable")
+                                MealsHubView(content: content, profile: profile)
                             }
                         }
                         Tab("Progress", systemImage: "chart.line.uptrend.xyaxis") {
