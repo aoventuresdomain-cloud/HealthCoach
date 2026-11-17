@@ -1,6 +1,6 @@
 {
   "schemaVersion": 0,
-  "note": "Provisional shape (M3-01); the Planner Engineer owns the schema and may rename fields. Every recipe makes exactly 2 portions; ingredient qty is the total for both. perPortion is one person's share. Values are estimates from typical UK label figures; tracking is loose by design. No raw fish anywhere.",
+  "note": "Provisional shape (M3-01); the Planner Engineer owns the schema and may rename fields. Every recipe makes exactly 2 portions (the protein shake is 1: it is the owner's only); ingredient qty is the total for all portions. perPortion is one person's share. Values are estimates from typical UK label figures; tracking is loose by design. No raw fish anywhere.",
   "shop": {
     "default": "waitrose",
     "searchUrl": "https://www.waitrose.com/ecom/shop/search?searchTerm={search}",
@@ -23,12 +23,51 @@
   "dailyTargets": {
     "phase-1": {
       "kcal": 2000,
+      "kcalMin": 1850,
+      "kcalMax": 2150,
       "protein": 160,
+      "proteinMin": 150,
       "eatingMoments": 4,
       "proteinPerMoment": 40,
       "socialMealsPerWeek": 2,
-      "socialMealsTracked": false
+      "socialMealsTracked": false,
+      "note": "Plan only days whose planned total sits inside kcalMin–kcalMax with at least proteinMin."
     }
+  },
+  "snackRule": {
+    "default": "yogurt-pot",
+    "replaceWith": "protein-shake",
+    "whenPlannedProteinBelow": 150,
+    "wednesdayTime": "17:30",
+    "note": "On Wednesdays the snack is eaten at 17:30, before basketball."
+  },
+  "supplements": {
+    "preTicked": true,
+    "with": "breakfast",
+    "items": [
+      {
+        "ingredient": "creatine",
+        "qty": 5,
+        "unit": "g",
+        "months": "all"
+      },
+      {
+        "ingredient": "vitamin-d",
+        "qty": 1,
+        "unit": "each",
+        "dose": "10 µg",
+        "months": [
+          10,
+          11,
+          12,
+          1,
+          2,
+          3
+        ],
+        "note": "NHS advice for the UK autumn and winter."
+      }
+    ],
+    "note": "Plan §4.3. One pre-ticked line with breakfast; never a question."
   },
   "boxNight": {
     "id": "box-night",
@@ -609,6 +648,28 @@
       "unit": "each",
       "gramsEach": 150,
       "search": "apples"
+    },
+    "creatine": {
+      "name": "Creatine monohydrate powder",
+      "aisle": "sports-nutrition",
+      "staple": true,
+      "per100": {
+        "kcal": 0,
+        "protein": 0
+      },
+      "unit": "g",
+      "search": "creatine monohydrate"
+    },
+    "vitamin-d": {
+      "name": "Vitamin D 10 µg tablets",
+      "aisle": "sports-nutrition",
+      "staple": true,
+      "per100": {
+        "kcal": 0,
+        "protein": 0
+      },
+      "unit": "each",
+      "search": "vitamin d 10ug"
     }
   },
   "recipes": [
@@ -1094,7 +1155,7 @@
       "id": "protein-shake",
       "name": "Protein shake",
       "kind": "snack",
-      "portions": 2,
+      "portions": 1,
       "minutes": 2,
       "perPortion": {
         "kcal": 260,
@@ -1103,17 +1164,17 @@
       "ingredients": [
         {
           "ingredient": "whey",
-          "qty": 60
+          "qty": 30
         },
         {
           "ingredient": "milk",
-          "qty": 600
+          "qty": 300
         }
       ],
       "method": [
         "Shake whey and cold milk together."
       ],
-      "note": "Only on days when protein would otherwise fall short (plan §4.3)."
+      "note": "One portion: for the owner only. Planned only when the day would otherwise fall short of protein (see snackRule)."
     }
   ]
 }
