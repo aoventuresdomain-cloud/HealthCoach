@@ -40,9 +40,14 @@ final class WorkoutPlayerModel {
     /// Lead-in before a hold starts counting.
     static let holdLeadInSeconds = 5
 
+    /// The done screen's "Next time" lines for a finished log (QA-13).
+    @ObservationIgnored let nextTime: (SessionLog) -> [NextTime.Line]
+
     init(script: WorkoutScript, catalogue: ExerciseCatalogue, programmeID: String,
-         recovery: RecoveryCheck, voiceCues: Bool, now: Date) {
+         recovery: RecoveryCheck, voiceCues: Bool, now: Date,
+         nextTime: @escaping (SessionLog) -> [NextTime.Line] = { _ in [] }) {
         self.script = script
+        self.nextTime = nextTime
         self.catalogue = catalogue
         var voice: VoiceCuePlayer? = voiceCues ? VoiceCuePlayer() : nil
         do { try voice?.beginHolding() } catch {

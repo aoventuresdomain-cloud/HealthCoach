@@ -15,16 +15,26 @@ struct TodayView: View {
     @State private var dayOffset = 0
     @State private var recovery = RecoveryCheck.fine
     @State private var alarmStatus = AlarmReconcileStatus.notYetRun
+    /// The Monday the Sunday prompt sheet is open for; nil when closed.
+    @State private var promptWeek: PromptWeek?
+    /// Bumped after the prompt saves, so the "Plan next week" card re-reads the store.
+    @State private var answersVersion = 0
+    @Environment(\.modelContext) private var context
 
     private let calendar = Calendar.coach
-    @Environment(\.modelContext) private var context
 
     var body: some View {
         let now = AppClock.now()
         let date = calendar.date(byAdding: .day, value: dayOffset, to: now) ?? now
-        // E13: an unlogged session whose slot has passed moves (logged this week = done).
-        let done = SessionLog.sessionIDs(in: (try? SessionLogStore(context: context).all()) ?? [], weekOf: now, calendar: calendar)
+        let _ = answersVersion
+        // M2-05: the same plan as the alarms, with the Sunday prompt's answers
+        // and the reduced week's dropped session. E13: an unlogged session whose
+        // slot has passed moves (logged this week = done).
+        let history = (try? SessionLogStore(context: context).all()) ?? []
+        let done = SessionLog.sessionIDs(in: history, weekOf: now, calendar: calendar)
         let plan = DayPlan.make(for: date, programme: programme, profile: profile,
+                                answers: { WeekAnswersStore.shared.answers(weekStarting: $0, calendar: calendar) },
+                                dropping: Set(programme.droppedSessions(history: history)),
                                 now: now, completed: done, calendar: calendar)
 
         ScrollView {
@@ -39,6 +49,19 @@ struct TodayView: View {
                 if dayOffset == 0, let banner = alarmBanner {
                     banner
                 }
+                if dayOffset == 0, let swap = weatherSwap {
+                    weatherCard(swap)
+                }
+                if dayOffset == 0, let weight = BodyStats.shared.weight {
+                    // M2-04: the 7-day trend from the scale, read from Health.
+                    Label(weight.summary, systemImage: "scalemass")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("today.weight")
+                }
+                if dayOffset == 0, let monday = promptDue(now: now) {
+                    planWeekCard(monday)
+                }
                 if let plan {
                     card(plan)
                     TimelineCard(items: plan.timeline, now: dayOffset == 0 ? TodayFormat.timeOfDay(now, calendar) : nil)
@@ -50,6 +73,15 @@ struct TodayView: View {
         .background(Color(.systemGroupedBackground))
         .safeAreaInset(edge: .bottom) { actions(plan) }
         .toolbar {
+            if profile.programme.startDate != nil {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        promptWeek = PromptWeek(monday: SundayPrompt.monday(for: AppClock.now(), calendar: calendar))
+                    } label: { Image(systemName: "calendar") }
+                        .accessibilityLabel("Plan the week")
+                        .accessibilityIdentifier("today.planWeekToolbar")
+                }
+            }
             if SpikeTests.isEnabled {
                 ToolbarItem(placement: .topBarTrailing) {
                     NavigationLink { SpikeTestsView() } label: { Image(systemName: "wrench.adjustable") }
@@ -59,6 +91,101 @@ struct TodayView: View {
             }
         }
         .task { alarmStatus = await AlarmKitSpike.shared.reconcileStatus() }
+        .sheet(item: $promptWeek) { week in
+            SundayPromptView(monday: week.monday,
+                             initial: WeekAnswersStore.shared.answers(weekStarting: week.monday, calendar: calendar),
+                             workStart: profile.schedule.workStart, workEnd: profile.schedule.workEnd) { answers in
+                save(answers, weekStarting: week.monday)
+            }
+        }
+    }
+
+    // MARK: Weather (M2-03)
+
+    /// Today's swap from the morning forecast; only ever for today.
+    private var weatherSwap: WeatherSwap? {
+        dayOffset == 0 ? MorningWeather.shared.decision?.swap : nil
+    }
+
+    /// The session to show and start: the indoor one when today's run is swapped.
+    private func todaySlot(_ plan: DayPlan) -> DayPlan.SessionSlot? {
+        guard let planned = plan.session else { return nil }
+        guard let swap = weatherSwap else { return planned }
+        return planned.swapped(by: swap, programme: programme) ?? planned
+    }
+
+    private func weatherCard(_ swap: WeatherSwap) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: "cloud.rain.fill")
+                .font(.title2)
+                .foregroundStyle(.blue)
+            VStack(alignment: .leading, spacing: 8) {
+                Text(swap.note(programme: programme) + ".")
+                    .accessibilityIdentifier("today.weatherSwap")
+                Button("I'll run anyway") { MorningWeather.shared.runAnyway(calendar: calendar) }
+                    .font(.subheadline.weight(.semibold))
+                    .accessibilityIdentifier("today.runAnyway")
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(Color.blue.opacity(0.12), in: .rect(cornerRadius: 20))
+    }
+
+    // MARK: Sunday prompt
+
+    private struct PromptWeek: Identifiable {
+        let monday: Date
+        var id: Date { monday }
+    }
+
+    /// Next week's Monday from Saturday until it is answered; nil otherwise.
+    private func promptDue(now: Date) -> Date? {
+        _ = answersVersion
+        guard profile.programme.startDate != nil, SundayPrompt.isDue(on: now, calendar: calendar) else { return nil }
+        let monday = SundayPrompt.monday(for: now, calendar: calendar)
+        return WeekAnswersStore.shared.hasAnswers(weekStarting: monday, calendar: calendar) ? nil : monday
+    }
+
+    private func planWeekCard(_ monday: Date) -> some View {
+        Button {
+            promptWeek = PromptWeek(monday: monday)
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "calendar.badge.clock")
+                    .font(.title2)
+                    .foregroundStyle(Color.accentColor)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Plan next week").font(.headline)
+                    Text("Which days are you in the office? 20 seconds.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right").foregroundStyle(.tertiary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(16)
+            .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 20))
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("today.planWeek")
+    }
+
+    /// Saves the answers, then re-plans alarms and notifications at once
+    /// (plan §4.1: alarms are reconciled after the Sunday prompt).
+    private func save(_ answers: WeekAnswers, weekStarting monday: Date) {
+        WeekAnswersStore.shared.save(answers, weekStarting: monday, calendar: calendar)
+        answersVersion += 1
+        let history = (try? SessionLogStore(context: context).all()) ?? []
+        let profile = profile
+        Task {
+            if WakeAlarms.shared.isActive(profile: profile) {
+                await WakeAlarms.shared.reconcile(profile: profile, history: history)
+            }
+            await CoachNotifier.shared.reschedule(profile: profile, history: history)
+            await MorningWeather.shared.check(profile: profile)
+        }
     }
 
     // MARK: Header
@@ -81,7 +208,7 @@ struct TodayView: View {
 
     private func title(_ plan: DayPlan?, date: Date) -> String {
         guard let plan else { return "Today" }
-        if let slot = plan.session { return "\(slot.name) at \(slot.start)" }
+        if let slot = todaySlot(plan) { return "\(slot.name) at \(slot.start)" }
         switch plan.planned.entry {
         case let .fixed(event): return event.time == "evening" ? "\(event.name) tonight" : event.name
         case .beforeStart:
@@ -97,7 +224,7 @@ struct TodayView: View {
     @ViewBuilder
     private func card(_ plan: DayPlan) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            if let slot = plan.session, let week = plan.planned.week {
+            if let slot = todaySlot(plan), let week = plan.planned.week {
                 Text(slot.name).font(.title2.bold())
                 let summary = SessionSummary(slot: slot, week: week, content: content)
                 if let subtitle = summary.subtitle {
@@ -183,7 +310,7 @@ struct TodayView: View {
     @ViewBuilder
     private func actions(_ plan: DayPlan?) -> some View {
         ActionBar {
-            if dayOffset == 0, let slot = plan?.session, let week = plan?.planned.week {
+            if dayOffset == 0, let plan, let slot = todaySlot(plan), let week = plan.planned.week {
                 Button("Start \(slot.name)") { onStart(slot, week, recovery) }
                     .buttonStyle(PrimaryActionStyle())
                     .accessibilityIdentifier("today.start")

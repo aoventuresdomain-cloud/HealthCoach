@@ -16,10 +16,30 @@ struct OnboardingFlow: View {
     private enum Step { case confirm, permissions }
 
     init(profile: Profile, programme: Programme, skipSystemPrompts: Bool, onFinish: @escaping (Profile) -> Void) {
-        _profile = State(initialValue: profile)
+        _profile = State(initialValue: OnboardingFlow.preFilled(profile))
         self.programme = programme
         self.skipSystemPrompts = skipSystemPrompts
         self.onFinish = onFinish
+    }
+
+    /// QA-10: requirements §12 gives the owner's own height and weight, so
+    /// the "You" row starts with them. Stored only on the phone.
+    static let startHeightCm = 178.0
+    static let startWeightKg = 82.0
+
+    /// Decision E13: the owner began week 1 on paper on Monday 16 November
+    /// 2026; the app's week number counts from there. A guess, editable.
+    static var paperStart: Date {
+        Calendar.coach.date(from: DateComponents(year: 2026, month: 11, day: 16)) ?? AppClock.now()
+    }
+
+    static func preFilled(_ profile: Profile) -> Profile {
+        guard !profile.confirmed else { return profile }
+        var p = profile
+        if p.programme.startDate == nil { p.programme.startDate = paperStart }
+        if p.about.heightCm == nil { p.about.heightCm = startHeightCm }
+        if p.about.weightKg == nil { p.about.weightKg = startWeightKg }
+        return p
     }
 
     var body: some View {

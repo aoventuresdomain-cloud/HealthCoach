@@ -52,6 +52,10 @@ struct HealthCoachApp: App {
                 } else {
                     _ = await AlarmKitSpike.shared.reconcileStatus()
                 }
+                // Board M2-05: the next 14 days of notifications, never in quiet hours.
+                if let profile, profile.programme.startDate != nil {
+                    await CoachNotifier.shared.reschedule(profile: profile, history: history)
+                }
                 // Board M2-04: weight trend and steps, read-only, after onboarding.
                 if profile?.confirmed == true {
                     await BodyStats.shared.refresh()

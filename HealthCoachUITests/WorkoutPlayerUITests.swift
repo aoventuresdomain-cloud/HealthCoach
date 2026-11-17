@@ -41,6 +41,19 @@ final class WorkoutPlayerUITests: XCTestCase {
                     backgrounded.name = "player-rest-backgrounded"
                     backgrounded.lifetime = .keepAlways
                     add(backgrounded)
+                    // QA-5b: pull down the Notification Centre, which shows the
+                    // Live Activity as the lock screen does.
+                    let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+                    let top = springboard.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.005))
+                    top.press(forDuration: 0.1, thenDragTo: springboard.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.7)))
+                    sleep(2)
+                    let lockScreen = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+                    lockScreen.name = "player-rest-live-activity"
+                    lockScreen.lifetime = .keepAlways
+                    add(lockScreen)
+                    // Back to the home screen, then the app.
+                    XCUIDevice.shared.press(.home)
+                    sleep(1)
                     app.activate()
                     XCTAssertTrue(next.waitForExistence(timeout: 10))
                     restShot = true
