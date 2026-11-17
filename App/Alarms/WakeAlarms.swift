@@ -30,6 +30,11 @@ final class WeekAnswersStore {
         all = stored
     }
 
+    /// Forgets every week's answers (UI test fixtures start clean).
+    func removeAll() {
+        defaults.removeObject(forKey: key)
+    }
+
     /// The answers for the week starting `monday`, else the latest earlier week's, else none.
     func answers(weekStarting monday: Date, calendar: Calendar = .current) -> WeekAnswers {
         let wanted = Self.key(monday, calendar: calendar)

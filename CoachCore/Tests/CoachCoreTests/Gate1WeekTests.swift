@@ -1,0 +1,127 @@
+import Foundation
+import Testing
+@testable import CoachCore
+
+/// Gate 1 §A (docs/qa/gate-1-checklist.md): the CoachCore twin of the
+/// simulated week. Same as the `week2-hybrid` UI fixture: paper start Mon 16 Nov
+/// 2026, so 23–29 Nov is week 2; office Mon, Tue and Thu; early Tue 08:00;
+/// late Thu 19:00; onboarded Sun 22 Nov 18:00. Weeks after it reuse its
+/// answers, as the app does.
+@Suite struct Gate1WeekTests {
+    private var calendar: Calendar {
+        var c = Calendar(identifier: .gregorian)
+        c.timeZone = TimeZone(identifier: "Europe/London")!
+        return c
+    }
+
+    private func at(_ m: Int, _ d: Int, _ h: Int = 0, _ min: Int = 0) -> Date {
+        calendar.date(from: DateComponents(year: 2026, month: m, day: d, hour: h, minute: min))!
+    }
+
+    private static func t(_ h: Int, _ m: Int) -> TimeOfDay { TimeOfDay(hour: h, minute: m) }
+
+    static let hybrid = WeekAnswers(officeDays: [.monday, .tuesday, .thursday],
+                                    earlyStarts: [.tuesday: t(8, 0)],
+                                    lateFinishes: [.thursday: t(19, 0)])
+
+    private func answers(_ monday: Date) -> WeekAnswers {
+        monday >= at(11, 23) ? Self.hybrid : WeekAnswers()
+    }
+
+    private func phase1() throws -> Programme {
+        try #require(ContentLibrary.load(from: contentRoot).programmes["phase-1"])
+    }
+
+    private func profile() -> Profile {
+        var p = Profile()
+        p.confirmed = true
+        p.programme.startDate = at(11, 16)
+        p.programme.confirmedOn = at(11, 22, 18)
+        return p
+    }
+
+    private func today(_ now: Date, done: Set<String> = []) throws -> DayPlan {
+        try #require(DayPlan.make(for: now, programme: phase1(), profile: profile(), answers: answers,
+                                  now: now, completed: done, calendar: calendar))
+    }
+
+    private func alarms(_ now: Date, done: Set<String> = []) throws -> [PlannedAlarm] {
+        AlarmSchedule.make(now: now, programme: try phase1(), profile: profile(), answers: answers,
+                           completed: done, calendar: calendar)
+    }
+
+    /// The alarm time on `date`, if one rings that day.
+    private func ring(on date: Date, in alarms: [PlannedAlarm]) -> TimeOfDay? {
+        alarms.first { calendar.isDate($0.fireDate, inSameDayAs: date) }.map {
+            let c = calendar.dateComponents([.hour, .minute], from: $0.fireDate)
+            return Self.t(c.hour!, c.minute!)
+        }
+    }
+
+    @Test func a2AlarmsAfterTheSundayPrompt() throws {
+        // Sun 22 Nov 18:01: 7–14 days registered, only on session or office days (E14).
+        let set = try alarms(at(11, 22, 18, 1))
+        #expect((7...14).contains(set.count), "\(set.count) alarms")
+        let week = (23...29).filter { ring(on: at(11, $0), in: set) != nil }
+        #expect(week == [23, 24, 26, 28], "alarm days \(week)") // Mon, Tue, Thu, Sat
+    }
+
+    @Test func a3MondayUpperAWithLeaveTime() throws {
+        let plan = try today(at(11, 23, 6, 30))
+        #expect(plan.session?.id == "upper-a")
+        #expect(plan.alarm != nil)
+        #expect(plan.alarm == ring(on: at(11, 23), in: try alarms(at(11, 22, 18, 1))))
+        #expect(plan.leave != nil)
+    }
+
+    @Test func a5TuesdayRunWithTheEarlyStart() throws {
+        let plan = try today(at(11, 24, 7), done: ["upper-a"])
+        #expect(plan.session?.id == "run-1")
+        #expect(plan.alarm == ring(on: at(11, 24), in: try alarms(at(11, 23, 21), done: ["upper-a"])))
+        // The 08:00 meeting: leave by 08:00 − commute.
+        let leave = try #require(plan.leave)
+        #expect(leave < Self.t(8, 0))
+    }
+
+    @Test func a7WednesdayIsRestWithNoAlarm() throws {
+        let plan = try today(at(11, 25, 7), done: ["upper-a", "run-1"])
+        #expect(plan.session == nil)
+        #expect(plan.alarm == nil)
+        // Tonight's wind-down comes from Thursday's alarm.
+        let thursday = try #require(try today(at(11, 26, 6), done: ["upper-a", "run-1"]).alarm)
+        let lightsOut = WeekPlanner.lightsOut(forWake: thursday.minutesSinceMidnight, schedule: profile().schedule)
+        #expect(plan.lightsOut == lightsOut)
+    }
+
+    @Test func a8a9MissedThursdayMovesToFridayAndKeepsItsAlarm() throws {
+        let done: Set<String> = ["upper-a", "run-1"]
+        // Thu 21:00, full body not logged: too late tonight, so Friday (free, legal).
+        let thursdayNight = try phase1Plan(now: at(11, 26, 21), done: done)
+        #expect(thursdayNight.day(.thursday)?.session == nil)
+        let friday = try #require(thursdayNight.day(.friday)?.session)
+        #expect(friday.sessionID == "full-body")
+        #expect(friday.movedFrom == .thursday)
+        #expect(ring(on: at(11, 27), in: try alarms(at(11, 26, 21), done: done)) != nil)
+        // Fri 07:00 (QA-15): still there, with its alarm.
+        let fridayMorning = try today(at(11, 27, 6), done: done)
+        #expect(fridayMorning.session?.id == "full-body")
+        #expect(fridayMorning.alarm != nil)
+    }
+
+    @Test func a10a11TheWeekend() throws {
+        let done: Set<String> = ["upper-a", "run-1", "full-body"]
+        let saturday = try today(at(11, 28, 7), done: done)
+        #expect(saturday.session?.id == "upper-b")
+        #expect(saturday.session?.start == profile().schedule.dayOffSessionStart)
+        let sunday = try today(at(11, 29, 7), done: done + ["upper-b"])
+        #expect(sunday.session?.id == "walk")
+        #expect(sunday.alarm == nil)
+    }
+
+    private func phase1Plan(now: Date, done: Set<String>) throws -> WeekPlan {
+        WeekPlanner.plan(weekStarting: at(11, 23), programme: try phase1(), profile: profile(),
+                         answers: Self.hybrid, now: now, completed: done, calendar: calendar)
+    }
+}
+
+private func + (lhs: Set<String>, rhs: [String]) -> Set<String> { lhs.union(rhs) }
