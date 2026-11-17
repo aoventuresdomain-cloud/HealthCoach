@@ -12,7 +12,9 @@
 
 **Days off.** A session starts at `dayOffSessionStart` (09:00) with the alarm 15 minutes before. A day off with no session has no alarm.
 
-**Sleep.** Lights out the night before = alarm − `sleepHours` (7.5) − `fallAsleepMinutes` (15), and never later than `latestBedtime` (23:30). Wind-down is `windDownMinutes` before that.
+**Which days ring (E14).** Only a day with a fixed start gets an alarm: a session that sets one, or an office day. Home rest days, a home Wednesday (basketball is in the evening) and a day whose only plan is optional (the Sunday walk in weeks 1–3, `"alarm": false`) have none. The walk is still planned at `dayOffSessionStart`.
+
+**Sleep.** Lights out the night before = alarm − `sleepHours` (7.5) − `fallAsleepMinutes` (15), and never later than `latestBedtime` (23:30). Wind-down is `windDownMinutes` before that. The night before a day with no alarm, lights out comes from the week's median alarm (E14), so bedtime stays close to the other nights.
 
 **Reduced week.** Pass `Programme.droppedSessions(history:)` as `dropping`. Those sessions are left out, and their days become free for a move.
 

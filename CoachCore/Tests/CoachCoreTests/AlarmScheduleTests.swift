@@ -85,18 +85,62 @@ private actor ClockedRegistrar: AlarmRegistering {
 
     @Test func fourteenDaysOfWakeAlarms() throws {
         let alarms = try make(now: at(2026, 11, 23, 5, 0))
-        // Weeks 1–2: five work days plus Saturday's Upper B and Sunday's walk, twice.
-        #expect(alarms.count == 14)
+        // Weeks 1–2: Upper A, run-walk, full body and Upper B, twice. No alarm on
+        // basketball Wednesday, the Friday rest day or Sunday's optional walk (E11).
+        #expect(alarms.count == 8)
         #expect(alarms.map(\.fireDate) == alarms.map(\.fireDate).sorted())
         #expect(hm(alarms[0].fireDate) == "07:50")
         #expect(alarms[0].title == "Upper A at 08:05")
-        #expect(alarms[2].title == "Wake up · Basketball tonight")
-        #expect(calendar.isDate(alarms.last!.fireDate, inSameDayAs: at(2026, 12, 6)))
+        #expect(alarms[2].title == "Full body (light legs) at 08:15")
+        #expect(calendar.isDate(alarms.last!.fireDate, inSameDayAs: at(2026, 12, 5)))
+    }
+
+    @Test func noAlarmOnFreeHomeDaysOrOptionalSessions() throws {
+        // QA-11, decision E14: alarms only on days with a fixed start. Week 2,
+        // no office days: Wednesday (basketball), Friday (rest) and Sunday
+        // (optional walk) ring nothing, and Today agrees with the schedule.
+        let programme = try phase1()
+        let alarms = try make(now: at(2026, 11, 30, 5, 0))
+        for (d, name) in [(2, "Wednesday"), (4, "Friday"), (6, "Sunday walk")] {
+            let day = at(2026, 12, d)
+            #expect(!alarms.contains { calendar.isDate($0.fireDate, inSameDayAs: day) }, "\(name)")
+            let today = try #require(DayPlan.make(for: day, programme: programme, profile: profile(), calendar: calendar))
+            #expect(today.alarm == nil, "\(name)")
+        }
+        // The walk is still planned, just without an alarm.
+        let sunday = try #require(DayPlan.make(for: at(2026, 12, 6), programme: programme, profile: profile(), calendar: calendar))
+        #expect(sunday.session?.id == "walk")
+        // An office Wednesday or Friday still gets a work-day alarm.
+        let office = try make(now: at(2026, 11, 30, 5, 0), answers: WeekAnswers(officeDays: [.wednesday, .friday]))
+        #expect(office.contains { calendar.isDate($0.fireDate, inSameDayAs: at(2026, 12, 2)) })
+        #expect(office.contains { calendar.isDate($0.fireDate, inSameDayAs: at(2026, 12, 4)) })
+        // From week 4 Sunday's easy run-walk is not optional, so it rings.
+        let weekFour = try make(now: at(2026, 12, 14, 5, 0))
+        #expect(weekFour.contains { calendar.isDate($0.fireDate, inSameDayAs: at(2026, 12, 20)) })
+    }
+
+    @Test func windDownBeforeAFreeDayFollowsTheWeeksMedianAlarm() throws {
+        // E14: Saturday night (before Sunday's free day) keeps a normal bedtime.
+        let programme = try phase1()
+        func plan(_ d: Int, _ answers: WeekAnswers) throws -> DayPlan {
+            try #require(DayPlan.make(for: at(2026, 12, d), programme: programme, profile: profile(),
+                                      answers: { _ in answers }, calendar: calendar))
+        }
+        // No office days: every alarm is late enough that lights out is the 23:30 cap.
+        let home = WeekAnswers()
+        #expect(try plan(5, home).windDown == plan(2, home).windDown) // Saturday night vs Wednesday night
+        // All office: earlier alarms; Saturday night stays within 30 min of the weekday nights.
+        let office = WeekAnswers(officeDays: [.monday, .tuesday, .wednesday, .thursday, .friday])
+        let saturday = try plan(5, office).lightsOut.minutesSinceMidnight
+        for d in 1...3 {
+            let weekday = try plan(d, office).lightsOut.minutesSinceMidnight
+            #expect(abs(saturday - weekday) <= 30, "Sat \(saturday) vs \(d) Dec \(weekday)")
+        }
     }
 
     @Test func alarmsAlreadyPastTodayAreLeftOut() throws {
         let alarms = try make(now: at(2026, 11, 23, 12, 0))
-        #expect(alarms.count == 13)
+        #expect(alarms.count == 7)
         #expect(alarms.allSatisfy { $0.fireDate > at(2026, 11, 23, 12, 0) })
     }
 
@@ -104,9 +148,9 @@ private actor ClockedRegistrar: AlarmRegistering {
         let morning = try make(now: at(2026, 11, 23, 5, 0))
         let evening = try make(now: at(2026, 11, 23, 21, 0))
         // Same horizon (today + 13 days); only Monday's alarm has passed by the evening.
-        #expect(evening.count == 13)
+        #expect(evening.count == 7)
         let shared = Set(morning.dropFirst().map(\.id)).intersection(evening.map(\.id))
-        #expect(shared.count == 13)
+        #expect(shared.count == 7)
     }
 
     @Test func clockChangeKeepsLocalWakeTimes() throws {
@@ -139,7 +183,9 @@ private actor ClockedRegistrar: AlarmRegistering {
             let outcome = try await AlarmReconciler.reconcile(planned: planned, using: registrar, now: now)
             #expect(AlarmCoverage(outcome).needsWarning == false)
             let furthest = try #require(await registrar.furthest())
-            #expect(furthest.timeIntervalSince(now) >= 12 * 86_400, "day \(dayOffset)")
+            // Alarms are on training days only (E11), so the last one is at most
+            // two days short of the 14-day horizon.
+            #expect(furthest.timeIntervalSince(now) >= 10 * 86_400, "day \(dayOffset)")
             #expect(furthest.timeIntervalSince(now) <= 14 * 86_400, "day \(dayOffset)")
             #expect(await registrar.upcomingCount() == planned.count)
         }
@@ -193,7 +239,7 @@ private actor ClockedRegistrar: AlarmRegistering {
         _ = try await AlarmReconciler.reconcile(planned: try make(now: now), using: registrar, now: now)
         let outcome = try await AlarmReconciler.reconcile(planned: [], using: registrar, now: now)
         #expect(outcome.cancelled == 0)
-        #expect(await registrar.upcomingCount() == 14)
+        #expect(await registrar.upcomingCount() == 8)
         #expect(AlarmCoverage(outcome) == .noAlarms)
     }
 
