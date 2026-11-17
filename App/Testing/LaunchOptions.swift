@@ -7,6 +7,7 @@ import Foundation
 ///     -now 2026-11-23T06:30:00Z    fixes the clock the app passes to CoachCore
 ///     -fixture week1-monday        loads App/Testing/Fixtures/fixture-week1-monday.json
 ///     -fixture week1-on-track      week 1 with Mon, Tue and Thu logged (a normal rest Friday)
+///     -fixture week2-hybrid        Gate 1 §A: week 2 from 23 Nov, office Mon/Tue/Thu, early Tue 08:00, late Thu 19:00
 ///     -realAlarms                  with -uitest: real AlarmKit and alarm plan kept across launches (QA-2)
 ///     -denyAlarms                  with -uitest: the fake alarms report no permission (QA-1 warning)
 ///     -spikeAlarms                 the spike screen keeps the alarms even with a planned profile (QA-2)

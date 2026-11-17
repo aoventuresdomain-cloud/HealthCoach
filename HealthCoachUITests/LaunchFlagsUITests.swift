@@ -76,6 +76,26 @@ final class LaunchFlagsUITests: XCTestCase {
     }
 
     @MainActor
+    func testWeekTwoHybridFixtureLoadsItsWeek() throws {
+        // Gate 1 §A fixture: office Mon/Tue/Thu from the fixture's week answers.
+        // Monday 06:30 shows Upper A; the CoachCore twin (Gate1WeekTests) checks the numbers.
+        let app = launch(now: "2026-11-23T06:30:00Z", fixture: "week2-hybrid")
+        let title = app.staticTexts["today.title"]
+        XCTAssertTrue(title.waitForExistence(timeout: 10))
+        XCTAssertTrue(title.label.hasPrefix("Upper A at"), title.label)
+        let status = app.staticTexts["debug.launch"]
+        expectation(for: NSPredicate(format: "NOT (label CONTAINS 'alarms=pending')"), evaluatedWith: status)
+        waitForExpectations(timeout: 10)
+        XCTAssertFalse(status.label.contains("alarms=none"), status.label)
+        attachScreenshot(app, named: "week2-hybrid-monday")
+        app.terminate()
+        // Its answers don't leak: week 1's all-home plan still has 8 alarms.
+        let next = launch(now: "2026-11-23T06:30:00Z", fixture: "week1-monday")
+        expectation(for: NSPredicate(format: "label CONTAINS 'alarms=8'"), evaluatedWith: next.staticTexts["debug.launch"])
+        waitForExpectations(timeout: 10)
+    }
+
+    @MainActor
     func testEachLaunchStartsFromItsOwnFixture() throws {
         // In-memory store: the previous test's confirmed profile must not leak.
         let app = launch(now: "2026-11-16T09:00:00Z", fixture: "new-install")
