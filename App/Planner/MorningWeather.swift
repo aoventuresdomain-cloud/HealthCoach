@@ -101,7 +101,7 @@ final class MorningWeather {
         let monday = AlarmSchedule.mondayOf(now, calendar: calendar)
         let plan = WeekPlanner.plan(weekStarting: monday, programme: programme, profile: profile,
                                     answers: answers.answers(weekStarting: monday, calendar: calendar),
-                                    dropping: [], calendar: calendar)
+                                    dropping: [], now: now, calendar: calendar)
         guard let day = plan.days.first(where: { calendar.isDate($0.date, inSameDayAs: now) }) else {
             return settle(.keep(.notOutdoor), day: nil)
         }

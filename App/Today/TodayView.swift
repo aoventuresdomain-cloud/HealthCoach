@@ -1,4 +1,5 @@
 import CoachCore
+import SwiftData
 import SwiftUI
 
 /// Today (board M1-05, design screens 1–2): what's next and when, one card,
@@ -16,11 +17,15 @@ struct TodayView: View {
     @State private var alarmStatus = AlarmReconcileStatus.notYetRun
 
     private let calendar = Calendar.coach
+    @Environment(\.modelContext) private var context
 
     var body: some View {
         let now = AppClock.now()
         let date = calendar.date(byAdding: .day, value: dayOffset, to: now) ?? now
-        let plan = DayPlan.make(for: date, programme: programme, profile: profile, calendar: calendar)
+        // E13: a session whose slot has passed today moves, unless it's logged.
+        let done = SessionLog.sessionIDs(in: (try? SessionLogStore(context: context).all()) ?? [], on: now, calendar: calendar)
+        let plan = DayPlan.make(for: date, programme: programme, profile: profile,
+                                now: now, completed: done, calendar: calendar)
 
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
