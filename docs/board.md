@@ -154,10 +154,12 @@ Device-only Done when lines from plan §7 are rewritten as simulator or UI-test 
 | M3-01 | Recipes (box nights, breakfasts, home lunches, Sunday cook; 2 portions, no raw fish, no batch cooking) and office lunch list | Researcher (Advisor reviews) | docs | done (folded into PR #59; #44 closed) |
 | M3-02 | Meal plan and tracking: pre-ticked meals, day band and extras (evening "anything different?" and social meals cut, re-plan 17 Nov) | Planner Engineer | core | done (PR #59) |
 | M3-03 | Top-up list: merged quantities, aisle order, staples, search links to the default shop | Planner Engineer | core | done (PR #59) |
-| M3-04 | Meals, shopping and lunch screens | iOS Interface Engineer | interface | todo |
+| M3-04 | Meals, shopping and lunch screens | iOS Interface Engineer | interface | done (PR #66; QA-29 aisle names and 44 pt ticks PR #70) |
 | M4-01 | Rules engine: calories from trend, load from logs, volume from recovery, stall flag | Coach Engineer | core | done (PR #53) |
-| M4-02 | Claude summary and share; clipboard import of a versioned block, rejected safely when bad | Coach Engineer | core | done (PR #53, import button PR #54; A17 plan wiring in review PR #60) |
+| M4-02 | Claude summary and share; clipboard import of a versioned block, rejected safely when bad | Coach Engineer | core | done (PR #53, import button PR #54; A17 plan wiring PR #60) |
 | M4-03 | Progress view, photos every 2 weeks, "Ask the coach now" (ghost outline and mood check cut, re-plan 17 Nov) | iOS Interface Engineer | interface | done (PR #57) |
+| M2-06 | "Tomorrow changed" button on Today: one tap opens tomorrow's answers, saves, and re-plans that one day's alarm and notifications (core `AlarmSchedule.replacingDay`, M2-02) | iOS Interface Engineer | interface | todo (gap found 17 Nov, before the round) |
+| M0-11b | Hide the Spike tests wrench everywhere except the alarm spike test (`-spikeAlarms`) and the spike screenshot modes, so Today and Onboarding shots for the review show no engineering tools | iOS Interface Engineer | interface | todo (gap found 17 Nov, before the round) |
 | G2-01 | Gate 2 pack | Head of Engineering | docs | todo |
 
 ### Done when (M1–M4)
@@ -181,6 +183,8 @@ Device-only Done when lines from plan §7 are rewritten as simulator or UI-test 
 **M3-04** · Screens walked in the simulator; the lunch card suggests one order on office days.
 **M4-01** · A simulated 2-week stall raises a flag · calories adjust from the 7-day trend within safe bounds (Advisor-reviewed).
 **M4-02** · An imported Claude block changes next week's plan · a malformed or wrong-version block is rejected with a plain message, and last week's plan stays (CoachCore tests).
+**M2-06** · On Today, "Tomorrow changed" opens tomorrow's Sunday-prompt answers only; saving re-plans that one day through `AlarmSchedule.replacingDay`, every other day's alarm is untouched · a UI test changes tomorrow's wake time and sees tomorrow's timeline and the alarm count update, with today unchanged.
+**M0-11b** · Today and Onboarding show no wrench in any review screenshot or ordinary UI test · `AlarmPermissionUITests` still reaches Spike tests with `-spikeAlarms` · release builds never show it.
 **M4-03** · Photo day every 2 weeks with a ghost outline (simulator camera roll) · skipping mood changes nothing · "Ask the coach now" builds a summary and opens the share sheet.
 **G2-01** · Full end-to-end QA round clean on one fixed build · a demo walkthrough (screenshots or recording) of a typical week · the deferred list, with the open taste decisions · one recommendation on payment.
 
