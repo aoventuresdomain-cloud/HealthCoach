@@ -2,6 +2,8 @@ import XCTest
 
 /// Board M1-05: Today shows the right session for each day of week 1.
 /// Expected names are phase-1.json's week 1 schedule (start Monday 23 Nov 2026).
+/// Nothing is logged in `week1-monday`, so by Friday Monday's Upper A has
+/// passed and moved to the free Friday (E13, QA-15).
 final class TodayUITests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
@@ -12,7 +14,7 @@ final class TodayUITests: XCTestCase {
         ("2026-11-24", "Run-walk at"),
         ("2026-11-25", "Basketball tonight"),
         ("2026-11-26", "Full body (light legs) at"),
-        ("2026-11-27", "Rest day"),
+        ("2026-11-27", "Upper A at"),
         ("2026-11-28", "Upper B at"),
         ("2026-11-29", "Walk in Hyde Park at"),
     ]
@@ -36,8 +38,9 @@ final class TodayUITests: XCTestCase {
 
     @MainActor
     func testRestDayOffersTomorrow() throws {
+        // Mon, Tue and Thu logged, so Friday stays a rest day.
         let app = XCUIApplication()
-        app.launchArguments = ["-uitest", "-now", "2026-11-27T07:00:00Z", "-fixture", "week1-monday"]
+        app.launchArguments = ["-uitest", "-now", "2026-11-27T07:00:00Z", "-fixture", "week1-on-track"]
         app.launch()
         let next = app.buttons["today.seeTomorrow"]
         XCTAssertTrue(next.waitForExistence(timeout: 15))

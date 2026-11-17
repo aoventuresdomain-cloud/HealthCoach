@@ -1,0 +1,15 @@
+{
+  "profile": {
+    "schemaVersion": 1,
+    "confirmed": true,
+    "programme": {
+      "programmeID": "phase-1",
+      "startDate": "2026-11-23T00:00:00Z"
+    }
+  },
+  "logs": [
+    { "sessionID": "upper-a", "week": 1, "startedAt": "2026-11-23T08:00:00Z" },
+    { "sessionID": "run-1", "week": 1, "startedAt": "2026-11-24T08:15:00Z" },
+    { "sessionID": "full-body", "week": 1, "startedAt": "2026-11-26T08:00:00Z" }
+  ]
+}
