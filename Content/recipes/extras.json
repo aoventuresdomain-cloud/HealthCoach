@@ -16,19 +16,24 @@
     }
   },
   "usage": {
+    "proteinFirst": {
+      "extra": "dinner-chicken-boost",
+      "whenPlannedProteinBelow": 150
+    },
     "order": [
-      "richer-breakfast",
-      "side",
-      "second-snack",
-      "protein-boost"
+      "side-rice|side-potatoes|side-bread",
+      "second-snack-yogurt",
+      "breakfast-eggs-avocado",
+      "second-snack-toast"
     ],
+    "sideTiming": "On training days, add the side to the first meal after the session.",
     "maxPerDay": {
       "side": 1,
       "second-snack": 1,
       "richer-breakfast": 1,
       "protein-boost": 1
     },
-    "note": "Add in this order until the day is inside the band; a protein boost only when protein is short."
+    "note": "The chicken boost goes in first whenever planned protein is under 150 g. Then add in this order until the day is inside the band: carbs and protein before fat, lowest protein per kcal last (Advisor, 17 Nov)."
   },
   "extras": [
     {
