@@ -68,4 +68,38 @@ import Testing
         }
         #expect(NextTime.lines(sessionID: "upper-a", programme: programme, week: 1, history: []).allSatisfy { !$0.loadUp })
     }
+
+    /// UI-12: an increase is any of heavier, an extra set or a higher target;
+    /// every load-up is an increase, and nothing logged means no increase.
+    @Test func increaseCoversLoadSetsAndTarget() throws {
+        let programme = try phase1()
+        let log = try finishedUpperA(programme)
+        let lines = NextTime.lines(sessionID: "upper-a", programme: programme, week: 1, history: [log])
+        let week2 = try #require(WorkoutScript.make(sessionID: "upper-a", programme: programme, week: 2, history: [log]))
+        for line in lines {
+            let next = try #require(week2.sets.first { $0.exercise == line.exercise })
+            let done = log.sets.filter { $0.exercise == line.exercise }
+            let lighter = done.compactMap(\.kg).max().map { (next.kg ?? 0) < $0 } ?? false
+            #expect(line.increase == (line.loadUp || (!lighter && NextTime.more(next, than: done))), "\(line.exercise)")
+            if line.loadUp { #expect(line.increase) }
+        }
+        // Week 1 → 2 moves at least one lift on, so the done screen is never empty.
+        #expect(lines.contains { $0.increase })
+        #expect(NextTime.lines(sessionID: "upper-a", programme: programme, week: 1, history: []).allSatisfy { !$0.increase })
+    }
+
+    @Test func moreSpotsSetsAndTargets() {
+        func step(_ kind: WorkoutScript.SetStep.Kind, sets: Int) -> WorkoutScript.SetStep {
+            WorkoutScript.SetStep(exercise: "x", kind: kind, kg: 10, setIndex: 0, setCount: sets, exerciseNumber: 1,
+                                  repsInReserve: nil, cue: nil, note: nil, restSeconds: 60, slowTempo: false,
+                                  atDumbbellLimit: false, swap: nil)
+        }
+        let twoByEight = [0, 1].map { SetLog(exercise: "x", setIndex: $0, reps: 8, kg: 10, asPrescribed: true) }
+        #expect(NextTime.more(step(.reps(target: 8), sets: 3), than: twoByEight))
+        #expect(NextTime.more(step(.reps(target: 9), sets: 2), than: twoByEight))
+        #expect(!NextTime.more(step(.reps(target: 8), sets: 2), than: twoByEight))
+        #expect(!NextTime.more(step(.reps(target: 8), sets: 3), than: []))
+        let holds = [0, 1].map { SetLog(exercise: "x", setIndex: $0, seconds: 20, asPrescribed: true) }
+        #expect(NextTime.more(step(.hold(seconds: 25), sets: 2), than: holds))
+    }
 }

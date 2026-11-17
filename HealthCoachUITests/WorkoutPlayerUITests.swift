@@ -23,11 +23,27 @@ final class WorkoutPlayerUITests: XCTestCase {
         let restClock = app.descendants(matching: .any)["player.restClock"]
         XCTAssertTrue(app.buttons["player.end"].waitForExistence(timeout: 10))
 
+        let setup = app.descendants(matching: .any)["player.callouts.setup"]
+        let fix = app.descendants(matching: .any)["player.callouts.fix"]
         var taps = 0
         var restShot = false
+        var setShots = 0
         while !finish.exists {
             XCTAssertLessThan(taps, 200, "Session did not reach the done screen")
             if done.exists, done.isHittable {
+                // UI-12 / QA U6: the bench's first set shows Setup, Move and Fix;
+                // its second set (after the first rest) shows only Fix.
+                if setShots == 0 {
+                    XCTAssertTrue(fix.waitForExistence(timeout: 3), "no Fix callout on set 1")
+                    XCTAssertTrue(setup.exists, "set 1 should show all three callouts")
+                    attach(app, "player-set")
+                    setShots = 1
+                } else if setShots == 1, restShot {
+                    XCTAssertTrue(fix.waitForExistence(timeout: 3), "no Fix callout on set 2")
+                    XCTAssertFalse(setup.exists, "set 2 should show only the Fix callout")
+                    attach(app, "player-set-2")
+                    setShots = 2
+                }
                 done.tap()
                 taps += 1
             } else if next.exists, next.isHittable {
@@ -81,7 +97,13 @@ final class WorkoutPlayerUITests: XCTestCase {
         }
 
         XCTAssertTrue(restShot, "Expected at least one rest between sets")
+        XCTAssertEqual(setShots, 2, "Expected the set-1 and set-2 shots")
         XCTAssertTrue(app.staticTexts["player.doneTitle"].waitForExistence(timeout: 5))
+        // UI-12: one stats line, and next time shows only increases (week 1 → 2 always has some).
+        XCTAssertTrue(app.staticTexts["player.doneStats"].label.hasSuffix("· logged as prescribed"))
+        let ups = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "identifier BEGINSWITH 'player.nextTime.'"))
+        XCTAssertGreaterThan(ups.count, 0, "no increases under Next time")
         attach(app, "player-done")
         finish.tap()
         XCTAssertTrue(app.staticTexts["today.title"].waitForExistence(timeout: 10))

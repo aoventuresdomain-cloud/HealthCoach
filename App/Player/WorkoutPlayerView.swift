@@ -64,10 +64,12 @@ struct WorkoutPlayerView: View {
             .buttonStyle(.plain)
             .accessibilityLabel("End session")
             .accessibilityIdentifier("player.end")
+            // UI-12: the bar shows position; the "3 / 9" label is cut. VoiceOver still reads it.
             ProgressSegments(total: model.script.exerciseCount, current: model.exerciseNumber)
-            Text(model.exerciseNumber == 0 ? "Warm-up" : "\(model.exerciseNumber) / \(model.script.exerciseCount)")
-                .font(.headline.monospacedDigit())
-                .foregroundStyle(.secondary)
+                .accessibilityElement()
+                .accessibilityLabel(model.exerciseNumber == 0
+                                    ? "Warm-up"
+                                    : "Exercise \(model.exerciseNumber) of \(model.script.exerciseCount)")
                 .accessibilityIdentifier("player.progress")
         }
         .padding(.horizontal, 16)
@@ -163,10 +165,8 @@ private struct SetScreen: View {
                 .minimumScaleFactor(0.8)
                 .accessibilityIdentifier("player.exerciseName")
             numbers
-            if let cue = step.cue {
-                Text(cue).font(.headline).foregroundStyle(.green)
-            } else if let note = step.note {
-                Text(note).font(.headline).foregroundStyle(.green)
+            if let note = step.note {
+                Text(note).font(.headline).foregroundStyle(.go)
             }
             if step.slowTempo {
                 Text("Lower over 3 seconds this time.")
@@ -180,7 +180,10 @@ private struct SetScreen: View {
                     .accessibilityIdentifier("player.dumbbellLimit")
             }
             if let callouts = model.exercise(step.exercise)?.callouts {
-                CalloutsCard(callouts: callouts)
+                // UI-12: all three on an exercise's first set; from set 2 only Fix,
+                // with a tap to see Setup and Move again.
+                CalloutsCard(callouts: callouts, fixOnly: step.setIndex > 0)
+                    .id(step.exercise)
                     .layoutPriority(-1)
             }
             counter
@@ -194,10 +197,10 @@ private struct SetScreen: View {
             BigNumber(value: "\(step.setIndex + 1)", suffix: "/\(step.setCount)", label: "SET")
             switch step.kind {
             case let .reps(target):
-                BigNumber(value: "\(target)", label: "REPS")
+                BigNumber(value: "\(target)", label: repsLabel("REPS"))
                 BigNumber(value: step.kg.map(PlayerFormat.kg) ?? "BW", label: step.kg == nil ? "BODYWEIGHT" : "KG EACH")
             case let .perSide(target):
-                BigNumber(value: "\(target)", label: model.side == .right ? "REPS · RIGHT" : "REPS · LEFT")
+                BigNumber(value: "\(target)", label: repsLabel(model.side == .right ? "REPS · RIGHT" : "REPS · LEFT"))
                 BigNumber(value: step.kg.map(PlayerFormat.kg) ?? "BW", label: step.kg == nil ? "BODYWEIGHT" : "KG")
             case let .hold(seconds):
                 BigNumber(value: model.gettingReady ? "Ready" : PlayerFormat.clock(seconds - model.held),
@@ -207,6 +210,12 @@ private struct SetScreen: View {
                 BigNumber(value: "\(lower) s", label: "EACH")
             }
         }
+    }
+
+    /// UI-12: the effort cue joins the caption, "REPS · stop 3 short".
+    private func repsLabel(_ base: String) -> String {
+        guard let reserve = step.repsInReserve, reserve > 0 else { return base }
+        return "\(base) · stop \(reserve) short"
     }
 
     @ViewBuilder
@@ -270,7 +279,6 @@ private struct RestScreen: View {
                             .foregroundStyle(remaining <= 3 ? Color.go : Color.primary)
                             .accessibilityLabel(RestScreen.spoken(remaining))
                             .accessibilityIdentifier("player.restClock")
-                        Text("of \(PlayerFormat.clock(total))").foregroundStyle(.secondary)
                     }
                 }
                 .frame(width: 260, height: 260)
@@ -315,11 +323,6 @@ private struct RestScreen: View {
             .padding(18)
             .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 20))
             .padding(.horizontal, 16)
-            Text("Voice says \"3, 2, 1, go\" in your headphones. Also on the lock screen.")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 24)
         }
     }
 
@@ -372,41 +375,26 @@ private struct DoneScreen: View {
                 Text("\(model.script.name) done")
                     .font(.largeTitle.bold())
                     .accessibilityIdentifier("player.doneTitle")
-                HStack(spacing: 0) {
-                    BigNumber(value: "\(minutes)", label: minutes == 1 ? "MINUTE" : "MINUTES")
-                    BigNumber(value: "\(model.log.sets.count)", label: model.log.sets.count == 1 ? "SET" : "SETS")
-                }
-                VStack(spacing: 0) {
-                    ForEach(DoneScreen.lifts(model), id: \.0) { exercise, line in
-                        HStack {
-                            Text(model.name(exercise))
-                            Spacer()
-                            Text(line).foregroundStyle(.secondary).monospacedDigit()
-                        }
-                        .padding(.vertical, 10)
-                        .padding(.horizontal, 16)
-                        Divider().padding(.leading, 16)
-                    }
-                }
-                .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 20))
+                Text(DoneScreen.stats(minutes: minutes, log: model.log))
+                    .font(.headline.monospacedDigit())
+                    .foregroundStyle(.secondary)
+                    .accessibilityIdentifier("player.doneStats")
                 let next = model.nextTime(model.log)
                 if !next.isEmpty {
+                    let ups = next.filter(\.increase)
+                    let same = next.count - ups.count
                     Text("NEXT TIME")
                         .font(.footnote.weight(.semibold))
                         .foregroundStyle(.secondary)
                         .padding(.top, 4)
                     VStack(spacing: 0) {
-                        ForEach(next, id: \.exercise) { line in
+                        // UI-12: only what goes up, in green; never red, no down arrows.
+                        ForEach(ups, id: \.exercise) { line in
                             HStack {
                                 Text(model.name(line.exercise))
                                 Spacer()
-                                // UI-9: up is green with an arrow; held or lighter is neutral grey, never red.
-                                if line.loadUp {
-                                    Label(line.text, systemImage: "arrow.up")
-                                        .foregroundStyle(.go).monospacedDigit()
-                                } else {
-                                    Text(line.text).foregroundStyle(.secondary).monospacedDigit()
-                                }
+                                Label(line.text, systemImage: "arrow.up")
+                                    .foregroundStyle(.go).monospacedDigit()
                             }
                             .padding(.vertical, 10)
                             .padding(.horizontal, 16)
@@ -414,32 +402,28 @@ private struct DoneScreen: View {
                             .accessibilityIdentifier("player.nextTime.\(line.exercise)")
                             Divider().padding(.leading, 16)
                         }
+                        if same > 0 {
+                            Text(ups.isEmpty ? "All the same as today" : "\(same) \(same == 1 ? "other" : "others") the same")
+                                .foregroundStyle(.secondary)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.vertical, 10)
+                                .padding(.horizontal, 16)
+                                .accessibilityIdentifier("player.nextTimeSame")
+                        }
                     }
-                    .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 20))
+                    .background(Color.surface, in: .rect(cornerRadius: Radius.card))
                 }
-                Text("Every set was logged as you went. Next time's loads follow from these.")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
             }
             .padding(.horizontal, 16)
         }
     }
 
-    /// One line per exercise: "2 × 8 @ 10 kg", or "2 × 20 s".
-    static func lifts(_ model: WorkoutPlayerModel) -> [(String, String)] {
-        var order: [String] = []
-        var byExercise: [String: [SetLog]] = [:]
-        for set in model.log.sets {
-            if byExercise[set.exercise] == nil { order.append(set.exercise) }
-            byExercise[set.exercise, default: []].append(set)
-        }
-        return order.map { exercise in
-            let sets = byExercise[exercise] ?? []
-            let amount = sets.compactMap { $0.reps ?? $0.seconds }.max() ?? 0
-            let unit = sets.first?.seconds != nil ? " s" : ""
-            let load = sets.first?.kg.map { " @ \(PlayerFormat.kg($0)) kg" } ?? ""
-            return (exercise, "\(sets.count) × \(amount)\(unit)\(load)")
-        }
+    /// UI-12: one line, "39 min · 18 sets · logged as prescribed". The sets
+    /// themselves are behind "Something was different".
+    static func stats(minutes: Int, log: SessionLog) -> String {
+        let sets = log.sets.count
+        let how = log.sets.allSatisfy(\.asPrescribed) ? "logged as prescribed" : "logged as you went"
+        return "\(minutes) min · \(sets) \(sets == 1 ? "set" : "sets") · \(how)"
     }
 }
 
@@ -520,17 +504,29 @@ struct BigNumber: View {
 
 struct CalloutsCard: View {
     let callouts: Exercise.Callouts
+    /// UI-12: from an exercise's second set only Fix shows; a tap brings back the rest.
+    var fixOnly = false
+    @State private var expanded = false
 
     var body: some View {
         VStack(spacing: 0) {
-            line("SETUP", callouts.setup, colour: .secondary)
-            Divider()
-            line("MOVE", callouts.movement, colour: .secondary)
-            Divider()
-            line("FIX", callouts.commonMistake, colour: .orange)
+            if !fixOnly || expanded {
+                line("SETUP", callouts.setup, colour: .secondary)
+                    .accessibilityIdentifier("player.callouts.setup")
+                Divider()
+                line("MOVE", callouts.movement, colour: .secondary)
+                    .accessibilityIdentifier("player.callouts.move")
+                Divider()
+            }
+            line("FIX", callouts.commonMistake, colour: .caution)
+                .accessibilityIdentifier("player.callouts.fix")
         }
         .padding(.horizontal, 16)
-        .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 20))
+        .background(Color.surface, in: .rect(cornerRadius: Radius.card))
+        .contentShape(.rect)
+        .onTapGesture { if fixOnly { withAnimation(.coach) { expanded.toggle() } } }
+        .accessibilityElement(children: .contain)
+        .accessibilityHint(fixOnly && !expanded ? "Tap to show setup and movement" : "")
         .accessibilityIdentifier("player.callouts")
     }
 
@@ -541,6 +537,7 @@ struct CalloutsCard: View {
             Spacer(minLength: 0)
         }
         .padding(.vertical, 10)
+        .accessibilityElement(children: .combine)
     }
 }
 
@@ -556,6 +553,5 @@ struct ProgressSegments: View {
                     .frame(height: 6)
             }
         }
-        .accessibilityHidden(true)
     }
 }

@@ -11,11 +11,16 @@ public enum NextTime {
         /// The next load is heavier than today's heaviest set (shown green with
         /// an up arrow). Held or lighter stays neutral: never red (UI-9).
         public let loadUp: Bool
+        /// Next time asks for more in any way (UI-12, Advisor): heavier, an
+        /// extra set, or more reps or seconds than today. Only these lines show
+        /// on the done screen; the rest collapse to "N others the same".
+        public let increase: Bool
 
-        public init(exercise: String, text: String, loadUp: Bool = false) {
+        public init(exercise: String, text: String, loadUp: Bool = false, increase: Bool? = nil) {
             self.exercise = exercise
             self.text = text
             self.loadUp = loadUp
+            self.increase = increase ?? loadUp
         }
     }
 
@@ -32,10 +37,28 @@ public enum NextTime {
         let latest = history.filter { $0.sessionID == sessionID }.max { $0.startedAt < $1.startedAt }
         return script.sets.compactMap { step in
             guard seen.insert(step.exercise).inserted else { return nil }
-            let today = latest?.sets.filter { $0.exercise == step.exercise }.compactMap(\.kg).max()
+            let done = latest?.sets.filter { $0.exercise == step.exercise } ?? []
+            let today = done.compactMap(\.kg).max()
             let up = step.kg.map { next in today.map { next > $0 } ?? false } ?? false
-            return Line(exercise: step.exercise, text: text(step), loadUp: up)
+            // A lighter load with more reps (a step back) is not shown as an increase.
+            let lighter = today.map { kg in (step.kg ?? 0) < kg } ?? false
+            return Line(exercise: step.exercise, text: text(step), loadUp: up,
+                        increase: up || (!lighter && more(step, than: done)))
         }
+    }
+
+    /// More sets, or a higher rep or seconds target, than the sets just logged.
+    /// Nothing logged for the exercise (first run, or swapped out) is not an increase.
+    static func more(_ step: WorkoutScript.SetStep, than done: [SetLog]) -> Bool {
+        guard !done.isEmpty else { return false }
+        if step.setCount > Set(done.map(\.setIndex)).count { return true }
+        let target: Int
+        switch step.kind {
+        case let .reps(reps), let .perSide(reps), let .negatives(reps, _): target = reps
+        case let .hold(seconds): target = seconds
+        }
+        let best = done.compactMap { $0.reps ?? $0.seconds }.max() ?? 0
+        return target > best
     }
 
     static func text(_ step: WorkoutScript.SetStep) -> String {
