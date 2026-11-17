@@ -60,7 +60,12 @@ final class CoachImportUITests: XCTestCase {
 
     @MainActor
     private func importReply(_ text: String) -> (XCUIApplication, String) {
-        let app = launch(now: sunday, extra: ["-clipboard", text])
+        // Base64: a raw multi-line argument didn't arrive intact (first run of #60).
+        let encoded = Data(text.utf8).base64EncodedString()
+        let app = launch(now: sunday, extra: ["-clipboardBase64", encoded])
+        let status = app.staticTexts["debug.launch"]
+        XCTAssertTrue(status.waitForExistence(timeout: 5))
+        XCTAssertTrue(status.label.contains("clip=\(text.utf8.count)"), status.label)
         openProgress(app)
         scrollToImport(app).tap()
         let result = app.staticTexts["coach.import.result"]
@@ -92,6 +97,8 @@ final class CoachImportUITests: XCTestCase {
     @MainActor
     func testA17BadReplyIsRefusedAndNothingChanges() throws {
         let (app, message) = importReply(reply(schemaVersion: 2))
+        // Refused for the version, not for a missing block (both end the same way).
+        XCTAssertTrue(message.contains("format 2"), message)
         XCTAssertTrue(message.hasSuffix("Your plan hasn't changed."), message)
         attach(app, "a17-refused")
         app.terminate()
