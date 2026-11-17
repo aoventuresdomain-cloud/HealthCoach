@@ -42,7 +42,18 @@ final class LaunchFlagsUITests: XCTestCase {
         // 82.4–83.0 kg over the last 7 days.
         expectation(for: NSPredicate(format: "label CONTAINS 'weight=82.7'"), evaluatedWith: status)
         waitForExpectations(timeout: 10)
+        XCTAssertTrue(status.label.contains("held=0"), status.label)
         attachScreenshot(app, named: "week1-monday")
+    }
+
+    @MainActor
+    func testPastTheLastWeekThePlanHolds() throws {
+        // QA-17 (E13): Monday 11 Jan 2027 is week 8 of a 6-week programme
+        // started 23 Nov, so the plan holds at week 6 and says so.
+        let app = launch(now: "2027-01-11T07:00:00Z", fixture: "week1-monday")
+        let status = app.staticTexts["debug.launch"]
+        XCTAssertTrue(status.waitForExistence(timeout: 10))
+        XCTAssertTrue(status.label.contains("held=1"), status.label)
     }
 
     @MainActor

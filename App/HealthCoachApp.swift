@@ -42,7 +42,8 @@ struct HealthCoachApp: App {
                     // Board M2-02: the planner's 14 days of wake alarms.
                     await WakeAlarms.shared.reconcile(profile: profile, history: history)
                     // Board M2-03: on a run day, the forecast may swap the run indoors.
-                    await MorningWeather.shared.check(profile: profile)
+                    await MorningWeather.shared.check(
+                        profile: profile, completed: SessionLog.sessionIDs(in: history, weekOf: AppClock.now()))
                 } else {
                     _ = await AlarmKitSpike.shared.reconcileStatus()
                 }

@@ -22,8 +22,8 @@ struct TodayView: View {
     var body: some View {
         let now = AppClock.now()
         let date = calendar.date(byAdding: .day, value: dayOffset, to: now) ?? now
-        // E13: a session whose slot has passed today moves, unless it's logged.
-        let done = SessionLog.sessionIDs(in: (try? SessionLogStore(context: context).all()) ?? [], on: now, calendar: calendar)
+        // E13: an unlogged session whose slot has passed moves (logged this week = done).
+        let done = SessionLog.sessionIDs(in: (try? SessionLogStore(context: context).all()) ?? [], weekOf: now, calendar: calendar)
         let plan = DayPlan.make(for: date, programme: programme, profile: profile,
                                 now: now, completed: done, calendar: calendar)
 
