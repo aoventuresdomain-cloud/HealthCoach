@@ -79,7 +79,7 @@ extension Animation {
 | Rest ends, next set starts | `.impact(weight: .heavy)` |
 | Run-walk interval changes | `.impact(weight: .heavy)` |
 | Session done | `.success` |
-| Warning banner appears | `.warning` |
+| Zero-alarms warning appears | `.warning` (not on the "alarms were missing, now set" banner: that's reassurance) |
 
 ## Component rules
 
@@ -94,12 +94,12 @@ extension Animation {
 
 ## Screen rules
 
-- **Today:** title = next action and time. One session card, one timeline. Meals for today appear as timeline rows (breakfast, lunch order, dinner), so the Meals tab is never needed day to day. The Sunday prompt is a card on Today at the weekend, not a tab.
-- **Workout player:** unchanged structure (M1 rules). Add rounded numbers, rolling counter, haptics, rest ring that turns green for the last 10 s, celebratory done header.
+- **Today:** title = next action and time. One session card, one timeline. Meals for today appear as timeline rows (breakfast, lunch order, dinner), so the Meals tab is never needed on a normal day (Advisor condition). The Sunday prompt is a card on Today at the weekend, not a tab.
+- **Workout player:** unchanged structure (M1 rules). Add rounded numbers, rolling counter, haptics, a rest ring that stays blue and turns green only for the last 3 s (at 10 s the "Dial to" weight pulses instead), celebratory done header.
 - **Run-walk:** full-screen wash of the interval colour (12 % opacity) so the state reads from across the room; heavy haptic on every change.
 - **Sunday prompt:** five day pills, pre-filled from last week, `Done`. Early/late times stay folded away.
-- **Meals:** today's meals pre-ticked; one tap unticks. Top-up list grouped by aisle with 44 pt tick targets. Lunch card on office days shows one order, large; "Another" is the secondary.
-- **Progress:** one hero chart (7-day weight trend, Swift Charts), "Week 3 of 6" phase line, a lifts table with next loads (green ↑ when going up). Photo card only when due. No streaks, badges or missed-session copy anywhere.
+- **Meals:** today's meals pre-ticked; one tap unticks, and unticking triggers nothing (no prompt, no red). Top-up list grouped by aisle with 44 pt tick targets. Lunch card on office days shows one order, large; "Another" is the secondary.
+- **Progress:** one hero chart (Swift Charts) whose big number and line are the 7-day average; daily weigh-ins are faint dots, never the big number. Phase line reads "Phase 1 · week 3 of 6" with a quieter "Week 3 of about 20" under it, so 6 never reads as a finish line. Lifts table with next loads: green ↑ when going up; held or reduced loads neutral grey, never red, never a down arrow. Photo card only when due. No streaks, badges or missed-session copy anywhere.
 
 ## Open taste decisions (for the Gate 2 pack, not asked)
 
