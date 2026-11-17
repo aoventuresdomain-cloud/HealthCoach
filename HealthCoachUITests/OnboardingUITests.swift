@@ -17,6 +17,7 @@ final class OnboardingUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["onboarding.title"].waitForExistence(timeout: 15))
         // Every row shows a value without any input (decision E6 defaults).
         let expected = [
+            "you": "178 cm · 82 kg",
             "hurts": "Nothing",
             "sleep": "7.5 h asleep",
             "work": "09:00–18:00",

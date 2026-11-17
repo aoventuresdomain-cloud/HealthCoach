@@ -256,6 +256,9 @@ private struct RestScreen: View {
                 .padding(.top, 16)
             }
             HStack(spacing: 14) {
+                // QA-13: the mock-up's thumbnail of what's next.
+                ExerciseMediaView(exercise: model.exercise(upcoming.exercise), compact: true)
+                    .frame(width: 64, height: 64)
                 VStack(alignment: .leading, spacing: 4) {
                     Text("NEXT · \(upcoming.exerciseNumber) OF \(model.script.exerciseCount)")
                         .font(.footnote.weight(.semibold))
@@ -287,9 +290,19 @@ private struct RestScreen: View {
         }
     }
 
+    /// "2 sets × 10 each side" before an exercise's first set (as the mock-up);
+    /// "Set 2 of 2 · 8 reps" between its sets, never "1 set × 8" (QA-13).
     static func summary(_ step: WorkoutScript.SetStep) -> String {
-        let left = step.setCount - step.setIndex
-        let sets = "\(left) \(left == 1 ? "set" : "sets")"
+        if step.setIndex > 0 {
+            let of = "Set \(step.setIndex + 1) of \(step.setCount)"
+            switch step.kind {
+            case let .reps(target): return "\(of) · \(target) reps"
+            case let .perSide(target): return "\(of) · \(target) each side"
+            case let .hold(seconds): return "\(of) · \(seconds) s hold"
+            case let .negatives(reps, lower): return "\(of) · \(reps) lowers, \(lower) s"
+            }
+        }
+        let sets = "\(step.setCount) \(step.setCount == 1 ? "set" : "sets")"
         switch step.kind {
         case let .reps(target): return "\(sets) × \(target)"
         case let .perSide(target): return "\(sets) × \(target) each side"
@@ -310,8 +323,8 @@ private struct DoneScreen: View {
                     .font(.largeTitle.bold())
                     .accessibilityIdentifier("player.doneTitle")
                 HStack(spacing: 0) {
-                    BigNumber(value: "\(minutes)", label: "MINUTES")
-                    BigNumber(value: "\(model.log.sets.count)", label: "SETS")
+                    BigNumber(value: "\(minutes)", label: minutes == 1 ? "MINUTE" : "MINUTES")
+                    BigNumber(value: "\(model.log.sets.count)", label: model.log.sets.count == 1 ? "SET" : "SETS")
                 }
                 VStack(spacing: 0) {
                     ForEach(DoneScreen.lifts(model), id: \.0) { exercise, line in
@@ -326,6 +339,28 @@ private struct DoneScreen: View {
                     }
                 }
                 .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 20))
+                let next = model.nextTime(model.log)
+                if !next.isEmpty {
+                    Text("NEXT TIME")
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .padding(.top, 4)
+                    VStack(spacing: 0) {
+                        ForEach(next, id: \.exercise) { line in
+                            HStack {
+                                Text(model.name(line.exercise))
+                                Spacer()
+                                Text(line.text).foregroundStyle(.green).monospacedDigit()
+                            }
+                            .padding(.vertical, 10)
+                            .padding(.horizontal, 16)
+                            .accessibilityElement(children: .combine)
+                            .accessibilityIdentifier("player.nextTime.\(line.exercise)")
+                            Divider().padding(.leading, 16)
+                        }
+                    }
+                    .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 20))
+                }
                 Text("Every set was logged as you went. Next time's loads follow from these.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
