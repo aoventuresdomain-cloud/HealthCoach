@@ -116,3 +116,36 @@ public struct StepsSummary: Sendable, Equatable {
             sevenDayAverage: previous.isEmpty ? nil : Int((Double(previous.reduce(0, +)) / Double(previous.count)).rounded()))
     }
 }
+
+/// Fixed weigh-ins and steps, for UI-test fixtures (Gate 1–2 checklist A12):
+/// the JSON `health` key, `{"weights": [{"date", "kg"}], "steps": [{"day", "steps"}]}`,
+/// dates in ISO 8601. Returns only what falls in the asked range.
+public struct FixedHealthReader: HealthReading, Decodable, Equatable {
+    public let weights: [WeightSample]
+    public let steps: [StepCount]
+
+    public init(weights: [WeightSample], steps: [StepCount]) {
+        self.weights = weights
+        self.steps = steps
+    }
+
+    private struct Weight: Decodable { let date: Date; let kg: Double }
+    private struct Steps: Decodable { let day: Date; let steps: Int }
+    private enum Keys: String, CodingKey { case weights, steps }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: Keys.self)
+        weights = try (c.decodeIfPresent([Weight].self, forKey: .weights) ?? []).map { WeightSample(date: $0.date, kg: $0.kg) }
+        steps = try (c.decodeIfPresent([Steps].self, forKey: .steps) ?? []).map { StepCount(day: $0.day, steps: $0.steps) }
+    }
+
+    public func requestReadAccess() async throws {}
+
+    public func weights(from start: Date, to end: Date) async throws -> [WeightSample] {
+        weights.filter { $0.date >= start && $0.date < end }
+    }
+
+    public func dailySteps(from start: Date, to end: Date) async throws -> [StepCount] {
+        steps.filter { $0.day >= start && $0.day < end }
+    }
+}
