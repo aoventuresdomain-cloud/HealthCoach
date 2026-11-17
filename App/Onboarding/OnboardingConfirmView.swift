@@ -12,7 +12,7 @@ struct OnboardingConfirmView: View {
     @State private var editing: Row?
 
     enum Row: String, CaseIterable, Identifiable {
-        case you, goal, hurts, sleep, work, office, fixed, kit, longest, cues, checkIn
+        case you, goal, hurts, paperStart, sleep, work, office, fixed, kit, longest, cues, checkIn
         var id: String { rawValue }
     }
 
@@ -36,6 +36,7 @@ struct OnboardingConfirmView: View {
                 row(.you)
                 row(.goal)
                 row(.hurts)
+                row(.paperStart)
             }
             Section("Week") {
                 row(.sleep)
@@ -101,6 +102,7 @@ struct OnboardingConfirmView: View {
         case .you: "You"
         case .goal: "Goal"
         case .hurts: "Anything that hurts"
+        case .paperStart: "Started on paper"
         case .sleep: "Sleep"
         case .work: "Work hours"
         case .office: "Office days"
@@ -112,9 +114,10 @@ struct OnboardingConfirmView: View {
         }
     }
 
-    /// Requirements §12 left only these "to confirm" (design B9).
+    /// Requirements §12 left only these "to confirm" (design B9); the paper
+    /// start date is a guess too (decision E13).
     private func isGuess(_ row: Row) -> Bool {
-        [.sleep, .work, .longest].contains(row)
+        [.paperStart, .sleep, .work, .longest].contains(row)
     }
 
     private func hasEditor(_ row: Row) -> Bool {
@@ -129,6 +132,9 @@ struct OnboardingConfirmView: View {
             return parts.isEmpty ? "Add height and weight" : parts.joined(separator: " · ")
         case .goal:
             return "\(OnboardingFormat.target(p.goal.target)) · \(p.goal.phaseWeeks)-week phase"
+        case .paperStart:
+            guard let start = p.programme.startDate else { return "Not yet" }
+            return start.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated))
         case .hurts:
             return p.about.painAreas.isEmpty ? "Nothing" : p.about.painAreas.map(OnboardingFormat.area).joined(separator: ", ")
         case .sleep:
@@ -177,6 +183,13 @@ struct OnboardingConfirmView: View {
             ForEach(OnboardingFormat.areas, id: \.self) { area in
                 Toggle(OnboardingFormat.area(area), isOn: painBinding(area))
             }
+        case .paperStart:
+            // E13: the week number counts from here; always a Monday.
+            DatePicker("Week 1 began", selection: Binding(
+                get: { profile.programme.startDate ?? OnboardingFlow.paperStart },
+                set: { profile.programme.startDate = AlarmSchedule.mondayOf($0, calendar: .coach) }
+            ), in: ...AppClock.now(), displayedComponents: .date)
+            .accessibilityIdentifier("onboarding.paperStartPicker")
         case .sleep:
             Stepper("\(OnboardingFormat.hours(profile.schedule.sleepHours)) h asleep", value: $profile.schedule.sleepHours, in: 6...9, step: 0.25)
             TimeOfDayPicker(title: "Alarm", time: $profile.schedule.earliestWake)

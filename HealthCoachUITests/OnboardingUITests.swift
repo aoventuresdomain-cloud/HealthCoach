@@ -18,6 +18,7 @@ final class OnboardingUITests: XCTestCase {
         // Every row shows a value without any input (decision E6 defaults).
         let expected = [
             "you": "178 cm · 82 kg",
+            "paperStart": "16 Nov",
             "hurts": "Nothing",
             "sleep": "7.5 h asleep",
             "work": "09:00–18:00",
