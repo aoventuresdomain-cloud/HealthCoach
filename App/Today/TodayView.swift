@@ -26,7 +26,14 @@ struct TodayView: View {
     var body: some View {
         let now = AppClock.now()
         let date = calendar.date(byAdding: .day, value: dayOffset, to: now) ?? now
-        let plan = DayPlan.make(for: date, programme: programme, profile: profile, calendar: calendar)
+        _ = answersVersion
+        // M2-05: the same plan as the alarms, with the Sunday prompt's answers
+        // and the reduced week's dropped session.
+        let history = (try? SessionLogStore(context: context).all()) ?? []
+        let plan = DayPlan.make(for: date, programme: programme, profile: profile,
+                                answers: { WeekAnswersStore.shared.answers(weekStarting: $0, calendar: calendar) },
+                                dropping: Set(programme.droppedSessions(history: history)),
+                                calendar: calendar)
 
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {

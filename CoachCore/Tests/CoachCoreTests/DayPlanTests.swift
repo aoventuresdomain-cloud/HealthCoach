@@ -30,12 +30,39 @@ import Testing
         #expect(DayPlan.make(for: date(2026, 11, 23), programme: try phase1(), profile: Profile(), calendar: calendar) == nil)
     }
 
-    @Test func sleepRuleMatchesTheDesign() throws {
-        // 06:15 alarm → lights out 22:30, wind-down 22:00 (README, Today).
-        let plan = try #require(DayPlan.make(for: date(2026, 11, 23), programme: phase1(), profile: profile(), calendar: calendar))
-        #expect(plan.alarm == TimeOfDay(hour: 6, minute: 15))
-        #expect(plan.lightsOut == TimeOfDay(hour: 22, minute: 30))
-        #expect(plan.windDown == TimeOfDay(hour: 22, minute: 0))
+    @Test func sleepRuleComesFromTomorrowsAlarm() throws {
+        // Tuesday in the office from 08:00: run 06:50, alarm 06:35, so Monday
+        // night is lights out 22:50 (7.5 h + 15 min) and wind-down 22:20.
+        let answers = WeekAnswers(officeDays: [.tuesday], earlyStarts: [.tuesday: TimeOfDay(hour: 8, minute: 0)])
+        let monday = try #require(DayPlan.make(for: date(2026, 11, 23), programme: phase1(), profile: profile(),
+                                               answers: { _ in answers }, calendar: calendar))
+        #expect(monday.lightsOut == TimeOfDay(hour: 22, minute: 50))
+        #expect(monday.windDown == TimeOfDay(hour: 22, minute: 20))
+        #expect(monday.timeline.last?.detail == "Lights out 22:50 for a 06:35 alarm")
+        let tuesday = try #require(DayPlan.make(for: date(2026, 11, 24), programme: phase1(), profile: profile(),
+                                                answers: { _ in answers }, calendar: calendar))
+        #expect(tuesday.alarm == TimeOfDay(hour: 6, minute: 35))
+        #expect(tuesday.leave == TimeOfDay(hour: 7, minute: 35))
+        #expect(tuesday.timeline.map(\.kind) == [.wake, .session, .leave, .windDown])
+    }
+
+    @Test func lateAlarmTomorrowCapsLightsOutAtTheLatestBedtime() throws {
+        // Home Tuesday: alarm 08:00 would allow 00:15; 23:30 wins.
+        let monday = try #require(DayPlan.make(for: date(2026, 11, 23), programme: phase1(), profile: profile(), calendar: calendar))
+        #expect(monday.lightsOut == TimeOfDay(hour: 23, minute: 30))
+        #expect(monday.windDown == TimeOfDay(hour: 23, minute: 0))
+    }
+
+    @Test func todayMatchesTheAlarmThatRings() throws {
+        // QA-9: Today's alarm is the planner's wake, the one AlarmSchedule registers.
+        let programme = try phase1()
+        let plan = try #require(DayPlan.make(for: date(2026, 11, 23), programme: programme, profile: profile(), calendar: calendar))
+        let alarms = AlarmSchedule.make(now: date(2026, 11, 23, hour: 0), programme: programme, profile: profile(),
+                                        answers: { _ in WeekAnswers() }, calendar: calendar)
+        let first = try #require(alarms.first)
+        let c = calendar.dateComponents([.hour, .minute], from: first.fireDate)
+        #expect(plan.alarm == TimeOfDay(hour: c.hour!, minute: c.minute!))
+        #expect(first.title == "Upper A at \(try #require(plan.session).start)")
     }
 
     @Test func mondayWeekOneIsUpperAAfterTheAlarmWithItsLengthFromTheData() throws {
@@ -43,25 +70,30 @@ import Testing
         let plan = try #require(DayPlan.make(for: date(2026, 11, 23), programme: programme, profile: profile(), calendar: calendar))
         let slot = try #require(plan.session)
         #expect(slot.id == "upper-a")
-        #expect(slot.start == TimeOfDay(hour: 6, minute: 30))
+        // Home day: 09:00 − 15 shower − 39 min, rounded down to 08:05; alarm 15 min before.
+        #expect(slot.start == TimeOfDay(hour: 8, minute: 5))
+        #expect(plan.alarm == TimeOfDay(hour: 7, minute: 50))
         guard case let .strength(upperA) = programme.sessions["upper-a"] else { Issue.record("upper-a"); return }
         #expect(slot.minutes == upperA.durationMinutes[0])
-        #expect(slot.end == TimeOfDay(hour: 6, minute: 30).adding(minutes: upperA.durationMinutes[0]))
+        #expect(slot.end == TimeOfDay(hour: 8, minute: 5).adding(minutes: upperA.durationMinutes[0]))
         #expect(plan.timeline.map(\.kind) == [.wake, .session, .windDown])
     }
 
     @Test func basketballDayHasNoSessionButShowsTheFixedEvent() throws {
         let plan = try #require(DayPlan.make(for: date(2026, 11, 25), programme: phase1(), profile: profile(), calendar: calendar))
         #expect(plan.session == nil)
-        #expect(plan.timeline.map(\.kind) == [.wake, .fixed, .windDown])
-        #expect(plan.timeline[1].title == "Basketball")
-        #expect(plan.timeline[1].detail == "Evening")
+        // No session, so no alarm (E11): sleep in.
+        #expect(plan.alarm == nil)
+        #expect(plan.timeline.map(\.kind) == [.fixed, .windDown])
+        #expect(plan.timeline[0].title == "Basketball")
+        #expect(plan.timeline[0].detail == "Evening")
     }
 
     @Test func restDayHasOnlyWakeAndWindDown() throws {
         let plan = try #require(DayPlan.make(for: date(2026, 11, 27), programme: phase1(), profile: profile(), calendar: calendar))
         #expect(plan.planned.entry == .rest)
-        #expect(plan.timeline.map(\.kind) == [.wake, .windDown])
+        #expect(plan.alarm == nil)
+        #expect(plan.timeline.map(\.kind) == [.windDown])
     }
 
     @Test func runWalkLengthComesFromItsWeek() throws {

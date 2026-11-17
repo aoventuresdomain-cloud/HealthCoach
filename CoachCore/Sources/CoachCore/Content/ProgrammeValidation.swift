@@ -75,6 +75,9 @@ extension Programme {
                         if case .circuit? = sessions[swap.session] {} else {
                             problems.append("\(sessionID) week \(week.week): indoor swap \(swap.session) is not a circuit session")
                         }
+                        // The weather swap keeps the run's slot, so the wake time holds (M2-03).
+                        check(swap.durationMinutes <= week.durationMinutes,
+                              "\(sessionID) week \(week.week): indoor swap is longer than the run (\(swap.durationMinutes) > \(week.durationMinutes) min)")
                     }
                 }
             case let .circuit(circuit):
