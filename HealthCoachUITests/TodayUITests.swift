@@ -51,13 +51,18 @@ final class TodayUITests: XCTestCase {
         XCTAssertTrue(app.buttons["today.backToToday"].exists)
     }
 
-    /// QA-31: the "missing, set again" reassurance still works when the store starts empty.
+    /// UI-12 (U2): even when alarms were missing and set again there is no banner;
+    /// the re-set shows only in the debug line.
     @MainActor
-    func testMissingAlarmsAreSetAgainWithTheFlag() throws {
+    func testMissingAlarmsAreSetAgainWithoutABanner() throws {
         let app = XCUIApplication()
         app.launchArguments = ["-uitest", "-now", "2026-11-23T06:20:00Z", "-fixture", "week1-monday", "-missingAlarms"]
         app.launch()
         XCTAssertTrue(app.staticTexts["today.title"].waitForExistence(timeout: 15))
-        XCTAssertTrue(app.descendants(matching: .any)["today.alarmBanner"].waitForExistence(timeout: 5))
+        let status = app.staticTexts["debug.launch"]
+        XCTAssertTrue(status.waitForExistence(timeout: 5))
+        expectation(for: NSPredicate(format: "label CONTAINS 'alarms=8'"), evaluatedWith: status)
+        waitForExpectations(timeout: 10)
+        XCTAssertFalse(app.descendants(matching: .any)["today.alarmBanner"].exists)
     }
 }

@@ -40,8 +40,12 @@ final class AlarmPermissionUITests: XCTestCase {
         // The spike screen, not the planner, owns the alarms in this test (M2-02).
         app.launchArguments = ["-uitest", "-realAlarms", "-fixture", "week1-monday", "-spikeAlarms"]
         app.launch()
+        // UI-12: the spike link is in Today's ⋯ menu (M0-11b: only under -spikeAlarms).
+        let more = app.buttons["today.more"]
+        XCTAssertTrue(more.waitForExistence(timeout: 10))
+        more.tap()
         let link = app.buttons["home.spikeTests"]
-        XCTAssertTrue(link.waitForExistence(timeout: 10))
+        XCTAssertTrue(link.waitForExistence(timeout: 5))
         link.tap()
         return app
     }

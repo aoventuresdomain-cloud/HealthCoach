@@ -40,7 +40,7 @@ final class SundayPromptUITests: XCTestCase {
         XCTAssertLessThan(elapsed, 20, "Sunday prompt took \(elapsed) s")
 
         // Reopening shows what was saved.
-        app.buttons["today.planWeekToolbar"].tap()
+        openMenuItem(app, "today.planWeekToolbar")
         XCTAssertTrue(monday.waitForExistence(timeout: 5))
         XCTAssertTrue(monday.isSelected)
         XCTAssertTrue(app.buttons["sunday.day.tuesday"].isSelected)
@@ -53,7 +53,7 @@ final class SundayPromptUITests: XCTestCase {
     @MainActor
     func testEarlyStartIsKept() throws {
         let app = launch()
-        app.buttons["today.planWeekToolbar"].tap()
+        openMenuItem(app, "today.planWeekToolbar")
         let times = app.buttons["sunday.times"]
         XCTAssertTrue(times.waitForExistence(timeout: 5))
         times.tap()
@@ -64,9 +64,20 @@ final class SundayPromptUITests: XCTestCase {
         XCTAssertEqual(early.value as? String, "1")
         app.buttons["sunday.done"].tap()
 
-        app.buttons["today.planWeekToolbar"].tap()
+        openMenuItem(app, "today.planWeekToolbar")
         XCTAssertTrue(app.switches["sunday.early.monday"].waitForExistence(timeout: 5),
                       "times stay open when any are set")
         XCTAssertEqual(app.switches["sunday.early.monday"].value as? String, "1")
+    }
+
+    /// UI-12: Plan the week lives in Today's ⋯ menu.
+    @MainActor
+    private func openMenuItem(_ app: XCUIApplication, _ id: String) {
+        let more = app.buttons["today.more"]
+        XCTAssertTrue(more.waitForExistence(timeout: 5))
+        more.tap()
+        let item = app.buttons[id]
+        XCTAssertTrue(item.waitForExistence(timeout: 5))
+        item.tap()
     }
 }
