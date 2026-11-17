@@ -1,6 +1,6 @@
 {
-  "schemaVersion": 0,
-  "note": "Provisional shape (M3-01). Office-day lunch orders within about 8 minutes' walk of St James's Market (SW1Y). Walk times are estimates; prices are approximate (Nov 2026). Nutrition is the chain's published figure unless `nutritionSource` says estimate. Re-check monthly; swap any entry in Settings.",
+  "schemaVersion": 1,
+  "note": "Schema v1 (M3-02). Office-day lunch orders within about 8 minutes' walk of St James's Market (SW1Y). Walk times are estimates; prices are approximate (Nov 2026). Nutrition is the chain's published figure unless `nutritionSource` says estimate. Re-check monthly; swap any entry in Settings.",
   "origin": {
     "name": "St James's Market",
     "postcode": "SW1Y 4AH",

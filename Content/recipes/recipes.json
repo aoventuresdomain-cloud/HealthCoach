@@ -1,6 +1,6 @@
 {
-  "schemaVersion": 0,
-  "note": "Provisional shape (M3-01); the Planner Engineer owns the schema and may rename fields. Every recipe makes exactly 2 portions (the protein shake is 1: it is the owner's only); ingredient qty is the total for all portions. perPortion is one person's share. Values are estimates from typical UK label figures; tracking is loose by design. No raw fish anywhere.",
+  "schemaVersion": 1,
+  "note": "Schema v1 (M3-02, Planner Engineer). Every recipe makes exactly 2 portions (the protein shake is 1: it is the owner's only); ingredient qty is the total for all portions. perPortion is one person's share. Values are estimates from typical UK label figures; tracking is loose by design. No raw fish anywhere.",
   "shop": {
     "default": "waitrose",
     "searchUrl": "https://www.waitrose.com/ecom/shop/search?searchTerm={search}",
@@ -47,12 +47,27 @@
     "items": [
       {
         "ingredient": "creatine",
+        "label": "Creatine",
         "qty": 5,
         "unit": "g",
-        "months": "all"
+        "months": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ]
       },
       {
         "ingredient": "vitamin-d",
+        "label": "Vitamin D",
         "qty": 1,
         "unit": "each",
         "dose": "10 µg",
@@ -83,7 +98,13 @@
       "max": 4
     },
     "shopping": false,
-    "note": "One fixed entry per box night, recorded at these per-portion values. Pick the box's high-protein or calorie-smart recipes when choosing. No raw fish recipes. The box brings its own ingredients, so box nights add nothing to the top-up list."
+    "note": "One fixed entry per box night, recorded at these per-portion values. Pick the box's high-protein or calorie-smart recipes when choosing. No raw fish recipes. The box brings its own ingredients, so box nights add nothing to the top-up list.",
+    "defaultNights": [
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday"
+    ]
   },
   "ingredients": {
     "greek-yogurt-0": {
@@ -670,6 +691,18 @@
       },
       "unit": "each",
       "search": "vitamin d 10ug"
+    },
+    "avocado": {
+      "name": "Ripe avocados",
+      "aisle": "produce",
+      "staple": false,
+      "per100": {
+        "kcal": 160,
+        "protein": 2
+      },
+      "unit": "each",
+      "gramsEach": 150,
+      "search": "ripe avocados"
     }
   },
   "recipes": [
@@ -1175,6 +1208,244 @@
         "Shake whey and cold milk together."
       ],
       "note": "One portion: for the owner only. Planned only when the day would otherwise fall short of protein (see snackRule)."
+    },
+    {
+      "id": "side-rice",
+      "name": "Basmati rice on the side",
+      "kind": "extra",
+      "extraKind": "side",
+      "addsTo": [
+        "dinner",
+        "box-night",
+        "sunday-cook"
+      ],
+      "portions": 2,
+      "minutes": 2,
+      "perPortion": {
+        "kcal": 200,
+        "protein": 4
+      },
+      "ingredients": [
+        {
+          "ingredient": "rice-pouch",
+          "qty": 1
+        }
+      ],
+      "method": [
+        "Microwave the pouch as the pack says; split between two plates."
+      ]
+    },
+    {
+      "id": "side-potatoes",
+      "name": "Buttered new potatoes",
+      "kind": "extra",
+      "extraKind": "side",
+      "addsTo": [
+        "dinner",
+        "box-night",
+        "sunday-cook"
+      ],
+      "portions": 2,
+      "minutes": 20,
+      "perPortion": {
+        "kcal": 190,
+        "protein": 3
+      },
+      "ingredients": [
+        {
+          "ingredient": "new-potatoes",
+          "qty": 400
+        },
+        {
+          "ingredient": "butter",
+          "qty": 10
+        }
+      ],
+      "method": [
+        "Boil the potatoes for 15–20 minutes until tender; toss with the butter."
+      ]
+    },
+    {
+      "id": "side-bread",
+      "name": "Sourdough with olive oil",
+      "kind": "extra",
+      "extraKind": "side",
+      "addsTo": [
+        "dinner",
+        "box-night",
+        "lunch"
+      ],
+      "portions": 2,
+      "minutes": 2,
+      "perPortion": {
+        "kcal": 160,
+        "protein": 5
+      },
+      "ingredients": [
+        {
+          "ingredient": "wholemeal-bread",
+          "qty": 100
+        },
+        {
+          "ingredient": "olive-oil",
+          "qty": 10
+        }
+      ],
+      "method": [
+        "Slice and warm the bread; drizzle with the oil."
+      ]
+    },
+    {
+      "id": "dinner-chicken-boost",
+      "name": "Extra chicken with dinner",
+      "kind": "extra",
+      "extraKind": "protein-boost",
+      "addsTo": [
+        "box-night",
+        "dinner"
+      ],
+      "portions": 2,
+      "minutes": 2,
+      "perPortion": {
+        "kcal": 150,
+        "protein": 31
+      },
+      "ingredients": [
+        {
+          "ingredient": "cooked-chicken",
+          "qty": 200
+        }
+      ],
+      "method": [
+        "Warm the cooked chicken in the pan for the last 3 minutes, or serve cold on the side."
+      ],
+      "note": "For box recipes that come in under 40 g protein."
+    },
+    {
+      "id": "second-snack-yogurt",
+      "name": "Yogurt, granola and berries (small)",
+      "kind": "extra",
+      "extraKind": "second-snack",
+      "addsTo": [
+        "snack"
+      ],
+      "portions": 1,
+      "minutes": 2,
+      "perPortion": {
+        "kcal": 320,
+        "protein": 25
+      },
+      "ingredients": [
+        {
+          "ingredient": "greek-yogurt-0",
+          "qty": 200
+        },
+        {
+          "ingredient": "granola",
+          "qty": 40
+        },
+        {
+          "ingredient": "frozen-berries",
+          "qty": 80
+        }
+      ],
+      "method": [
+        "Yogurt in a bowl, topped with berries and granola."
+      ],
+      "note": "One portion: the owner only."
+    },
+    {
+      "id": "second-snack-toast",
+      "name": "Cheese on toast and an apple",
+      "kind": "extra",
+      "extraKind": "second-snack",
+      "addsTo": [
+        "snack"
+      ],
+      "portions": 1,
+      "minutes": 3,
+      "perPortion": {
+        "kcal": 390,
+        "protein": 19
+      },
+      "ingredients": [
+        {
+          "ingredient": "wholemeal-bread",
+          "qty": 80
+        },
+        {
+          "ingredient": "light-cheddar",
+          "qty": 40
+        },
+        {
+          "ingredient": "apple",
+          "qty": 1
+        }
+      ],
+      "method": [
+        "Toast the bread, top with sliced cheese; apple on the side."
+      ],
+      "note": "One portion: the owner only."
+    },
+    {
+      "id": "breakfast-eggs-avocado",
+      "name": "Eggs, avocado, feta and toast",
+      "kind": "extra",
+      "extraKind": "richer-breakfast",
+      "addsTo": [
+        "breakfast"
+      ],
+      "replaces": "breakfast",
+      "portions": 2,
+      "minutes": 12,
+      "perPortion": {
+        "kcal": 690,
+        "protein": 38
+      },
+      "ingredients": [
+        {
+          "ingredient": "eggs",
+          "qty": 6
+        },
+        {
+          "ingredient": "wholemeal-bread",
+          "qty": 200
+        },
+        {
+          "ingredient": "avocado",
+          "qty": 1
+        },
+        {
+          "ingredient": "feta",
+          "qty": 40
+        },
+        {
+          "ingredient": "butter",
+          "qty": 10
+        }
+      ],
+      "method": [
+        "Toast the bread.",
+        "Scramble or fry the eggs in the butter until set.",
+        "Serve on the toast with sliced avocado and crumbled feta."
+      ],
+      "note": "Replaces the planned breakfast on higher-calorie days."
     }
-  ]
+  ],
+  "extraRules": {
+    "proteinFirst": {
+      "extra": "dinner-chicken-boost",
+      "whenPlannedProteinBelow": 150
+    },
+    "order": [
+      "side-rice|side-potatoes|side-bread",
+      "second-snack-yogurt",
+      "breakfast-eggs-avocado",
+      "second-snack-toast"
+    ],
+    "maxPerDay": 2,
+    "maxPerKind": 1,
+    "sideTiming": "On training days, add the side to the first meal after the session.",
+    "note": "Extras close a day still under the band (a raised weekly target, maintenance). The protein boost goes first whenever planned protein is under the line; then add in `order` (a|b|c = one of these) until the day is inside the band: carbs and protein before fat, lowest protein per kcal last (Advisor, 17 Nov). At most 2 extras a day (Head of Engineering) and one of each kind. An extra with `replaces` swaps out that meal."
+  }
 }
