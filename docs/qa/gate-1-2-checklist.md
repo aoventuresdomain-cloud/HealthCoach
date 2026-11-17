@@ -1,17 +1,19 @@
-# Gate 1 checklist (internal)
+# Combined Gate 1 + Gate 2 checklist (internal)
 
-Head of QA · drafted 2026-11-17 · target round ~12 Dec, as soon as M2-05 closes. Signed by the Head of QA and the Advisor (standing order D7: no CEO questions).
+Head of QA · drafted 2026-11-17, extended the same day for the CEO's re-plan: the whole app is ready for review in 1–2 days, so Gate 1 and Gate 2 are one internal QA round. Signed by the Head of QA and the Advisor (standing order D7: no CEO questions).
 
-**Gate 1 asks:** can the app run the week with no paper? (plan §7: "Owner: stop using paper; the app runs the week"). Judged against the guiding rule: *if it takes thinking or admin time, it has failed.*
+**Timetable (London):** PRs re-checked as they land on 17 Nov · **round on one frozen SHA, morning of 18 Nov** · fix and retest 18 Nov 12:00–18:00 · round closed and report merged by 18:00.
 
-**Gate 1 passes when** every line below passes or is on the agreed deferred list, there are no open blockers or majors, and the simulated week (§A) needs only next, done and the Sunday prompt.
+**The round asks:** can the app run the week, training and eating, with no paper? (plan §7, Gates 1 and 2). Judged against the guiding rule: *if it takes thinking or admin time, it has failed.*
+
+**The round passes when** every line below passes or is on the agreed cut or deferred list, there are no open blockers or majors, and the simulated week (§A) needs only next, done and the Sunday prompt.
 
 Round SHA: `________` (40 chars) · Core tests run: `________` · App build run (dispatched, `screenshots` + `publish_shots`): `________` · Date: `________`
 
 ## Round setup
 
 1. HoE freezes merges to blocker and major fixes plus test-only changes (test plan §5).
-2. Dispatch **App build** on the round SHA with `publish_shots`. UI-test PNGs land in `qa/gate-0a-shots` `screenshots/ui-tests/`. One run is budgeted at ~21 min (QA-6), with one re-run in reserve.
+2. Dispatch **App build** on the round SHA with `publish_shots`. UI-test PNGs land in `qa/gate-0a-shots` `screenshots/ui-tests/`. One run is budgeted at ~21 min (QA-6), with one re-run in the 12:00–18:00 fix window.
 3. Core tests run green on the same SHA (Linux).
 
 ## A. The simulated week (the gate itself)
@@ -32,6 +34,11 @@ One scripted week on the injected clock: a hybrid week 2 (office Mon, Tue, Thu; 
 | A10 | Sat · Today | Upper B at the day-off time; Saturday's wind-down matches the weekday median (E14) | shot |
 | A11 | Sun · Today | Optional walk shown, no alarm; Sunday prompt notification due at its time, not in quiet hours | shot + unit test |
 | A12 | Any day · weight | 7-day weight trend and steps from sample data (M2-04) | shot |
+| A13 | Mon–Sun · Today's daily band | Meals for the day shown in the band, pre-ticked, protein about 160 g and calories at the phase target; nothing to tap if eaten as planned (M3-02) | shot + CoachCore |
+| A14 | Sun 18:05 · top-up list | One merged list for the week, sorted by aisle, staples once, a search link per item (M3-03) | shot |
+| A15 | Mon, Tue, Thu · office lunch | The lunch card suggests one order on office days only (M3-04) | shot |
+| A16 | Sun · Progress | Weight trend, sessions done, loads; "Ask the coach now" builds a summary and opens the share sheet (M4-03, M4-02) | shot |
+| A17 | Sun · import | A valid Claude block pasted changes next week's plan; a bad one is rejected plainly and the plan stays (M4-02) | UI test + CoachCore |
 
 **Guiding-rule judgement (QA + Advisor):** count every tap in §A that isn't next, done or the Sunday prompt. Each one is a major unless the Advisor accepts it.
 
@@ -53,6 +60,29 @@ One scripted week on the injected clock: a hybrid week 2 (office Mon, Tue, Thu; 
 - [ ] **M2-04** 7-day weight average from sample Health data · no health data leaves the phone (diff: only Open-Meteo calls).
 - [ ] **M2-05** Sunday prompt under 20 s of taps (UI test) · no notification fires 22:30–06:00 (unit test) · full Today timeline.
 
+## C2. M3 · Meals (Done when lines, as re-planned)
+
+- [ ] **M3-01** Box-night calories and protein entered · 3–4 breakfasts, home lunches and 1 Sunday cook, all 2 portions, with calories and protein · 5–6 lunch orders within 8 minutes' walk of St James's Market · every recipe validated by a content test (L2).
+- [ ] **M3-02** Meal plan in Today's daily band, pre-ticked · daily protein planned at about 160 g, calories match the phase target (CoachCore test, Advisor-reviewed) · a simulated week of eating needs no taps when eaten as planned. *(Evening "anything different?" prompt and the social-meal counter: cut, see below.)*
+- [ ] **M3-03** One merged weekly list sorted by aisle · staples ticked once · each item has a search link to the default shop (E5) · links are plain search URLs, no API, no account.
+- [ ] **M3-04** Meals, top-up and lunch screens walked in the simulator against the guiding rule · the lunch card suggests one order on office days.
+
+## C3. M4 · Coach (Done when lines, as re-planned)
+
+- [ ] **M4-01** A simulated 2-week stall raises a flag · calories adjust from the 7-day trend within safe bounds (Advisor-reviewed values) · load from logs, volume from recovery.
+- [ ] **M4-02** The summary holds only what the CEO chooses to share, through the share sheet; nothing is sent automatically, and there is no API call · an imported block changes next week's plan · a malformed or wrong-version block is rejected with a plain message and last week's plan stays (CoachCore tests).
+- [ ] **M4-03** Progress view shows the trend, sessions and loads · "Ask the coach now" builds a summary and opens the share sheet. *(Photo ghost outline and mood check: cut, see below.)*
+- [ ] **G2-01** Demo walkthrough of a typical week (UI-test shots from §A) · the deferred and cut lists · open taste decisions · one recommendation on payment.
+
+## Cut and deferred by the re-plan (17 Nov, not round lines)
+
+Each is checked only for absence: no dead button, empty screen or copy promising it.
+
+- Evening meal prompt ("anything different?")
+- Social-meal counter (2 untracked meals)
+- Photo ghost outline
+- Mood check
+
 ## D. Carried QA items to close in this round
 
 | ID | Line | Status at drafting |
@@ -69,7 +99,8 @@ One scripted week on the injected clock: a hybrid week 2 (office Mon, Tue, Thu; 
 
 - [ ] CoachCore is Foundation only (grep).
 - [ ] No secrets, health data or photos in the repo.
-- [ ] Network calls only to Open-Meteo (grep `URLSession`, `URL(string:`).
+- [ ] Network calls only to Open-Meteo (grep `URLSession`, `URL(string:`); shop search links open in the browser only when tapped.
+- [ ] Health data and photos go nowhere except the CEO's own iCloud backup and the summaries they choose to share.
 - [ ] Screenshots en_GB, 24-hour clock (QA-4).
 
 ## Deferred to payment (not Gate 1 lines)
@@ -78,6 +109,8 @@ Alarms ringing locked, on Silent and in a Focus · alarms surviving a TestFlight
 
 ## Advisor questions for the co-sign
 
-1. Does the simulated week (§A) match how the CEO's real week 2 should feel, with no paper?
+1. Does the simulated week (§A), training and eating, match how the CEO's real week should feel, with no paper?
 2. Are the E13 outcomes on A8 and A9 right in coaching terms?
 3. Any tap in §A beyond next, done and the Sunday prompt that you'd accept?
+4. Are the M3-02 protein and calorie targets and the M4-01 safe bounds the values you signed off?
+5. With the evening prompt cut, is "pre-ticked as planned" an acceptable way to log meals until it returns?
