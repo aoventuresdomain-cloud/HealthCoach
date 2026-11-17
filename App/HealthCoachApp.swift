@@ -16,7 +16,7 @@ struct HealthCoachApp: App {
         LiveActivityCleanup.endLeftoversAtLaunch()
         if options.isUITest {
             UIView.setAnimationsEnabled(false)
-            CoachBlockStore.resetForUITest()
+            if !options.keepCoachBlocks { CoachBlockStore.resetForUITest() }
         }
         if let name = options.fixture {
             do {
@@ -24,7 +24,9 @@ struct HealthCoachApp: App {
                 try ProfileStore(context: container.mainContext).save(fixture.profile)
                 let logs = SessionLogStore(context: container.mainContext)
                 for log in fixture.logs { try logs.save(log) }
-                try fixture.applyWeekAnswers(to: WeekAnswersStore())
+                // The store the app reads: under -uitest that is the cleared test suite, not
+                // .standard, so a fixture's answers must go there or Today never sees them.
+                try fixture.applyWeekAnswers(to: .shared, calendar: .coach)
             } catch {
                 fatalError("UI test fixture \(name) failed: \(error.localizedDescription)")
             }

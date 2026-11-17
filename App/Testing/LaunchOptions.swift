@@ -8,11 +8,16 @@ import Foundation
 ///     -fixture week1-monday        loads App/Testing/Fixtures/fixture-week1-monday.json
 ///     -fixture week1-on-track      week 1 with Mon, Tue and Thu logged (a normal rest Friday)
 ///     -fixture week2-hybrid        Gate 1 §A: week 2 from 23 Nov, office Mon/Tue/Thu, early Tue 08:00, late Thu 19:00
+///     -fixture week2-hybrid-sunday the same profile with the week unanswered (§A A1: the Sunday prompt)
+///     -fixture week2-hybrid-week   week2-hybrid plus the week's logs (Mon, Tue, Fri, Sat); logs after -now are left out
 ///     -realAlarms                  with -uitest: real AlarmKit and alarm plan kept across launches (QA-2)
 ///     -denyAlarms                  with -uitest: the fake alarms report no permission (QA-1 warning)
 ///     -spikeAlarms                 the spike screen keeps the alarms even with a planned profile (QA-2)
 ///     -weather rain|dry|offline    fake forecast for the weather swap (M2-03); UI tests are offline without it
 ///     -clipboard <text>            what "Import Claude's reply" reads instead of the clipboard (M4-02, QA A17)
+///     -clipboardBase64 <base64>    the same, base64 UTF-8, for multi-line text (a raw argument with
+///                                  newlines and quotes didn't reach the app intact in A17's UI test)
+///     -keepCoachBlocks             with -uitest: imported blocks survive the relaunch (A17 "next day" check)
 ///
 /// Debug builds only. Release builds ignore every flag, like the Spike tests screen.
 struct LaunchOptions: Equatable {
@@ -24,6 +29,7 @@ struct LaunchOptions: Equatable {
     var weather: String?
     var denyAlarms = false
     var clipboard: String?
+    var keepCoachBlocks = false
 
     static let current = LaunchOptions(arguments: ProcessInfo.processInfo.arguments)
 
@@ -46,7 +52,11 @@ struct LaunchOptions: Equatable {
         spikeAlarms = arguments.contains("-spikeAlarms")
         weather = value(after: "-weather")
         denyAlarms = arguments.contains("-denyAlarms")
-        clipboard = value(after: "-clipboard")
+        clipboard = value(after: "-clipboardBase64")
+            .flatMap { Data(base64Encoded: $0) }
+            .flatMap { String(data: $0, encoding: .utf8) }
+            ?? value(after: "-clipboard")
+        keepCoachBlocks = arguments.contains("-keepCoachBlocks")
         #endif
     }
 }
