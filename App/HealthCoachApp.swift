@@ -1,3 +1,4 @@
+import CoachCore
 import SwiftData
 import SwiftUI
 import UIKit
