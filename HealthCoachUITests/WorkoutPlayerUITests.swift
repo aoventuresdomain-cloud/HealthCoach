@@ -37,16 +37,21 @@ final class WorkoutPlayerUITests: XCTestCase {
                     // (lock screen / Dynamic Island) is in the shot.
                     XCUIDevice.shared.press(.home)
                     sleep(2)
+                    // QA-25: a fresh simulator asks "Allow Live Activities from
+                    // HealthCoach?" the first time; until it is allowed the island
+                    // stays empty. Accept it so the shots show the real activity.
+                    let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+                    allowLiveActivities(springboard)
                     let backgrounded = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
                     backgrounded.name = "player-rest-backgrounded"
                     backgrounded.lifetime = .keepAlways
                     add(backgrounded)
                     // QA-5b: pull down the Notification Centre, which shows the
                     // Live Activity as the lock screen does.
-                    let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
                     let top = springboard.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.005))
                     top.press(forDuration: 0.1, thenDragTo: springboard.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.7)))
                     sleep(2)
+                    allowLiveActivities(springboard)
                     // QA-19: the rest activity itself, not a leftover run-walk one.
                     let restTitle = springboard.staticTexts["Rest"]
                     XCTAssertTrue(restTitle.waitForExistence(timeout: 5), "no rest Live Activity in the Notification Centre")
@@ -87,5 +92,16 @@ final class WorkoutPlayerUITests: XCTestCase {
         attachment.name = name
         attachment.lifetime = .keepAlways
         add(attachment)
+    }
+
+    /// Taps "Allow" on the system's first-time Live Activities prompt if it is
+    /// showing. Does nothing when it has already been answered.
+    @MainActor
+    private func allowLiveActivities(_ springboard: XCUIApplication) {
+        let allow = springboard.buttons.matching(NSPredicate(format: "label ==[c] 'Allow'")).firstMatch
+        if allow.waitForExistence(timeout: 3), allow.isHittable {
+            allow.tap()
+            sleep(2)
+        }
     }
 }
