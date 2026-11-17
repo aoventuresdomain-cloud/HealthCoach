@@ -91,14 +91,20 @@ Each is checked only for absence: no dead button, empty screen or copy promising
 
 ## C4. Look and feel (CEO, 17 Nov: easy to use and cool, to researched best practice)
 
-Judged against the Designer's change list (due 17 Nov 16:00) and iOS's polish PR (due 18 Nov 06:00), on the round's UI-test shots at the iPhone Pro size, en_GB.
+Judged against `docs/design/ui-pass-1.md` (UI-1 to UI-13, each with Done when lines) and `docs/design/direction.md`, on the round's UI-test shots at the iPhone Pro size, en_GB.
 
-- [ ] Every item on the Designer's change list is done, or listed as deferred with a reason.
+- **P1, UI-1 to UI-6 (must ship):** each Done when line is a round line. A failure is a minor, or a major where it breaks a hard rule.
+- **P2, UI-7 to UI-11, and P3, UI-12 and UI-13 (if time allows):** if missing, record "not built", not a fail. If built, check them against their Done when lines.
+- **Hard rules (major if broken):** no new required tap · next and done never hidden · every existing accessibility identifier unchanged.
+- **Quick visual checks:** every screen dark · green accent, with no system blue except rest and walk · glass only on the close and secondary buttons and the tab bar · the app opens on Today · no tab bar mid-session (player, run-walk, walk) · a tab with no content yet shows its one-line `ContentUnavailableView`, never an empty screen.
+
+General lines:
+
 - [ ] **No new required taps.** The polish adds no step, dialog or control that the §A week needs. Re-count against the Advisor's accepted-tap list.
 - [ ] One-handed: next and done stay big, in the lower third and in thumb reach on every workout and run screen.
 - [ ] Hierarchy: each screen has one obvious primary action and one main number or time, readable at arm's length.
 - [ ] Consistency: one type scale, spacing and corner radius, plus SF Symbols, across Today, player, run-walk, meals, top-up, lunch and Progress.
-- [ ] Dark mode and Dynamic Type at the largest standard size: nothing clipped or overlapping (one shot each, of Today and the player).
+- [ ] Dynamic Type at the largest standard size: nothing clipped or overlapping (one shot each, of Today and the player).
 - [ ] Accessibility: VoiceOver labels on every control, and the accessibilityIdentifiers the UI tests rely on are unchanged.
 - [ ] Motion: transitions are short and never delay next or done. Reduce Motion is respected.
 - [ ] Copy: plain, British, no guilt copy (E13), and no text promising a cut feature.
