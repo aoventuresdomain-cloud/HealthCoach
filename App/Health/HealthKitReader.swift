@@ -87,6 +87,9 @@ final class BodyStats {
     static let shared = BodyStats()
 
     private(set) var weight: WeightTrend?
+    /// The weigh-ins behind `weight` (last 14 days), for the Progress chart's
+    /// faint daily dots. Shown on the phone only; never shared.
+    private(set) var weightSamples: [WeightSample] = []
     private(set) var steps: StepsSummary?
     /// False until a read has finished (the debug line says "pending").
     private(set) var hasRead = false
@@ -118,12 +121,14 @@ final class BodyStats {
         let stepsStart = calendar.date(byAdding: .day, value: -8, to: end) ?? end
         do {
             try await reader.requestReadAccess()
-            weight = WeightTrend.make(samples: try await reader.weights(from: weightStart, to: end),
-                                      endingOn: now, calendar: calendar)
+            let samples = try await reader.weights(from: weightStart, to: end)
+            weightSamples = samples
+            weight = WeightTrend.make(samples: samples, endingOn: now, calendar: calendar)
             steps = StepsSummary.make(days: try await reader.dailySteps(from: stepsStart, to: end),
                                       today: now, calendar: calendar)
         } catch {
             weight = nil
+            weightSamples = []
             steps = nil
         }
     }

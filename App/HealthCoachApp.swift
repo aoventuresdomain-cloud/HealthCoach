@@ -23,6 +23,7 @@ struct HealthCoachApp: App {
                 try ProfileStore(context: container.mainContext).save(fixture.profile)
                 let logs = SessionLogStore(context: container.mainContext)
                 for log in fixture.logs { try logs.save(log) }
+                try fixture.applyWeekAnswers(to: WeekAnswersStore())
             } catch {
                 fatalError("UI test fixture \(name) failed: \(error.localizedDescription)")
             }

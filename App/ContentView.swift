@@ -38,13 +38,32 @@ private struct RootView: View {
                     .accessibilityIdentifier("root.error")
             case let .ready(content, programme, profile):
                 if profile.confirmed {
-                    NavigationStack {
-                        TodayView(content: content, programme: programme, profile: profile) { slot, week, recovery in
-                            playing = SessionLaunch.make(slot: slot, week: week, recovery: recovery,
-                                                         content: content, programme: programme, profile: profile,
-                                                         history: (try? SessionLogStore(context: context).all()) ?? [])
+                    // UI-6: Today, Meals and Progress as tabs. Always opens on Today;
+                    // sessions stay full-screen covers, so no tab bar mid-session.
+                    TabView {
+                        Tab("Today", systemImage: "sun.max") {
+                            NavigationStack {
+                                TodayView(content: content, programme: programme, profile: profile) { slot, week, recovery in
+                                    playing = SessionLaunch.make(slot: slot, week: week, recovery: recovery,
+                                                                 content: content, programme: programme, profile: profile,
+                                                                 history: (try? SessionLogStore(context: context).all()) ?? [])
+                                }
+                            }
+                        }
+                        Tab("Meals", systemImage: "fork.knife") {
+                            NavigationStack {
+                                ContentUnavailableView("Meals", systemImage: "fork.knife",
+                                                       description: Text("Meals arrive with this week's recipes."))
+                                    .accessibilityIdentifier("meals.unavailable")
+                            }
+                        }
+                        Tab("Progress", systemImage: "chart.line.uptrend.xyaxis") {
+                            NavigationStack {
+                                ProgressScreen(content: content, programme: programme, profile: profile)
+                            }
                         }
                     }
+                    .tabBarMinimizeBehavior(.onScrollDown)
                     .fullScreenCover(item: $playing) { launch in
                         launch.view { log in
                             do {
