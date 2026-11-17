@@ -52,7 +52,7 @@ Sizes: **S** < 30 min, **M** 30–90 min. P1 is the must-ship set (~5 h). P2 mak
 
 ## P3 · only if time is left
 
-**UI-12 · Today timeline current dot (S).** Current item uses `circle.fill` with `.symbolEffect(.pulse)`; past items stay faded.
+**UI-12b · Today timeline current dot (S).** (Renamed from UI-12; UI-12 is now [Declutter](ui-12-declutter.md).) Current item uses `circle.fill` with `.symbolEffect(.pulse)`; past items stay faded.
 
 **UI-13 · Meals and Progress polish (M).** Build to the screen rules in `direction.md` when M3-04 and M4-03 land: pre-ticked meal rows (unticking triggers nothing), 44 pt aisle ticks, one large lunch suggestion, a Swift Charts hero showing the 7-day average with daily weigh-ins as faint dots, and "Phase 1 · week 3 of 6" over a quieter "Week 3 of about 20".
 

@@ -4,7 +4,7 @@ Product Designer · 17 Nov 2026 · Round 1. Asked by the CEO at 21:08 UTC: *"Cha
 
 **Before shots:** `qa/gate-0a-shots` at `375c226` (built from `b59f62d`), in `screenshots/ui-tests/`. They are named here by their test attachment name, for example `week1-monday` is `testClockAndFixtureAreInjected-week1-monday_0_….png`.
 
-> Naming clash: `ui-pass-1.md` already has a P3 item called "UI-12 · Today timeline current dot". This file is the board's **UI-12 Declutter**. I suggest the old P3 item becomes UI-12b; it is unaffected by this file.
+> Naming: the old P3 item in `ui-pass-1.md` ("Today timeline current dot") is renamed **UI-12b** (Head of Engineering, 17 Nov). This file is **UI-12 Declutter**.
 
 ## The rules for every screen
 
@@ -35,7 +35,7 @@ Apple HIG basis: *Layout* (prioritise essential content and defer secondary cont
 | "N alarms were missing. They're set again" banner (`today.alarmBanner`) | **Cut**. It shows on almost every launch and needs nothing | Rule 4. Advisor point 5 already called it reassurance |
 | `today.alarmWarning` (no alarms set, with `today.openSettings`) and "Alarm check failed" | **Keep** | These need the owner |
 | `today.weight` "82.7 kg (7-day average), down 0.7 kg on last week" | **Move to Progress** (it is already `progress.weight` there) | It is not today's action, and a daily number on Today invites checking |
-| Calendar icon `today.planWeekToolbar` + wrench `home.spikeTests` | **Move into one ⋯ menu**, top-right, new id `today.more`. It holds Plan week (`today.planWeekToolbar`), Tomorrow changed (M2-06) and, in debug and spike modes only, Spike tests (`home.spikeTests`, per M0-11b) | Two chrome icons become one, and M2-06 gets a home without adding a third |
+| Calendar icon `today.planWeekToolbar` + wrench `home.spikeTests` | **Move into one ⋯ menu**, top-right, new id `today.more`. It holds Plan week (`today.planWeekToolbar`), Tomorrow changed (M2-06) and, in debug and spike modes only, Spike tests (`home.spikeTests`, per M0-11b) | Two chrome icons become one, and M2-06 gets a home without adding a third. **This supersedes #72's "Tomorrow changed" secondary button on Today**; the iOS engineer builds it as a menu item instead (Head of Engineering, 17 Nov) |
 | `today.planWeek` card (weekend, when due) | **Keep, one line:** "Plan next week · 20 s ›" | It is the one admin task of the week; it must stay visible when due |
 | `today.weatherSwap` card | **Shrink to the card's meta line:** "28 min · rain swapped your run". `today.runAnyway` becomes the **secondary button** above Start | One card fewer; "Run anyway" is an action, so it belongs in the action bar |
 | `debug.launch` test status line | **Keep for tests, invisible in shots:** 1 pt tall, clipped, `.accessibilityHidden(false)` so XCUITest still reads its label | It makes every review shot look like a debug build |
