@@ -119,7 +119,7 @@ struct TodayView: View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: "cloud.rain.fill")
                 .font(.title2)
-                .foregroundStyle(.blue)
+                .foregroundStyle(.secondary)
             VStack(alignment: .leading, spacing: 8) {
                 Text(swap.note(programme: programme) + ".")
                     .accessibilityIdentifier("today.weatherSwap")
@@ -130,7 +130,7 @@ struct TodayView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .background(Color.blue.opacity(0.12), in: .rect(cornerRadius: 20))
+        .background(Color.surface, in: .rect(cornerRadius: Radius.card))
     }
 
     // MARK: Sunday prompt
@@ -231,18 +231,24 @@ struct TodayView: View {
                 if let subtitle = summary.subtitle {
                     Text(subtitle).foregroundStyle(.secondary)
                 }
-                FlowChips(chips: summary.chips)
+                // UI-4: one meta line instead of stacked chips.
+                if !summary.chips.isEmpty {
+                    Text(summary.chips.joined(separator: " · "))
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                }
                 if case .strength = slot.session, dayOffset == 0 {
                     Divider()
-                    HStack {
+                    // UI-4: label on its own line, then a full-width, large picker. Fine stays pre-selected.
+                    VStack(alignment: .leading, spacing: Space.s) {
                         Text("Still sore from last time?").foregroundStyle(.secondary)
-                        Spacer()
                         Picker("Still sore from last time?", selection: $recovery) {
                             Text("Fine").tag(RecoveryCheck.fine)
                             Text("Sore").tag(RecoveryCheck.sore)
                         }
                         .pickerStyle(.segmented)
-                        .fixedSize()
+                        .controlSize(.large)
+                        .frame(maxWidth: .infinity)
                         .accessibilityIdentifier("today.recovery")
                     }
                 }
@@ -290,7 +296,7 @@ struct TodayView: View {
                 return AnyView(Banner(strong: "No alarms set.",
                                       rest: wake.lastError ?? "Allow alarms in Settings so the coach can wake you.",
                                       identifier: "today.alarmWarning",
-                                      settingsLink: wake.lastError == nil))
+                                      settingsLink: wake.lastError == nil, warns: true))
             default:
                 return nil
             }
@@ -346,6 +352,9 @@ private struct Banner: View {
     var identifier = "today.alarmBanner"
     /// Adds "Open Settings" for a fix only the owner can make.
     var settingsLink = false
+    /// UI-2: only the zero-alarms warning buzzes; "missing, now set" is reassurance.
+    var warns = false
+    @State private var shown = false
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
@@ -365,6 +374,8 @@ private struct Banner: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
         .background(Color.orange.opacity(0.15), in: .rect(cornerRadius: 20))
+        .onAppear { shown = true }
+        .sensoryFeedback(trigger: shown) { _, new in warns && new ? .warning : nil }
     }
 }
 
@@ -404,28 +415,6 @@ struct TimelineCard: View {
             }
         }
         .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 20))
-    }
-}
-
-/// Chips under the session name, wrapping onto a second line when needed.
-struct FlowChips: View {
-    let chips: [String]
-
-    var body: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: 8) { chipViews }
-            VStack(alignment: .leading, spacing: 8) { chipViews }
-        }
-    }
-
-    @ViewBuilder private var chipViews: some View {
-        ForEach(chips, id: \.self) { chip in
-            Text(chip)
-                .font(.subheadline.weight(.semibold))
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(Color(.tertiarySystemFill), in: .capsule)
-        }
     }
 }
 

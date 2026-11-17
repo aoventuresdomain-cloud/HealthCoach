@@ -84,13 +84,15 @@ struct PhotoDayView: View {
                 }
                 if images[pose] == nil {
                     Image(systemName: pose == .front ? "figure.stand" : "figure.walk")
-                        .font(.system(size: 64))
+                        .font(.coachSymbol(64))
                         .foregroundStyle(.tertiary)
                 }
             }
             .frame(height: 220)
             .clipShape(.rect(cornerRadius: 14))
             Button(images[pose] == nil ? "Take \(pose.rawValue)" : "Retake") { take(pose) }
+                // QA-23: swap the label without a crossfade (no ghost text mid-change).
+                .transaction { $0.animation = nil }
                 .buttonStyle(.bordered)
                 .accessibilityIdentifier("photo.take.\(pose.rawValue)")
         }

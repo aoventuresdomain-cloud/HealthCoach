@@ -53,4 +53,19 @@ import Testing
         #expect(NextTime.text(step(.perSide(target: 10), kg: 6)) == "2 × 10 each side @ 6 kg")
         #expect(NextTime.text(step(.hold(seconds: 25), kg: nil)) == "2 × 25 s")
     }
+
+    /// UI-9: up only when next time's load beats today's heaviest set; never for bodyweight.
+    @Test func loadUpOnlyWhenHeavier() throws {
+        let programme = try phase1()
+        let log = try finishedUpperA(programme)
+        let lines = NextTime.lines(sessionID: "upper-a", programme: programme, week: 1, history: [log])
+        let week2 = try #require(WorkoutScript.make(sessionID: "upper-a", programme: programme, week: 2, history: [log]))
+        for line in lines {
+            let next = week2.sets.first { $0.exercise == line.exercise }?.kg
+            let today = log.sets.filter { $0.exercise == line.exercise }.compactMap(\.kg).max()
+            let expected = next.map { n in today.map { n > $0 } ?? false } ?? false
+            #expect(line.loadUp == expected, "\(line.exercise)")
+        }
+        #expect(NextTime.lines(sessionID: "upper-a", programme: programme, week: 1, history: []).allSatisfy { !$0.loadUp })
+    }
 }

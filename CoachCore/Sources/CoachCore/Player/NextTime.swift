@@ -8,6 +8,15 @@ public enum NextTime {
         public let exercise: String
         /// "2 × 9 @ 10 kg", "3 × 25 s", "2 × 10 each side @ 6 kg", " · slow lower" when the tempo step applies.
         public let text: String
+        /// The next load is heavier than today's heaviest set (shown green with
+        /// an up arrow). Held or lighter stays neutral: never red (UI-9).
+        public let loadUp: Bool
+
+        public init(exercise: String, text: String, loadUp: Bool = false) {
+            self.exercise = exercise
+            self.text = text
+            self.loadUp = loadUp
+        }
     }
 
     /// One line per exercise, in session order, for the session's next week
@@ -20,9 +29,12 @@ public enum NextTime {
                 ?? WorkoutScript.make(sessionID: sessionID, programme: programme, week: week, history: history)
         else { return [] }
         var seen = Set<String>()
+        let latest = history.filter { $0.sessionID == sessionID }.max { $0.startedAt < $1.startedAt }
         return script.sets.compactMap { step in
             guard seen.insert(step.exercise).inserted else { return nil }
-            return Line(exercise: step.exercise, text: text(step))
+            let today = latest?.sets.filter { $0.exercise == step.exercise }.compactMap(\.kg).max()
+            let up = step.kg.map { next in today.map { next > $0 } ?? false } ?? false
+            return Line(exercise: step.exercise, text: text(step), loadUp: up)
         }
     }
 
