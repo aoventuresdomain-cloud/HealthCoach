@@ -17,6 +17,8 @@ struct TodayView: View {
     @State private var alarmStatus = AlarmReconcileStatus.notYetRun
     /// The Monday the Sunday prompt sheet is open for; nil when closed.
     @State private var promptWeek: PromptWeek?
+    /// Tomorrow's date while the "Tomorrow changed" sheet is open (M2-06).
+    @State private var changingTomorrow: PromptWeek?
     /// Bumped after the prompt saves, so the "Plan next week" card re-reads the store.
     @State private var answersVersion = 0
     @Environment(\.modelContext) private var context
@@ -87,7 +89,7 @@ struct TodayView: View {
                         .accessibilityIdentifier("today.planWeekToolbar")
                 }
             }
-            if SpikeTests.isEnabled {
+            if SpikeTests.showsLink {
                 ToolbarItem(placement: .topBarTrailing) {
                     NavigationLink { SpikeTestsView() } label: { Image(systemName: "wrench.adjustable") }
                         .accessibilityLabel("Spike tests")
@@ -101,6 +103,17 @@ struct TodayView: View {
                              initial: WeekAnswersStore.shared.answers(weekStarting: week.monday, calendar: calendar),
                              workStart: profile.schedule.workStart, workEnd: profile.schedule.workEnd) { answers in
                 save(answers, weekStarting: week.monday)
+            }
+        }
+        .sheet(item: $changingTomorrow) { tomorrow in
+            let monday = AlarmSchedule.mondayOf(tomorrow.monday, calendar: calendar)
+            TomorrowChangedView(date: tomorrow.monday,
+                                day: Weekday(calendarWeekday: calendar.component(.weekday, from: tomorrow.monday)),
+                                week: WeekAnswersStore.shared.answers(weekStarting: monday, calendar: calendar),
+                                workStart: profile.schedule.workStart, workEnd: profile.schedule.workEnd) { answers in
+                save(answers, weekStarting: monday)
+                // Show the re-planned tomorrow straight away; "Back to today" returns.
+                dayOffset = 1
             }
         }
     }
@@ -316,11 +329,28 @@ struct TodayView: View {
         }
     }
 
+    // MARK: Tomorrow changed (M2-06)
+
+    /// Tomorrow, when it is a workday inside a planned programme; else nil
+    /// (weekends have no office or start times to change).
+    private var changeableTomorrow: Date? {
+        guard profile.programme.startDate != nil,
+              let tomorrow = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: AppClock.now())) else { return nil }
+        let day = Weekday(calendarWeekday: calendar.component(.weekday, from: tomorrow))
+        return SundayPromptView.workdays.contains(day) ? tomorrow : nil
+    }
+
     // MARK: Actions
 
     @ViewBuilder
     private func actions(_ plan: DayPlan?) -> some View {
         ActionBar {
+            if let tomorrow = changeableTomorrow {
+                Button("Tomorrow changed") { changingTomorrow = PromptWeek(monday: tomorrow) }
+                    .buttonStyle(SecondaryActionStyle())
+                    .accessibilityIdentifier("today.tomorrowChanged")
+            }
+        } primary: {
             if dayOffset == 0, let plan, let slot = todaySlot(plan), let week = plan.planned.week {
                 Button("Start \(slot.name)") { onStart(slot, week, recovery) }
                     .buttonStyle(PrimaryActionStyle())
