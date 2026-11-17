@@ -34,7 +34,8 @@ struct TodayView: View {
         let done = SessionLog.sessionIDs(in: history, weekOf: now, calendar: calendar)
         let plan = DayPlan.make(for: date, programme: programme, profile: profile,
                                 answers: { WeekAnswersStore.shared.answers(weekStarting: $0, calendar: calendar) },
-                                dropping: Set(programme.droppedSessions(history: history)),
+                                dropping: CoachBlockStore().droppedSessions(programme: programme, history: history,
+                                                                            profile: profile, on: date, calendar: calendar),
                                 now: now, completed: done, calendar: calendar)
 
         ScrollView {

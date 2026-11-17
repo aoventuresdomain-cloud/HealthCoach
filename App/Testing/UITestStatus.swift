@@ -57,6 +57,8 @@ struct UITestStatus: View {
         }
         let stats = BodyStats.shared
         let weight = !stats.hasRead ? "pending" : stats.weight.map { WeightTrend.oneDecimal($0.averageKg) } ?? "none"
-        return "now=\(now) profile=\(profile) content=\(content) alarms=\(alarms) weather=\(weather) weight=\(weight) held=\(held) next=\(next)"
+        // A17: how much of the injected clipboard reached the app.
+        let clip = LaunchOptions.current.clipboard.map { "\($0.utf8.count)" } ?? "none"
+        return "now=\(now) profile=\(profile) content=\(content) alarms=\(alarms) weather=\(weather) weight=\(weight) held=\(held) next=\(next) clip=\(clip)"
     }
 }

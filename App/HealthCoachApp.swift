@@ -16,7 +16,7 @@ struct HealthCoachApp: App {
         LiveActivityCleanup.endLeftoversAtLaunch()
         if options.isUITest {
             UIView.setAnimationsEnabled(false)
-            CoachBlockStore.resetForUITest()
+            if !options.keepCoachBlocks { CoachBlockStore.resetForUITest() }
         }
         if let name = options.fixture {
             do {

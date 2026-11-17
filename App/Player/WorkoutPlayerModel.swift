@@ -171,7 +171,7 @@ final class WorkoutPlayerModel {
         if step.restSeconds > 0, script.sets.indices.contains(i + 1) {
             let upcoming = script.sets[i + 1]
             phase = .rest(next: i + 1)
-            rest.start(seconds: step.restSeconds, nextUp: nextUpLine(upcoming),
+            rest.start(seconds: step.restSeconds, nextUp: nextUpLine(upcoming), nextKg: upcoming.kg,
                        headsUp: spokenNextUp(upcoming)) { [weak self] in
                 self?.enter(.set(i + 1))
             }

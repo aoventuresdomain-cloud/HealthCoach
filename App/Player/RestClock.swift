@@ -17,6 +17,8 @@ final class RestClock {
     @ObservationIgnored private var countdown: Task<Void, Never>?
     @ObservationIgnored private var onFinish: (() -> Void)?
     @ObservationIgnored private var nextUp = ""
+    @ObservationIgnored private var nextKg: Double?
+    @ObservationIgnored private var startedAt = Date.now
     @ObservationIgnored private var headsUp: String?
     @ObservationIgnored private var headsUpSpoken = false
     @ObservationIgnored private let voice: VoiceCuePlayer?
@@ -33,17 +35,20 @@ final class RestClock {
 
     /// `headsUp` is spoken 10 s before the end (next exercise and weight),
     /// ducking music under it, never pausing it.
-    func start(seconds: Int, nextUp: String, headsUp: String? = nil, onFinish: @escaping () -> Void) {
+    func start(seconds: Int, nextUp: String, nextKg: Double? = nil, headsUp: String? = nil, onFinish: @escaping () -> Void) {
         stop()
         self.headsUp = headsUp
         headsUpSpoken = false
-        let ends = Date.now.addingTimeInterval(TimeInterval(seconds))
+        let now = Date.now
+        let ends = now.addingTimeInterval(TimeInterval(seconds))
+        startedAt = now
         endsAt = ends
         totalSeconds = seconds
         self.nextUp = nextUp
+        self.nextKg = nextKg
         self.onFinish = onFinish
         if ActivityAuthorizationInfo().areActivitiesEnabled {
-            let state = RestTimerAttributes.ContentState(endsAt: ends, nextUp: nextUp)
+            let state = RestTimerAttributes.ContentState(endsAt: ends, nextUp: nextUp, nextKg: nextKg, startedAt: startedAt)
             activityID = try? Activity.request(
                 attributes: RestTimerAttributes(title: "Rest"),
                 content: ActivityContent(state: state, staleDate: ends),
@@ -59,7 +64,7 @@ final class RestClock {
         endsAt = ends
         totalSeconds += seconds
         if let activityID {
-            let state = RestTimerAttributes.ContentState(endsAt: ends, nextUp: nextUp)
+            let state = RestTimerAttributes.ContentState(endsAt: ends, nextUp: nextUp, nextKg: nextKg, startedAt: startedAt)
             Task {
                 for live in Activity<RestTimerAttributes>.activities where live.id == activityID {
                     await live.update(ActivityContent(state: state, staleDate: ends))

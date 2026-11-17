@@ -63,10 +63,24 @@ final class AlarmPermissionUITests: XCTestCase {
 
         var app = openSpikeTests()
         let set = app.buttons["Set test alarms"]
-        XCTAssertTrue(set.waitForExistence(timeout: 10))
+        if !set.waitForExistence(timeout: 10) {
+            // #60 at 45f0d1f failed here once, on the suite's first launch. Keep
+            // what was on screen so a repeat shows the cause, not just the line.
+            let shot = XCTAttachment(screenshot: app.screenshot())
+            shot.name = "spike-screen-missing"
+            shot.lifetime = .keepAlways
+            add(shot)
+            let status = app.staticTexts["debug.launch"]
+            XCTFail("No Set test alarms button. debug: \(status.exists ? status.label : "none"); "
+                    + "spike link still on screen: \(app.buttons["home.spikeTests"].exists); "
+                    + "alerts: \(app.alerts.count) app, "
+                    + "\(XCUIApplication(bundleIdentifier: "com.apple.springboard").alerts.count) springboard")
+        }
         set.tap()
         app.swipeUp() // any interaction lets the interruption monitor run
-        XCTAssertTrue(waitForResult(app, containing: "14 alarms set", timeout: 30), results(app))
+        XCTAssertTrue(waitForResult(app, containing: "14 alarms set", timeout: 30),
+                      results(app) + " | state=\(app.state.rawValue) springboardAlerts="
+                      + "\(XCUIApplication(bundleIdentifier: "com.apple.springboard").alerts.allElementsBoundByIndex.map(\.label))")
         add(XCTAttachment(screenshot: app.screenshot()))
 
         app.terminate()
