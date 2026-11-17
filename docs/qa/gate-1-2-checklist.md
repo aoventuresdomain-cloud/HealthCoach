@@ -42,6 +42,12 @@ One scripted week on the injected clock: a hybrid week 2 (office Mon, Tue, Thu; 
 
 **Guiding-rule judgement (QA + Advisor):** count every tap in §A that isn't next, done or the Sunday prompt. Each one is a major unless the Advisor accepts it.
 
+**Advisor's provisional rulings (17 Nov 12:10 UTC; confirmed in the fix window):**
+- **Taps accepted** (optional, and ignoring them gives the right result): the Fine/Sore row (pre-set to Fine), "I'll run anyway", "Something was different", the tap counter, "+30 s", and A16–A17 (started by the CEO). **Majors:** any required tap, a confirmation dialog, a permission re-prompt after onboarding, or a meal that must be ticked to count.
+- **A8:** Thursday full body moving to Friday, the day before Saturday's Upper B, is a legal outcome at week-2 effort, not a defect. QA-15 stays a blocker.
+- **Pre-ticked meals** are accepted as the logging model, not a stopgap. The engine steers by the scale.
+- **Values to test against** (the code may lag): protein 160 g · Phase 1 target 2,000 kcal · each day within the weekly target ±150 kcal, never under 1,700 (A13 tests this relative to the target, replacing the fixed 1,850–2,150 band) · engine floor 1,850, cut ceiling 2,200, maintenance 2,450 · steps of at most 100 kcal a week on a 2-week trend, none in weeks 1–2 · import bands: calories 1,850–2,200 (2,300–2,600 in maintenance), protein 140–180 g, loads up to 24 kg.
+
 ## B. M1 · Workout (Done when lines)
 
 - [ ] **M1-01** Store won't open → recovers with a one-line notice, no crash · newer or broken file rejected with a plain message · every `Content/` file validated by a CoachCore test · `exercises.json` at schemaVersion 1.
