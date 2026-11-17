@@ -16,22 +16,24 @@ final class OnboardingUITests: XCTestCase {
 
         XCTAssertTrue(app.staticTexts["onboarding.title"].waitForExistence(timeout: 15))
         // Every row shows a value without any input (decision E6 defaults).
-        let expected = [
-            "you": "178 cm · 82 kg",
-            "paperStart": "16 Nov",
-            "hurts": "Nothing",
-            "sleep": "7.5 h asleep",
-            "work": "09:00–18:00",
-            "office": "Asked each Sunday",
-            "fixed": "Basketball",
-            "kit": "Dumbbells to 24 kg",
+        // Ordered top to bottom: a Dictionary's order is random per run, and a
+        // row scrolled above the fold is never found by swiping up again.
+        let expected: [(row: String, text: String)] = [
+            ("you", "178 cm · 82 kg"),
+            ("hurts", "Nothing"),
+            ("paperStart", "16 Nov"),
+            ("sleep", "7.5 h asleep"),
+            ("work", "09:00–18:00"),
+            ("office", "Asked each Sunday"),
+            ("fixed", "Basketball"),
+            ("kit", "Dumbbells to 24 kg"),
         ]
         for (row, text) in expected {
             let button = app.buttons["onboarding.row.\(row)"]
-            // Lower rows (kit) sit below the fold since the paper-start row was added;
-            // lists only build what's visible, so scroll until the row exists.
-            for _ in 0..<6 where !button.waitForExistence(timeout: 1) { app.swipeUp() }
-            XCTAssertTrue(button.waitForExistence(timeout: 5), row)
+            // Lists only build what's on screen: scroll down to it, and back up
+            // if it is already above the fold.
+            scrollIntoView(button, in: app)
+            XCTAssertTrue(button.exists && button.isHittable, row)
             XCTAssertTrue(button.label.contains(text), "\(row): \(button.label)")
         }
         attach(app, "onboarding-confirm")
@@ -73,6 +75,13 @@ final class OnboardingUITests: XCTestCase {
         XCTAssertTrue(row.label.contains("50 min"), row.label)
         // Still the same screen: editing never opens a new one.
         XCTAssertTrue(app.buttons["onboarding.confirm"].exists)
+    }
+
+    /// Swipes up until `element` is on screen, then down if it was passed.
+    @MainActor
+    private func scrollIntoView(_ element: XCUIElement, in app: XCUIApplication) {
+        for _ in 0..<8 where !(element.waitForExistence(timeout: 1) && element.isHittable) { app.swipeUp() }
+        for _ in 0..<8 where !(element.waitForExistence(timeout: 1) && element.isHittable) { app.swipeDown() }
     }
 
     @MainActor
