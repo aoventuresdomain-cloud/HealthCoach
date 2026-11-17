@@ -4,27 +4,61 @@ import SwiftUI
 // screenshot preview (App/Spikes/LiveActivityPreviewView.swift), so CI
 // screenshots show exactly what the lock screen draws. Spike S3, board M0-06.
 
+/// UI-11: countdown and a draining bar on the left, "DIAL TO" and the next
+/// weight in green on the right, so the lock screen says what to set up.
 struct RestTimerLockScreenView: View {
     let title: String
     let nextUp: String
     let endsAt: Date
+    var nextKg: Double? = nil
+    var startedAt: Date? = nil
 
     var body: some View {
         HStack(alignment: .center, spacing: 16) {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 6) {
                 Text(title)
-                    .font(.headline)
+                    .font(.coachLabel)
+                    .foregroundStyle(.secondary)
+                RestCountdown(endsAt: endsAt)
+                    .font(.coachNumber(44))
+                    .multilineTextAlignment(.leading)
+                if let startedAt, startedAt < endsAt {
+                    ProgressView(timerInterval: startedAt...endsAt, countsDown: true) {
+                        EmptyView()
+                    } currentValueLabel: {
+                        EmptyView()
+                    }
+                    .tint(.go)
+                }
                 Text(nextUp)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
             }
-            Spacer()
-            RestCountdown(endsAt: endsAt)
-                .font(.coachNumber(44))
+            Spacer(minLength: 8)
+            if let nextKg {
+                VStack(alignment: .trailing, spacing: 0) {
+                    Text("DIAL TO")
+                        .font(.coachLabel)
+                        .foregroundStyle(.secondary)
+                    Text(Self.kg(nextKg))
+                        .font(.coachNumber(52))
+                        .foregroundStyle(.go)
+                        .minimumScaleFactor(0.6)
+                        .lineLimit(1)
+                    Text("kg").font(.coachLabel).foregroundStyle(.secondary)
+                }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Dial to \(Self.kg(nextKg)) kilograms")
+            }
         }
         .padding()
         .foregroundStyle(.white)
+    }
+
+    /// "24" or "22.5": the widget can't see the app's PlayerFormat.
+    static func kg(_ kg: Double) -> String {
+        kg.formatted(.number.precision(.fractionLength(0...1)))
     }
 }
 

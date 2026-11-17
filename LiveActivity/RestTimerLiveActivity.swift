@@ -10,7 +10,9 @@ struct RestTimerLiveActivity: Widget {
             RestTimerLockScreenView(
                 title: context.attributes.title,
                 nextUp: context.state.nextUp,
-                endsAt: context.state.endsAt
+                endsAt: context.state.endsAt,
+                nextKg: context.state.nextKg,
+                startedAt: context.state.startedAt
             )
             .activityBackgroundTint(.black.opacity(0.8))
             .activitySystemActionForegroundColor(.white)
@@ -40,6 +42,7 @@ struct RestTimerLiveActivity: Widget {
                 RestCountdown(endsAt: context.state.endsAt)
                     .monospacedDigit()
                     .font(.caption2)
+                    .foregroundStyle(.go)
             }
         }
     }
