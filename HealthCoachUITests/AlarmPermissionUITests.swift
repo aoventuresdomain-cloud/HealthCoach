@@ -43,17 +43,36 @@ final class AlarmPermissionUITests: XCTestCase {
         // UI-12: the spike link is in Today's ⋯ menu (M0-11b: only under -spikeAlarms).
         let more = app.buttons["today.more"]
         XCTAssertTrue(more.waitForExistence(timeout: 10))
-        // Let the launch reconcile finish first: Today re-renders when it lands
-        // (real AlarmKit is slower than the fake), and a re-render closes an open menu.
-        let status = app.staticTexts["debug.launch"]
-        let reconciled = NSPredicate(format: "label CONTAINS 'alarms='")
-        _ = XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: reconciled, object: status)], timeout: 10)
-        let link = app.buttons["home.spikeTests"]
-        for _ in 0..<3 where !link.exists {
-            more.tap()
-            if link.waitForExistence(timeout: 3) { break }
+        // QA-38: there is no "reconcile landed" signal to wait for here. Under
+        // -spikeAlarms the planner never owns the alarms (WakeAlarms.isActive is
+        // false), so its reconcile and the weather check never run and
+        // debug.launch keeps "alarms=pending weather=pending" by design. What
+        // can get in the way of the menu is a system alert, so clear any
+        // Allow prompt first and wait until ⋯ is hittable, then tap it once.
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        let deadline = Date().addingTimeInterval(10)
+        while Date() < deadline {
+            let springboardAllow = springboard.alerts.buttons["Allow"]
+            if springboardAllow.exists { springboardAllow.tap(); continue }
+            if app.alerts.buttons["Allow"].exists { app.alerts.buttons["Allow"].tap(); continue }
+            if more.isHittable { break }
+            Thread.sleep(forTimeInterval: 0.5)
         }
-        XCTAssertTrue(link.exists, "Spike tests isn't in the ⋯ menu")
+        XCTAssertTrue(more.isHittable, "⋯ never became tappable")
+        more.tap()
+        let link = app.buttons["home.spikeTests"]
+        if !link.waitForExistence(timeout: 5) {
+            // Keep what was on screen, so a repeat shows whether the menu closed
+            // (QA-39) or opened without the item.
+            let shot = XCTAttachment(screenshot: app.screenshot())
+            shot.name = "spike-menu-missing"
+            shot.lifetime = .keepAlways
+            add(shot)
+            let status = app.staticTexts["debug.launch"]
+            XCTFail("Spike tests isn't in the ⋯ menu. menu open: \(app.buttons["today.planWeekToolbar"].exists); "
+                    + "alerts: \(app.alerts.count) app, \(springboard.alerts.count) springboard; "
+                    + "debug: \(status.exists ? status.label : "none")")
+        }
         link.tap()
         return app
     }
