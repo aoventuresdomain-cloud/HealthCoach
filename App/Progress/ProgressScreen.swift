@@ -134,7 +134,8 @@ struct ProgressScreen: View {
                 let blocks = CoachBlockStore().all
                 let weights = BodyStats.shared.weightHistory
                 if let review = CoachReview.make(programme: programme, profile: profile, history: history,
-                                                 weights: weights, blocks: blocks, now: now, calendar: calendar) {
+                                                 weights: weights, blocks: blocks, checkIns: CheckInStore.shared.all,
+                                                 now: now, calendar: calendar) {
                     ForEach(Array(review.flags.enumerated()), id: \.offset) { index, flag in
                         Label(flag.line, systemImage: "flag")
                             .foregroundStyle(.caution)
@@ -159,7 +160,7 @@ struct ProgressScreen: View {
                 if let summary = CoachSummary.text(programme: programme, profile: profile, history: history,
                                                    weights: weights, meals: meals, blocks: blocks,
                                                    socialMeals: SocialMealStore.shared.dates(calendar: calendar),
-                                                   now: now, calendar: calendar) {
+                                                   checkIns: CheckInStore.shared.all, now: now, calendar: calendar) {
                     ShareLink(item: summary) {
                         Label("Ask the coach now", systemImage: "bubble.left.and.text.bubble.right")
                     }

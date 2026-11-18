@@ -255,14 +255,15 @@ struct TodayView: View {
     private func coachLine(history: [SessionLog], now: Date) -> String? {
         CoachReview.make(programme: programme, profile: profile, history: history,
                          weights: BodyStats.shared.weightHistory, blocks: CoachBlockStore().all,
-                         now: now, calendar: calendar)?
+                         checkIns: CheckInStore.shared.all, now: now, calendar: calendar)?
             .todayLine { content.exercises.exercise($0)?.name ?? $0 }
     }
 
     /// N8: "Easing back in: 80% today", on a strength day while the rebuild runs.
     private func easingLine(plan: DayPlan?, history: [SessionLog], now: Date) -> String? {
         guard case .strength = plan?.session?.session,
-              let step = programme.easingStep(history: history, on: now, calendar: calendar) else { return nil }
+              let step = programme.easingStep(history: history, checkIns: CheckInStore.shared.all,
+                                                        on: now, calendar: calendar) else { return nil }
         return step.easing.todayLine(atSession: step.session)
     }
 

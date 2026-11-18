@@ -59,6 +59,8 @@ final class CheckInUITests: XCTestCase {
         app.buttons["checkin.next"].tap()
         XCTAssertTrue(monday.waitForExistence(timeout: 5))
         if !monday.isSelected { monday.tap() }
+        // Knee pain: next week's run-walk is a brisk walk, said once on screen 2 (Advisor c).
+        XCTAssertTrue(app.descendants(matching: .any)["checkin.runWalkLine"].waitForExistence(timeout: 3))
         attachShot(app, "checkin-plan")
         app.buttons["checkin.done"].tap()
         XCTAssertTrue(card.waitForNonExistence(timeout: 5), "the card goes once checked in")
