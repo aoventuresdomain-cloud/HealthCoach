@@ -19,8 +19,12 @@ extension MealPlan {
         let at = (start..<next).contains(now) ? now : start
         let kcal = CoachReview.make(programme: programme, profile: profile, history: history, weights: weights,
                                     blocks: blocks, now: at, calendar: calendar)?.calories.kcal
+        // C3: training days (sessions and basketball) take the extras first.
+        let trainingDays = WeekPlanner.plan(weekStarting: start, programme: programme, profile: profile,
+                                            answers: answers, calendar: calendar).trainingDays(programme: programme)
         return week(monday: start, content: content, lunchOrders: lunchOrders, answers: answers,
-                    programmeID: programme.id, kcalTarget: kcal, boxNights: boxNights, calendar: calendar)
+                    programmeID: programme.id, kcalTarget: kcal, trainingDays: trainingDays,
+                    boxNights: boxNights, calendar: calendar)
     }
 }
 

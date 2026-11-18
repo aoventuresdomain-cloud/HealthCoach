@@ -4,6 +4,7 @@
   "id": "phase-2",
   "phase": 2,
   "name": "Cut, then maintenance break",
+  "firstPlanWeek": 7,
   "weeks": 8,
   "maxSessionMinutes": 45,
   "warmUpMinutes": 5,

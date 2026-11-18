@@ -23,9 +23,10 @@ File name must equal `id`. Per-week arrays have exactly `weeks` values, week 1 f
 |---|---|
 | `schemaVersion` | 1 |
 | `id`, `phase`, `name`, `weeks`, `maxSessionMinutes`, `warmUpMinutes` | |
+| `firstPlanWeek` | optional, default 1. The plan week (from Phase 1's start) of this programme's week 1: 1, 7, 15. The phases must follow on with no gap (C6, checked on load) |
 | `loadStepKg` | smallest increment, per dumbbell |
 | `dumbbellLimitKg` | **moved in v1** from `progressionRules.dumbbellLimitKg` |
-| `effort[]` | `week`, `mainSets`, `repsInReserve`, `cue` |
+| `effort[]` | `week`, `mainSets`, `repsInReserve`, `cue`; optional `holdLoads` (true in a maintenance week: no load step that week, C6) |
 | `progressionRules` | rule name → plain-English description; every rule used must be described |
 | `fixed[]` | events planned around, not run: `id`, `name`, `kind`, `day`, `time`, `note` |
 | `placementRules` | `neverOn[]`, `notTheDayBefore` {fixed id → session ids}, `longSlot`, `outdoorSessions[]` |

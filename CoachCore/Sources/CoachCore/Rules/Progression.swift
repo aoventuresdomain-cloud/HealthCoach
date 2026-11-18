@@ -45,6 +45,8 @@ public struct Prescription: Sendable, Equatable {
         case graduated
         /// Set by an imported Claude block (M4-02), at the bottom of the range.
         case coach
+        /// C6: a new phase with a new range: the carried weight, at the bottom of the new range.
+        case carried
     }
 }
 
@@ -59,15 +61,34 @@ extension Programme {
     /// Upper A moves the lateral raise in Upper B too. Sessions are replayed in
     /// order, so no target needs storing; a logged weight replaces the
     /// prescribed one (the owner picked a different dumbbell).
+    ///
+    /// C6: with `earlierPhases` (set by `ContentLibrary`), each earlier
+    /// phase's logs replay under that phase's item for the exercise, and the
+    /// state carries into the next: unchanged when the range and rule match,
+    /// else the same weight at the bottom of the new range (never a step up
+    /// at the boundary). In a `holdLoads` week no load step is taken, and a
+    /// step earned just before one waits until after it.
     public func prescription(for item: StrengthItem, week: Int, history: [SessionLog]) -> Prescription? {
         guard week >= 1, week <= item.sets.count, item.sets[week - 1] > 0 else { return nil }
-        var state = Track.start(item)
-        for log in history.sorted(by: { $0.startedAt < $1.startedAt }) {
-            let sets = log.sets
-                .filter { $0.exercise == state.exercise }
-                .sorted { $0.setIndex < $1.setIndex }
-            guard !sets.isEmpty else { continue }
-            state = advance(state, after: sets, item: item)
+        let sorted = history.sorted(by: { $0.startedAt < $1.startedAt })
+        var state: Track
+        let earlier = earlierPhases ?? []
+        if earlier.isEmpty {
+            state = replay(Track.start(item), item: item, logs: sorted)
+        } else {
+            var carried: Track?
+            for phase in earlier {
+                guard let old = phase.strengthItem(continuing: item) else { continue }
+                let start = carried.map { $0.carried(into: old) } ?? Track.start(old)
+                carried = phase.replay(start, item: old, logs: sorted.filter { $0.programmeID == phase.id })
+            }
+            let start = carried.map { $0.carried(into: item) } ?? Track.start(item)
+            state = replay(start, item: item, logs: sorted.filter { $0.programmeID == id })
+        }
+        // Maintenance: the load stays where it was last done.
+        if holdsLoads(week: week), state.step == .addLoad, let before = state.beforeLoadStep {
+            state = before
+            state.step = .held
         }
         return Prescription(
             exercise: state.exercise,
@@ -116,6 +137,11 @@ extension Programme {
 
     // MARK: - Replay
 
+    private final class Box<T> {
+        let value: T
+        init(_ value: T) { self.value = value }
+    }
+
     private struct Track {
         var exercise: String
         var rule: Progression
@@ -124,18 +150,71 @@ extension Programme {
         var kg: Double?
         var slowTempo = false
         var step: Prescription.Step = .start
+        /// The state before the last load step, so a maintenance week can hold it back.
+        private var undo: Box<Track>?
+
+        init(exercise: String, rule: Progression, range: IntRange, target: Int, kg: Double?,
+             slowTempo: Bool = false, step: Prescription.Step = .start) {
+            self.exercise = exercise
+            self.rule = rule
+            self.range = range
+            self.target = target
+            self.kg = kg
+            self.slowTempo = slowTempo
+            self.step = step
+        }
+
+        var beforeLoadStep: Track? {
+            get { undo?.value }
+            set { undo = newValue.map(Box.init) }
+        }
 
         static func start(_ item: StrengthItem) -> Track {
             let range = item.reps ?? item.seconds ?? IntRange(min: 0, max: 0)
             return Track(exercise: item.exercise, rule: item.progression,
                          range: range, target: range.min, kg: item.startKg)
         }
+
+        /// C6: this state taken into the next phase's `item`. Same range and
+        /// rule: carried as it is. Otherwise the same exercise and weight at
+        /// the bottom of the new range, at normal tempo.
+        func carried(into item: StrengthItem) -> Track {
+            let range = item.reps ?? item.seconds ?? IntRange(min: 0, max: 0)
+            // Graduated to the harder exercise, and the new phase's item still starts below it: stay graduated.
+            if exercise != item.exercise, item.graduate?.to == exercise { return self }
+            guard exercise == item.exercise else { return .start(item) }
+            if range == self.range, item.progression == rule { return self }
+            return Track(exercise: exercise, rule: item.progression, range: range, target: range.min,
+                         kg: kg ?? item.startKg, step: .carried)
+        }
+    }
+
+    /// The item in this programme that continues `item`'s exercise (same
+    /// exercise, or the one it graduates to), from any session.
+    func strengthItem(continuing item: StrengthItem) -> StrengthItem? {
+        let names = Set([item.exercise] + (item.graduate.map { [$0.to] } ?? []))
+        return strengthItems.first { names.contains($0.exercise) }
+            ?? strengthItems.first { $0.graduate.map { names.contains($0.to) } == true }
+    }
+
+    private func replay(_ start: Track, item: StrengthItem, logs: [SessionLog]) -> Track {
+        var state = start
+        for log in logs {
+            let sets = log.sets
+                .filter { $0.exercise == state.exercise }
+                .sorted { $0.setIndex < $1.setIndex }
+            guard !sets.isEmpty else { continue }
+            state = advance(state, after: sets, item: item,
+                            holding: log.programmeID == id && holdsLoads(week: log.week))
+        }
+        return state
     }
 
     private enum Outcome { case met, held, short }
 
-    private func advance(_ previous: Track, after sets: [SetLog], item: StrengthItem) -> Track {
+    private func advance(_ previous: Track, after sets: [SetLog], item: StrengthItem, holding: Bool = false) -> Track {
         var state = previous
+        state.beforeLoadStep = nil
         if let logged = sets.compactMap(\.kg).first { state.kg = logged }
         if sets.contains(where: \.slowTempo) { state.slowTempo = true }
 
@@ -194,9 +273,9 @@ extension Programme {
         state.target = state.range.max
         switch state.rule {
         case .double, .timeThenLoad:
-            return addLoad(state)
+            return addLoad(state, holding: holding)
         case .repsTempoLoad:
-            if state.slowTempo { return addLoad(state) }
+            if state.slowTempo { return addLoad(state, holding: holding) }
             state.slowTempo = true
             state.step = .slowTempo
             return state
@@ -222,12 +301,18 @@ extension Programme {
         }
     }
 
-    private func addLoad(_ previous: Track) -> Track {
+    private func addLoad(_ previous: Track, holding: Bool) -> Track {
         var state = previous
         guard let kg = state.kg else {
             state.step = .top
             return state
         }
+        // C6: a maintenance week keeps the weight; the step comes after it.
+        if holding {
+            state.step = .held
+            return state
+        }
+        state.beforeLoadStep = previous
         let next = kg + loadStepKg
         if next > dumbbellLimitKg {
             state.step = .top
