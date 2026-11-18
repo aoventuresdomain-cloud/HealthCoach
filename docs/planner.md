@@ -31,3 +31,5 @@ Defaults (requirements §2 and §12): commute 25 min, shower 15 min, buffer 15 m
 - **Photo day** (`photoDays`, N7): 07:00 on each photo day, every 2 weeks from the start: the same days `PhotoSchedule` shows the Progress card. It says only that it's photo day; no photo or measurement is in it. Tapping it lands on Today until N12 (Coach Engineer) routes it to the camera (`NotificationRoute`).
 
 The two evening ones move to 22:25 if a time ever lands in quiet hours; the photo-day one would wait until 06:00, as the morning brief does. All join the same soonest-first list capped at 64.
+
+A Preferences edit saved today (N3) reaches notifications the way it reaches alarms: each one comes from the profile in force on the day it fires. Everything still to fire today, tonight's wind-down included, stays as it was; from tomorrow's midnight they follow the edit, with no wait for a re-plan.
