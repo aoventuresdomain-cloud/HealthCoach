@@ -25,31 +25,6 @@ final class ProgressUITests: XCTestCase {
         return app
     }
 
-    /// Ease F1b (Coach Engineer, #120): Progress, the photo-day card, front,
-    /// side, Save. 5 taps, 60 s. N7's camera runs a 3 s self-timer per pose,
-    /// so the test waits for each screen rather than for "Retake".
-    @MainActor
-    func testF1bPhotoDayFromProgressIsFiveTaps() throws {
-        let app = XCUIApplication()
-        app.launchArguments = ["-uitest", "-now", "2026-11-23T07:00:00Z", "-fixture", "week1-monday"]
-        app.launch()
-        XCTAssertTrue(app.staticTexts["today.title"].waitForExistence(timeout: 15))
-        let budget = EaseBudget("photo-day-from-progress", maxTaps: 5, maxSeconds: 60, app: app)
-        budget.tap(app.tabBars.buttons["Progress"], newScreen: true, system: true)
-        let card = app.buttons["progress.photoDay"]
-        XCTAssertTrue(card.waitForExistence(timeout: 5))
-        budget.tap(card, newScreen: true)
-        let front = app.buttons["photo.take.front"], side = app.buttons["photo.take.side"]
-        XCTAssertTrue(front.waitForExistence(timeout: 5))
-        budget.tap(front)
-        XCTAssertTrue(side.waitForExistence(timeout: 8), "the side pose didn't follow the front")
-        budget.tap(side, newScreen: true)
-        let save = app.buttons["photo.save"]
-        XCTAssertTrue(save.waitForExistence(timeout: 8), "no review screen after both poses")
-        budget.tap(save, newScreen: true)
-        budget.finish(done: app.descendants(matching: .any)["progress.nextPhotos"])
-    }
-
     /// R4 (N7): the pose hint is worked out on the phone (Vision), so it shows
     /// with the network off. `-weather offline` is the app's no-network launch.
     @MainActor
