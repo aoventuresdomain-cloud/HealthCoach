@@ -28,7 +28,7 @@ Targets are in `dailyTargets` (2,000 kcal, 160 g protein, about 40 g at each of 
 
 ## Dinner variety (N6, Advisor A4)
 
-No dinner repeats within any 3 weeks. Home dinners are taken in file order, a whole week's worth at a time (MealPlan), so 10 dinners cover 3 weeks at 2 home nights (4 box nights, the default) or 3 (3 box nights). The 3 Sunday cooks rotate weekly. The order is deliberate: dinners sit in pairs of an oily fish then something else, so every week's first home night (Friday by default) is salmon, trout or mackerel.
+No dinner repeats within any 3 weeks. Home dinners are taken in file order, a whole week's worth at a time (MealPlan), so 10 dinners cover 3 weeks at 2 home nights (4 box nights, the default) or 3 (3 box nights). The 3 Sunday cooks rotate weekly. The order is deliberate: dinners sit in pairs of an oily fish then something else, so every week has an oily fish at home (salmon, trout or mackerel).
 
 | Pair | Oily fish | Other |
 |---|---|---|

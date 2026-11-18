@@ -1285,7 +1285,7 @@
       "method": [
         "Boil the potatoes for 15–20 minutes.",
         "Bake the salmon at 200 °C for 12–15 minutes until it flakes and is opaque all the way through.",
-        "Steam or boil the broccoli for 4 minutes.",
+        "Steam or boil the tenderstem for 4 minutes.",
         "Stir dill and lemon juice into the yogurt for the sauce."
       ],
       "note": "Salmon is fully cooked; no raw fish.",
@@ -1484,13 +1484,13 @@
       "portions": 2,
       "minutes": 30,
       "perPortion": {
-        "kcal": 570,
-        "protein": 38
+        "kcal": 580,
+        "protein": 40
       },
       "ingredients": [
         {
           "ingredient": "trout",
-          "qty": 300
+          "qty": 320
         },
         {
           "ingredient": "new-potatoes",
