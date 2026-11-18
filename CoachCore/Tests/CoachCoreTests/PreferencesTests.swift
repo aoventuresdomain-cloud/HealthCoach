@@ -228,4 +228,97 @@ import Testing
             #expect(!day.meals.contains { $0.recipeID == dinner.recipeID }, "\(day.weekday)")
         }
     }
+
+    // MARK: QA-R4 J5.2
+
+    /// J5.2: a Preferences change made mid-morning, after the alarm has gone
+    /// and with the day under way, leaves today exactly as it was: the day's
+    /// plan, its alarms, its notifications and its meals. Only tomorrow on
+    /// follows the edit, as if it had always been there.
+    @Test func aMidMorningEditLeavesTodayIdenticalAndOnlyTomorrowChanges() throws {
+        let now = at(11, 23, 10, 30)        // Mon 23 Nov, 10:30
+        let tomorrow = at(11, 24)
+        let before = profile()
+        let programme = try phase1()
+
+        // Today's home dinner as the dislike, so the meal plan has something to change.
+        let baseline = try week(at(11, 23)) { _ in [] }
+        let dinner = try #require(baseline.days.compactMap { $0.meal(.dinner) }.first { $0.recipeID != nil })
+
+        var edited = before.preferences
+        edited.schedule.wakeBufferMinutes = 30
+        edited.schedule.latestBedtime = TimeOfDay(hour: 22, minute: 45)
+        edited.food.dislikes = [dinner.name]
+        edited.food.delivery = .init(day: .tuesday, time: TimeOfDay(hour: 18, minute: 0))
+        edited.coach.checkInDay = .saturday
+        let saved = before.scheduling(edited, now: now, calendar: calendar)
+        var applied = before
+        applied.preferences = edited
+
+        #expect(saved.pending?.effectiveFrom == tomorrow)
+        #expect(saved.effective(on: now, calendar: calendar).preferences == before.preferences)
+        #expect(saved.effective(on: tomorrow, calendar: calendar).preferences == edited)
+
+        // Today's plan.
+        let todayBefore = try #require(DayPlan.make(for: now, programme: programme, profile: before, answers: answers,
+                                                     now: now, calendar: calendar))
+        let todayAfter = try #require(DayPlan.make(for: now, programme: programme, profile: saved, answers: answers,
+                                                    now: now, calendar: calendar))
+        #expect(todayAfter == todayBefore)
+
+        // Today's alarms and notifications: identical. Later ones: as if the edit had always been there.
+        let isToday = { (d: Date) in calendar.isDate(d, inSameDayAs: now) }
+        let oldAlarms = try alarms(before, now: now), newAlarms = try alarms(saved, now: now)
+        let allAlarms = try alarms(applied, now: now)
+        #expect(newAlarms.filter { isToday($0.fireDate) } == oldAlarms.filter { isToday($0.fireDate) })
+        #expect(newAlarms.filter { !isToday($0.fireDate) } == allAlarms.filter { !isToday($0.fireDate) })
+        #expect(newAlarms.filter { !isToday($0.fireDate) } != oldAlarms.filter { !isToday($0.fireDate) },
+                "the edit moves tomorrow's alarms")
+
+        let notes = { (p: Profile) in
+            NotificationPlanner.plan(now: now, programme: programme, profile: p, answers: answers, calendar: calendar)
+        }
+        let oldNotes = notes(before), newNotes = notes(saved), allNotes = notes(applied)
+        #expect(newNotes.filter { isToday($0.fireDate) } == oldNotes.filter { isToday($0.fireDate) })
+        #expect(newNotes.filter { !isToday($0.fireDate) } == allNotes.filter { !isToday($0.fireDate) })
+        #expect(newNotes.filter { !isToday($0.fireDate) } != oldNotes.filter { !isToday($0.fireDate) },
+                "the edit moves tomorrow's notifications")
+
+        // Today's meals: identical; the dislike applies from tomorrow.
+        let plan = try week(at(11, 23)) { saved.dislikes(on: $0, calendar: calendar) }
+        let todayIndex = try #require(plan.days.firstIndex { isToday($0.date) })
+        #expect(plan.days[todayIndex] == baseline.days[todayIndex])
+        for day in plan.days[(todayIndex + 1)...] {
+            #expect(!day.meals.contains { $0.recipeID == dinner.recipeID }, "\(day.weekday)")
+        }
+    }
+
+    /// N3 for notifications: an edit saved at 10:30 leaves every notification
+    /// still to fire today exactly as it was, tonight's wind-down included
+    /// (it belongs to tomorrow's lights out but fires today), while
+    /// tomorrow's morning brief follows the edit.
+    @Test func aMidMorningEditLeavesTodaysNotificationsAsTheyWere() throws {
+        let now = at(11, 23, 10, 30)
+        let before = profile()
+        let programme = try phase1()
+        var edited = before.preferences
+        edited.schedule.wakeBufferMinutes = 30
+        edited.schedule.latestBedtime = TimeOfDay(hour: 22, minute: 45)
+        let saved = before.scheduling(edited, now: now, calendar: calendar)
+        let plan = { (p: Profile) in
+            NotificationPlanner.plan(now: now, programme: programme, profile: p, answers: answers, calendar: calendar)
+        }
+        let isToday = { (d: Date) in calendar.isDate(d, inSameDayAs: now) }
+        let old = plan(before), new = plan(saved)
+        let todayOld = old.filter { isToday($0.fireDate) }
+        #expect(!todayOld.isEmpty)
+        #expect(todayOld.contains { $0.kind == .windDown }, "tonight's wind-down is today's to keep")
+        #expect(new.filter { isToday($0.fireDate) } == todayOld)
+
+        let brief = { (notes: [CoachNotification]) in
+            notes.first { $0.kind == .morningBrief && calendar.isDate($0.fireDate, inSameDayAs: at(11, 24)) }?.fireDate
+        }
+        let oldBrief = try #require(brief(old)), newBrief = try #require(brief(new))
+        #expect(newBrief < oldBrief, "tomorrow's brief follows the earlier wake")
+    }
 }
