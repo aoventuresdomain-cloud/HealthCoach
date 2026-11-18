@@ -23,7 +23,7 @@ final class CoachNotifier {
     func reschedule(profile: Profile, history: [SessionLog] = [], now: Date = AppClock.now(),
                     answers: WeekAnswersStore = .shared) async {
         guard let content = try? BundledContent.load(),
-              let programme = content.programmes[profile.programme.programmeID] else {
+              let programme = content.programme(for: profile, on: now, calendar: .coach) else {
             // A plan that didn't load leaves the pending ones as they were.
             return
         }

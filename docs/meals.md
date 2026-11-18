@@ -16,3 +16,12 @@
 **Top-up list (`ShoppingList.week`).** One list for the week. Quantities are merged across every recipe use and sorted by `aisleOrder`, then by name. Box nights and office lunches add nothing, and supplements are staples. A staple the owner has ticked stays ticked (the app stores `tickedStaples`); everything else starts unticked each week. Each line has a search link to the default shop (`shop.searchUrl`, E5).
 
 **Cut for this round (re-plan, 17 Nov):** the evening "anything different?" prompt and the social-meal counter.
+
+**C3: meals follow the target (Advisor, 18 Nov).** Pass `trainingDays` (from `WeekPlan.trainingDays(programme:)`: strength, run and basketball days; a walk doesn't count). There is no formal split, but within the band training days aim up to +75 kcal and rest days down to −100, balanced so the week's aims average the target (`MealDay.aimKcal`). Extras fill towards each day's aim. Then `balance` moves the week's average to within ±40 kcal of the target: it adds an extra to a training day first, takes one off a rest day first, and moves an extra from a rest day to a training day if rest days come out heavier. Every day stays within ±150 kcal of the target, at or above 1,700 kcal, and at or above 150 g protein. Box nights stay Mon–Thu. The top-up list follows the meals, so it changes with the target. Without `trainingDays`, the plan is the M3-02 one.
+
+**C4: social meals (Advisor, 18 Nov).** `MealPlan.withSocialMeals(dates)` handles a social meal as follows:
+- The meal counts as 1,000 kcal untracked and replaces that day's dinner. The day is exempt from the band, and its other meals stay as planned.
+- The excess (1,000 kcal minus the replaced dinner) comes off the week's other days as a "Lighter carbs" line. Days after the social meal go first. Each day loses at most 100 kcal, protein is never touched, and no day goes under 1,700.
+- What doesn't fit is absorbed. Nothing carries into next week.
+
+`SocialMeals.count` gives "1 of 2". A third is allowed, and `CoachSummary.text(socialMeals:)` flags it.

@@ -4,6 +4,7 @@
   "id": "phase-3",
   "phase": 3,
   "name": "Final cut",
+  "firstPlanWeek": 15,
   "weeks": 6,
   "maxSessionMinutes": 45,
   "warmUpMinutes": 5,

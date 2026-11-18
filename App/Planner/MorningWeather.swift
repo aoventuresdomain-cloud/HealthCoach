@@ -93,7 +93,7 @@ final class MorningWeather {
     func check(profile: Profile, now: Date = AppClock.now(), answers: WeekAnswersStore = .shared,
                completed: Set<String> = [], calendar: Calendar = .current) async -> WeatherDecision {
         guard let content = try? BundledContent.load(),
-              let programme = content.programmes[profile.programme.programmeID],
+              let programme = content.programme(for: profile, on: now, calendar: calendar),
               profile.programme.startDate != nil else {
             return settle(.keep(.notOutdoor), day: nil)
         }

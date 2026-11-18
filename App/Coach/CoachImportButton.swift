@@ -36,7 +36,7 @@ struct CoachImportButton: View {
     private func importReply() {
         let text = LaunchOptions.current.clipboard ?? UIPasteboard.general.string ?? ""
         guard let content = try? BundledContent.load(),
-              let programme = content.programmes[profile.programme.programmeID] else {
+              let programme = content.programme(for: profile, on: AppClock.now(), calendar: .coach) else {
             result = "The training plan couldn't be read, so nothing was imported. " + CoachImportError.unchanged
             return
         }

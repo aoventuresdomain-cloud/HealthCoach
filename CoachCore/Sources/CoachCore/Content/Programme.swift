@@ -11,6 +11,9 @@ public struct Programme: VersionedFormat, Sendable, Equatable {
     public let phase: Int
     public let name: String
     public let weeks: Int
+    /// C6: the plan week (counted from Phase 1's start) this programme's
+    /// week 1 falls in: 1 for Phase 1, 7 for Phase 2, 15 for Phase 3. Absent = 1.
+    public let firstPlanWeek: Int?
     public let maxSessionMinutes: Int
     public let warmUpMinutes: Int
     /// Smallest dumbbell increment, per dumbbell.
@@ -25,12 +28,30 @@ public struct Programme: VersionedFormat, Sendable, Equatable {
     public let reducedWeek: ReducedWeek
     public let schedule: [ScheduleWeek]
     public let sessions: [String: Session]
+    /// C6: the phases before this one, Phase 1 first, set by `ContentLibrary`
+    /// (never in the file). Prescriptions replay their logs first, so loads
+    /// carry across phases. nil or empty: every log is replayed as this phase's.
+    public internal(set) var earlierPhases: [Programme]?
 
     public struct Effort: Codable, Sendable, Equatable {
         public let week: Int
         public let mainSets: Int
         public let repsInReserve: Int
         public let cue: String
+        /// C6: a maintenance week; loads stay where they were (no load step,
+        /// in the replay or the prescription). Absent = false.
+        public let holdLoads: Bool?
+    }
+
+    /// The plan week of this programme's week 1.
+    public var planWeekOffset: Int { (firstPlanWeek ?? 1) - 1 }
+
+    /// The plan weeks this programme covers (1–6, 7–14, 15–20).
+    public var planWeeks: ClosedRange<Int> { (planWeekOffset + 1)...(planWeekOffset + weeks) }
+
+    /// True in a maintenance week (`Effort.holdLoads`).
+    public func holdsLoads(week: Int) -> Bool {
+        effort.first { $0.week == week }?.holdLoads == true
     }
 
     /// Something in the week the app plans around but doesn't run.
