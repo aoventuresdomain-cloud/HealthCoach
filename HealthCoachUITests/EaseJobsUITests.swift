@@ -95,7 +95,7 @@ final class EaseJobsUITests: XCTestCase {
 
     // MARK: W2 · Find the shopping list (1 tap, 5 s)
 
-    /// Ease W2 : the shopping list is one tap from
+    /// Ease W2: the shopping list is one tap from
     /// anywhere, 5 s. N4's one-off shop question is answered first, outside
     /// the budget (A2 measures it).
     @MainActor
