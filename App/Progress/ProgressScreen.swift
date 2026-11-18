@@ -137,8 +137,18 @@ struct ProgressScreen: View {
                     }
                 }
                 // M4-02: the summary is text only; no photos, no raw Health samples.
+                // C1: how the last 7 days' planned meals went, as counts and averages only.
+                let meals = MealAdherence.lastSevenDays(now: now, plan: { monday in
+                    MealPlan.coached(monday: monday, now: now, content: content.nutrition,
+                                     lunchOrders: content.lunchOrders.orders,
+                                     answers: WeekAnswersStore.shared.answers(weekStarting: monday, calendar: calendar),
+                                     programme: programme, profile: profile, history: history, weights: weights,
+                                     blocks: blocks, calendar: calendar)
+                }, isTicked: { day, meal in MealTicks.shared.isTicked(meal, on: day.date, calendar: calendar) },
+                calendar: calendar)
                 if let summary = CoachSummary.text(programme: programme, profile: profile, history: history,
-                                                   weights: weights, blocks: blocks, now: now, calendar: calendar) {
+                                                   weights: weights, meals: meals, blocks: blocks, now: now,
+                                                   calendar: calendar) {
                     ShareLink(item: summary) {
                         Label("Ask the coach now", systemImage: "bubble.left.and.text.bubble.right")
                     }
