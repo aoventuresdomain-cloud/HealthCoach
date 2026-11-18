@@ -38,8 +38,13 @@ public enum CoachChanges {
                             weights: [WeightSample], blocks: [CoachBlock], checkIns: [CheckIn] = [],
                             exercises: ExerciseCatalogue? = nil, now: Date,
                             name: (String) -> String = { $0 }, calendar: Calendar = .current) -> [CoachChange] {
-        guard let start = profile.programme.startDate,
-              let then = calendar.date(byAdding: .day, value: -windowDays, to: now), then >= start else { return [] }
+        guard let start = profile.programme.startDate, now >= start else { return [] }
+        // N1: pain from the check-ins in force now (Advisor conditions: one
+        // run-walk line; "Other" never shows; a dropped exercise gets no line).
+        // Needs no week to compare with, so the first Sunday's check-in shows it too.
+        let pain = painChanges(programme: programme, start: start, checkIns: checkIns, exercises: exercises,
+                               now: now, name: name, calendar: calendar)
+        guard let then = calendar.date(byAdding: .day, value: -windowDays, to: now), then >= start else { return pain }
         // What the app knew a week ago: only logs, weigh-ins and imports from before then.
         let oldHistory = history.filter { $0.startedAt < then }
         let oldWeights = weights.filter { $0.date < then }
@@ -48,7 +53,7 @@ public enum CoachChanges {
                                             weights: oldWeights, blocks: oldBlocks, now: then, calendar: calendar),
               let after = CoachReview.make(programme: programme, profile: profile, history: history,
                                            weights: weights, blocks: blocks, now: now, calendar: calendar)
-        else { return [] }
+        else { return pain }
 
         var changes: [CoachChange] = []
         let replies = blocks.filter { block in
@@ -84,10 +89,7 @@ public enum CoachChanges {
             changes.append(CoachChange(kind: .sessions, line: "\(sessionName(id, programme)) back in the plan"))
         }
 
-        // N1: pain from the check-ins in force now (Advisor conditions: one
-        // run-walk line; "Other" never shows; a dropped exercise gets no line).
-        changes += painChanges(programme: programme, start: start, checkIns: checkIns, exercises: exercises,
-                               now: now, name: name, calendar: calendar)
+        changes += pain
 
         // Loads: the weight each lift asks for next, then and now.
         let weekThen = programme.plannedDay(on: then, start: start, calendar: calendar).week

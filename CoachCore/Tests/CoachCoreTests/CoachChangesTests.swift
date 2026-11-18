@@ -143,6 +143,24 @@ import Testing
         #expect(kinds.firstIndex(of: .runWalk)! < kinds.firstIndex(of: .painSwap)!)
     }
 
+    /// The first Sunday (week 1, no week before the start to compare with):
+    /// the knee answer still shows its lines. CheckInUITests runs on this day.
+    @Test func firstSundaysKneePainStillShows() throws {
+        let p = try f.phase1()
+        let lib = try ContentLibrary.load(from: contentRoot)
+        let now = f.day(6, hour: 18)
+        let c = CoachChanges.make(programme: p, profile: f.profile(), history: [], weights: [], blocks: [],
+                                  checkIns: [CheckIn(date: now, pain: [.knee])], exercises: lib.exercises, now: now,
+                                  name: { lib.exercises.exercise($0)?.name ?? $0 }, calendar: f.calendar)
+        #expect(c.filter { $0.kind == .runWalk }.count == 1, "\(c.map(\.line))")
+        #expect(c.contains { $0.kind == .painSwap }, "\(c.map(\.line))")
+        #expect(c.allSatisfy { $0.kind == .runWalk || $0.kind == .painSwap }, "nothing else to compare yet")
+        // No pain that week: still nothing.
+        #expect(CoachChanges.make(programme: p, profile: f.profile(), history: [], weights: [], blocks: [],
+                                  checkIns: [CheckIn(date: now)], exercises: lib.exercises, now: now,
+                                  calendar: f.calendar).isEmpty)
+    }
+
     @Test func noCheckInOrOnlyOtherAddsNothing() throws {
         let now = f.day(29, hour: 12)
         let none = try changes([], at: now)
