@@ -52,13 +52,17 @@ Schema owner: Planner Engineer. Content owner: the Researcher (Advisor reviews).
 | `boxNight` | the fixed entry: `perPortion`, `nightsPerWeek`, `defaultNights` (E15: Mon–Thu), `shopping: false` |
 | `extraRules` | `proteinFirst` (`extra`, `whenPlannedProteinBelow`), `order` ("a\|b" = one of), `maxPerDay` (2), `maxPerKind` (1), `sideTiming` |
 | `ingredients.<id>` | `name`, `aisle`, `staple`, `per100`, `unit` (`g`, `ml`, `each`), `gramsEach`, `search` |
-| `recipes[]` | `id`, `name`, `kind` (`breakfast`, `lunch`, `dinner`, `sunday-cook`, `snack`, `extra`), `portions` (2; the shake 1; an extra 1 or 2); extras also carry `extraKind`, `addsTo` and optional `replaces`, `minutes`, `perPortion`, `ingredients[]` (`qty` is the total for all portions), `method[]` |
+| `recipes[]` | `id`, `name`, `kind` (`breakfast`, `lunch`, `dinner`, `sunday-cook`, `snack`, `extra`), `portions` (2; the shake 1; an extra 1 or 2); extras also carry `extraKind`, `addsTo` and optional `replaces`, dinners and Sunday cooks carry `mainIngredients` (main ingredients plus a group such as `oily-fish`, `white-fish`, `shellfish`, `poultry`, `red-meat`, for the dislike filter), `minutes`, `perPortion`, `ingredients[]` (`qty` is the total for all portions), `method[]` |
 
 Validation (`problems()`): known ingredients and aisles, 2 portions, a method, no raw fish words, snack rule names snacks, supplement months 1–12, every meal kind present, box nights within `nightsPerWeek` and never Sunday, and the targets no looser than the Advisor's rule.
 
 ## `lunch-orders.json` · `LunchOrders`
 
 `origin` (`maxWalkMinutes`) and `orders[]`: `id`, `place`, `address`, `walkMinutes`, `order`, `kcal`, `protein`, `priceGBP`, `nutritionSource` ("estimate" when none was published), `goodFor`, `note`. Validation: unique ids, within the walk, kcal and protein present, no raw fish.
+
+## `routes/<route>.json` · `RunLoops`
+
+Board N10. Content owner: the Researcher. `route` (the programme's run `route` id), `start` (`name`, `latitude`, `longitude`: a public park gate, never the owner's home) and `loops[]`: `id`, `name`, `distanceKm` (map estimate), `distanceIsEstimate` (true while the distance is a map estimate rather than a measured run), `directions[]`. `closest(toKm:)` gives the loop nearest a session's planned distance. Validation: at least one loop, unique ids, 0.5–15 km, directions present, and one file per route; a CoachCore test checks every programme run route has loops.
 
 ## Profile record · `Profile`
 One record, stored by the app in SwiftData as this JSON (`ProfileRecord.payload`). Any field missing at any depth takes its default, so adding a field never needs a migration.
