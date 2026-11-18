@@ -157,6 +157,31 @@ import Testing
         #expect(friday.recipeID != saturday.recipeID)
     }
 
+    /// N6: no dinner repeats within any 3 weeks, with 4 box nights (default) or 3;
+    /// every week's home dinners include an oily fish; recipes meet the Advisor's A4 limits.
+    @Test(arguments: [nil, Set<Weekday>([.monday, .tuesday, .wednesday])])
+    func noDinnerRepeatsWithinThreeWeeks(boxNights: Set<Weekday>?) throws {
+        let lib = try library()
+        func dinners(_ weekOffset: Int) -> [String] {
+            let monday = calendar.date(byAdding: .day, value: 7 * weekOffset, to: at(2026, 11, 23))!
+            return MealPlan.week(monday: monday, content: lib.nutrition, lunchOrders: lib.lunchOrders.orders,
+                                 answers: WeekAnswers(), programmeID: "phase-1", boxNights: boxNights, calendar: calendar)
+                .days.compactMap { $0.meal(.dinner)?.recipeID }
+        }
+        for start in 0..<10 {
+            let three = (start..<start + 3).flatMap(dinners)
+            #expect(Set(three).count == three.count, "weeks \(start)–\(start + 2): \(three)")
+            let oily = dinners(start).filter { ["salmon-potatoes", "teriyaki-salmon", "trout-pesto", "mackerel-lentils", "salmon-tikka"].contains($0) }
+            #expect(!oily.isEmpty, "week \(start): no oily fish in \(dinners(start))")
+        }
+        for recipe in lib.nutrition.recipes(.dinner) + lib.nutrition.recipes(.sundayCook) {
+            let portion = recipe.perPortion
+            #expect((550...750).contains(portion.kcal) && portion.protein >= 35, "\(recipe.id)")
+            #expect(recipe.ingredients.count <= 12, "\(recipe.id)")
+            if recipe.kind == .dinner { #expect(recipe.minutes <= 40, "\(recipe.id)") }
+        }
+    }
+
     @Test func officeDaysGetALunchOrderAndHomeDaysAHomeLunch() throws {
         let lib = try library()
         let week = try plan(WeekAnswers(officeDays: [.monday, .tuesday, .thursday]))

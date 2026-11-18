@@ -51,7 +51,7 @@ Schema owner: Planner Engineer. Content owner: the Researcher (Advisor reviews).
 | `boxNight` | the fixed entry: `perPortion`, `nightsPerWeek`, `defaultNights` (E15: Mon–Thu), `shopping: false` |
 | `extraRules` | `proteinFirst` (`extra`, `whenPlannedProteinBelow`), `order` ("a\|b" = one of), `maxPerDay` (2), `maxPerKind` (1), `sideTiming` |
 | `ingredients.<id>` | `name`, `aisle`, `staple`, `per100`, `unit` (`g`, `ml`, `each`), `gramsEach`, `search` |
-| `recipes[]` | `id`, `name`, `kind` (`breakfast`, `lunch`, `dinner`, `sunday-cook`, `snack`, `extra`), `portions` (2; the shake 1; an extra 1 or 2); extras also carry `extraKind`, `addsTo` and optional `replaces`, `minutes`, `perPortion`, `ingredients[]` (`qty` is the total for all portions), `method[]` |
+| `recipes[]` | `id`, `name`, `kind` (`breakfast`, `lunch`, `dinner`, `sunday-cook`, `snack`, `extra`), `portions` (2; the shake 1; an extra 1 or 2); extras also carry `extraKind`, `addsTo` and optional `replaces`, dinners and Sunday cooks carry `mainIngredients` (main ingredients plus a group such as `oily-fish`, `white-fish`, `shellfish`, `poultry`, `red-meat`, for the dislike filter), `minutes`, `perPortion`, `ingredients[]` (`qty` is the total for all portions), `method[]` |
 
 Validation (`problems()`): known ingredients and aisles, 2 portions, a method, no raw fish words, snack rule names snacks, supplement months 1–12, every meal kind present, box nights within `nightsPerWeek` and never Sunday, and the targets no looser than the Advisor's rule.
 
