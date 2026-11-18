@@ -23,19 +23,25 @@ Every budget test goes through one helper in `HealthCoachUITests/EaseBudget.swif
 @MainActor
 final class EaseBudget {
     let job: String; let maxTaps: Int; let maxSeconds: Double
-    private(set) var taps = 0, scrolls = 0, chars = 0, screens = 1
-    init(_ job: String, maxTaps: Int, maxSeconds: Double) { … }
+    let maxScrolls: Int, maxChars: Int, maxAlerts: Int     // design E3, E4, E5; all default 0
+    private(set) var taps = 0, scrolls = 0, chars = 0, screens = 1, alerts = 0
+    init(_ job: String, maxTaps: Int, maxSeconds: Double,
+         maxScrolls: Int = 0, maxChars: Int = 0, maxAlerts: Int = 0) { … }
 
-    func tap(_ e: XCUIElement, newScreen: Bool = false)   // asserts e is hittable first; taps += 1
+    func tap(_ e: XCUIElement, newScreen: Bool = false, system: Bool = false)
+        // asserts e is hittable already (no auto-scroll); unless system, asserts frame ≥ 44 × 44 pt (E6); taps += 1
     func type(_ e: XCUIElement, _ text: String)           // taps += 1 (focus), chars += text.count
     func scroll(_ e: XCUIElement, to target: XCUIElement) // scrolls += 1 per swipe until hittable
     var modelSeconds: Double { … }                        // §3
     func finish(done: XCUIElement, file: StaticString = #filePath, line: UInt = #line)
-        // asserts done.exists, taps <= maxTaps, modelSeconds <= maxSeconds,
+        // asserts done.exists, taps <= maxTaps, modelSeconds <= maxSeconds, scrolls <= maxScrolls,
+        // chars <= maxChars, alerts <= maxAlerts, and app.keyboards.count == 0,
         // and attaches a one-line result: "checkin · 7 taps · 0 scrolls · 41.2 s model · budget 60 s"
 }
 ```
 
+- **Design rules E3–E6** (`docs/design/ease-budget.md` §1) are asserted here: no scroll, no typing and no alert unless the job's test raises the limit; every tapped control of ours is at least 44 × 44 pt by its accessibility frame (pad inside the label, don't add exceptions). System UI (alerts, share sheet, permission prompts, the notification) is tapped with `system: true`: counted, not size-checked.
+- **Notification starts** (check-in, delivery slot, photo day, checkpoint): the test launches with `-openFrom notification:<kind>`, which routes exactly as the notification would, and counts the notification with one `budget.tap(…, system: true)`. Each route has a unit test; tapping real banners in the simulator is too flaky to gate on.
 - Tests never call `.tap()` directly between `EaseBudget.init` and `finish`. QA greps for this in review.
 - `finish` attaches a screenshot of the done state, named `ease-<job>`, so the round reads it with the other shots.
 
