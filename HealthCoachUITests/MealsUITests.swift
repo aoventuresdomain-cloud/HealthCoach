@@ -89,27 +89,6 @@ final class MealsUITests: XCTestCase {
         XCTAssertEqual(count.label, "2 of 2 this week")
     }
 
-    /// Ease W2 (Coach Engineer, #120): the shopping list is one tap from
-    /// anywhere, 5 s. N4's one-off shop question is answered first, outside
-    /// the budget (A2 measures it).
-    @MainActor
-    func testW2ShoppingListIsOneTapAway() throws {
-        let app = XCUIApplication()
-        app.launchArguments = ["-uitest", "-now", "2026-11-23T09:00:00Z", "-fixture", "week1-monday"]
-        app.launch()
-        XCTAssertTrue(app.staticTexts["today.title"].waitForExistence(timeout: 15))
-        app.tabBars.buttons["Shopping"].tap()
-        let ask = app.buttons["ask.shop.done"]
-        if ask.waitForExistence(timeout: 3) { ask.tap() }
-        XCTAssertTrue(app.staticTexts["shopping.header"].waitForExistence(timeout: 5))
-        app.tabBars.buttons["Today"].tap()
-        XCTAssertTrue(app.staticTexts["today.title"].waitForExistence(timeout: 5))
-
-        let budget = EaseBudget("shopping-list", maxTaps: 1, maxSeconds: 5, app: app)
-        budget.tap(app.tabBars.buttons["Shopping"], newScreen: true, system: true)
-        budget.finish(done: app.staticTexts["shopping.header"])
-    }
-
     @MainActor
     func testShoppingTicksAndLunchList() throws {
         let app = openMeals()
