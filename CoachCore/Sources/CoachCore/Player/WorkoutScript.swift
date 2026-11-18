@@ -109,18 +109,32 @@ public struct WorkoutScript: Equatable, Sendable {
     /// Accepted Claude `blocks` in force on `date` set a load until that
     /// exercise is next logged (board M4-02).
     /// nil when `sessionID` isn't a strength session.
+    /// N1: `checkIns` hold the N8 easing step while a pain answer is in force.
+    /// `painSwaps` (`PainSwaps.make`) replaces each exercise loading a
+    /// painful area with its safe swap, or leaves it out when there is none.
     public static func make(sessionID: String, programme: Programme, week: Int,
                             history: [SessionLog] = [], blocks: [CoachBlock] = [],
-                            on date: Date = .distantPast, calendar: Calendar = .current) -> WorkoutScript? {
+                            on date: Date = .distantPast, painSwaps: [String: PainSwaps.Swap] = [:],
+                            checkIns: [CheckIn] = [],
+                            calendar: Calendar = .current) -> WorkoutScript? {
         guard case let .strength(session) = programme.sessions[sessionID] else { return nil }
         let effort = programme.effort.first { $0.week == week }
 
         var steps: [SetStep] = []
         var exerciseNumber = 0
+        let inSession = Set(session.blocks.flatMap(\.items).map(\.exercise))
         for block in session.blocks {
-            for item in block.items {
+            for original in block.items {
+                var item = original
+                if let swap = painSwaps[original.exercise] {
+                    // No safe swap, or the swap is already in this session: left out.
+                    guard let replacement = swap.item(replacing: original),
+                          !inSession.contains(replacement.exercise) else { continue }
+                    item = replacement
+                }
                 guard let prescription = programme.prescription(for: item, week: week, history: history,
-                                                                blocks: blocks, on: date, calendar: calendar) else { continue }
+                                                                blocks: blocks, checkIns: checkIns, on: date,
+                                                                calendar: calendar) else { continue }
                 exerciseNumber += 1
                 let swap = programme.swapPrescription(for: item, week: week, history: history).flatMap { swapped in
                     item.autoSwap.map { rule in
@@ -151,7 +165,7 @@ public struct WorkoutScript: Equatable, Sendable {
         let perMove = warmUp.isEmpty ? 0 : session.warmUpMinutes * 60 / warmUp.count
         return WorkoutScript(sessionID: sessionID, name: session.name, week: week, warmUp: warmUp,
                              warmUpSecondsPerMove: perMove, sets: steps, exerciseCount: exerciseNumber,
-                             easing: programme.easing(history: history, on: date, calendar: calendar))
+                             easing: programme.easing(history: history, checkIns: checkIns, on: date, calendar: calendar))
     }
 
     /// After the first set at `index` fell short of its swap threshold, the

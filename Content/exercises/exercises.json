@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "note": "Schema v1 (docs/content-schemas.md). `substitute` = the exercise whose GIF stands in when this one has none. `swap` = the exercise to do instead on pain or a kit problem. Callouts: 12 words or fewer, imperative, `commonMistake` phrased as the fix. Validated by CoachCore tests.",
+  "note": "Schema v1 (docs/content-schemas.md). `substitute` = the exercise whose GIF stands in when this one has none. `swap` = the exercise to do instead on pain or a kit problem. `loads` = the pain areas it puts weight through (N1: shoulder, elbow, wrist, back, knee); a check-in pain answer swaps these out for 7 days. Callouts: 12 words or fewer, imperative, `commonMistake` phrased as the fix. Validated by CoachCore tests.",
   "mediaSource": {
     "provider": "exercisedb-v1",
     "owner": "AscendAPI (formerly ExerciseDB)",
@@ -26,6 +26,7 @@
       },
       "substitute": null,
       "swap": "push-up",
+      "loads": ["shoulder", "elbow", "wrist"],
       "callouts": {
         "setup": "Lie on the bench, feet flat, shoulder blades squeezed together.",
         "movement": "Lower to chest level, then press up and slightly in.",
@@ -50,6 +51,7 @@
       },
       "substitute": null,
       "swap": "dumbbell-bench-press",
+      "loads": ["shoulder", "elbow", "wrist"],
       "callouts": {
         "setup": "Set the bench one notch up, about 30 degrees.",
         "movement": "Lower to upper chest, then press straight up.",
@@ -73,6 +75,7 @@
       },
       "substitute": null,
       "swap": "dumbbell-bench-press",
+      "loads": ["shoulder", "elbow", "wrist"],
       "callouts": {
         "setup": "Hands under shoulders, body straight from head to heels.",
         "movement": "Lower your chest to a fist above the floor, push back.",
@@ -96,6 +99,7 @@
       },
       "substitute": null,
       "swap": "push-up",
+      "loads": ["shoulder", "elbow", "wrist"],
       "callouts": {
         "setup": "Feet on the bench, hands under shoulders.",
         "movement": "Lower your chest towards the floor, then push back up.",
@@ -120,6 +124,7 @@
       },
       "substitute": null,
       "swap": "dumbbell-bench-press",
+      "loads": ["shoulder"],
       "callouts": {
         "setup": "Lie on the bench, dumbbells above chest, palms facing.",
         "movement": "Open arms wide in an arc, then hug them back.",
@@ -144,6 +149,7 @@
       },
       "substitute": null,
       "swap": "dumbbell-arnold-press",
+      "loads": ["shoulder", "elbow", "wrist"],
       "callouts": {
         "setup": "Sit upright, back on the bench, dumbbells at ear height.",
         "movement": "Press overhead until arms are straight, then lower slowly.",
@@ -168,6 +174,7 @@
       },
       "substitute": null,
       "swap": "dumbbell-seated-shoulder-press",
+      "loads": ["shoulder", "elbow", "wrist"],
       "callouts": {
         "setup": "Sit upright, dumbbells at chin height, palms facing you.",
         "movement": "Rotate palms forward as you press overhead.",
@@ -191,6 +198,7 @@
       },
       "substitute": null,
       "swap": "dumbbell-reverse-fly",
+      "loads": ["shoulder"],
       "callouts": {
         "setup": "Stand tall, light dumbbells at your sides, slight elbow bend.",
         "movement": "Raise arms out to shoulder height, lower over two seconds.",
@@ -214,6 +222,7 @@
       },
       "substitute": null,
       "swap": "dumbbell-incline-row",
+      "loads": ["shoulder"],
       "callouts": {
         "setup": "Hinge forward, flat back, dumbbells hanging under shoulders.",
         "movement": "Raise arms out wide, squeezing shoulder blades together.",
@@ -237,6 +246,7 @@
       },
       "substitute": null,
       "swap": "scapular-push-up",
+      "loads": ["shoulder"],
       "callouts": {
         "setup": "Stand, elbow tucked at your side, bent to 90 degrees.",
         "movement": "Rotate the forearm outwards, then back in slowly.",
@@ -261,6 +271,7 @@
       },
       "substitute": null,
       "swap": "dumbbell-overhead-triceps-extension",
+      "loads": ["elbow"],
       "callouts": {
         "setup": "Lie on the bench, dumbbells above chest, palms facing.",
         "movement": "Bend elbows to lower beside your head, then straighten.",
@@ -285,6 +296,7 @@
       },
       "substitute": null,
       "swap": "dumbbell-lying-triceps-extension",
+      "loads": ["shoulder", "elbow"],
       "callouts": {
         "setup": "Sit upright, hold one dumbbell overhead with both hands.",
         "movement": "Lower it behind your head, then straighten your arms.",
@@ -308,6 +320,7 @@
       },
       "substitute": null,
       "swap": "dumbbell-overhead-triceps-extension",
+      "loads": ["shoulder", "elbow", "wrist"],
       "callouts": {
         "setup": "Hands on the bench edge behind you, legs out.",
         "movement": "Bend elbows to lower your hips, then push back up.",
@@ -331,6 +344,7 @@
       },
       "substitute": null,
       "swap": "negative-pull-up",
+      "loads": ["shoulder", "elbow"],
       "callouts": {
         "setup": "Hang from the bar, hands just wider than shoulders, palms away.",
         "movement": "Pull your chest towards the bar, then lower all the way.",
@@ -354,6 +368,7 @@
       },
       "substitute": null,
       "swap": "negative-pull-up",
+      "loads": ["shoulder", "elbow"],
       "callouts": {
         "setup": "Hang from the bar, hands shoulder-width, palms facing you.",
         "movement": "Pull your chin over the bar, then lower all the way.",
@@ -371,6 +386,7 @@
       "media": null,
       "substitute": "pull-up",
       "swap": "scapular-pull-up",
+      "loads": ["shoulder", "elbow"],
       "callouts": {
         "setup": "Step up so your chin is over the bar, palms away.",
         "movement": "Lower yourself slowly over five seconds to a straight hang.",
@@ -395,6 +411,7 @@
       },
       "substitute": null,
       "swap": "negative-pull-up",
+      "loads": ["shoulder", "elbow"],
       "callouts": {
         "setup": "Loop the band over the bar, one foot or knee in it.",
         "movement": "Pull your chest towards the bar, then lower slowly.",
@@ -418,6 +435,7 @@
       },
       "substitute": null,
       "swap": "scapular-push-up",
+      "loads": ["shoulder", "elbow"],
       "callouts": {
         "setup": "Hang from the bar with straight arms.",
         "movement": "Pull shoulders down and back to lift slightly, then relax.",
@@ -442,6 +460,7 @@
       },
       "substitute": null,
       "swap": "dumbbell-incline-row",
+      "loads": ["shoulder", "elbow", "back"],
       "callouts": {
         "setup": "One hand and knee on the bench, back flat.",
         "movement": "Pull the dumbbell to your hip, then lower to a stretch.",
@@ -466,6 +485,7 @@
       },
       "substitute": null,
       "swap": "dumbbell-one-arm-row",
+      "loads": ["shoulder", "elbow"],
       "callouts": {
         "setup": "Lie chest-down on the bench set to 30 degrees.",
         "movement": "Pull dumbbells to your ribs, squeezing shoulder blades together.",
@@ -490,6 +510,7 @@
       },
       "substitute": null,
       "swap": "dumbbell-one-arm-row",
+      "loads": ["shoulder"],
       "callouts": {
         "setup": "Lie on the bench, one dumbbell above chest, both hands.",
         "movement": "Lower it behind your head in an arc, then pull back.",
@@ -513,6 +534,7 @@
       },
       "substitute": null,
       "swap": "dumbbell-hammer-curl",
+      "loads": ["elbow", "wrist"],
       "callouts": {
         "setup": "Stand tall, dumbbells at your sides, palms forward.",
         "movement": "Curl up to shoulders, lower over two seconds.",
@@ -536,6 +558,7 @@
       },
       "substitute": null,
       "swap": "dumbbell-biceps-curl",
+      "loads": ["elbow", "wrist"],
       "callouts": {
         "setup": "Stand tall, dumbbells at your sides, palms facing in.",
         "movement": "Curl up to shoulders, keeping palms facing in.",
@@ -560,6 +583,7 @@
       },
       "substitute": null,
       "swap": "dumbbell-biceps-curl",
+      "loads": ["elbow", "wrist"],
       "callouts": {
         "setup": "Sit back on the bench set to 45 degrees, arms hanging.",
         "movement": "Curl up without moving your upper arms, lower slowly.",
@@ -583,6 +607,7 @@
       },
       "substitute": null,
       "swap": "glute-bridge",
+      "loads": ["knee", "back"],
       "callouts": {
         "setup": "Hold one dumbbell at your chest, feet shoulder-width.",
         "movement": "Sit down between your heels, then stand up tall.",
@@ -606,6 +631,7 @@
       },
       "substitute": null,
       "swap": "dumbbell-reverse-lunge",
+      "loads": ["knee", "back"],
       "callouts": {
         "setup": "Stand in a long stride, dumbbells at your sides.",
         "movement": "Lower the back knee towards the floor, then stand up.",
@@ -630,6 +656,7 @@
       },
       "substitute": null,
       "swap": "split-squat",
+      "loads": ["knee", "back"],
       "callouts": {
         "setup": "Back foot on the bench, front foot a stride ahead.",
         "movement": "Lower the back knee towards the floor, then stand up.",
@@ -653,6 +680,7 @@
       },
       "substitute": null,
       "swap": "glute-bridge",
+      "loads": ["back"],
       "callouts": {
         "setup": "Stand tall, dumbbells in front of your thighs, knees soft.",
         "movement": "Push hips back, slide dumbbells to mid-shin, then stand.",
@@ -676,6 +704,7 @@
       },
       "substitute": null,
       "swap": "split-squat",
+      "loads": ["knee"],
       "callouts": {
         "setup": "Stand tall, dumbbells at your sides.",
         "movement": "Step back, lower the back knee, then return to standing.",
@@ -700,6 +729,7 @@
       },
       "substitute": null,
       "swap": "split-squat",
+      "loads": ["knee"],
       "callouts": {
         "setup": "Face the bench, dumbbells at your sides.",
         "movement": "Step up with one foot, stand tall, then step down slowly.",
@@ -723,6 +753,7 @@
       },
       "substitute": null,
       "swap": "dead-bug",
+      "loads": [],
       "callouts": {
         "setup": "Lie on your back, knees bent, feet flat near your bum.",
         "movement": "Push through heels to lift hips, squeeze, then lower.",
@@ -746,6 +777,7 @@
       },
       "substitute": null,
       "swap": "glute-bridge",
+      "loads": [],
       "callouts": {
         "setup": "Lie on your back, heels on the bench, knees bent.",
         "movement": "Push through heels to lift hips, squeeze, then lower.",
@@ -769,6 +801,7 @@
       },
       "substitute": null,
       "swap": "dumbbell-single-leg-calf-raise",
+      "loads": [],
       "callouts": {
         "setup": "Stand tall, dumbbells at your sides, feet hip-width.",
         "movement": "Rise onto your toes, pause, lower over two seconds.",
@@ -792,6 +825,7 @@
       },
       "substitute": null,
       "swap": "dumbbell-calf-raise",
+      "loads": [],
       "callouts": {
         "setup": "Stand on one foot, dumbbell in that hand, wall for balance.",
         "movement": "Rise onto your toes, pause, lower over two seconds.",
@@ -815,6 +849,7 @@
       },
       "substitute": null,
       "swap": "dead-bug",
+      "loads": ["shoulder", "back"],
       "callouts": {
         "setup": "Forearms under shoulders, body straight from head to heels.",
         "movement": "Hold still and breathe steadily.",
@@ -838,6 +873,7 @@
       },
       "substitute": null,
       "swap": "plank",
+      "loads": ["shoulder"],
       "callouts": {
         "setup": "Lie on your side, elbow under shoulder, legs stacked.",
         "movement": "Lift hips into a straight line and hold.",
@@ -861,6 +897,7 @@
       },
       "substitute": null,
       "swap": "plank",
+      "loads": [],
       "callouts": {
         "setup": "Lie on your back, arms up, knees bent over hips.",
         "movement": "Lower the opposite arm and leg slowly, then swap.",
@@ -878,6 +915,7 @@
       "media": null,
       "substitute": "dead-bug",
       "swap": "dead-bug",
+      "loads": ["back"],
       "callouts": {
         "setup": "Lie on your back, arms overhead, legs straight.",
         "movement": "Lift shoulders and legs a little off the floor, hold.",
@@ -901,6 +939,7 @@
       },
       "substitute": null,
       "swap": "dead-bug",
+      "loads": [],
       "callouts": {
         "setup": "Lie on your back, knees bent over hips, hands down.",
         "movement": "Curl hips off the floor towards your chest, lower slowly.",
@@ -924,6 +963,7 @@
       },
       "substitute": null,
       "swap": "reverse-crunch",
+      "loads": ["shoulder", "elbow", "wrist"],
       "callouts": {
         "setup": "Hang from the bar, shoulders pulled down.",
         "movement": "Raise knees to your chest, then lower slowly.",
@@ -947,6 +987,7 @@
       },
       "substitute": null,
       "swap": "hanging-knee-raise",
+      "loads": ["shoulder", "elbow", "wrist", "back"],
       "callouts": {
         "setup": "Hang from the bar, shoulders pulled down, legs straight.",
         "movement": "Raise straight legs to hip height, then lower slowly.",
@@ -970,6 +1011,7 @@
       },
       "substitute": null,
       "swap": "plank",
+      "loads": ["elbow", "wrist", "back"],
       "callouts": {
         "setup": "Pick up heavy dumbbells, stand tall, shoulders back.",
         "movement": "Walk with short, steady steps for the time.",
@@ -993,6 +1035,7 @@
       },
       "substitute": null,
       "swap": "glute-bridge",
+      "loads": ["knee", "wrist"],
       "callouts": {
         "setup": "Step into a long lunge, hands on the floor.",
         "movement": "Drop the elbow to the instep, then rotate that arm up.",
@@ -1016,6 +1059,7 @@
       },
       "substitute": null,
       "swap": "scapular-pull-up",
+      "loads": ["shoulder", "wrist"],
       "callouts": {
         "setup": "Start in a push-up position, arms straight.",
         "movement": "Let your chest sink between shoulders, then push it away.",

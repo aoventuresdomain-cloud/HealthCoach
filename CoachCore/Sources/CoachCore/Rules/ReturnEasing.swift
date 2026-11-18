@@ -93,13 +93,15 @@ public struct ReturnEasing: Sendable, Equatable {
 
     /// Where the rebuild stands after `logs` (sessions since the break, oldest
     /// first): the next session's step, and the logs that were eased. A
-    /// session answered Sore holds the step for the next one.
-    func rebuild(after logs: [SessionLog]) -> (next: Int, eased: [SessionLog]) {
+    /// session answered Sore holds the step for the next one, and so does one
+    /// done while a check-in pain answer is in force (N1, `holds`).
+    func rebuild(after logs: [SessionLog],
+                 holds: (SessionLog) -> Bool = { _ in false }) -> (next: Int, eased: [SessionLog]) {
         var step = 1
         var eased: [SessionLog] = []
         for log in logs where step < fullAtSession {
             eased.append(log)
-            if log.recovery != .sore { step += 1 }
+            if log.recovery != .sore && !holds(log) { step += 1 }
         }
         return (step, eased)
     }
@@ -113,6 +115,15 @@ public struct ReturnEasing: Sendable, Equatable {
 }
 
 extension Programme {
+    /// N1: a session done while a check-in pain answer (any area but "other")
+    /// is in force holds the easing step, as a Sore answer does.
+    static func painHolds(_ checkIns: [CheckIn], calendar: Calendar) -> (SessionLog) -> Bool {
+        guard !checkIns.isEmpty else { return { _ in false } }
+        return { log in
+            !CheckIn.painAreas(checkIns, on: log.startedAt, calendar: calendar).subtracting([.other]).isEmpty
+        }
+    }
+
     /// Every strength break of 10 days or more in `history` before `date`,
     /// oldest first. A break still running on `date` counts, ending on `date`.
     func strengthBreaks(history: [SessionLog], before date: Date, calendar: Calendar) -> [ReturnEasing] {
@@ -128,23 +139,24 @@ extension Programme {
     /// The break the session on `date` is easing back from while the rebuild
     /// isn't over, counted in strength sessions since. For the player's line,
     /// Today's line (`todayLine`) and the summary.
-    public func easing(history: [SessionLog], on date: Date, calendar: Calendar = .current) -> ReturnEasing? {
-        easingStep(history: history, on: date, calendar: calendar)?.easing
+    public func easing(history: [SessionLog], checkIns: [CheckIn] = [], on date: Date,
+                       calendar: Calendar = .current) -> ReturnEasing? {
+        easingStep(history: history, checkIns: checkIns, on: date, calendar: calendar)?.easing
     }
 
     /// The break and the next session's step (1-based), while rebuilding.
-    public func easingStep(history: [SessionLog], on date: Date,
+    public func easingStep(history: [SessionLog], checkIns: [CheckIn] = [], on date: Date,
                            calendar: Calendar = .current) -> (easing: ReturnEasing, session: Int)? {
         guard let latest = strengthBreaks(history: history, before: date, calendar: calendar).last else { return nil }
         let since = strengthLogs(history, before: date).filter { $0.startedAt >= latest.firstSessionDay }
-        let next = latest.rebuild(after: since).next
+        let next = latest.rebuild(after: since, holds: Self.painHolds(checkIns, calendar: calendar)).next
         return next < latest.fullAtSession ? (latest, next) : nil
     }
 
     /// The eased prescription for `item` on `date`, or the normal one. Eased
     /// sessions' sets for this exercise are left out of the replay, so the
     /// rebuild returns to the pre-break state.
-    func easedPrescription(for item: StrengthItem, week: Int, history: [SessionLog],
+    func easedPrescription(for item: StrengthItem, week: Int, history: [SessionLog], checkIns: [CheckIn] = [],
                            on date: Date, calendar: Calendar) -> Prescription? {
         let breaks = strengthBreaks(history: history, before: date, calendar: calendar)
         guard !breaks.isEmpty else { return prescription(for: item, week: week, history: history) }
@@ -160,7 +172,7 @@ extension Programme {
                 log.startedAt >= brk.firstSessionDay && log.startedAt < next
                     && log.sets.contains { $0.exercise == item.exercise || $0.exercise == item.graduate?.to }
             }
-            let rebuilt = brk.rebuild(after: after)
+            let rebuilt = brk.rebuild(after: after, holds: Self.painHolds(checkIns, calendar: calendar))
             for log in rebuilt.eased { eased.insert(log.id) }
             if index == breaks.count - 1 {
                 current = brk

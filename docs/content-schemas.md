@@ -12,7 +12,7 @@ Owner: Planner Engineer. Swift models live in `CoachCore/Sources/CoachCore/Conte
 |---|---|
 | `schemaVersion` | 1 |
 | `mediaSource` | provider, owner, format, licence |
-| `exercises[]` | `id` (lower-case-hyphenated, unique), `name`, `group` (push, pull, legs, core, arms, shoulders, warm-up), `equipment[]` (bodyweight, dumbbells, bench, band, pull-up bar), `usedIn` (for editors), `media` or null, `substitute` (whose GIF stands in), `swap` (do instead on pain or kit problem), `callouts` {`setup`, `movement`, `commonMistake`} |
+| `exercises[]` | `id` (lower-case-hyphenated, unique), `name`, `group` (push, pull, legs, core, arms, shoulders, warm-up), `equipment[]` (bodyweight, dumbbells, bench, band, pull-up bar), `usedIn` (for editors), `media` or null, `substitute` (whose GIF stands in), `swap` (do instead on pain or kit problem), `loads[]` (N1: pain areas it puts weight through: shoulder, elbow, wrist, back, knee), `callouts` {`setup`, `movement`, `commonMistake`} |
 
 Checked: unique ids, callouts 1–12 words, `substitute` and `swap` exist and aren't self, no media means a substitute that has media.
 
