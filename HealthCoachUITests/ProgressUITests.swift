@@ -95,6 +95,9 @@ final class ProgressUITests: XCTestCase {
         attach(app, "photo-waist")
         app.buttons["photo.save"].tap()
         XCTAssertTrue(app.descendants(matching: .any)["progress.nextPhotos"].waitForExistence(timeout: 5))
+        // The waist joins the weight line on Progress.
+        let line = app.staticTexts["progress.weightChange"]
+        XCTAssertTrue(line.label.contains("waist 90.5 cm"), line.label)
     }
 
     /// N7: Photos opens straight onto a compare of the latest set against

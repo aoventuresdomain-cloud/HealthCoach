@@ -10,7 +10,7 @@ struct PhotoCompareView: View {
     let start: Date?
     let calendar: Calendar
 
-    @State private var against = PhotoCompare.Against.weekZero
+    @State private var against = PhotoPairing.Against.weekZero
     /// Share of the width showing the latest photo, from the left.
     @State private var split = 0.5
 
@@ -19,11 +19,11 @@ struct PhotoCompareView: View {
     var body: some View {
         List {
             if let latest = sets.last,
-               let index = PhotoCompare.baseline(sets.map(\.date), against: against, calendar: calendar) {
+               let index = PhotoPairing.baseline(sets.map(\.date), against: against, calendar: calendar) {
                 let base = sets[index]
                 Section {
                     Picker("Compare with", selection: $against) {
-                        ForEach(PhotoCompare.Against.allCases, id: \.self) { Text($0.rawValue).tag($0) }
+                        ForEach(PhotoPairing.available(sets.map(\.date), calendar: calendar), id: \.self) { Text($0.rawValue).tag($0) }
                     }
                     .pickerStyle(.segmented)
                     .accessibilityIdentifier("compare.against")
@@ -100,14 +100,11 @@ struct PhotoCompareView: View {
         date.formatted(.dateTime.day().month(.abbreviated))
     }
 
-    /// "82.4 kg · 7-day average · −1.1 kg since start", when there is a trend.
+    /// "82.4 kg · 7-day average · −1.1 kg since start · waist 88.5 cm (−1.5)", when there is a trend.
     private var weightLine: String? {
-        guard let trend = BodyStats.shared.weight else { return nil }
         let change = WeightTrend.changeSinceStart(samples: BodyStats.shared.weightHistory, start: start,
                                                   now: AppClock.now(), calendar: calendar)
-        var line = "\(WeightTrend.oneDecimal(trend.averageKg)) kg · \(WeightTrend.heroSubline(changeSinceStart: change))"
-        // N7: the waist joins the same line when it is on.
-        if WaistStore.shared.isOn, let waist = WaistStore.shared.last { line += " · waist \(WaistStore.text(waist.cm))" }
-        return line
+        return ProgressLine.text(trend: BodyStats.shared.weight, changeSinceStart: change,
+                                 waist: WaistStore.shared.shownLog)
     }
 }

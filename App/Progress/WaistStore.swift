@@ -2,20 +2,15 @@ import CoachCore
 import Foundation
 
 /// N7: the optional waist measurement on photo day (Advisor 5), off until
-/// turned on in Preferences. One value per photo day, in cm; kept on the
-/// phone and never shared.
+/// turned on in Preferences. The values are a `WaistLog` (CoachCore); kept
+/// on the phone, and in the Claude summary only at checkpoints.
 @MainActor
 final class WaistStore {
     static let shared = WaistStore()
 
-    /// The stepper's start before any measurement.
-    static let firstGuessCm = 90.0
-    static let stepCm = 0.5
-    static let range = 50.0...160.0
-
     private let defaults: UserDefaults
     private let onKey = "progress.waist.on.v1"
-    private let valuesKey = "progress.waist.cm.v1"
+    private let logKey = "progress.waist.log.v1"
 
     private init() {
         if LaunchOptions.current.isUITest, let suite = UserDefaults(suiteName: "uitest.waist") {
@@ -31,21 +26,21 @@ final class WaistStore {
         set { defaults.set(newValue, forKey: onKey) }
     }
 
-    /// The latest measurement, if any.
-    var last: (day: String, cm: Double)? {
-        values.max { $0.key < $1.key }.map { ($0.key, $0.value) }
+    var log: WaistLog {
+        guard let data = defaults.data(forKey: logKey),
+              let log = try? JSONDecoder().decode(WaistLog.self, from: data) else { return WaistLog() }
+        return log
     }
+
+    /// The log for the summary and the Progress line: only while the waist is on.
+    var shownLog: WaistLog? { isOn ? log : nil }
 
     func save(_ cm: Double, on date: Date, calendar: Calendar) {
-        var stored = values
-        stored[SocialMealStore.dayKey(date, calendar: calendar)] = (cm / Self.stepCm).rounded() * Self.stepCm
-        defaults.set(stored, forKey: valuesKey)
+        var updated = log
+        updated.add(cm: cm, on: date, calendar: calendar)
+        if let data = try? JSONEncoder().encode(updated) { defaults.set(data, forKey: logKey) }
     }
 
-    /// "86.5 cm".
+    /// "86.5 cm", for the stepper.
     static func text(_ cm: Double) -> String { "\(WeightTrend.oneDecimal(cm)) cm" }
-
-    private var values: [String: Double] {
-        (defaults.dictionary(forKey: valuesKey) as? [String: Double]) ?? [:]
-    }
 }

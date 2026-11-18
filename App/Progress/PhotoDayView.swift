@@ -20,7 +20,7 @@ struct PhotoDayView: View {
     @State private var shooting: ProgressStore.Pose? = .front
     @State private var error: String?
     /// N7: the waist row, only when turned on in Preferences; pre-filled with the last value.
-    @State private var waistCm = WaistStore.shared.last?.cm ?? WaistStore.firstGuessCm
+    @State private var waistCm = WaistStore.shared.log.prefillCm
 
     private var store: ProgressStore { .shared }
 
@@ -42,7 +42,8 @@ struct PhotoDayView: View {
 
     /// The first photo of this pose, for the ghost.
     private func firstPhoto(_ pose: ProgressStore.Pose) -> UIImage? {
-        store.sets(calendar: calendar).lazy.compactMap { store.image(day: $0.day, pose: pose) }.first
+        let sets = store.sets(calendar: calendar).filter { store.image(day: $0.day, pose: pose) != nil }
+        return PhotoPairing.ghost(sets.map(\.date)).flatMap { store.image(day: sets[$0].day, pose: pose) }
     }
 
     private var review: some View {
@@ -101,7 +102,7 @@ struct PhotoDayView: View {
     /// A stepper in 0.5 cm steps, so no typing (E4), with the one measuring rule.
     private var waistRow: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Stepper(value: $waistCm, in: WaistStore.range, step: WaistStore.stepCm) {
+            Stepper(value: $waistCm, in: WaistLog.rangeCm, step: WaistLog.stepCm) {
                 HStack {
                     Text("Waist")
                     Spacer()

@@ -68,7 +68,9 @@ struct ProgressScreen: View {
                         let change = WeightTrend.changeSinceStart(samples: BodyStats.shared.weightHistory,
                                                                   start: profile.programme.startDate,
                                                                   now: now, calendar: calendar)
-                        Text(WeightTrend.heroSubline(changeSinceStart: change))
+                        // N7: the waist joins the line when it is on and measured.
+                        let waist = WaistStore.shared.shownLog?.text
+                        Text(WeightTrend.heroSubline(changeSinceStart: change) + (waist.map { " · \($0)" } ?? ""))
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                             .accessibilityIdentifier("progress.weightChange")
@@ -162,7 +164,8 @@ struct ProgressScreen: View {
                 }, isTicked: { day, meal in MealTicks.shared.isTicked(meal, on: day.date, calendar: calendar) },
                 calendar: calendar)
                 if let summary = CoachSummary.text(programme: programme, profile: profile, history: history,
-                                                   weights: weights, meals: meals, blocks: blocks,
+                                                   weights: weights, meals: meals,
+                                                   waist: WaistStore.shared.shownLog, blocks: blocks,
                                                    socialMeals: SocialMealStore.shared.dates(calendar: calendar),
                                                    checkIns: CheckInStore.shared.all, now: now, calendar: calendar) {
                     ShareLink(item: summary) {
