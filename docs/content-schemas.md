@@ -12,7 +12,7 @@ Owner: Planner Engineer. Swift models live in `CoachCore/Sources/CoachCore/Conte
 |---|---|
 | `schemaVersion` | 1 |
 | `mediaSource` | provider, owner, format, licence |
-| `exercises[]` | `id` (lower-case-hyphenated, unique), `name`, `group` (push, pull, legs, core, arms, shoulders, warm-up), `equipment[]` (bodyweight, dumbbells, bench, band, pull-up bar), `usedIn` (for editors), `media` or null, `substitute` (whose GIF stands in), `swap` (do instead on pain or kit problem), `callouts` {`setup`, `movement`, `commonMistake`} |
+| `exercises[]` | `id` (lower-case-hyphenated, unique), `name`, `group` (push, pull, legs, core, arms, shoulders, warm-up), `equipment[]` (bodyweight, dumbbells, bench, band, pull-up bar), `usedIn` (for editors), `media` or null, `substitute` (whose GIF stands in), `swap` (do instead on pain or kit problem), `loads[]` (N1: pain areas it puts weight through: shoulder, elbow, wrist, back, knee), `callouts` {`setup`, `movement`, `commonMistake`} |
 
 Checked: unique ids, callouts 1–12 words, `substitute` and `swap` exist and aren't self, no media means a substitute that has media.
 
@@ -44,7 +44,7 @@ Schema owner: Planner Engineer. Content owner: the Researcher (Advisor reviews).
 
 | Field | Meaning |
 |---|---|
-| `shop` | `default` shop and `searchUrl` with `{search}` (decision E5) |
+| `shop` | `default` shop and `searchUrl` with `{search}` (decision E5); `options[]` (`id`, `name`, `searchUrl`), the shops offered in N4 |
 | `aisleOrder` | aisle ids in walking order; every ingredient's `aisle` must be one of them |
 | `dailyTargets.<programme>` | `kcal` (starting target), `kcalBandPlusMinus` (≤ 150), `kcalFloor` (≥ 1,700), `protein`, `proteinMin` (≥ 150) |
 | `snackRule` | `default` snack, `replaceWith` when the day is under `whenPlannedProteinBelow`, and the Wednesday `wednesdayTime` |

@@ -88,6 +88,33 @@ import Testing
         #expect(today.easing.todayLine(atSession: today.session) == "Easing back in: 90% today")
     }
 
+    /// N1 (HoE, 18 Nov): a session done while a check-in pain answer is in
+    /// force holds the step, as Sore does; "other" doesn't.
+    @Test func aPainAnswerHoldsTheStep() throws {
+        let p = try f.phase1()
+        let before = try logged(weeks: 1, p)          // day 35 is 30 days off: 80% first
+        let preKg = try #require(p.prescription(for: try bench(p), week: 6, history: before)?.kg)
+        let history = try logUpperA(p, before, day: 35)
+        func kg(_ checkIns: [CheckIn]) throws -> Double? {
+            let week = try #require(p.plannedDay(on: f.day(38), start: f.start, calendar: f.calendar).week)
+            return try #require(p.prescription(for: try bench(p), week: week, history: history, blocks: [],
+                                               checkIns: checkIns, on: f.day(38, hour: 7), calendar: f.calendar)).kg
+        }
+        // Knee pain answered the evening before: the bench isn't swapped, but the step holds.
+        let knee = [CheckIn(date: f.day(34, hour: 18), pain: [.knee])]
+        #expect(try kg(knee) == floorToStep(preKg * 0.8, p))
+        #expect(p.easingStep(history: history, checkIns: knee, on: f.day(38, hour: 7), calendar: f.calendar)?.session == 1)
+        // Without it, or with only "other", or pain that had ended: on to 90%.
+        #expect(try kg([]) == floorToStep(preKg * 0.9, p))
+        #expect(try kg([CheckIn(date: f.day(34, hour: 18), pain: [.other])]) == floorToStep(preKg * 0.9, p))
+        #expect(try kg([CheckIn(date: f.day(27, hour: 18), pain: [.knee])]) == floorToStep(preKg * 0.9, p))
+        // The player shows the held step too.
+        let week = try #require(p.plannedDay(on: f.day(38), start: f.start, calendar: f.calendar).week)
+        let script = try #require(WorkoutScript.make(sessionID: "upper-a", programme: p, week: week, history: history,
+                                                     on: f.day(38, hour: 7), checkIns: knee, calendar: f.calendar))
+        #expect(script.sets.first { $0.exercise == "dumbbell-bench-press" }?.kg == floorToStep(preKg * 0.8, p))
+    }
+
     // MARK: - 10–20 days
 
     @Test func twoWeeksOffEasesTo90ThenBackWithinTwoSessions() throws {

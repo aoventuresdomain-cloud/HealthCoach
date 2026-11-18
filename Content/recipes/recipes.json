@@ -4,7 +4,14 @@
   "shop": {
     "default": "waitrose",
     "searchUrl": "https://www.waitrose.com/ecom/shop/search?searchTerm={search}",
-    "decision": "E5"
+    "decision": "E5",
+    "options": [
+      { "id": "waitrose", "name": "Waitrose", "searchUrl": "https://www.waitrose.com/ecom/shop/search?searchTerm={search}" },
+      { "id": "ocado", "name": "Ocado", "searchUrl": "https://www.ocado.com/search?entry={search}" },
+      { "id": "marks-and-spencer", "name": "M&S (via Ocado)", "searchUrl": "https://www.ocado.com/search?entry=M%26S%20{search}" },
+      { "id": "tesco", "name": "Tesco", "searchUrl": "https://www.tesco.com/groceries/en-GB/search?query={search}" },
+      { "id": "sainsburys", "name": "Sainsbury's", "searchUrl": "https://www.sainsburys.co.uk/gol-ui/SearchResults/{search}" }
+    ]
   },
   "aisleOrder": [
     "produce",

@@ -53,13 +53,14 @@ public struct CoachReview: Sendable, Equatable {
 
     /// The review for `now`. Nil before onboarding sets a start date.
     public static func make(programme: Programme, profile: Profile, history: [SessionLog],
-                            weights: [WeightSample], blocks: [CoachBlock],
+                            weights: [WeightSample], blocks: [CoachBlock], checkIns: [CheckIn] = [],
                             now: Date, calendar: Calendar = .current) -> CoachReview? {
         guard let start = profile.programme.startDate,
               let week = CalorieRules.week(of: now, start: start, calendar: calendar) else { return nil }
         let replay = CalorieRules.replay(to: now, start: start, phase: programme.phase, samples: weights,
                                          blocks: blocks, calendar: calendar)
-        let dropped = Set(programme.droppedSessions(history: history))
+        // N1: a check-in with low energy and poor sleep is a low-recovery signal too.
+        let dropped = Set(programme.droppedSessions(history: history, checkIns: checkIns))
             .union(CoachBlock.droppedSessions(blocks, on: now, start: start, calendar: calendar))
 
         let programmeWeek = programme.plannedDay(on: now, start: start, calendar: calendar).week
@@ -67,7 +68,7 @@ public struct CoachReview: Sendable, Equatable {
         if let programmeWeek {
             for item in programme.strengthItems {
                 guard let rx = programme.prescription(for: item, week: programmeWeek, history: history,
-                                                      blocks: blocks, on: now, calendar: calendar),
+                                                      blocks: blocks, checkIns: checkIns, on: now, calendar: calendar),
                       rx.atDumbbellLimit, !limit.contains(rx.exercise) else { continue }
                 limit.append(rx.exercise)
             }
@@ -154,9 +155,12 @@ extension Programme {
     /// imported weight holds until the owner next logs that exercise; from
     /// then on the logged weight is the starting point, as usual.
     public func prescription(for item: StrengthItem, week: Int, history: [SessionLog],
-                             blocks: [CoachBlock], on date: Date, calendar: Calendar = .current) -> Prescription? {
-        // N8: after 10+ days without strength work, loads ease and rebuild.
-        guard let base = easedPrescription(for: item, week: week, history: history, on: date, calendar: calendar)
+                             blocks: [CoachBlock], checkIns: [CheckIn] = [], on date: Date,
+                             calendar: Calendar = .current) -> Prescription? {
+        // N8: after 10+ days without strength work, loads ease and rebuild;
+        // N1: a pain answer holds the step.
+        guard let base = easedPrescription(for: item, week: week, history: history, checkIns: checkIns,
+                                           on: date, calendar: calendar)
         else { return nil }
         let lastLogged = history
             .filter { log in log.sets.contains { $0.exercise == base.exercise } }

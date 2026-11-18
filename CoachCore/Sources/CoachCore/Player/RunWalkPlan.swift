@@ -8,9 +8,11 @@ public struct RunWalkPlan: Equatable, Sendable {
     public let name: String
     public let week: Int
     public let segments: [Segment]
+    /// N10: the named loop closest to this session's distance (`naming(_:)`).
+    public private(set) var loop: RunLoops.Loop? = nil
 
     public struct Segment: Equatable, Sendable {
-        public enum Kind: String, Sendable { case warmUp, jog, walk, coolDown }
+        public enum Kind: String, Sendable { case warmUp, jog, walk, coolDown, briskWalk }
         public let kind: Kind
         public let seconds: Int
         /// 1-based jog number for intervals; nil for warm-up and cool-down.
@@ -21,6 +23,38 @@ public struct RunWalkPlan: Equatable, Sendable {
 
     /// The effort, set once by the first cue and repeated on screen (design M1-03).
     public static let effortLine = "Easy pace: you could chat."
+
+    /// Pace assumptions for `estimatedKm` (km/h): easy jog, recovery walk,
+    /// brisk walk. Rough on purpose: only used to pick a loop.
+    public static let jogKmh = 8.0, walkKmh = 5.0, briskWalkKmh = 6.0
+
+    /// About how far the session goes, to the nearest 0.1 km.
+    public var estimatedKm: Double {
+        let km = segments.reduce(0.0) { total, segment in
+            let kmh = switch segment.kind {
+            case .jog: Self.jogKmh
+            case .briskWalk: Self.briskWalkKmh
+            case .walk, .warmUp, .coolDown: Self.walkKmh
+            }
+            return total + kmh * Double(segment.seconds) / 3600
+        }
+        return (km * 10).rounded() / 10
+    }
+
+    /// N10: this plan with the route's loop closest to `estimatedKm`; unchanged
+    /// when the route has no loops file.
+    public func naming(_ loops: RunLoops?) -> RunWalkPlan {
+        var named = self
+        named.loop = loops?.closest(toKm: estimatedKm)
+        return named
+    }
+
+    /// "Long Water loop, about 2 km". nil without a loop.
+    public var loopLine: String? {
+        guard let loop else { return nil }
+        let km = loop.distanceKm.rounded() == loop.distanceKm ? String(Int(loop.distanceKm)) : String(format: "%.1f", loop.distanceKm)
+        return "\(loop.name), about \(km) km"
+    }
 
     public var totalSeconds: Int { segments.map(\.seconds).reduce(0, +) }
     public var jogSeconds: Int { segments.filter(\.isJog).map(\.seconds).reduce(0, +) }
@@ -43,6 +77,28 @@ public struct RunWalkPlan: Equatable, Sendable {
         return RunWalkPlan(sessionID: sessionID, name: session.name, week: week, segments: segments)
     }
 
+    /// Brisk-walk length bounds (Advisor N1 condition c).
+    public static let briskWalkMinutes = 20...30
+
+    /// N1 condition (c): the week's run-walk as one brisk walk, its planned
+    /// length held to 20-30 minutes, for knee or back pain. nil when the
+    /// session doesn't run in `week`.
+    public static func briskWalk(sessionID: String, session: RunWalkSession, week: Int) -> RunWalkPlan? {
+        guard let w = session.weeks.first(where: { $0.week == week }) else { return nil }
+        let minutes = min(max(w.durationMinutes, briskWalkMinutes.lowerBound), briskWalkMinutes.upperBound)
+        return RunWalkPlan(sessionID: sessionID, name: "Brisk walk", week: week,
+                           segments: [Segment(kind: .briskWalk, seconds: minutes * 60, interval: nil)])
+    }
+
+    /// The run-walk for `week` under the pain areas in force: a brisk walk
+    /// for knee or back, otherwise as planned.
+    public static func make(sessionID: String, session: RunWalkSession, week: Int,
+                            painAreas: Set<PainArea>) -> RunWalkPlan? {
+        PainSwaps.walksInsteadOfRunning(painAreas)
+            ? briskWalk(sessionID: sessionID, session: session, week: week)
+            : make(sessionID: sessionID, session: session, week: week)
+    }
+
     /// What the voice says as segment `index` starts.
     public func cue(at index: Int) -> String {
         guard segments.indices.contains(index) else { return "Done. Well walked." }
@@ -53,6 +109,7 @@ public struct RunWalkPlan: Equatable, Sendable {
         case .jog: return index <= 1 ? "Jog for \(length). \(Self.effortLine)" : "Jog for \(length)"
         case .walk: return "Walk for \(length)"
         case .coolDown: return "Last one. Cool-down walk for \(length)"
+        case .briskWalk: return "Brisk walk for \(length). Walk tall, quick steps, no jogging."
         }
     }
 

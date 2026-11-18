@@ -117,24 +117,27 @@ extension Programme {
         return prescription(for: swapped, week: week, history: history)
     }
 
-    /// True when the last two answers to "Still sore from last time?" were
-    /// "Sore": the coming week drops `reducedWeek.drop` (decision R2). An
-    /// unanswered check counts as fine, so ignoring the row never drops a session.
-    public func reducedWeekApplies(history: [SessionLog]) -> Bool {
+    /// True when the last two recovery signals were low: a "Sore" answer to
+    /// "Still sore from last time?", or (N1, Advisor A1) a check-in with Low
+    /// energy and Poor sleep together. The coming week drops `reducedWeek.drop`
+    /// (decision R2). An unanswered check counts as fine, so ignoring the row
+    /// never drops a session; a check-in without both lows isn't a signal.
+    public func reducedWeekApplies(history: [SessionLog], checkIns: [CheckIn] = []) -> Bool {
         var strengthIDs = Set<String>()
         for (id, session) in sessions {
             if case .strength = session { strengthIDs.insert(id) }
         }
-        let recent = history
+        let sessionSignals = history
             .filter { strengthIDs.contains($0.sessionID) }
-            .sorted { $0.startedAt < $1.startedAt }
-            .suffix(2)
-        return recent.count == 2 && recent.allSatisfy { $0.recovery == .sore }
+            .map { (date: $0.startedAt, low: $0.recovery == .sore) }
+        let checkInSignals = checkIns.filter(\.isLowRecovery).map { (date: $0.date, low: true) }
+        let recent = (sessionSignals + checkInSignals).sorted { $0.date < $1.date }.suffix(2)
+        return recent.count == 2 && recent.allSatisfy(\.low)
     }
 
     /// The session ids to leave out of the coming week (empty for a normal week).
-    public func droppedSessions(history: [SessionLog]) -> [String] {
-        reducedWeekApplies(history: history) ? reducedWeek.drop : []
+    public func droppedSessions(history: [SessionLog], checkIns: [CheckIn] = []) -> [String] {
+        reducedWeekApplies(history: history, checkIns: checkIns) ? reducedWeek.drop : []
     }
 
     // MARK: - Replay

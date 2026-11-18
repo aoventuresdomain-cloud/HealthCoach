@@ -74,9 +74,10 @@ struct RunWalkView: View {
         let times = model.elapsedAndRemaining(at: date)
         VStack(spacing: 12) {
             if model.finished {
-                Text("Run-walk done").font(.largeTitle.bold()).padding(.top, 48)
+                Text(model.plan.repeats == 0 ? "Walk done" : "Run-walk done").font(.largeTitle.bold()).padding(.top, 48)
                     .accessibilityIdentifier("run.doneTitle")
-                Text("\(PlayerFormat.clock(model.plan.totalSeconds)) · \(model.plan.repeats) jogs")
+                Text(model.plan.repeats == 0 ? PlayerFormat.clock(model.plan.totalSeconds)
+                     : "\(PlayerFormat.clock(model.plan.totalSeconds)) · \(model.plan.repeats) jogs")
                     .font(.title3).foregroundStyle(.secondary)
             } else if let segment = model.segment {
                 Text(RunWalkFormat.label(segment.kind))
@@ -98,6 +99,11 @@ struct RunWalkView: View {
                 if segment.kind == .warmUp || (segment.kind == .jog && segment.interval == 1) {
                     Text(RunWalkPlan.effortLine.trimmingCharacters(in: .punctuationCharacters))
                         .foregroundStyle(.secondary)
+                }
+                // N10: which loop, while setting off.
+                if model.index == 0, let loop = model.plan.loopLine {
+                    Text(loop).foregroundStyle(.secondary)
+                        .accessibilityIdentifier("run.loop")
                 }
                 SegmentBar(plan: model.plan, current: model.index)
                     .padding(.horizontal, 16)
