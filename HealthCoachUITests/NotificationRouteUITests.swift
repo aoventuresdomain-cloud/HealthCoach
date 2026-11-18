@@ -44,4 +44,29 @@ final class NotificationRouteUITests: XCTestCase {
             app.terminate()
         }
     }
+
+    /// W5: the delivery reminder opens Meals on Shopping. Budget: the tap, 5 s.
+    @MainActor
+    func testDeliveryReminderOpensShopping() throws {
+        let app = launch(from: "deliveryReminder", now: "2026-11-25T19:00:00Z")
+        let budget = EaseBudget("delivery-reminder", maxTaps: 1, maxSeconds: 5, app: app)
+        budget.notificationTap()
+        let header = app.descendants(matching: .any)["shopping.header"]
+        XCTAssertTrue(header.waitForExistence(timeout: 15), "the reminder opens Shopping")
+        XCTAssertTrue(app.tabBars.buttons["Meals"].isSelected)
+        budget.finish(done: header)
+    }
+
+    /// K3: the checkpoint notification opens Progress with Ask the coach in view. Budget: the tap, 5 s.
+    @MainActor
+    func testCheckpointOpensAskTheCoach() throws {
+        let app = launch(from: "checkpoint", now: "2026-12-26T19:00:00Z")
+        let budget = EaseBudget("checkpoint", maxTaps: 1, maxSeconds: 5, app: app)
+        budget.notificationTap()
+        let ask = app.buttons["progress.askCoach"]
+        XCTAssertTrue(ask.waitForExistence(timeout: 15), "the checkpoint opens Ask the coach")
+        XCTAssertTrue(app.tabBars.buttons["Progress"].isSelected)
+        budget.finish(done: ask)
+        XCTAssertTrue(ask.isHittable, "Ask the coach is in view without a scroll")
+    }
 }

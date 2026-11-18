@@ -11,8 +11,8 @@ public enum NotificationDestination: String, Sendable, Equatable {
     case today
     /// Today with the Sunday check-in open.
     case sundayPrompt
-    /// The Meals tab (the Shopping tab once it exists).
-    case meals
+    /// Meals, on its Shopping section (W5).
+    case shopping
     /// Progress with "Ask the coach now" in view.
     case askCoach
 }
@@ -23,6 +23,8 @@ public enum NotificationRoute {
         switch kind {
         case .morningBrief, .leaveNow, .windDown: .today
         case .sundayPrompt: .sundayPrompt
+        case .deliveryReminder: .shopping
+        case .checkpoint: .askCoach
         }
     }
 

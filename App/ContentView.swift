@@ -104,13 +104,15 @@ private struct RootView: View {
         switch NotificationTaps.shared.pending {
         case nil: return
         case .today, .sundayPrompt: tab = .today
-        case .meals: tab = .meals
+        case .shopping: tab = .meals
         case .askCoach:
             showAskCoach = true
             tab = .progress
         }
-        // Today clears the Sunday check-in once it has opened it.
-        if NotificationTaps.shared.pending != .sundayPrompt { NotificationTaps.shared.pending = nil }
+        // Today and Meals clear their own once they've opened the check-in or Shopping.
+        if NotificationTaps.shared.pending != .sundayPrompt, NotificationTaps.shared.pending != .shopping {
+            NotificationTaps.shared.pending = nil
+        }
     }
 
     private func load() {

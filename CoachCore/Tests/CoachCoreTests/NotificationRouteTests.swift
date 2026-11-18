@@ -9,6 +9,8 @@ import Testing
         #expect(NotificationRoute.destination(for: .leaveNow) == .today)
         #expect(NotificationRoute.destination(for: .windDown) == .today)
         #expect(NotificationRoute.destination(for: .sundayPrompt) == .sundayPrompt)
+        #expect(NotificationRoute.destination(for: .deliveryReminder) == .shopping)
+        #expect(NotificationRoute.destination(for: .checkpoint) == .askCoach)
     }
 
     /// The planner's ids are what the real tap hands back; each one routes to its kind.
