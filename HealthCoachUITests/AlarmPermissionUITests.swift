@@ -43,17 +43,17 @@ final class AlarmPermissionUITests: XCTestCase {
         // UI-12: the spike link is in Today's ⋯ menu (M0-11b: only under -spikeAlarms).
         let more = app.buttons["today.more"]
         XCTAssertTrue(more.waitForExistence(timeout: 10))
-        // Let the launch reconcile finish first: Today re-renders when it lands
-        // (real AlarmKit is slower than the fake), and a re-render closes an open menu.
+        // Let the launch reconcile land first: Today re-renders when it does
+        // (real AlarmKit is slower than the fake), and that closes an open menu
+        // (QA-39, deferred). The status reads "alarms=pending" until then (QA-38).
         let status = app.staticTexts["debug.launch"]
-        let reconciled = NSPredicate(format: "label CONTAINS 'alarms='")
-        _ = XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: reconciled, object: status)], timeout: 10)
+        XCTAssertTrue(status.waitForExistence(timeout: 5))
+        let reconciled = NSPredicate(format: "NOT (label CONTAINS 'alarms=pending')")
+        let waited = XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: reconciled, object: status)], timeout: 15)
+        XCTAssertEqual(waited, .completed, "launch reconcile never landed: \(status.label)")
+        more.tap()
         let link = app.buttons["home.spikeTests"]
-        for _ in 0..<3 where !link.exists {
-            more.tap()
-            if link.waitForExistence(timeout: 3) { break }
-        }
-        XCTAssertTrue(link.exists, "Spike tests isn't in the ⋯ menu")
+        XCTAssertTrue(link.waitForExistence(timeout: 5), "Spike tests isn't in the ⋯ menu")
         link.tap()
         return app
     }
