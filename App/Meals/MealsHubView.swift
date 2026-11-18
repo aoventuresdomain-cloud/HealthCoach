@@ -35,10 +35,15 @@ struct MealsHubView: View {
                              weights: BodyStats.shared.weightSamples, blocks: CoachBlockStore().all,
                              now: now, calendar: calendar)?.calories.kcal
         }
+        let answers = WeekAnswersStore.shared.answers(weekStarting: monday, calendar: calendar)
+        // C3: training days (sessions and basketball) take the extras first.
+        let trainingDays = content.programmes[profile.programme.programmeID].map { programme in
+            WeekPlanner.plan(weekStarting: monday, programme: programme, profile: profile, answers: answers,
+                             calendar: calendar).trainingDays(programme: programme)
+        } ?? []
         let plan = MealPlan.week(monday: monday, content: content.nutrition, lunchOrders: content.lunchOrders.orders,
-                                 answers: WeekAnswersStore.shared.answers(weekStarting: monday, calendar: calendar),
-                                 programmeID: profile.programme.programmeID, kcalTarget: kcalTarget,
-                                 calendar: calendar)
+                                 answers: answers, programmeID: profile.programme.programmeID, kcalTarget: kcalTarget,
+                                 trainingDays: trainingDays, calendar: calendar)
         VStack(spacing: 0) {
             Picker("Section", selection: $tab) {
                 ForEach(Tab.allCases) { Text($0.rawValue).tag($0) }
