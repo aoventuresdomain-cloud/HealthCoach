@@ -25,6 +25,8 @@ public enum NotificationRoute {
         case .sundayPrompt: .sundayPrompt
         case .deliveryReminder: .shopping
         case .checkpoint: .askCoach
+        // N7: Today until N12 (Coach Engineer) adds the camera route (design F1).
+        case .photoDay: .today
         }
     }
 
