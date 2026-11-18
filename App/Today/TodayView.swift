@@ -120,7 +120,7 @@ struct TodayView: View {
             guard NotificationTaps.shared.pending == .sundayPrompt else { return }
             NotificationTaps.shared.pending = nil
             if profile.programme.startDate != nil {
-                promptWeek = PromptWeek(monday: SundayPrompt.monday(for: AppClock.now(), calendar: calendar))
+                checkInWeek = PromptWeek(monday: SundayPrompt.monday(for: AppClock.now(), calendar: calendar))
             }
         }
         .sheet(item: $promptWeek) { week in

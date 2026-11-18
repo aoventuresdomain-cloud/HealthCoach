@@ -19,18 +19,21 @@ final class NotificationRouteUITests: XCTestCase {
     }
 
     /// W1 from the notification: Sunday 22 Nov 2026, 17:00 in London. The tap
-    /// opens next week's check-in; taking the defaults is one more tap.
+    /// opens next week's check-in (N1); taking the defaults is Next, then Looks good.
     @MainActor
     func testSundayPromptNotificationOpensTheCheckIn() throws {
         let app = launch(from: "sundayPrompt", now: "2026-11-22T17:00:00Z")
         let budget = EaseBudget("checkin-from-notification", maxTaps: 3, maxSeconds: 60, app: app)
         budget.notificationTap()
-        let done = app.buttons["sunday.done"]
-        XCTAssertTrue(done.waitForExistence(timeout: 15), "the check-in opens straight from the notification")
+        let next = app.buttons["checkin.next"]
+        XCTAssertTrue(next.waitForExistence(timeout: 15), "the check-in opens straight from the notification")
+        budget.tap(next, newScreen: true)
+        let done = app.buttons["checkin.done"]
+        XCTAssertTrue(done.waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["sunday.day.monday"].exists)
         budget.tap(done, newScreen: true)
         budget.finish(done: app.staticTexts["today.title"])
-        XCTAssertTrue(app.buttons["today.planWeek"].waitForNonExistence(timeout: 5), "next week is answered")
+        XCTAssertTrue(app.buttons["today.checkIn"].waitForNonExistence(timeout: 5), "next week is checked in")
     }
 
     /// Morning brief, leave now and wind-down open Today, on Today's tab.
@@ -40,7 +43,7 @@ final class NotificationRouteUITests: XCTestCase {
             let app = launch(from: kind, now: "2026-11-23T06:30:00Z")
             XCTAssertTrue(app.staticTexts["today.title"].waitForExistence(timeout: 15), kind)
             XCTAssertTrue(app.tabBars.buttons["Today"].isSelected, kind)
-            XCTAssertFalse(app.buttons["sunday.done"].exists, "\(kind) opens no sheet")
+            XCTAssertFalse(app.buttons["checkin.next"].exists, "\(kind) opens no sheet")
             app.terminate()
         }
     }
