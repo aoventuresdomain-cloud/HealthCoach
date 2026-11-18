@@ -43,9 +43,17 @@ final class AlarmPermissionUITests: XCTestCase {
         // UI-12: the spike link is in Today's ⋯ menu (M0-11b: only under -spikeAlarms).
         let more = app.buttons["today.more"]
         XCTAssertTrue(more.waitForExistence(timeout: 10))
-        more.tap()
+        // Let the launch reconcile finish first: Today re-renders when it lands
+        // (real AlarmKit is slower than the fake), and a re-render closes an open menu.
+        let status = app.staticTexts["debug.launch"]
+        let reconciled = NSPredicate(format: "label CONTAINS 'alarms='")
+        _ = XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: reconciled, object: status)], timeout: 10)
         let link = app.buttons["home.spikeTests"]
-        XCTAssertTrue(link.waitForExistence(timeout: 5))
+        for _ in 0..<3 where !link.exists {
+            more.tap()
+            if link.waitForExistence(timeout: 3) { break }
+        }
+        XCTAssertTrue(link.exists, "Spike tests isn't in the ⋯ menu")
         link.tap()
         return app
     }

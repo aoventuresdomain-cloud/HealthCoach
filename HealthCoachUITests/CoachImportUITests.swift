@@ -71,8 +71,13 @@ final class CoachImportUITests: XCTestCase {
         let result = app.staticTexts["coach.import.result"]
         XCTAssertTrue(result.waitForExistence(timeout: 5))
         // QA-32: existing isn't enough; the owner has to see it, clear of the tab bar.
-        XCTAssertTrue(result.isHittable, "import result is off screen or covered")
+        // The screen scrolls it into view after it appears, so give that a moment.
         let tabBar = app.tabBars.firstMatch
+        let deadline = Date().addingTimeInterval(3)
+        while Date() < deadline, tabBar.exists, result.frame.maxY > tabBar.frame.minY {
+            _ = result.waitForNonExistence(timeout: 0.25)
+        }
+        XCTAssertTrue(result.isHittable, "import result is off screen or covered")
         if tabBar.exists {
             XCTAssertLessThanOrEqual(result.frame.maxY, tabBar.frame.minY,
                                      "import result \(result.frame) sits behind the tab bar \(tabBar.frame)")

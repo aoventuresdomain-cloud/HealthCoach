@@ -15,9 +15,12 @@ struct ProgressScreen: View {
     @Environment(\.modelContext) private var context
     @State private var photoDay = false
     @State private var version = 0
+    /// Bumped when an import result appears, to scroll it clear of the tab bar (QA-32).
+    @State private var importResults = 0
 
     private let calendar = Calendar.coach
     private var store: ProgressStore { .shared }
+    private static let importRow = "coach.importRow"
 
     /// "Steps: 6,240 today · 8,100 a day last week" (the average only once there is one).
     static func stepsLine(_ steps: StepsSummary) -> String {
@@ -31,6 +34,7 @@ struct ProgressScreen: View {
         let now = AppClock.now()
         let history = (try? SessionLogStore(context: context).all()) ?? []
         let sets = store.sets(calendar: calendar)
+        ScrollViewReader { proxy in
         List {
             // UI-12: no section headers; the content says what it is. Phase lines
             // frame the screen, then one hero number, its chart, and steps.
@@ -138,8 +142,20 @@ struct ProgressScreen: View {
                     .accessibilityIdentifier("progress.askCoach")
                 }
                 // Coach Engineer's import (#54): copy Claude's reply, then tap.
-                CoachImportButton(profile: profile) { version += 1 }
+                CoachImportButton(profile: profile, onImported: { version += 1 },
+                                  onResult: { importResults += 1 })
+                    .id(Self.importRow)
             }
+        }
+        // QA-32: the last rows can scroll clear of the floating tab bar, and a new
+        // import result is brought into view rather than left behind the bar.
+        .contentMargins(.bottom, 96, for: .scrollContent)
+        .onChange(of: importResults) {
+            Task { @MainActor in
+                try? await Task.sleep(for: .milliseconds(150)) // let the row grow first
+                withAnimation(.coach) { proxy.scrollTo(Self.importRow, anchor: .center) }
+            }
+        }
         }
         .navigationTitle("Progress")
         .sheet(isPresented: $photoDay, onDismiss: { version += 1 }) {
@@ -152,6 +168,7 @@ struct ProgressScreen: View {
 private struct PhotoSetsView: View {
     let sets: [ProgressStore.PhotoSet]
     private var store: ProgressStore { .shared }
+    private static let importRow = "coach.importRow"
 
     var body: some View {
         List {

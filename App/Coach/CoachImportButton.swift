@@ -9,6 +9,8 @@ import UIKit
 struct CoachImportButton: View {
     let profile: Profile
     var onImported: () -> Void = {}
+    /// Called whenever a result line appears, so the screen can scroll it into view (QA-32).
+    var onResult: () -> Void = {}
 
     @State private var result: String?
 
@@ -28,6 +30,7 @@ struct CoachImportButton: View {
                 .accessibilityIdentifier("coach.import")
         }
         .animation(.coach, value: result)
+        .onChange(of: result) { _, new in if new != nil { onResult() } }
     }
 
     private func importReply() {
