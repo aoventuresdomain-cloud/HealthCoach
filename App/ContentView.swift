@@ -61,16 +61,17 @@ private struct RootView: View {
                                 } onPreferencesChange: { edited in
                                     savePreferences(edited, content: content, programme: programme)
                                 } onLunchWalk: { walk in
-                                    // N4: answered at once, kept through any pending Preferences edit.
-                                    var answered = profile
-                                    answered.answerFoodQuestion { $0.officeLunchMaxWalkMinutes = walk }
-                                    save(answered, content: content, programme: programme)
+                                    // N4: the same answer path as Meals' question.
+                                    answerFood({ $0.officeLunchMaxWalkMinutes = walk },
+                                               profile: profile, content: content, programme: programme)
                                 }
                             }
                         }
                         Tab("Meals", systemImage: "fork.knife", value: RootTab.meals) {
                             NavigationStack {
-                                MealsHubView(content: content, profile: profile)
+                                MealsHubView(content: content, profile: profile) { answer in
+                                    answerFood(answer, profile: profile, content: content, programme: programme)
+                                }
                             }
                         }
                         Tab("Progress", systemImage: "chart.line.uptrend.xyaxis", value: RootTab.progress) {
@@ -151,6 +152,22 @@ private struct RootView: View {
             }
         } catch {
             // Nothing stored: the plan runs on as it was, and Preferences shows the stored values next time.
+        }
+    }
+
+    /// N4: an answer to the shop or office-lunch question applies at once (and
+    /// to any edit waiting for tomorrow), then the delivery reminder is re-planned.
+    private func answerFood(_ answer: (inout Profile.Food) -> Void, profile: Profile,
+                            content: ContentLibrary, programme: Programme) {
+        var answered = profile
+        answered.answerFoodQuestion(answer)
+        do {
+            try ProfileStore(context: context).save(answered)
+            state = .ready(content, programme, answered)
+            let history = (try? SessionLogStore(context: context).all()) ?? []
+            Task { await CoachNotifier.shared.reschedule(profile: answered, history: history) }
+        } catch {
+            // Not stored: the question shows again next time, with the same defaults.
         }
     }
 

@@ -5,6 +5,8 @@ import SwiftUI
 /// Settings → Preferences (N3).
 enum ProfileRow: String, CaseIterable, Identifiable {
     case you, goal, hurts, paperStart, sleep, work, office, fixed, kit, longest, cues, checkIn, food
+    /// N4: the answers to the two ask-when-needed questions (Preferences only).
+    case shop, officeLunch
     var id: String { rawValue }
 }
 
@@ -22,6 +24,10 @@ struct ProfileRowView: View {
     var showsGuess = true
     /// Ingredient names to pick dislikes from (Preferences).
     var dislikeOptions: [String] = []
+    /// N4: the shops offered, the default first (Preferences).
+    var shops: [NutritionContent.Shop.Option] = []
+    /// N4: the office-lunch walk that applies until it's answered.
+    var defaultLunchWalk = 10
 
     var body: some View { content(row) }
 
@@ -72,6 +78,8 @@ struct ProfileRowView: View {
         case .cues: "Timers and counting"
         case .checkIn: "Weekly check-in"
         case .food: "Foods I don't eat"
+        case .shop: "Shop and delivery"
+        case .officeLunch: "Office lunch"
         }
     }
 
@@ -120,6 +128,12 @@ struct ProfileRowView: View {
             return "\(p.coach.checkInDay.rawValue.capitalized) \(p.coach.checkInTime) · quiet \(p.coach.quietFrom)–\(p.coach.quietUntil)"
         case .food:
             return p.food.dislikes.isEmpty ? "None" : p.food.dislikes.joined(separator: ", ")
+        case .shop:
+            let shop = p.food.shop.map { id in shops.first { $0.id == id }?.name ?? id.capitalized }
+            guard let shop else { return "Asked before your first list" }
+            return p.food.delivery.map { "\(shop) · \(FoodAsk.label($0)) delivery" } ?? shop
+        case .officeLunch:
+            return "Walk up to \(p.food.officeLunchMaxWalkMinutes ?? defaultLunchWalk) min"
         }
     }
 
@@ -185,6 +199,30 @@ struct ProfileRowView: View {
             TimeOfDayPicker(title: "Quiet until", time: $profile.coach.quietUntil)
         case .food:
             DislikesEditor(dislikes: $profile.food.dislikes, options: dislikeOptions, search: .constant(""))
+        case .shop:
+            Picker("Shop", selection: Binding(
+                get: { profile.food.shop ?? shops.first?.id ?? "" },
+                set: { profile.food.shop = $0 }
+            )) {
+                ForEach(shops) { Text($0.name).tag($0.id) }
+            }
+            .accessibilityIdentifier("prefs.shop")
+            let slots = FoodAsk.slotChoices(including: profile.food.delivery)
+            Picker("Delivery", selection: Binding(
+                get: { slots.firstIndex(of: profile.food.delivery ?? Profile.Food.DeliverySlot()) ?? 0 },
+                set: { profile.food.delivery = slots[$0] }
+            )) {
+                ForEach(slots.indices, id: \.self) { Text(FoodAsk.label(slots[$0])).tag($0) }
+            }
+            .accessibilityIdentifier("prefs.delivery")
+        case .officeLunch:
+            Picker("Walk up to", selection: Binding(
+                get: { profile.food.officeLunchMaxWalkMinutes ?? defaultLunchWalk },
+                set: { profile.food.officeLunchMaxWalkMinutes = $0 }
+            )) {
+                ForEach(Array(Set(FoodAsk.walks + [defaultLunchWalk])).sorted(), id: \.self) { Text("\($0) min").tag($0) }
+            }
+            .accessibilityIdentifier("prefs.lunchWalk")
         case .office, .fixed:
             EmptyView()
         }

@@ -56,9 +56,23 @@ final class MealsUITests: XCTestCase {
         XCTAssertFalse(dinner.label.contains("Social meal"), dinner.label)
         reveal(social)
         XCTAssertEqual(count.label, "0 of 2 this week")
+        func totals() -> String {
+            // The header sits above the social row: scroll back up to it.
+            var swipes = 0
+            while !app.descendants(matching: .any)["meals.totals"].isHittable, swipes < 4 { app.swipeDown(); swipes += 1 }
+            let other = app.otherElements["meals.totals"]
+            return other.exists ? other.label : app.staticTexts["meals.totals"].label
+        }
+        // QA-R3-3: a normal day's header is unchanged.
+        XCTAssertNotNil(totals().range(of: #"^[\d,]+ kcal · \d+ g protein$"#, options: .regularExpression), totals())
 
+        reveal(social)
         social.tap()
         XCTAssertTrue(dinner.label.contains("Social meal"), "Friday's dinner wasn't replaced: \(dinner.label)")
+        // The social meal is named, not counted (Advisor wording).
+        XCTAssertNotNil(totals().range(of: #"^[\d,]+ kcal \+ social meal · \d+ g \+ social meal$"#,
+                                       options: .regularExpression), totals())
+        reveal(social)
         XCTAssertEqual(count.label, "1 of 2 this week")
         XCTAssertEqual(social.label, "Undo social meal")
         attach(app, "meals-social")
@@ -79,6 +93,12 @@ final class MealsUITests: XCTestCase {
     func testShoppingTicksAndLunchList() throws {
         let app = openMeals()
         app.segmentedControls["meals.tabs"].buttons["Shopping"].tap()
+        // N4: the first visit asks once, Waitrose and Sunday morning pre-selected.
+        let useThese = app.buttons["ask.shop.done"]
+        XCTAssertTrue(useThese.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["ask.shop.option.waitrose"].isSelected)
+        XCTAssertTrue(app.buttons["ask.shop.slot.sunday-10"].isSelected)
+        useThese.tap()
         let tick = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'shopping.tick.'")).firstMatch
         let found = tick.waitForExistence(timeout: 5)
         if !found { attach(app, "shopping-no-tick") }
