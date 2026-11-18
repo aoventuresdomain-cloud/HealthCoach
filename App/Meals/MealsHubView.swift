@@ -24,6 +24,7 @@ struct MealsHubView: View {
     /// N4: the shop question, once, on the first visit to Shopping.
     @State private var askShop = false
     @State private var answeredShop = false
+    @State private var openedFromReminder = false
 
     private let calendar = Calendar.coach
     private var ticks: MealTicks { .shared }
@@ -67,6 +68,14 @@ struct MealsHubView: View {
             }
         }
         .background(Color.canvas)
+        // N9 (W5): the delivery reminder opens Shopping.
+        .task(id: NotificationTaps.shared.pending) {
+            guard NotificationTaps.shared.pending == .shopping else { return }
+            NotificationTaps.shared.pending = nil
+            // The reminder only exists once a slot is chosen, so it never asks the shop question.
+            openedFromReminder = true
+            tab = .shopping
+        }
         .onAppear { askShopIfNeeded() }
         .onChange(of: tab) { askShopIfNeeded() }
         .sheet(isPresented: $askShop, onDismiss: {
@@ -109,7 +118,7 @@ struct MealsHubView: View {
     }
 
     private func askShopIfNeeded() {
-        if tab == .shopping, profile.food.needsShopQuestion, !answeredShop { askShop = true }
+        if tab == .shopping, profile.food.needsShopQuestion, !answeredShop, !openedFromReminder { askShop = true }
     }
 
     // MARK: Meals

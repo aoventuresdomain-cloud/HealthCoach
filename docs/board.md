@@ -32,13 +32,13 @@ The CEO will decide when to pay. Everything else gets completed: (1) the coach c
 
 | ID | Item | Owner | Areas | Status |
 |---|---|---|---|---|
-| C1 | Coach loop end to end: one scenario test from weights and logs to calorie change, meal plan, import and loads; summary carries meal adherence, social meals and recovery | Coach Engineer | core | todo |
-| C2 | Stall flag, checkpoint-due and dumbbell-limit lines on Today (one line, tap opens Progress) | iOS Interface Engineer | interface | todo |
-| C3 | Meals follow the target: training and rest days split around the weekly target, protein floor, maintenance weeks, shopping list re-derives | Planner Engineer | core | todo |
-| C4 | Social-meal counter brought back (2 a week): logging one replaces that dinner and the week rebalances inside the floors | Planner Engineer (core), iOS Interface Engineer (one tap on Meals) | core, interface | todo |
-| C5 | Phase 2 (weeks 7–14) and Phase 3 (weeks 15–20) programmes as data, with callouts | Researcher (Advisor reviews) | docs | todo |
-| C6 | Progression across phases, and visible: the player shows "last time → today" on each lift | Planner Engineer (core), iOS Interface Engineer | core, interface | todo |
-| QA-R3 | QA round by risk on one build: C1 limits first, then C3/C4 floors, then C5/C6 | Head of QA (Advisor co-signs) | docs | todo |
+| C1 | Coach loop end to end: one scenario test from weights and logs to calorie change, meal plan, import and loads; summary carries meal adherence, social meals and recovery | Coach Engineer | core | done (#89) |
+| C2 | Stall flag, checkpoint-due and dumbbell-limit lines on Today (one line, tap opens Progress) | iOS Interface Engineer | interface | done (#91) |
+| C3 | Meals follow the target: training and rest days split around the weekly target, protein floor, maintenance weeks, shopping list re-derives | Planner Engineer | core | done (#88) |
+| C4 | Social-meal counter brought back (2 a week): logging one replaces that dinner and the week rebalances inside the floors | Planner Engineer (core), iOS Interface Engineer (one tap on Meals) | core, interface | done (#88 core, #99 UI) |
+| C5 | Phase 2 (weeks 7–14) and Phase 3 (weeks 15–20) programmes as data, with callouts | Researcher (Advisor reviews) | docs | done (#86) |
+| C6 | Progression across phases, and visible: the player shows "last time → today" on each lift | Planner Engineer (core), iOS Interface Engineer | core, interface | done (#88 core, #91 UI) |
+| QA-R3 | QA round by risk on one build: C1 limits first, then C3/C4 floors, then C5/C6 | Head of QA (Advisor co-signs) | docs | todo: tonight on one build; CI baseline 38 UI tests in 16 min (#105) |
 
 **Done when**
 **C1** · A CoachCore test runs 4 weeks of fixture weights and logs: the target moves at most 100 kcal a week and never below the floors; next Monday's meal plan uses the new target; an accepted import changes Thursday's load in the workout script; an out-of-limit import leaves calories, meals and loads all unchanged.
@@ -54,19 +54,20 @@ The CEO said the app isn't close to the brief. Advisor questions A1–A4 are ans
 
 | ID | Item | Owner | Gate | Status |
 |---|---|---|---|---|
-| N1 | Sunday check-in (folds in the Sunday prompt) | Planner Engineer (core), iOS Interface Engineer (screen) | C1 | todo |
-| N2 | "What changed and why" card | Coach Engineer (core), iOS Interface Engineer | C1 | todo |
-| N3 | Settings → Preferences: every survey module, re-plan from tomorrow | iOS Interface Engineer, Planner Engineer | — | todo |
-| N4 | Ask when needed: shop before the first list, office food on the first office day | Planner Engineer, iOS Interface Engineer | N3 | todo |
-| N5 | Grocery: send to Reminders, in-store mode, delivery reminder | iOS Interface Engineer, Planner Engineer | N4 | todo |
-| N6 | Recipe variety: no dinner repeats within 3 weeks | Researcher (Advisor reviews) | — | todo |
-| N7 | Photos: ghost outline, on-device alignment check, compare view, photo-day notification | iOS Interface Engineer | — | todo |
-| N8 | Easing back after a break | Coach Engineer (moved 18 Nov) | C1 | todo |
-| N9 | Ease budget: tap and time budget per job, UI tests, app icon | Product Designer (spec), iOS Interface Engineer, Head of QA | — | spec done (`docs/design/ease-budget.md`, #93, Advisor signed); tests and icon todo |
-| N10 | Checkpoint notification and Hyde Park run loops | Planner Engineer, Researcher (loops) | — | todo |
-| N9a | Office lunch row on Today's timeline (new TimelineItem `.lunch`) | Planner Engineer (core), iOS Interface Engineer | N9 spec | todo |
-| N9b | Shopping becomes its own tab (MealsUITests move from the segment) | iOS Interface Engineer | after C4, N4, N5 | todo |
-| N11 | Amazon basket spike (staples only; cut first if anything slips) | Planner Engineer, Researcher | N5 | todo |
+| N1 | Sunday check-in (folds in the Sunday prompt) | Planner Engineer (core), iOS Interface Engineer (screen) | C1 | core done (#103, with pain swaps and the Advisor's four conditions); check-in screen in progress (iOS, carries the CoachChanges pain lines) |
+| N2 | "What changed and why" card | Coach Engineer (core), iOS Interface Engineer | C1 | core done (#98); card ships on the N1 screen |
+| N3 | Settings → Preferences: every survey module, re-plan from tomorrow | iOS Interface Engineer, Planner Engineer | — | core done (#100); Preferences screen in review (#102) |
+| N4 | Ask when needed: shop before the first list, office food on the first office day | Planner Engineer, iOS Interface Engineer | N3 | core done (#107); shop and office question screens todo (iOS) |
+| N5 | Grocery: send to Reminders, in-store mode, delivery reminder | iOS Interface Engineer, Planner Engineer | N4 | delivery reminder done (#107); Reminders export and in-store mode in progress (moved to Planner Engineer, 18 Nov) |
+| N6 | Recipe variety: no dinner repeats within 3 weeks | Researcher (Advisor reviews) | — | done (#97) |
+| N7 | Photos: ghost outline, on-device alignment check, compare view, photo-day notification | iOS Interface Engineer | — | core done (#101); views todo (iOS) |
+| N8 | Easing back after a break | Coach Engineer (moved 18 Nov) | C1 | core done (#98); line ships on the N1 screen |
+| N9 | Ease budget: tap and time budget per job, UI tests, app icon | Product Designer (spec), iOS Interface Engineer, Head of QA | — | spec (#93) and EaseBudget helper (#104) done; each screen PR carries its job tests |
+| N10 | Checkpoint notification and Hyde Park run loops | Planner Engineer, Researcher (loops) | — | loops (#97) and checkpoint notification (#107) done; tap routing in #106 |
+| N9a | Office lunch row on Today's timeline (new TimelineItem `.lunch`) | Planner Engineer (core), iOS Interface Engineer | N9 spec | todo (iOS) |
+| N9b | Shopping becomes its own tab (MealsUITests move from the segment) | iOS Interface Engineer | after C4, N4, N5 | todo (iOS) |
+| N11 | Amazon basket spike (staples only; cut first if anything slips) | Planner Engineer, Researcher | N5 | staples list done (#97); basket deferred (#108: needs an Associates tag on a deprecated API) |
+| N12 | Notification taps open the right screen (W1, W5, F1, K3, delivery, checkpoint, photo day) | Coach Engineer | — | in progress (#106 draft; photo day after N7) |
 | QA-R4 | Full round on one build, reported from the user's side | Head of QA (Advisor co-signs) | all | todo |
 
 **Merge order by screen** (to avoid conflicts; rebase on main before asking for merge): Today: C2 → N1 → N2. Meals: C3/C4 → N4 → N5 → N6 → N11. Progress: N2 → N7. Settings (N3) merges before N4. The Head of Engineering merges one screen's PR at a time.
