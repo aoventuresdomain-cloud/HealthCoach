@@ -38,7 +38,7 @@ final class OnboardingUITests: XCTestCase {
             XCTAssertTrue(button.exists && button.isHittable, row)
             XCTAssertTrue(button.label.contains(text), "\(row): \(button.label)")
         }
-        attach(app, "onboarding-confirm-more")
+        attach(app, "onboarding-confirm")
         let more = app.buttons["onboarding.more"]
         scrollIntoView(more, in: app)
         more.tap()

@@ -247,6 +247,7 @@ struct TodayView: View {
                     Text(summary.chips.joined(separator: " · "))
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("today.meta")
                 }
                 if case .strength = slot.session, dayOffset == 0 {
                     // Fine stays pre-selected; VoiceOver still reads the full question.
@@ -443,6 +444,8 @@ struct SessionSummary {
             }
             subtitle = run.note
         case let .walk(walk):
+            // QA-33: the card's note was cut (UI-12), so "optional" is said once, in the meta line.
+            if walk.optional { chips.append("optional") }
             subtitle = walk.note
         case let .circuit(circuit):
             subtitle = circuit.note

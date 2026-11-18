@@ -135,6 +135,10 @@ final class Week2HybridUITests: XCTestCase {
         let sunday = launch("2026-11-29T07:00:00Z")
         XCTAssertTrue(title(sunday).hasPrefix("Walk in Hyde Park at 09:00"), title(sunday))
         XCTAssertFalse(wakeRow(sunday).exists, "no alarm for the optional walk")
+        // QA-33: the card says the walk is optional, once, in its meta line.
+        let meta = sunday.staticTexts["today.meta"]
+        XCTAssertTrue(meta.waitForExistence(timeout: 5))
+        XCTAssertEqual(meta.label, "30 min · optional")
         shot(sunday, "a11-sunday-walk")
     }
 }
