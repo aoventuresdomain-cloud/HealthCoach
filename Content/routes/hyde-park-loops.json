@@ -5,13 +5,14 @@
   "start": {
     "name": "Victoria Gate",
     "latitude": 51.5117,
-    "longitude": -0.1720
+    "longitude": -0.172
   },
   "loops": [
     {
       "id": "long-water",
       "name": "Long Water loop",
       "distanceKm": 2.0,
+      "distanceIsEstimate": true,
       "directions": [
         "From Victoria Gate, head to the Italian Gardens.",
         "Run down the east bank of the Long Water to the Serpentine Bridge.",
@@ -23,6 +24,7 @@
       "id": "north-ring",
       "name": "North Ring and Serpentine bank",
       "distanceKm": 3.0,
+      "distanceIsEstimate": true,
       "directions": [
         "From Victoria Gate, run east along the path inside Bayswater Road towards Speakers' Corner.",
         "Before Marble Arch, turn south and follow the path to the east end of the Serpentine.",
@@ -34,6 +36,7 @@
       "id": "serpentine-circuit",
       "name": "Whole lake circuit",
       "distanceKm": 4.5,
+      "distanceIsEstimate": true,
       "directions": [
         "From Victoria Gate, head to the Italian Gardens and down the east bank of the Long Water.",
         "Keep the water on your right along the north bank of the Serpentine to its east end.",
@@ -45,6 +48,7 @@
       "id": "lake-and-long-water",
       "name": "Whole lake circuit plus a Long Water lap",
       "distanceKm": 5.9,
+      "distanceIsEstimate": true,
       "directions": [
         "Run the whole lake circuit.",
         "At the Italian Gardens, add one Long Water loop before returning to the gate."

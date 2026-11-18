@@ -22,6 +22,8 @@ public struct RunLoops: VersionedFormat, Sendable, Equatable {
         public let id: String
         public let name: String
         public let distanceKm: Double
+        /// True while `distanceKm` is a map estimate, not a measured run.
+        public let distanceIsEstimate: Bool?
         public let directions: [String]
     }
 
