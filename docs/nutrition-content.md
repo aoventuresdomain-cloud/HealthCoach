@@ -13,7 +13,7 @@ Two files, both provisional schema version 0 (the Planner Engineer owns the sche
 |---|---|---|---|
 | Breakfast | any of the 4 | 480–530 | 39–47 g |
 | Lunch | home recipe or office order | 470–710 | 45–63 g |
-| Dinner | box night (fixed entry), home dinner or Sunday cook | 560–720 | 38–69 g |
+| Dinner | box night (fixed entry), home dinner or Sunday cook | 560–710 | 40–62 g |
 | Snack | yogurt pot; shake instead if the planned day is under 150 g protein | 220–260 | 21–34 g |
 | **Day** | | **~1,710–2,210 combined** | **~145–200 g** |
 

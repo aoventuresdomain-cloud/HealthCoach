@@ -1419,13 +1419,13 @@
       "portions": 2,
       "minutes": 35,
       "perPortion": {
-        "kcal": 720,
-        "protein": 69
+        "kcal": 640,
+        "protein": 58
       },
       "ingredients": [
         {
           "ingredient": "turkey-mince",
-          "qty": 400
+          "qty": 350
         },
         {
           "ingredient": "kidney-beans",
@@ -1453,22 +1453,18 @@
         },
         {
           "ingredient": "olive-oil",
-          "qty": 10
+          "qty": 5
         },
         {
           "ingredient": "rice-pouch",
           "qty": 1
-        },
-        {
-          "ingredient": "greek-yogurt-0",
-          "qty": 100
         }
       ],
       "method": [
         "Soften the chopped onion and peppers in the oil for 5 minutes.",
         "Add the mince and garlic; cook 6–8 minutes, breaking it up, until no pink remains.",
         "Stir in the chilli powder, tomatoes and drained beans; simmer 15 minutes.",
-        "Heat the rice; serve with a spoon of yogurt."
+        "Heat the rice and serve."
       ],
       "mainIngredients": [
         "turkey",
@@ -1642,8 +1638,8 @@
       "portions": 2,
       "minutes": 25,
       "perPortion": {
-        "kcal": 720,
-        "protein": 63
+        "kcal": 630,
+        "protein": 60
       },
       "ingredients": [
         {
@@ -1660,7 +1656,7 @@
         },
         {
           "ingredient": "tortilla",
-          "qty": 4
+          "qty": 3
         },
         {
           "ingredient": "fajita-seasoning",
@@ -1941,8 +1937,8 @@
       "portions": 2,
       "minutes": 60,
       "perPortion": {
-        "kcal": 720,
-        "protein": 64
+        "kcal": 690,
+        "protein": 62
       },
       "ingredients": [
         {
@@ -1975,11 +1971,11 @@
         },
         {
           "ingredient": "light-cheddar",
-          "qty": 40
+          "qty": 30
         },
         {
           "ingredient": "butter",
-          "qty": 15
+          "qty": 10
         },
         {
           "ingredient": "cornflour",
