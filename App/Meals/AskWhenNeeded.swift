@@ -120,7 +120,11 @@ struct AskLunchRow: View {
         VStack(alignment: .leading, spacing: Space.s) {
             Menu {
                 ForEach(FoodAsk.walks, id: \.self) { choice in
-                    Button("Walk up to \(choice) min") { walk = choice }
+                    // A3 (change = 3 taps): picking a walk is the answer; no Looks right after it.
+                    Button("Walk up to \(choice) min") {
+                        walk = choice
+                        onDone(choice)
+                    }
                 }
             } label: {
                 HStack {
