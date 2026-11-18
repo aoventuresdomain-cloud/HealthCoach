@@ -67,14 +67,11 @@ public struct WaistLog: Codable, Sendable, Equatable {
         return base + " (\(Self.signed(change)))"
     }
 
-    /// The checkpoint summary's line: averages only, never the daily values.
+    /// The checkpoint summary's line: the latest value and the change since the
+    /// first, never the individual values. Nil with fewer than two (Advisor, 18 Nov).
     func summaryLine(calendar: Calendar) -> String? {
-        guard let last else { return nil }
-        var line = "- Waist (navel, photo day): \(CoachText.number(last.cm)) cm"
-        if let change = changeCm, let first = entries.first {
-            line += ", \(Self.signed(change)) cm since \(CoachText.day(first.date, calendar: calendar))"
-        }
-        return line
+        guard let change = changeCm, let first = entries.first, let last else { return nil }
+        return "- Waist (navel, photo day): \(CoachText.number(last.cm)) cm, \(Self.signed(change)) cm since \(CoachText.day(first.date, calendar: calendar))"
     }
 
     /// "−1.5", "+0.5", "level".

@@ -59,13 +59,23 @@ import Testing
         }
         let checkpoint = try summary(.flag(.checkpoint(1)))
         #expect(checkpoint.contains("- Waist (navel, photo day): 88.5 cm, \u{2212}1.5 cm since Mon 16 Nov 2026"))
-        #expect(!checkpoint.contains("90 cm"))            // never the individual values
+        // Never the individual values: only the latest and the change. No photos either.
+        #expect(!checkpoint.contains("90 cm"))
+        #expect(checkpoint.components(separatedBy: "88.5").count == 2)
+        #expect(!checkpoint.contains(".jpg"))   // the summary takes no photo input at all
         #expect(!(try summary(.askNow)).contains("Waist"))
+        // One value only: no line at all, and no "not measured" line.
+        var single = WaistLog()
+        single.add(cm: 90, on: f.day(0), calendar: f.calendar)
+        let one = try #require(CoachSummary.text(reason: .flag(.checkpoint(1)), programme: p, profile: f.profile(),
+                                                 history: [], weights: f.losing(0.5, to: 41), waist: single, blocks: [],
+                                                 now: f.day(41, hour: 18), calendar: f.calendar))
+        #expect(!one.lowercased().contains("waist"))
         // Waist off: nothing, even at a checkpoint.
         let off = try #require(CoachSummary.text(reason: .flag(.checkpoint(1)), programme: p, profile: f.profile(),
                                                  history: [], weights: f.losing(0.5, to: 41), blocks: [],
                                                  now: f.day(41, hour: 18), calendar: f.calendar))
-        #expect(!off.contains("Waist"))
+        #expect(!off.lowercased().contains("waist"))
     }
 
     // MARK: - Photo pairing
