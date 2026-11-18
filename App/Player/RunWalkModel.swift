@@ -158,6 +158,7 @@ enum RunWalkFormat {
         case .walk: "WALK"
         case .warmUp: "WARM-UP WALK"
         case .coolDown: "COOL-DOWN"
+        case .briskWalk: "BRISK WALK"
         }
     }
 
@@ -167,6 +168,7 @@ enum RunWalkFormat {
         case .jog: "jog"
         case .walk, .warmUp: "walk"
         case .coolDown: "cool-down walk"
+        case .briskWalk: "brisk walk"
         }
         return "Then \(word) \(PlayerFormat.clock(next.seconds))"
     }

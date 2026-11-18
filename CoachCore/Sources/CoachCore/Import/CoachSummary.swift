@@ -25,11 +25,12 @@ public enum CoachSummary {
     public static func text(reason: Reason? = nil, programme: Programme, profile: Profile,
                             history: [SessionLog], weights: [WeightSample], steps: [StepCount] = [],
                             meals: MealAdherence? = nil,
-                            blocks: [CoachBlock], socialMeals: [Date] = [], now: Date,
+                            blocks: [CoachBlock], socialMeals: [Date] = [], checkIns: [CheckIn] = [], now: Date,
                             calendar: Calendar = .current) -> String? {
         guard let start = profile.programme.startDate,
               let review = CoachReview.make(programme: programme, profile: profile, history: history,
-                                            weights: weights, blocks: blocks, now: now, calendar: calendar)
+                                            weights: weights, blocks: blocks, checkIns: checkIns,
+                                            now: now, calendar: calendar)
         else { return nil }
         let reason = reason ?? review.flags.first.map(Reason.flag) ?? .askNow
         let programmeWeek = programme.plannedDay(on: now, start: start, calendar: calendar).week
@@ -84,18 +85,19 @@ public enum CoachSummary {
         if let recovery = RecoverySummary.make(history: history, now: now, calendar: calendar) {
             lines.append(recovery.line)
         }
-        if let easing = programme.easing(history: history, on: now, calendar: calendar) {
+        if let easing = programme.easing(history: history, checkIns: checkIns, on: now, calendar: calendar) {
             lines.append(easing.summaryLine)
         }
         if !review.droppedSessions.isEmpty {
             lines.append("- Left out this week: " + review.droppedSessions.sorted().joined(separator: ", "))
         }
+        lines.append(contentsOf: checkInLines(checkIns, now: now, calendar: calendar))
         lines.append("- Next loads (per dumbbell):")
         var exampleLoad: CoachBlock.Load?
         for item in programme.strengthItems where item.startKg != nil {
             guard let week = programmeWeek,
                   let rx = programme.prescription(for: item, week: week, history: history, blocks: blocks,
-                                                  on: now, calendar: calendar),
+                                                  checkIns: checkIns, on: now, calendar: calendar),
                   let kg = rx.kg else { continue }
             let target = rx.reps.map { "\($0) reps" } ?? rx.seconds.map { "\($0) s" } ?? ""
             lines.append("  - \(rx.exercise): \(CoachText.kg(kg)) × \(target)")
@@ -115,6 +117,28 @@ public enum CoachSummary {
         lines.append(contentsOf: replyInstructions(programme: programme, profile: profile, review: review,
                                                   exampleLoad: exampleLoad))
         return lines.joined(separator: "\n")
+    }
+
+    /// N1: the latest check-in in the last 7 days, as counts and words only.
+    /// Low energy or poor sleep alone is for Claude; both together counted
+    /// as a low-recovery signal; pain areas swapped for 7 days; the same
+    /// area twice running gets the GP-or-physio line (information only).
+    static func checkInLines(_ checkIns: [CheckIn], now: Date, calendar: Calendar) -> [String] {
+        let since = calendar.date(byAdding: .day, value: -7, to: calendar.startOfDay(for: now)) ?? now
+        guard let last = checkIns.filter({ $0.date <= now && $0.date >= since }).max(by: { $0.date < $1.date }) else { return [] }
+        let pain = last.pain.isEmpty ? "none" : last.pain.map(\.rawValue).joined(separator: ", ")
+        var out = ["- Check-in: energy \(last.energy.rawValue), sleep \(last.sleep.rawValue), pain \(pain)"]
+        if last.isLowRecovery {
+            out.append("- Low energy and poor sleep together: counted as one low-recovery signal")
+        }
+        let swapped = last.pain.filter { $0 != .other }
+        if !swapped.isEmpty {
+            out.append("- Exercises loading the \(swapped.map(\.rawValue).joined(separator: ", ")) swapped for \(CheckIn.painSwapDays) days")
+        }
+        if !CheckIn.stillSore(checkIns, asOf: now).isEmpty {
+            out.append("- " + CheckIn.stillSoreLine)
+        }
+        return out
     }
 
     /// The part that tells Claude how to answer so the reply imports.
