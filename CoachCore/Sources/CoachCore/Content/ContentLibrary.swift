@@ -55,8 +55,28 @@ public struct ContentLibrary: Sendable {
             try require(problems, file: name)
             runLoops[loops.route] = loops
         }
+        try require(phaseProblems(Array(programmes.values)), file: programmesFolder)
+        // C6: each phase knows the ones before it, so its loads carry on from theirs.
+        let ordered = programmes.values.sorted { $0.phase < $1.phase }
+        for programme in ordered {
+            programmes[programme.id]?.earlierPhases = ordered.filter { $0.phase < programme.phase }
+        }
         return ContentLibrary(exercises: exercises, programmes: programmes, nutrition: nutrition, lunchOrders: lunchOrders,
                               runLoops: runLoops)
+    }
+
+    /// C6: the phases follow on, week for week: phase N + 1 starts the plan
+    /// week after phase N ends, from plan week 1.
+    static func phaseProblems(_ programmes: [Programme]) -> [String] {
+        var problems: [String] = []
+        var next = 1
+        for programme in programmes.sorted(by: { $0.phase < $1.phase }) {
+            if programme.planWeeks.lowerBound != next {
+                problems.append("\(programme.id) starts at plan week \(programme.planWeeks.lowerBound), expected \(next)")
+            }
+            next = programme.planWeeks.upperBound + 1
+        }
+        return problems
     }
 
     static func loadFile<T: VersionedFormat>(_ type: T.Type, _ url: URL, name: String) throws -> T {
@@ -77,4 +97,31 @@ public struct ContentLibrary: Sendable {
         let names = (try? FileManager.default.contentsOfDirectory(atPath: folder.path)) ?? []
         return names.filter { $0.hasSuffix(".json") }.sorted().map { folder.appendingPathComponent($0) }
     }
+}
+
+// MARK: - C6 · Phases in order
+
+extension ContentLibrary {
+    /// Every programme, Phase 1 first.
+    public var phases: [Programme] { programmes.values.sorted { $0.phase < $1.phase } }
+
+    /// The programme in force on `date`, counting plan weeks from `start`
+    /// (Phase 1's Monday): Phase 1 for weeks 1–6 (and before the start),
+    /// Phase 2 for 7–14, Phase 3 for 15–20, and the last phase after that
+    /// (it holds at its last week, E13). Nil only with no programmes.
+    public func programme(on date: Date, start: Date, calendar: Calendar = .current) -> Programme? {
+        let days = calendar.dateComponents([.day], from: calendar.startOfDay(for: start),
+                                           to: calendar.startOfDay(for: date)).day ?? 0
+        let planWeek = days / 7 + 1
+        let ordered = phases
+        return ordered.last { $0.planWeeks.lowerBound <= planWeek } ?? ordered.first
+    }
+
+    /// The programme for `profile` on `date`: by date once the programme has
+    /// a start, else the profile's own (`programmeID`).
+    public func programme(for profile: Profile, on date: Date, calendar: Calendar = .current) -> Programme? {
+        guard let start = profile.programme.startDate else { return programmes[profile.programme.programmeID] }
+        return programme(on: date, start: start, calendar: calendar)
+    }
+
 }

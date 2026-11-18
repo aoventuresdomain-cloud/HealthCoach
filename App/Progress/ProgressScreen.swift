@@ -11,6 +11,8 @@ struct ProgressScreen: View {
     let content: ContentLibrary
     let programme: Programme
     let profile: Profile
+    /// C2: set by Today's coach line; scrolls "Ask the coach now" into view, then clears.
+    @Binding var showAskCoach: Bool
 
     @Environment(\.modelContext) private var context
     @State private var photoDay = false
@@ -21,6 +23,7 @@ struct ProgressScreen: View {
     private let calendar = Calendar.coach
     private var store: ProgressStore { .shared }
     private static let importRow = "coach.importRow"
+    private static let askRow = "coach.askRow"
 
     /// "Steps: 6,240 today · 8,100 a day last week" (the average only once there is one).
     static func stepsLine(_ steps: StepsSummary) -> String {
@@ -53,7 +56,7 @@ struct ProgressScreen: View {
                         Text("\(WeightTrend.oneDecimal(weight.averageKg)) kg")
                             .font(.coachNumber(48))
                             .accessibilityIdentifier("progress.weight")
-                        let change = WeightTrend.changeSinceStart(samples: BodyStats.shared.weightSamples,
+                        let change = WeightTrend.changeSinceStart(samples: BodyStats.shared.weightHistory,
                                                                   start: profile.programme.startDate,
                                                                   now: now, calendar: calendar)
                         Text(WeightTrend.heroSubline(changeSinceStart: change))
@@ -121,7 +124,7 @@ struct ProgressScreen: View {
             // Optional actions, out of the way at the bottom.
             Section {
                 let blocks = CoachBlockStore().all
-                let weights = BodyStats.shared.weightSamples
+                let weights = BodyStats.shared.weightHistory
                 if let review = CoachReview.make(programme: programme, profile: profile, history: history,
                                                  weights: weights, blocks: blocks, now: now, calendar: calendar) {
                     ForEach(Array(review.flags.enumerated()), id: \.offset) { index, flag in
@@ -134,12 +137,23 @@ struct ProgressScreen: View {
                     }
                 }
                 // M4-02: the summary is text only; no photos, no raw Health samples.
+                // C1: how the last 7 days' planned meals went, as counts and averages only.
+                let meals = MealAdherence.lastSevenDays(now: now, plan: { monday in
+                    MealPlan.coached(monday: monday, now: now, content: content.nutrition,
+                                     lunchOrders: content.lunchOrders.orders,
+                                     answers: WeekAnswersStore.shared.answers(weekStarting: monday, calendar: calendar),
+                                     programme: programme, profile: profile, history: history, weights: weights,
+                                     blocks: blocks, calendar: calendar)
+                }, isTicked: { day, meal in MealTicks.shared.isTicked(meal, on: day.date, calendar: calendar) },
+                calendar: calendar)
                 if let summary = CoachSummary.text(programme: programme, profile: profile, history: history,
-                                                   weights: weights, blocks: blocks, now: now, calendar: calendar) {
+                                                   weights: weights, meals: meals, blocks: blocks, now: now,
+                                                   calendar: calendar) {
                     ShareLink(item: summary) {
                         Label("Ask the coach now", systemImage: "bubble.left.and.text.bubble.right")
                     }
                     .accessibilityIdentifier("progress.askCoach")
+                    .id(Self.askRow)
                 }
                 // Coach Engineer's import (#54): copy Claude's reply, then tap.
                 CoachImportButton(profile: profile, onImported: { version += 1 },
@@ -150,6 +164,12 @@ struct ProgressScreen: View {
         // QA-32: the last rows can scroll clear of the floating tab bar, and a new
         // import result is brought into view rather than left behind the bar.
         .contentMargins(.bottom, 96, for: .scrollContent)
+        .task(id: showAskCoach) {
+            guard showAskCoach else { return }
+            try? await Task.sleep(for: .milliseconds(300)) // let the tab switch and the list lay out
+            withAnimation(.coach) { proxy.scrollTo(Self.askRow, anchor: .center) }
+            showAskCoach = false
+        }
         .onChange(of: importResults) {
             Task { @MainActor in
                 try? await Task.sleep(for: .milliseconds(150)) // let the row grow first

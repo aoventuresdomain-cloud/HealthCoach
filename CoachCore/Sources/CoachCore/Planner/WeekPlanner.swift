@@ -61,6 +61,17 @@ public struct WeekPlan: Sendable, Equatable {
     }
 
     public func day(_ weekday: Weekday) -> Day? { days.first { $0.weekday == weekday } }
+
+    /// C3: the days that train, for the meal plan: a strength or run session,
+    /// or a fixed event such as basketball. A walk doesn't count.
+    public func trainingDays(programme: Programme) -> Set<Weekday> {
+        Set(days.filter { day in
+            if day.fixed != nil { return true }
+            guard let id = day.session?.sessionID, let session = programme.sessions[id] else { return false }
+            if case .walk = session { return false }
+            return true
+        }.map(\.weekday))
+    }
 }
 
 /// Places the week's sessions in the morning or evening slot around work,

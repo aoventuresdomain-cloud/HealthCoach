@@ -90,11 +90,20 @@ final class BodyStats {
     /// The weigh-ins behind `weight` (last 14 days), for the Progress chart's
     /// faint daily dots. Shown on the phone only; never shared.
     private(set) var weightSamples: [WeightSample] = []
+    /// Every weigh-in since before the programme start, for the rules engine,
+    /// the coach summary and "since start". Never shared raw.
+    private(set) var weightHistory: [WeightSample] = []
     private(set) var steps: StepsSummary?
     /// False until a read has finished (the debug line says "pending").
     private(set) var hasRead = false
 
     @ObservationIgnored private let reader: (any HealthReading)?
+
+    /// C2: the rules engine replays every weekly check since the start, and
+    /// each check compares 7-day averages two weeks apart, so it needs the
+    /// whole programme (20 weeks) plus two weeks' lead, not just a fortnight.
+    /// `weightSamples` stays the last 14 days for the hero and chart.
+    static let weightHistoryDays = 22 * 7
 
     init(reader: (any HealthReading)? = nil) {
         if let reader {
@@ -113,17 +122,20 @@ final class BodyStats {
         }
     }
 
-    /// Reads the last 14 days of weight and 8 days of steps. A refusal or an
+    /// Reads weight since before the programme start (weightHistoryDays) and 8 days of steps. A refusal or an
     /// error leaves nothing shown; it never blocks the rest of the app.
     func refresh(now: Date = AppClock.now(), calendar: Calendar = .current) async {
         defer { hasRead = true }
         guard let reader else { return }
         let end = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: now)) ?? now
-        let weightStart = calendar.date(byAdding: .day, value: -2 * WeightTrend.windowDays, to: end) ?? end
+        let weightStart = calendar.date(byAdding: .day, value: -Self.weightHistoryDays, to: end) ?? end
         let stepsStart = calendar.date(byAdding: .day, value: -8, to: end) ?? end
         do {
             try await reader.requestReadAccess()
-            let samples = try await reader.weights(from: weightStart, to: end)
+            let history = try await reader.weights(from: weightStart, to: end)
+            let recentStart = calendar.date(byAdding: .day, value: -2 * WeightTrend.windowDays, to: end) ?? end
+            let samples = history.filter { $0.date >= recentStart }
+            weightHistory = history
             weightSamples = samples
             weight = WeightTrend.make(samples: samples, endingOn: now, calendar: calendar)
             steps = StepsSummary.make(days: try await reader.dailySteps(from: stepsStart, to: end),
@@ -131,6 +143,7 @@ final class BodyStats {
         } catch {
             weight = nil
             weightSamples = []
+            weightHistory = []
             steps = nil
         }
     }
