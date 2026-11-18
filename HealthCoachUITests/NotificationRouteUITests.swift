@@ -72,4 +72,19 @@ final class NotificationRouteUITests: XCTestCase {
         budget.finish(done: ask)
         XCTAssertTrue(ask.isHittable, "Ask the coach is in view without a scroll")
     }
+
+    /// F1 (N7): the photo-day notification opens the camera on Progress. Budget: the tap, 5 s.
+    @MainActor
+    func testPhotoDayOpensTheCamera() throws {
+        // Monday 23 Nov 2026: week1-monday's first photo day.
+        let app = launch(from: "photoDay", now: "2026-11-23T07:00:00Z")
+        let budget = EaseBudget("photo-day", maxTaps: 1, maxSeconds: 5, app: app)
+        budget.notificationTap()
+        let shutter = app.buttons["photo.take.front"]
+        XCTAssertTrue(shutter.waitForExistence(timeout: 15), "the reminder opens the photo-day camera")
+        budget.finish(done: shutter)
+        app.buttons["photo.cancel"].firstMatch.tap()
+        XCTAssertTrue(app.tabBars.buttons["Progress"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.tabBars.buttons["Progress"].isSelected, "closing the camera leaves Progress")
+    }
 }

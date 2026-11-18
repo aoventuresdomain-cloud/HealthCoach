@@ -112,9 +112,11 @@ private struct RootView: View {
         case .askCoach:
             showAskCoach = true
             tab = .progress
+        case .photoDay: tab = .progress
         }
-        // Today and Meals clear their own once they've opened the check-in or Shopping.
-        if NotificationTaps.shared.pending != .sundayPrompt, NotificationTaps.shared.pending != .shopping {
+        // Today, Meals and Progress clear their own once they've opened the check-in, Shopping or the camera.
+        let opensItself: Set<NotificationDestination> = [.sundayPrompt, .shopping, .photoDay]
+        if let pending = NotificationTaps.shared.pending, !opensItself.contains(pending) {
             NotificationTaps.shared.pending = nil
         }
     }

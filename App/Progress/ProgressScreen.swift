@@ -212,9 +212,10 @@ struct ProgressScreen: View {
                              set: { previewSummary = $0?.value })) { text in
             SummaryPreview(summary: text.value)
         }
-        .task(id: NotificationRouter.shared.openPhotoDay) {
-            guard NotificationRouter.shared.openPhotoDay else { return }
-            NotificationRouter.shared.openPhotoDay = false
+        // N7 (F1): a photo-day notification opens the camera straight away.
+        .task(id: NotificationTaps.shared.pending) {
+            guard NotificationTaps.shared.pending == .photoDay else { return }
+            NotificationTaps.shared.pending = nil
             photoDay = true
         }
         .fullScreenCover(isPresented: $photoDay, onDismiss: { version += 1 }) {
