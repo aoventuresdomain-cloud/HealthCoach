@@ -86,6 +86,12 @@ struct TodayView: View {
                 // weather swap is the card's meta line plus "I'll run anyway" below.
                 if dayOffset == 0, let monday = promptDue(now: now) {
                     checkInCard(monday)
+                } else if dayOffset == 0, let line = checkedInLine(now: now) {
+                    // W1's end state: the week is applied; one quiet line until Monday.
+                    Label(line, systemImage: "checkmark.circle")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("checkin.applied")
                 }
                 if let plan {
                     // UI-12: no card on a no-session day; the title and timeline say it.
@@ -210,6 +216,17 @@ struct TodayView: View {
 
     /// Next week's Monday from Saturday until the check-in is done; nil otherwise.
     /// Skipped, the card goes on Monday and the plan runs unchanged (N1).
+    /// "Next week is set · 4 sessions", from the check-in until Monday.
+    private func checkedInLine(now: Date) -> String? {
+        _ = answersVersion
+        guard profile.programme.startDate != nil, SundayPrompt.isDue(on: now, calendar: calendar) else { return nil }
+        let monday = SundayPrompt.monday(for: now, calendar: calendar)
+        guard CheckInStore.shared.hasCheckedIn(weekStarting: monday, calendar: calendar) else { return nil }
+        let sessions = CheckInFormat.sessionsLine(programme: programme, profile: profile, monday: monday, calendar: calendar)
+        let count = sessions?.components(separatedBy: " · ").count ?? 0
+        return count > 0 ? "Next week is set · \(count) sessions" : "Next week is set"
+    }
+
     private func promptDue(now: Date) -> Date? {
         _ = answersVersion
         guard profile.programme.startDate != nil, SundayPrompt.isDue(on: now, calendar: calendar) else { return nil }
