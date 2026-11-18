@@ -61,13 +61,23 @@ final class PreferencesUITests: XCTestCase {
         shot.name = "preferences-foods"
         shot.lifetime = .keepAlways
         add(shot)
-        // Close the search first: while it is active the bar's first button isn't Back.
-        let cancel = app.buttons["Cancel"]
-        if cancel.exists { cancel.tap() }
-        let named = app.navigationBars.buttons["Preferences"]
-        let back = named.waitForExistence(timeout: 3) ? named : app.navigationBars.buttons.element(boundBy: 0)
-        back.tap()
-        XCTAssertTrue(app.buttons["prefs.done"].waitForExistence(timeout: 5))
+        // Adding closes the search (as a person would expect), so the form's Back is there.
+        if !app.keyboards.firstMatch.waitForNonExistence(timeout: 5) {
+            // Belt and braces: close the search by hand if it stayed open.
+            for name in ["Cancel", "Close"] where app.buttons[name].exists { app.buttons[name].tap(); break }
+        }
+        _ = app.navigationBars.buttons.firstMatch.waitForExistence(timeout: 3)
+        let back = ["Preferences", "BackButton", "Back"].map { app.navigationBars.buttons[$0] }.first { $0.exists }
+        if let back {
+            back.tap()
+        } else {
+            // iOS 26 may show Back without its title: swipe back from the leading edge instead.
+            app.coordinate(withNormalizedOffset: CGVector(dx: 0.01, dy: 0.5))
+                .press(forDuration: 0.05, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)))
+        }
+        let done = app.buttons["prefs.done"]
+        if !done.waitForExistence(timeout: 5) { attachShot(app, "preferences-after-back") }
+        XCTAssertTrue(done.exists)
         XCTAssertTrue(module(app, "food").label.contains("mushrooms"), module(app, "food").label)
         attachShot(app, "preferences")
         app.buttons["prefs.done"].tap()
