@@ -182,6 +182,13 @@ private struct SetScreen: View {
                     .font(.headline)
                     .accessibilityIdentifier("player.slowTempo")
             }
+            // N8: on each exercise's first set after a break, say why it's lighter.
+            if let easing = model.script.easing, step.setIndex == 0 {
+                Text("\(easing.line).")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .accessibilityIdentifier("player.easing")
+            }
             if step.atDumbbellLimit {
                 Text("Next step is past your heaviest dumbbell.")
                     .font(.subheadline)
