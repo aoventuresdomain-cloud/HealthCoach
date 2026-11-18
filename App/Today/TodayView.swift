@@ -11,6 +11,8 @@ struct TodayView: View {
     let profile: Profile
     /// Starts the session with the recovery answer (Fine unless changed).
     var onStart: (DayPlan.SessionSlot, Int, RecoveryCheck) -> Void
+    /// C2: the coach line's tap; Root switches to Progress with Ask in view.
+    var onAskCoach: () -> Void = {}
 
     @State private var dayOffset = 0
     @State private var recovery = RecoveryCheck.fine
@@ -44,6 +46,20 @@ struct TodayView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 header(date: date, plan: plan)
+                if dayOffset == 0, let line = coachLine(history: history, now: now) {
+                    // C2: one line, only when the coach is needed (stall, checkpoint, dumbbell limit).
+                    Button(action: onAskCoach) {
+                        Label(line, systemImage: "flag")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.caution)
+                            .multilineTextAlignment(.leading)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .contentShape(.rect)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityHint("Opens Progress, with Ask the coach now")
+                    .accessibilityIdentifier("today.coachLine")
+                }
                 if let notice = TodayFormat.storeNotice(AppStore.recovery) {
                     Label(notice, systemImage: "exclamationmark.triangle.fill")
                         .font(.subheadline)
@@ -196,6 +212,15 @@ struct TodayView: View {
             await CoachNotifier.shared.reschedule(profile: profile, history: history)
             await MorningWeather.shared.check(profile: profile)
         }
+    }
+
+    // MARK: Coach line (C2)
+
+    private func coachLine(history: [SessionLog], now: Date) -> String? {
+        CoachReview.make(programme: programme, profile: profile, history: history,
+                         weights: BodyStats.shared.weightHistory, blocks: CoachBlockStore().all,
+                         now: now, calendar: calendar)?
+            .todayLine { content.exercises.exercise($0)?.name ?? $0 }
     }
 
     // MARK: Header

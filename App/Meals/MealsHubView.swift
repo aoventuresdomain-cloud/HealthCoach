@@ -35,7 +35,7 @@ struct MealsHubView: View {
             MealPlan.coached(monday: monday, now: now, content: content.nutrition,
                              lunchOrders: content.lunchOrders.orders, answers: answers, programme: programme,
                              profile: profile, history: (try? SessionLogStore(context: context).all()) ?? [],
-                             weights: BodyStats.shared.weightSamples, blocks: CoachBlockStore().all,
+                             weights: BodyStats.shared.weightHistory, blocks: CoachBlockStore().all,
                              calendar: calendar)
         } ?? MealPlan.week(monday: monday, content: content.nutrition, lunchOrders: content.lunchOrders.orders,
                            answers: answers, programmeID: profile.programme.programmeID, calendar: calendar)
