@@ -59,17 +59,9 @@ final class EaseBudget {
 
 These numbers are deliberately a little slow, so a pass means the job is comfortably inside its budget. The real simulator run time is also recorded, but only as a sanity check. If it is ever more than three times the model, QA looks for a slow screen.
 
-## 4. The jobs and budgets (from §4.5; the Designer's file wins if it differs)
+## 4. The jobs and budgets
 
-| Job | Start | Done state | Taps | Time |
-|---|---|---|---|---|
-| Start today's session | Launch to Today | Player on set 1 | 1 | — |
-| Tick off a meal change | Launch to Today | Meals shows the swapped meal ticked | 2 | — |
-| Sunday check-in | Check-in card (or notification) | "Looks good" applied, Today back | — | 60 s |
-| Photo day | Photo-day card (or notification) | All poses saved, Progress shows them | — | 60 s |
-| Find the shopping list | Launch to Today | Shopping list visible | 1 | — |
-
-Where the plan sets only a time, QA still reports the tap count. Where it sets only taps, QA still reports the model time. This keeps a later change from quietly making a job slower.
+The budgets live in `docs/design/ease-budget.md` §2 (D1–D11, W1–W6, F1–F2, K1–K3, A1–A4); that file sets them, this one measures them. Every job's result line reports taps, scrolls, characters, alerts and model time, whichever of them its budget names, so a later change can't quietly make a job slower. Time outside the model (F1's two 3 s self-timers) is added to the line as a note, e.g. "+6 s timer".
 
 ## 5. In QA-R4
 
