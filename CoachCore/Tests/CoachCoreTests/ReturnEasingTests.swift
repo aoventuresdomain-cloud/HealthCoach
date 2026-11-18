@@ -58,14 +58,34 @@ import Testing
         #expect(ReturnEasing(daysOff: 10, firstSessionDay: .now)?.band == .short)
         #expect(ReturnEasing(daysOff: 20, firstSessionDay: .now)?.band == .short)
         #expect(ReturnEasing(daysOff: 21, firstSessionDay: .now)?.band == .long)
-        #expect(ReturnEasing(daysOff: 42, firstSessionDay: .now)?.band == .long)
-        #expect(ReturnEasing(daysOff: 43, firstSessionDay: .now)?.band == .restart)
+        #expect(ReturnEasing(daysOff: 41, firstSessionDay: .now)?.band == .long)
+        #expect(ReturnEasing(daysOff: 42, firstSessionDay: .now)?.band == .restart)   // Advisor: 42 or more
         let short = ReturnEasing(daysOff: 12, firstSessionDay: .now)!
         #expect(short.line == "Easing back in after 12 days off")
         #expect([1, 2, 3].map(short.fraction(atSession:)) == [0.9, 1, 1])
         let long = ReturnEasing(daysOff: 30, firstSessionDay: .now)!
         #expect(abs(long.fraction(atSession: 2) - 0.9) < 1e-9)
         #expect([1, 3].map(long.fraction(atSession:)) == [0.8, 1])
+        let restart = ReturnEasing(daysOff: 42, firstSessionDay: .now)!
+        #expect([1, 2, 3, 4].map { Int((restart.fraction(atSession: $0) * 100).rounded()) } == [70, 80, 90, 100])
+        #expect(long.todayLine(atSession: 1) == "Easing back in: 80% today")
+        #expect(restart.todayLine(atSession: 3) == "Easing back in: 90% today")
+    }
+
+    @Test func aSoreSessionHoldsTheStep() throws {
+        let p = try f.phase1()
+        let before = try logged(weeks: 1, p)          // last strength day 5; day 35 is 30 days off
+        let preKg = try #require(p.prescription(for: try bench(p), week: 6, history: before)?.kg)
+        var history = try logUpperA(p, before, day: 35)
+        history[history.count - 1].recovery = .sore   // came in sore: don't move on
+        let held = try rx(p, history, day: 38)
+        #expect(held.step == .easing)
+        #expect(held.kg == floorToStep(preKg * 0.8, p))   // still 80%, not 90; never dropped back
+        #expect(p.easingStep(history: history, on: f.day(38, hour: 7), calendar: f.calendar)?.session == 1)
+        history = try logUpperA(p, history, day: 38)
+        #expect(try rx(p, history, day: 42).kg == floorToStep(preKg * 0.9, p))
+        let today = try #require(p.easingStep(history: history, on: f.day(42, hour: 7), calendar: f.calendar))
+        #expect(today.easing.todayLine(atSession: today.session) == "Easing back in: 90% today")
     }
 
     // MARK: - 10–20 days
@@ -165,13 +185,21 @@ import Testing
         #expect(p.easing(history: try logged(weeks: 2, p), on: f.day(21, hour: 7), calendar: f.calendar) == nil)
     }
 
-    @Test func runsRepeatOrDropBackAfterTimeOff() throws {
+    @Test func runsKeepTheirOwnClock() throws {
         let p = try f.phase1()
-        let history = try logged(weeks: 1, p)          // last run: Tue 17 Nov (day 1)
-        #expect(p.runWeek(2, history: history, on: f.day(8, hour: 7), calendar: f.calendar) == 2)   // 7 days
-        #expect(p.runWeek(3, history: history, on: f.day(15, hour: 7), calendar: f.calendar) == 2)  // 14 days
-        #expect(p.runWeek(4, history: history, on: f.day(22, hour: 7), calendar: f.calendar) == 2)  // 21 days
-        #expect(p.runWeek(2, history: history, on: f.day(29, hour: 7), calendar: f.calendar) == 1)  // never below 1
+        let history = try loop.fourWeeks(p)           // last run: Tue 8 Dec (day 22), week 4
+        #expect(p.runWeek(5, history: history, on: f.day(29, hour: 7), calendar: f.calendar) == 5)  // 7 days
+        #expect(p.runWeek(5, history: history, on: f.day(32, hour: 7), calendar: f.calendar) == 4)  // 10: repeat week 4
+        #expect(p.runWeek(6, history: history, on: f.day(43, hour: 7), calendar: f.calendar) == 3)  // 21: one before
+        #expect(p.runWeek(6, history: history, on: f.day(64, hour: 7), calendar: f.calendar) == 2)  // 42: two before
+        #expect(p.runWeek(2, history: history, on: f.day(32, hour: 7), calendar: f.calendar) == 2)  // never past the plan
+        let early = try logged(weeks: 1, p)           // last run week 1
+        #expect(p.runWeek(6, history: early, on: f.day(60, hour: 7), calendar: f.calendar) == 1)    // never before week 1
         #expect(p.runWeek(2, history: [], on: f.day(8, hour: 7), calendar: f.calendar) == 2)
+        // Separate clocks: runs kept going, lifts stopped. Lifts ease, runs don't.
+        let runsOnly = early + [SessionLog(programmeID: p.id, sessionID: "run-1", week: 4, startedAt: f.day(22, hour: 7),
+                                           finishedAt: f.day(22, hour: 8))]
+        #expect(p.runWeek(5, history: runsOnly, on: f.day(29, hour: 7), calendar: f.calendar) == 5)
+        #expect(p.easing(history: runsOnly, on: f.day(28, hour: 7), calendar: f.calendar) != nil)
     }
 }
