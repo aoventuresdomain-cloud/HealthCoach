@@ -61,10 +61,9 @@ private struct RootView: View {
                                 } onPreferencesChange: { edited in
                                     savePreferences(edited, content: content, programme: programme)
                                 } onLunchWalk: { walk in
-                                    // N4: answered at once, kept through any pending Preferences edit.
-                                    var answered = profile
-                                    answered.answerFoodQuestion { $0.officeLunchMaxWalkMinutes = walk }
-                                    save(answered, content: content, programme: programme)
+                                    // N4: the same answer path as Meals' question.
+                                    answerFood({ $0.officeLunchMaxWalkMinutes = walk },
+                                               profile: profile, content: content, programme: programme)
                                 }
                             }
                         }
