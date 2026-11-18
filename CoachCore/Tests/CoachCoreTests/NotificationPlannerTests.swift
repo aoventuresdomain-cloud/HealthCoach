@@ -192,4 +192,55 @@ import Testing
         #expect(out.count == NotificationPlanner.pendingLimit)
         #expect(out.map(\.fireDate) == out.map(\.fireDate).sorted())
     }
+
+    // MARK: N5 delivery reminder, N10 checkpoint
+
+    @Test func theDeliveryReminderComesTheEveningBefore() {
+        let sunday = Profile.Food.DeliverySlot(day: .sunday, time: t(10, 0))
+        // Mon 23 Nov to Sun 6 Dec: Sundays 29 Nov and 6 Dec.
+        let out = NotificationPlanner.deliveryReminders(slot: sunday, now: date(2026, 11, 23, 9),
+                                                        through: date(2026, 12, 6), calendar: calendar)
+        #expect(out.map(\.fireDate) == [date(2026, 11, 28, 19), date(2026, 12, 5, 19)])
+        #expect(out.allSatisfy { $0.kind == .deliveryReminder && !QuietHours.contains($0.fireDate, calendar: calendar) })
+        #expect(out.first?.body.contains("10:00") == true)
+        #expect(Set(out.map(\.id)).count == out.count)
+        // Already past this week's: only next week's.
+        let late = NotificationPlanner.deliveryReminders(slot: sunday, now: date(2026, 11, 28, 20),
+                                                         through: date(2026, 12, 6), calendar: calendar)
+        #expect(late.map(\.fireDate) == [date(2026, 12, 5, 19)])
+        // No slot chosen yet: nothing.
+        #expect(NotificationPlanner.deliveryReminders(slot: nil, now: date(2026, 11, 23, 9),
+                                                      through: date(2026, 12, 6), calendar: calendar).isEmpty)
+    }
+
+    @Test func aCheckpointNotifiesTheEveningItFallsDue() {
+        // Start Mon 16 Nov: week 6 ends Sat 26 Dec, week 14 Sat 20 Feb.
+        let start = date(2026, 11, 16)
+        let out = NotificationPlanner.checkpoints(start: start, now: date(2026, 12, 20, 9),
+                                                  through: date(2027, 1, 2), calendar: calendar)
+        #expect(out.map(\.fireDate) == [date(2026, 12, 26, 19)])
+        #expect(out.first?.title == "Checkpoint 1")
+        #expect(out.allSatisfy { !QuietHours.contains($0.fireDate, calendar: calendar) })
+        // The opening day matches the coach's own checkpoint flag.
+        let flagged = CoachReview.checkpointDue(now: date(2026, 12, 26, 19), start: start, blocks: [], calendar: calendar)
+        let notYet = CoachReview.checkpointDue(now: date(2026, 12, 25, 19), start: start, blocks: [], calendar: calendar)
+        #expect(flagged == 1 && notYet == nil)
+        let second = NotificationPlanner.checkpoints(start: start, now: date(2027, 2, 15),
+                                                     through: date(2027, 2, 28), calendar: calendar)
+        #expect(second.map(\.title) == ["Checkpoint 2"])
+        #expect(NotificationPlanner.checkpoints(start: nil, now: start, through: date(2027, 6, 1), calendar: calendar).isEmpty)
+    }
+
+    @Test func bothJoinThePlannedNotifications() throws {
+        var profile = Profile()
+        profile.programme.startDate = date(2026, 11, 16)
+        profile.food.delivery = .init(day: .sunday, time: t(10, 0))
+        let out = try NotificationPlanner.plan(now: date(2026, 12, 20, 9), programme: phase1(), profile: profile,
+                                               answers: { _ in WeekAnswers() }, calendar: calendar)
+        #expect(out.contains { $0.kind == .deliveryReminder && $0.fireDate == date(2026, 12, 26, 19) })
+        #expect(out.contains { $0.kind == .checkpoint && $0.fireDate == date(2026, 12, 26, 19) })
+        #expect(out.count <= NotificationPlanner.pendingLimit)
+        #expect(out == out.sorted { $0.fireDate < $1.fireDate })
+        #expect(out.allSatisfy { !QuietHours.contains($0.fireDate, calendar: calendar) })
+    }
 }

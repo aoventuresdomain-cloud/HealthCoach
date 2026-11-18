@@ -100,6 +100,11 @@ struct RunWalkView: View {
                     Text(RunWalkPlan.effortLine.trimmingCharacters(in: .punctuationCharacters))
                         .foregroundStyle(.secondary)
                 }
+                // N10: which loop, while setting off.
+                if model.index == 0, let loop = model.plan.loopLine {
+                    Text(loop).foregroundStyle(.secondary)
+                        .accessibilityIdentifier("run.loop")
+                }
                 SegmentBar(plan: model.plan, current: model.index)
                     .padding(.horizontal, 16)
                     .padding(.top, 20)

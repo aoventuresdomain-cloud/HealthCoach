@@ -44,7 +44,7 @@ Schema owner: Planner Engineer. Content owner: the Researcher (Advisor reviews).
 
 | Field | Meaning |
 |---|---|
-| `shop` | `default` shop and `searchUrl` with `{search}` (decision E5) |
+| `shop` | `default` shop and `searchUrl` with `{search}` (decision E5); `options[]` (`id`, `name`, `searchUrl`), the shops offered in N4 |
 | `aisleOrder` | aisle ids in walking order; every ingredient's `aisle` must be one of them |
 | `dailyTargets.<programme>` | `kcal` (starting target), `kcalBandPlusMinus` (≤ 150), `kcalFloor` (≥ 1,700), `protein`, `proteinMin` (≥ 150) |
 | `snackRule` | `default` snack, `replaceWith` when the day is under `whenPlannedProteinBelow`, and the Wednesday `wednesdayTime` |

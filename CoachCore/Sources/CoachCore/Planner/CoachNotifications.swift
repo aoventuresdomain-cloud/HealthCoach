@@ -38,7 +38,7 @@ public enum QuietHours {
 /// One local notification the app should have pending (plan §4.7).
 public struct CoachNotification: Sendable, Equatable, Codable {
     public enum Kind: String, Sendable, Codable, CaseIterable {
-        case morningBrief, leaveNow, windDown, sundayPrompt
+        case morningBrief, leaveNow, windDown, sundayPrompt, deliveryReminder, checkpoint
     }
 
     /// Stable per kind and day, so a re-plan replaces rather than duplicates.
@@ -62,6 +62,10 @@ public enum NotificationPlanner {
     public static let windDownMinutes = 30
     /// The Sunday prompt asks about the coming week at this time on Sunday.
     public static let sundayPromptTime = TimeOfDay(hour: 18, minute: 0)
+    /// N5: the evening before a delivery slot, to top up the order.
+    public static let deliveryReminderTime = TimeOfDay(hour: 19, minute: 0)
+    /// N10: the evening a checkpoint falls due (the Saturday of week 6, 14, 20).
+    public static let checkpointTime = TimeOfDay(hour: 19, minute: 0)
 
     /// The notifications for the same 14 days the wake alarms cover
     /// (`AlarmSchedule.horizonDays`), planned the way the alarms are.
@@ -79,8 +83,58 @@ public enum NotificationPlanner {
             days += week.days.filter { $0.date >= today && $0.date <= last }
             monday = calendar.date(byAdding: .day, value: 7, to: monday)!
         }
-        return plan(days: days, sessionName: { programme.sessions[$0]?.name ?? "Session" },
-                    now: now, calendar: calendar)
+        let daily = plan(days: days, sessionName: { programme.sessions[$0]?.name ?? "Session" },
+                         now: now, calendar: calendar)
+        let extra = deliveryReminders(slot: profile.food.delivery, now: now, through: last, calendar: calendar)
+            + checkpoints(start: profile.programme.startDate, now: now, through: last, calendar: calendar)
+        return Array((daily + extra).sorted { $0.fireDate < $1.fireDate }.prefix(pendingLimit))
+    }
+
+    /// N5: the evening before each delivery slot from `now` to `through`.
+    /// Inside quiet hours it comes early, as wind-down does.
+    public static func deliveryReminders(slot: Profile.Food.DeliverySlot?, now: Date, through last: Date,
+                                         calendar: Calendar = .current) -> [CoachNotification] {
+        guard let slot else { return [] }
+        var out: [CoachNotification] = []
+        var day = calendar.startOfDay(for: now)
+        let end = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: last)) ?? last
+        while day <= end {
+            if Weekday(calendarWeekday: calendar.component(.weekday, from: day)) == slot.day,
+               let eve = calendar.date(byAdding: .day, value: -1, to: day) {
+                var fire = deliveryReminderTime.on(eve, calendar: calendar)
+                if QuietHours.contains(fire, calendar: calendar) {
+                    fire = QuietHours.lastAllowed(before: fire, calendar: calendar)
+                }
+                if fire > now {
+                    out.append(CoachNotification(id: "\(CoachNotification.Kind.deliveryReminder.rawValue)-\(key(day, calendar: calendar))",
+                                                 kind: .deliveryReminder, fireDate: fire, title: "Delivery tomorrow",
+                                                 body: "Slot at \(slot.time) tomorrow. Add the top-up list to the order tonight."))
+                }
+            }
+            guard let next = calendar.date(byAdding: .day, value: 1, to: day) else { break }
+            day = next
+        }
+        return out
+    }
+
+    /// N10: the evening each checkpoint falls due (`CoachReview.checkpointWeeks`,
+    /// from that week's Saturday), when it falls from `now` to `through`.
+    public static func checkpoints(start: Date?, now: Date, through last: Date,
+                                   calendar: Calendar = .current) -> [CoachNotification] {
+        guard let start else { return [] }
+        let startDay = calendar.startOfDay(for: start)
+        return CoachReview.checkpointWeeks.enumerated().compactMap { index, week in
+            guard let due = calendar.date(byAdding: .day, value: (week - 1) * 7 + 5, to: startDay),
+                  due <= last else { return nil }
+            var fire = checkpointTime.on(due, calendar: calendar)
+            if QuietHours.contains(fire, calendar: calendar) {
+                fire = QuietHours.lastAllowed(before: fire, calendar: calendar)
+            }
+            guard fire > now else { return nil }
+            return CoachNotification(id: "\(CoachNotification.Kind.checkpoint.rawValue)-\(key(due, calendar: calendar))",
+                                     kind: .checkpoint, fireDate: fire, title: "Checkpoint \(index + 1)",
+                                     body: "Week \(week) is done. Time for your coach review: tap Ask the coach now.")
+        }
     }
 
     public static func plan(days: [WeekPlan.Day], sessionName: (String) -> String,
@@ -93,7 +147,8 @@ public enum NotificationPlanner {
             if QuietHours.contains(fire, calendar: calendar) {
                 switch kind {
                 case .morningBrief, .sundayPrompt: fire = QuietHours.nextAllowed(after: fire, calendar: calendar)
-                case .windDown: fire = QuietHours.lastAllowed(before: fire, calendar: calendar)
+                case .windDown, .deliveryReminder, .checkpoint:
+                    fire = QuietHours.lastAllowed(before: fire, calendar: calendar)
                 case .leaveNow: return
                 }
             }
