@@ -8,6 +8,8 @@
 	<string>HealthCoach sets your wake-up and training alarms so you never have to.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>HealthCoach takes your front and side progress photos every 2 weeks. They stay on your iPhone and in your own iCloud backup.</string>
+	<key>NSRemindersFullAccessUsageDescription</key>
+	<string>HealthCoach puts the week's shopping list in your Shopping list in Reminders, with amounts. It only adds or changes the items it wrote; nothing about your health goes there.</string>
 	<key>NSHealthShareUsageDescription</key>
 	<string>HealthCoach reads your weight and steps to show your 7-day weight trend. It never writes to Health, and your data stays on your iPhone.</string>
 	<key>NSSupportsLiveActivities</key>

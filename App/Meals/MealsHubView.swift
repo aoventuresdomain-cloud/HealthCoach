@@ -221,6 +221,8 @@ struct MealsHubView: View {
                                 .foregroundStyle(.secondary)
                                 .textCase(nil)
                                 .accessibilityIdentifier("shopping.header")
+                            // N5: after a send, for the rest of the day.
+                            GrocerySentLine(now: AppClock.now())
                         }
                         Text(aisle.prefix(1).uppercased() + aisle.dropFirst())  // QA-29: "Produce", not "produce"
                     }
@@ -229,6 +231,10 @@ struct MealsHubView: View {
             if items.isEmpty {
                 Text("Nothing to buy this week.").foregroundStyle(.secondary)
             }
+        }
+        // N5: "In the shop" (primary) and "Send to Reminders".
+        .safeAreaInset(edge: .bottom) {
+            GroceryActionBar(items: items, monday: monday) { version += 1 }
         }
     }
 
