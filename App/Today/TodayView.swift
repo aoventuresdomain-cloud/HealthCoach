@@ -115,6 +115,14 @@ struct TodayView: View {
                             onChange: onPreferencesChange)
         }
         .task { alarmStatus = await AlarmKitSpike.shared.reconcileStatus() }
+        // N9: the Sunday prompt notification (W1) opens the check-in for next week.
+        .task(id: NotificationTaps.shared.pending) {
+            guard NotificationTaps.shared.pending == .sundayPrompt else { return }
+            NotificationTaps.shared.pending = nil
+            if profile.programme.startDate != nil {
+                promptWeek = PromptWeek(monday: SundayPrompt.monday(for: AppClock.now(), calendar: calendar))
+            }
+        }
         .sheet(item: $promptWeek) { week in
             SundayPromptView(monday: week.monday,
                              initial: WeekAnswersStore.shared.answers(weekStarting: week.monday, calendar: calendar),
