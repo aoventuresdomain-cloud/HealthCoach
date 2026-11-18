@@ -14,12 +14,14 @@ Each rule is checked inside `EaseBudget`, so a job can't pass by being clever.
 |---|---|---|
 | E1 | **Taps** never exceed the job's budget, on the default path and on the "change one answer" path | `finish` asserts `taps <= maxTaps` (QA method) |
 | E2 | **Time** (model seconds) never exceeds the job's budget | `finish` asserts `modelSeconds <= maxSeconds` (QA method; 1.1 s a tap, 1.5 s a screen, 1.0 s a scroll, 0.3 s a character, 2.0 s an alert) |
-| E3 | **No scrolling** in any job marked daily or weekly. A control you have to scroll to is a design bug, not a slow job | Proposed helper addition: `maxScrolls: Int = 0`, asserted in `finish` |
-| E4 | **No typing** in daily or weekly jobs. Only Preferences numbers take characters; the optional waist uses a stepper (Advisor 5) | Proposed: `maxChars: Int = 0`, asserted in `finish`; also `app.keyboards.count == 0` at `finish` |
-| E5 | **No confirmation alerts.** The only "are you sure?" in the app is ending a session early. System permission alerts are allowed once, and counted | Alerts are counted (QA method); the job's alert budget is in the table |
-| E6 | **Every tapped control is at least 44 × 44 pt** | Proposed: `tap` asserts `e.frame.width >= 44 && e.frame.height >= 44` |
+| E3 | **No scrolling** in any job marked daily or weekly. A control you have to scroll to is a design bug, not a slow job | Helper: `maxScrolls: Int = 0`, asserted in `finish`; a control not hittable when tapped fails as "needs a scroll", so XCUITest's auto-scroll can't hide one. A1 sets `maxScrolls: 2` |
+| E4 | **No typing** in daily or weekly jobs. Only Preferences numbers take characters; the optional waist uses a stepper (Advisor 5) | Helper: `maxChars: Int = 0`, asserted in `finish`; also `app.keyboards.count == 0` at `finish`. Only A1 sets `maxChars` (the waist stepper needs none) |
+| E5 | **No confirmation alerts.** The only "are you sure?" in the app is ending a session early. System permission alerts are allowed once, and counted | Helper: `maxAlerts: Int = 0`, asserted in `finish`. W3's first run sets 1, A4 sets 2 |
+| E6 | **Every tapped control is at least 44 × 44 pt** | Helper: `tap` asserts the accessibility frame is at least 44 × 44. Fix a small control by padding inside its label, not with `.contentShape` or an exception. System UI (alerts, share sheet, Reminders permission, notifications) uses `tap(_:system: true)`: counted, size not checked |
 
-E3, E4 and E6 are three small additions to QA's helper; they change no existing number. If QA prefers, they can run as separate asserts in each test instead.
+QA accepted E3–E6 into the helper on PR #93; `docs/qa/ease-budget-method.md` holds the helper spec.
+
+**Notification starts** (W1, W5, F1, K3): tests launch with `-openFrom notification:<kind>`, which routes the app exactly as the notification would, then count the notification tap once with `budget.tap(…, system: true)`. Each route gets one unit test; QA checks the route matches in QA-R4.
 
 A tap on a notification counts (QA method). The first-ever run of a job (permission alerts, the one-off shop question) has its own row, so the everyday row stays strict.
 
@@ -60,7 +62,7 @@ Default path = the CEO accepts every pre-selected answer. Change path = he chang
 
 | ID | Job | Start → done state | Taps default / change | Time | Notes |
 |---|---|---|---|---|---|
-| F1 | **Photo day** (N7) | Notification → both poses saved, Progress shows them | **4** / 6 | **60 s** (10.4) | Waist on: a stepper pre-filled with the last value, 0.5 cm steps, usually 1–2 taps; typing is the fallback (Advisor 5). The model doesn't count the seconds spent stepping into pose; the 3 s self-timer and hints cover that, and 60 s leaves room |
+| F1 | **Photo day** (N7) | Notification → both poses saved, Progress shows them | **4** / 6 | **60 s** (10.4) | Waist on: a stepper pre-filled with the last value, 0.5 cm steps, usually 1–2 taps; typing is the fallback (Advisor 5). The two 3 s self-timers sit outside the model: the result line records "+6 s timer" (QA). The model doesn't count the seconds spent stepping into pose; the 3 s self-timer and hints cover that, and 60 s leaves room |
 | F1b | Photo day without the notification | Launch → same | 5 | 60 s | Progress → photo-day card |
 | F2 | Compare photos (N7) | Launch → `compare.view` today vs week 0 | 2 / 3 | 10 s | Change = "4 weeks ago" |
 | K1 | Ask the coach now | Launch → share sheet open with the summary | 2 | 10 s | Picking Claude in the share sheet is the system's |
@@ -79,7 +81,7 @@ Each screen follows the UI-12 rules. New identifiers are listed so the tests abo
 
 Two screens, no scrolling. The card on Today reads "Check in · 1 min ›" (`today.checkIn`, keeps the weekend slot of `today.planWeek`).
 
-**Screen 1 · "Your week"** (`checkin.week`): ① weight hero, "82.4 kg · −1.1 kg since start" (7-day average; never week on week, which is mostly water; Advisor 1) ② one line, "4 of 4 sessions · 8,900 steps a day", information only: no ring, target or colour (Advisor 6) ③ Energy: Good · OK · Low (`checkin.energy`) ④ Sleep: Fine · Poor (`checkin.sleep`) ⑤ Any pain: None · Yes (`checkin.pain`). Primary **Next** (`checkin.next`). Defaults Good, Fine, None (Advisor A1). Pain Yes reveals the areas in place, two rows of three: Shoulder, Elbow, Wrist, Back, Knee, Other (`checkin.painArea.*`); no typing; nothing else moves. The pick swaps that area's exercises to their catalogue `swap` for 7 days, adds a What-changed line, and isn't asked again that week (Advisor 2). Energy Low **and** Sleep Poor together are one low-recovery signal for the existing drop-to-2 rule; either alone is noted for the Claude summary and changes nothing (Advisor 3).
+**Screen 1 · "Your week"** (`checkin.week`): ① weight hero, "82.4 kg · −1.1 kg since start" (7-day average; never week on week, which is mostly water; Advisor 1) ② one line, "4 of 4 sessions · 8,900 steps a day", information only: no ring, target or colour (Advisor 6) ③ Energy: Good · OK · Low (`checkin.energy`) ④ Sleep: Fine · Poor (`checkin.sleep`) ⑤ Any pain: None · Yes (`checkin.pain`). Each pill and pain area is at least 44 pt wide and tall: full-width segmented controls at `.controlSize(.large)` (E6, QA). Primary **Next** (`checkin.next`). Defaults Good, Fine, None (Advisor A1). Pain Yes reveals the areas in place, two rows of three: Shoulder, Elbow, Wrist, Back, Knee, Other (`checkin.painArea.*`); no typing; nothing else moves. The pick swaps that area's exercises to their catalogue `swap` for 7 days, adds a What-changed line, and isn't asked again that week (Advisor 2). Energy Low **and** Sleep Poor together are one low-recovery signal for the existing drop-to-2 rule; either alone is noted for the Claude summary and changes nothing (Advisor 3).
 
 **Screen 2 · "Next week"** (`checkin.plan`): ① office day pills, pre-filled from last week (`sunday.day.*`, unchanged ids) ② "Early start or late finish?" folded (`sunday.times`) ③ What changed, at most 4 lines (`changes.card`, N2) ④ the week's sessions in one line. Primary **Looks good** (`checkin.done`). Back returns to screen 1 without losing answers.
 
