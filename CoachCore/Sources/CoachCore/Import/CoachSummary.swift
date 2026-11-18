@@ -24,6 +24,7 @@ public enum CoachSummary {
     /// Nil before onboarding sets a start date.
     public static func text(reason: Reason? = nil, programme: Programme, profile: Profile,
                             history: [SessionLog], weights: [WeightSample], steps: [StepCount] = [],
+                            meals: MealAdherence? = nil,
                             blocks: [CoachBlock], now: Date, calendar: Calendar = .current) -> String? {
         guard let start = profile.programme.startDate,
               let review = CoachReview.make(programme: programme, profile: profile, history: history,
@@ -60,7 +61,11 @@ public enum CoachSummary {
 
         lines.append("Food")
         lines.append("- Target: \(review.calories.summary) (\(reasonText(review.calories.reason)))")
-        lines.append("- Meals are planned and pre-ticked; unticked or swapped meals are adjusted in the app.")
+        if let meals {
+            lines.append(contentsOf: meals.lines)
+        } else {
+            lines.append("- Meals are planned and pre-ticked; unticked or swapped meals are adjusted in the app.")
+        }
         lines.append("")
 
         lines.append("Training (last 14 days)")
@@ -68,9 +73,8 @@ public enum CoachSummary {
         let recent = history.filter { $0.startedAt >= window && $0.startedAt <= now }
         let planned = plannedSessions(programme: programme, start: start, from: window, to: now, calendar: calendar)
         lines.append("- Sessions done: \(recent.filter(\.isComplete).count) of \(planned) planned")
-        let recovery = history.sorted { $0.startedAt < $1.startedAt }.compactMap(\.recovery).suffix(3)
-        if !recovery.isEmpty {
-            lines.append("- Recovery (last \(recovery.count)): " + recovery.map { $0 == .sore ? "Sore" : "Fine" }.joined(separator: ", "))
+        if let recovery = RecoverySummary.make(history: history, now: now, calendar: calendar) {
+            lines.append(recovery.line)
         }
         if !review.droppedSessions.isEmpty {
             lines.append("- Left out this week: " + review.droppedSessions.sorted().joined(separator: ", "))

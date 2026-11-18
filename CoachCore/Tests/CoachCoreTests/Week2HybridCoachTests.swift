@@ -141,7 +141,7 @@ import Testing
                                                   weights: weights, blocks: [], now: sunday, calendar: f.calendar))
         #expect(text.hasPrefix("HealthCoach · Check-in\nSun 29 Nov 2026 · Cut and rebuild, week 2 of 6"))
         #expect(text.contains("- Target: 2,000 kcal and 160 g protein a day (starting target)"))
-        #expect(text.contains("- Recovery (last 2): Fine, Fine"))
+        #expect(text.contains("- Recovery (last 14 days): 2 Fine, 0 Sore"))
         #expect(text.contains("  - dumbbell-bench-press: 10 kg × 9 reps"))
         #expect(text.contains(CoachImport.beginMarker))
         // Missed full body shows as a gap, not as anything to do.
