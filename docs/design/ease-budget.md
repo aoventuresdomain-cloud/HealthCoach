@@ -169,7 +169,7 @@ Round 1, 18 Nov. Critique: `/mnt/project-files/advisor/n9-ease-budget-critique.m
 | 6 | Steps information only, no ring or target colour | **Accepted** | §3 N1 |
 | — | Lunch row on Today, office days only | **Accepted** (already the fix) | §4 |
 | — | Shopping tab; "In the shop" as primary | **Accepted** | §4, §3 N5 |
-| — | Add D12 Easing back in, 0 taps, one line | **Changed**: added, but the threshold stays at 10 days, from your A2 answer and the merged N8 Done-when, so the spec and the engine agree. Move it to 7 through N8 if you want it changed | §2 D12 |
+| — | Add D12 Easing back in: 10+ days off, N8 bands (90/80/70%), 0 taps, one line | **Accepted** | §2 D12 |
 | — | Social-meal rebalance stays invisible, 0 taps | **Accepted** | §2 D13 |
 | — | Cut nothing | **Accepted** | |
 
