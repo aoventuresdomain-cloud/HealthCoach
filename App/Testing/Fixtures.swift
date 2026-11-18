@@ -70,8 +70,10 @@ struct Fixture {
         decoder.dateDecodingStrategy = .iso8601
         let extras = try decoder.decode(Logs.self, from: Data(contentsOf: url))
         let entries = (extras.logs ?? []).filter { $0.startedAt <= now }.sorted { $0.startedAt < $1.startedAt }
-        let programme = entries.contains { $0.allDone == true }
-            ? try BundledContent.load(bundle: bundle).programmes[profile.programme.programmeID] : nil
+        var programme: Programme?
+        if entries.contains(where: { $0.allDone == true }) {
+            programme = try BundledContent.load(bundle: bundle).programmes[profile.programme.programmeID]
+        }
         var logs: [SessionLog] = []
         for entry in entries {
             var log = SessionLog(programmeID: profile.programme.programmeID, sessionID: entry.sessionID, week: entry.week,
