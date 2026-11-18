@@ -231,6 +231,33 @@ import Testing
         #expect(NotificationPlanner.checkpoints(start: nil, now: start, through: date(2027, 6, 1), calendar: calendar).isEmpty)
     }
 
+    /// N7: every 2 weeks from the start, the morning of the photo day, matching
+    /// Progress's own photo-day card (PhotoSchedule), never in quiet hours.
+    @Test func aPhotoDayNotifiesEveryTwoWeeksOnTheMorning() {
+        let start = date(2026, 11, 16)
+        let out = NotificationPlanner.photoDays(start: start, now: date(2026, 11, 20, 9),
+                                                through: date(2026, 12, 31), calendar: calendar)
+        #expect(out.map(\.fireDate) == [date(2026, 11, 30, 7), date(2026, 12, 14, 7), date(2026, 12, 28, 7)])
+        #expect(out.allSatisfy { $0.kind == .photoDay && $0.title == "Photo day" })
+        #expect(out.allSatisfy { !QuietHours.contains($0.fireDate, calendar: calendar) })
+        #expect(Set(out.map(\.id)).count == out.count)
+        #expect(out.first?.id == "photoDay-2026-11-30")
+        // Each one falls on a day Progress shows as a photo day.
+        for n in out {
+            #expect(PhotoSchedule.isDue(on: n.fireDate, start: start, taken: [], calendar: calendar))
+            #expect(PhotoSchedule.blockStart(for: n.fireDate, start: start, calendar: calendar)
+                    == calendar.startOfDay(for: n.fireDate))
+        }
+        // Earlier the same morning it is still to come; after 07:00 it has gone.
+        #expect(NotificationPlanner.photoDays(start: start, now: date(2026, 11, 30, 6, 59),
+                                              through: date(2026, 11, 30), calendar: calendar).count == 1)
+        #expect(NotificationPlanner.photoDays(start: start, now: date(2026, 11, 30, 7, 1),
+                                              through: date(2026, 11, 30), calendar: calendar).isEmpty)
+        #expect(NotificationPlanner.photoDays(start: nil, now: start, through: date(2027, 6, 1), calendar: calendar).isEmpty)
+        // Only the reminder: nothing about weight, waist or the photos themselves.
+        #expect(out.allSatisfy { !$0.body.contains("kg") && !$0.body.contains("cm") })
+    }
+
     @Test func bothJoinThePlannedNotifications() throws {
         var profile = Profile()
         profile.programme.startDate = date(2026, 11, 16)
@@ -239,6 +266,7 @@ import Testing
                                                answers: { _ in WeekAnswers() }, calendar: calendar)
         #expect(out.contains { $0.kind == .deliveryReminder && $0.fireDate == date(2026, 12, 26, 19) })
         #expect(out.contains { $0.kind == .checkpoint && $0.fireDate == date(2026, 12, 26, 19) })
+        #expect(out.contains { $0.kind == .photoDay && $0.fireDate == date(2026, 12, 28, 7) })
         #expect(out.count <= NotificationPlanner.pendingLimit)
         #expect(out == out.sorted { $0.fireDate < $1.fireDate })
         #expect(out.allSatisfy { !QuietHours.contains($0.fireDate, calendar: calendar) })
