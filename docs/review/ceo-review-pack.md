@@ -82,7 +82,19 @@ The demo walkthrough of a typical week is the QA round's §A shots (`docs/qa/gat
 
 ## 5. Known issues
 
-TODO (QA): fill in after the round. List each open item with its severity, its owner and whether it blocks the phone install.
+The internal round passed on the review build (`6332a80`), with no blockers and no majors open. Full record: [`docs/qa/rounds/2026-11-18-gate-1-2.md`](../qa/rounds/2026-11-18-gate-1-2.md).
+
+| Issue | Severity | Owner | Blocks the phone install? |
+|---|---|---|---|
+| "Tomorrow changed" can't skip basketball yet, because that needs a new planner field (M2-06 follow-up) | minor | Planner Engineer | No |
+| One automated test (alarm permission) passes by retrying instead of waiting properly for the app to settle (QA-38) | minor | iOS Interface Engineer | No |
+| If you open the ⋯ menu in the first second after launch, it can close by itself; tap it again (QA-39) | trivial | iOS Interface Engineer | No |
+| GitHub's Mac build machines were short on 17 Nov, and one build needed three attempts. That's GitHub capacity, not our budget. | trivial | Head of Engineering | No |
+
+**Tested only in the simulator until the phone install** (needs the paid Apple account, your call in §6):
+- alarms firing for real on a locked phone, on Silent and in a Focus
+- the rest timer on the real lock screen and Dynamic Island
+- real weight and steps from your scale and Apple Health (the simulator uses sample data)
 
 ## 6. Decisions for you
 
