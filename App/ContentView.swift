@@ -74,6 +74,8 @@ private struct RootView: View {
                         }
                     }
                     .tabBarMinimizeBehavior(.onScrollDown)
+                    // N9: a tapped notification picks the tab; Today opens the Sunday check-in itself.
+                    .task(id: NotificationTaps.shared.pending) { openTapped() }
                     // UI-2: Start gets the medium impact as the session opens.
                     .sensoryFeedback(trigger: playing != nil) { _, started in started ? .impact(weight: .medium) : nil }
                     .fullScreenCover(item: $playing) { launch in
@@ -96,6 +98,19 @@ private struct RootView: View {
             }
         }
         .task { load() }
+    }
+
+    private func openTapped() {
+        switch NotificationTaps.shared.pending {
+        case nil: return
+        case .today, .sundayPrompt: tab = .today
+        case .meals: tab = .meals
+        case .askCoach:
+            showAskCoach = true
+            tab = .progress
+        }
+        // Today clears the Sunday check-in once it has opened it.
+        if NotificationTaps.shared.pending != .sundayPrompt { NotificationTaps.shared.pending = nil }
     }
 
     private func load() {

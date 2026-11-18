@@ -58,6 +58,14 @@ final class EaseBudget {
         if newScreen { screens += 1 }
     }
 
+    /// The notification tap that starts a notification job (W1, W5, F1, K3). The
+    /// test launches with `-openFrom notification:<kind>`, which routes exactly
+    /// as the real tap does (NotificationRoute), so there's no banner to tap:
+    /// this counts it as one system tap, size not checked.
+    func notificationTap() {
+        taps += 1
+    }
+
     /// Answers a system alert: one tap and one alert (E5), size not checked.
     func answerAlert(_ button: XCUIElement, newScreen: Bool = false,
                      file: StaticString = #filePath, line: UInt = #line) {

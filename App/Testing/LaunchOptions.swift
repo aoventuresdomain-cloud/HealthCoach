@@ -20,6 +20,7 @@ import Foundation
 ///     -missingAlarms               with -uitest: the fake alarm store starts empty, so Today says alarms
 ///                                  were missing and set again (otherwise it starts with the plan, QA-31)
 ///     -keepCoachBlocks             with -uitest: imported blocks survive the relaunch (A17 "next day" check)
+///     -openFrom notification:<kind>  with -uitest: start as if that notification was tapped (N9, W1/W5/F1/K3)
 ///
 /// Debug builds only. Release builds ignore every flag, like the Spike tests screen.
 struct LaunchOptions: Equatable {
@@ -33,6 +34,7 @@ struct LaunchOptions: Equatable {
     var clipboard: String?
     var keepCoachBlocks = false
     var missingAlarms = false
+    var openFrom: String?
 
     static let current = LaunchOptions(arguments: ProcessInfo.processInfo.arguments)
 
@@ -61,6 +63,7 @@ struct LaunchOptions: Equatable {
             ?? value(after: "-clipboard")
         keepCoachBlocks = arguments.contains("-keepCoachBlocks")
         missingAlarms = arguments.contains("-missingAlarms")
+        openFrom = value(after: "-openFrom")
         #endif
     }
 }

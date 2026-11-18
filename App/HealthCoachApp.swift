@@ -14,6 +14,7 @@ struct HealthCoachApp: App {
         // starts fresh (AppStore.recovery says so).
         container = AppStore.open(options: options)
         LiveActivityCleanup.endLeftoversAtLaunch()
+        NotificationTaps.shared.install(options: options)
         if options.isUITest {
             UIView.setAnimationsEnabled(false)
             if !options.keepCoachBlocks { CoachBlockStore.resetForUITest() }
