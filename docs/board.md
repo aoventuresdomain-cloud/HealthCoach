@@ -50,20 +50,22 @@ The CEO will decide when to pay. Everything else gets completed: (1) the coach c
 
 ### Wave 2: close the gap list (CEO, 18 Nov 07:45)
 
-The CEO said the app isn't close to the brief. Wave 2 comes from [`docs/review/gap-analysis-and-build-plan.md`](review/gap-analysis-and-build-plan.md) §5, and **its Done-when lines are the ones that count**. ETA: wave 2 merged by 18:00 on 19 Nov; QA-R4 and the Advisor's co-sign by 15:00 on 20 Nov; the CEO pack by 20:00 on 20 Nov. Wave 1 times above are provisional. Nothing is called complete until this list is closed.
+The CEO said the app isn't close to the brief. Advisor questions A1–A4 are answered (#92), so nothing is gated on the Advisor. Wave 2 comes from [`docs/review/gap-analysis-and-build-plan.md`](review/gap-analysis-and-build-plan.md) §5, and **its Done-when lines are the ones that count**. ETA: wave 2 merged by 18:00 on 19 Nov; QA-R4 and the Advisor's co-sign by 15:00 on 20 Nov; the CEO pack by 20:00 on 20 Nov. Wave 1 times above are provisional. Nothing is called complete until this list is closed.
 
 | ID | Item | Owner | Gate | Status |
 |---|---|---|---|---|
-| N1 | Sunday check-in (folds in the Sunday prompt) | Planner Engineer (core), iOS Interface Engineer (screen) | C1, Advisor A1 | todo |
+| N1 | Sunday check-in (folds in the Sunday prompt) | Planner Engineer (core), iOS Interface Engineer (screen) | C1 | todo |
 | N2 | "What changed and why" card | Coach Engineer (core), iOS Interface Engineer | C1 | todo |
 | N3 | Settings → Preferences: every survey module, re-plan from tomorrow | iOS Interface Engineer, Planner Engineer | — | todo |
 | N4 | Ask when needed: shop before the first list, office food on the first office day | Planner Engineer, iOS Interface Engineer | N3 | todo |
 | N5 | Grocery: send to Reminders, in-store mode, delivery reminder | iOS Interface Engineer, Planner Engineer | N4 | todo |
-| N6 | Recipe variety: no dinner repeats within 3 weeks | Researcher (Advisor reviews) | Advisor A4 | todo |
-| N7 | Photos: ghost outline, on-device alignment check, compare view, photo-day notification | iOS Interface Engineer | Advisor A3 | todo |
-| N8 | Easing back after a break | Planner Engineer | Advisor A2 | todo |
-| N9 | Ease budget: tap and time budget per job, UI tests, app icon | Product Designer (spec), iOS Interface Engineer, Head of QA | — | todo |
+| N6 | Recipe variety: no dinner repeats within 3 weeks | Researcher (Advisor reviews) | — | todo |
+| N7 | Photos: ghost outline, on-device alignment check, compare view, photo-day notification | iOS Interface Engineer | — | todo |
+| N8 | Easing back after a break | Coach Engineer (moved 18 Nov) | C1 | todo |
+| N9 | Ease budget: tap and time budget per job, UI tests, app icon | Product Designer (spec), iOS Interface Engineer, Head of QA | — | spec done (`docs/design/ease-budget.md`, #93, Advisor signed); tests and icon todo |
 | N10 | Checkpoint notification and Hyde Park run loops | Planner Engineer, Researcher (loops) | — | todo |
+| N9a | Office lunch row on Today's timeline (new TimelineItem `.lunch`) | Planner Engineer (core), iOS Interface Engineer | N9 spec | todo |
+| N9b | Shopping becomes its own tab (MealsUITests move from the segment) | iOS Interface Engineer | after C4, N4, N5 | todo |
 | N11 | Amazon basket spike (staples only; cut first if anything slips) | Planner Engineer, Researcher | N5 | todo |
 | QA-R4 | Full round on one build, reported from the user's side | Head of QA (Advisor co-signs) | all | todo |
 
