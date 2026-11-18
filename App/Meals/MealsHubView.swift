@@ -28,22 +28,18 @@ struct MealsHubView: View {
         let now = AppClock.now()
         let date = calendar.date(byAdding: .day, value: dayOffset, to: now) ?? now
         let monday = AlarmSchedule.mondayOf(date, calendar: calendar)
-        // The rules engine's calorie target when it has moved it (M4-01), else the content's.
-        let kcalTarget = content.programme(for: profile, on: date, calendar: calendar).flatMap { programme in
-            CoachReview.make(programme: programme, profile: profile,
-                             history: (try? SessionLogStore(context: context).all()) ?? [],
-                             weights: BodyStats.shared.weightSamples, blocks: CoachBlockStore().all,
-                             now: now, calendar: calendar)?.calories.kcal
-        }
         let answers = WeekAnswersStore.shared.answers(weekStarting: monday, calendar: calendar)
-        // C3: training days (sessions and basketball) take the extras first.
-        let trainingDays = content.programme(for: profile, on: date, calendar: calendar).map { programme in
-            WeekPlanner.plan(weekStarting: monday, programme: programme, profile: profile, answers: answers,
-                             calendar: calendar).trainingDays(programme: programme)
-        } ?? []
-        let plan = MealPlan.week(monday: monday, content: content.nutrition, lunchOrders: content.lunchOrders.orders,
-                                 answers: answers, programmeID: profile.programme.programmeID, kcalTarget: kcalTarget,
-                                 trainingDays: trainingDays, calendar: calendar)
+        // C1: the week shown is planned at the coach's target for that week (M4-01,
+        // imports included), so next week's meals follow Monday's check;
+        // C3: its training days take the extras first. C6: the phase in force that week.
+        let plan = content.programme(for: profile, on: date, calendar: calendar).map { programme in
+            MealPlan.coached(monday: monday, now: now, content: content.nutrition,
+                             lunchOrders: content.lunchOrders.orders, answers: answers, programme: programme,
+                             profile: profile, history: (try? SessionLogStore(context: context).all()) ?? [],
+                             weights: BodyStats.shared.weightSamples, blocks: CoachBlockStore().all,
+                             calendar: calendar)
+        } ?? MealPlan.week(monday: monday, content: content.nutrition, lunchOrders: content.lunchOrders.orders,
+                           answers: answers, programmeID: profile.programme.programmeID, calendar: calendar)
         VStack(spacing: 0) {
             Picker("Section", selection: $tab) {
                 ForEach(Tab.allCases) { Text($0.rawValue).tag($0) }
