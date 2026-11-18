@@ -65,6 +65,10 @@ struct OnboardingConfirmView: View {
             }
         }
         .listStyle(.insetGrouped)
+        // QA-36: rows scrolled up stop under a bar, not under the clock.
+        .safeAreaInset(edge: .top, spacing: 0) {
+            Color.clear.frame(height: 0).background(.bar, ignoresSafeAreaEdges: .top)
+        }
         .safeAreaInset(edge: .bottom) {
             ActionBar {
                 Button("Looks right", action: onConfirm)

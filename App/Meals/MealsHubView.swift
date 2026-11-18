@@ -165,19 +165,23 @@ struct MealsHubView: View {
         let aisles = items.reduce(into: [String]()) { if !$0.contains($1.aisle) { $0.append($1.aisle) } }
         let toGet = items.filter { !ticks.isTicked($0, week: monday, calendar: calendar) }.count
         return List {
-            if !items.isEmpty {
-                // UI-12: the shop is named once, with a count that shrinks as you tick.
-                Text("\(shopName) · \(toGet) to get")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .listRowBackground(Color.clear)
-                    .listRowInsets(EdgeInsets(top: 0, leading: Space.xs, bottom: 0, trailing: Space.xs))
-                    .accessibilityIdentifier("shopping.header")
-            }
-            ForEach(aisles, id: \.self) { aisle in
-                Section(aisle.prefix(1).uppercased() + aisle.dropFirst()) {  // QA-29: "Produce", not "produce"
+            ForEach(Array(aisles.enumerated()), id: \.element) { index, aisle in
+                Section {
                     ForEach(items.filter { $0.aisle == aisle }) { item in
                         shoppingRow(item, monday: monday)
+                    }
+                } header: {
+                    VStack(alignment: .leading, spacing: Space.m) {
+                        if index == 0 {
+                            // UI-12: the shop named once, with a count that shrinks as you tick.
+                            // QA-35: a header line like Meals' totals, not a list row (no gap).
+                            Text("\(shopName) · \(toGet) to get")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                                .textCase(nil)
+                                .accessibilityIdentifier("shopping.header")
+                        }
+                        Text(aisle.prefix(1).uppercased() + aisle.dropFirst())  // QA-29: "Produce", not "produce"
                     }
                 }
             }
@@ -317,12 +321,18 @@ struct RecipeView: View {
 
     var body: some View {
         List {
+            // QA-34: plain secondary text, not a card; it heads the ingredients.
             Section {
-                Text("\(recipe.minutes) min · makes \(recipe.portions) · \(recipe.perPortion.kcal) kcal, \(recipe.perPortion.protein) g protein each")
-                    .foregroundStyle(.secondary)
-            }
-            Section("Ingredients") {
                 ForEach(lines, id: \.self) { Text($0) }
+            } header: {
+                VStack(alignment: .leading, spacing: Space.m) {
+                    Text("\(recipe.minutes) min · makes \(recipe.portions) · \(recipe.perPortion.kcal) kcal, \(recipe.perPortion.protein) g protein each")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .textCase(nil)
+                        .accessibilityIdentifier("recipe.meta")
+                    Text("Ingredients")
+                }
             }
             Section("Method") {
                 ForEach(Array(recipe.method.enumerated()), id: \.offset) { index, step in
