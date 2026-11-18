@@ -23,6 +23,8 @@ public struct PlannedMeal: Sendable, Equatable, Identifiable {
     /// Only when the meal has a set time (the Wednesday snack before basketball).
     public let time: TimeOfDay?
     public var ticked = true
+    /// C4: a social meal, 1,000 kcal untracked, in place of the planned dinner.
+    public var isSocial = false
 
     /// Unique within a day (a day can have two extras).
     public var id: String { slot == .extra ? "extra-\(recipeID ?? name)" : slot.rawValue }
@@ -32,7 +34,7 @@ public struct PlannedMeal: Sendable, Equatable, Identifiable {
 public struct MealDay: Sendable, Equatable {
     public let date: Date
     public let weekday: Weekday
-    public let meals: [PlannedMeal]
+    public internal(set) var meals: [PlannedMeal]
     public let target: NutritionContent.DailyTarget
     /// One pre-ticked line with breakfast ("Creatine 5 g, vitamin D 10 µg").
     public let supplements: [String]
