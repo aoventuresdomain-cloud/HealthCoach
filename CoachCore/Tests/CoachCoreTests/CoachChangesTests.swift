@@ -183,4 +183,33 @@ import Testing
         #expect(swaps.allSatisfy { $0.line.hasSuffix("easier on the shoulder") }, "\(swaps.map(\.line))")
         #expect(Set(swaps.map(\.line)).count == swaps.count, "one line per exercise")
     }
+
+    /// A Sunday check-in covers the week ahead: its brisk walk is next week's
+    /// run-walk length; mid-week it is this week's.
+    @Test func sundayCheckInTakesNextWeeksWalk() throws {
+        let p = try f.phase1()
+        let lib = try ContentLibrary.load(from: contentRoot)
+        func minutes(week: Int) throws -> Int {
+            let (id, run) = try #require(p.sessions.sorted { $0.key < $1.key }.lazy.compactMap { id, s -> (String, RunWalkSession)? in
+                if case let .runWalk(r) = s { (id, r) } else { nil }
+            }.first)
+            let plan = try #require(RunWalkPlan.briskWalk(sessionID: id, session: run, week: week))
+            return plan.segments.reduce(0) { $0 + $1.seconds } / 60
+        }
+        func walkLine(at now: Date) -> String? {
+            CoachChanges.make(programme: p, profile: f.profile(), history: [], weights: [], blocks: [],
+                              checkIns: [CheckIn(date: now, pain: [.knee])], exercises: lib.exercises, now: now,
+                              name: { lib.exercises.exercise($0)?.name ?? $0 }, calendar: f.calendar)
+                .first { $0.kind == .runWalk }?.line
+        }
+        let (w1, w2, w3) = (try minutes(week: 1), try minutes(week: 2), try minutes(week: 3))
+        // Sunday of week 1 (22 Nov) and of week 2: next week's walk.
+        #expect(walkLine(at: f.day(6, hour: 18))?.contains("brisk \(w2)-minute walk") == true,
+                "\(walkLine(at: f.day(6, hour: 18)) ?? "nil") vs week 2 \(w2)")
+        #expect(walkLine(at: f.day(13, hour: 18))?.contains("brisk \(w3)-minute walk") == true)
+        // Mid-week (Wednesday of week 2): this week's.
+        #expect(walkLine(at: f.day(9, hour: 12))?.contains("brisk \(w2)-minute walk") == true)
+        // The weeks this test leans on really differ, so it would catch the old behaviour.
+        #expect(w1 != w2 || w2 != w3, "weeks 1–3 all \(w1) min")
+    }
 }
