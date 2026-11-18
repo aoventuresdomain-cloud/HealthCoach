@@ -105,6 +105,9 @@ struct PhotoCompareView: View {
         guard let trend = BodyStats.shared.weight else { return nil }
         let change = WeightTrend.changeSinceStart(samples: BodyStats.shared.weightHistory, start: start,
                                                   now: AppClock.now(), calendar: calendar)
-        return "\(WeightTrend.oneDecimal(trend.averageKg)) kg · \(WeightTrend.heroSubline(changeSinceStart: change))"
+        var line = "\(WeightTrend.oneDecimal(trend.averageKg)) kg · \(WeightTrend.heroSubline(changeSinceStart: change))"
+        // N7: the waist joins the same line when it is on.
+        if WaistStore.shared.isOn, let waist = WaistStore.shared.last { line += " · waist \(WaistStore.text(waist.cm))" }
+        return line
     }
 }

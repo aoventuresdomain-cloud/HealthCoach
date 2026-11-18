@@ -18,6 +18,7 @@ struct PreferencesView: View {
 
     @Environment(\.dismiss) private var dismiss
     @State private var draft: Profile
+    @State private var waistOn = WaistStore.shared.isOn
 
     /// Onboarding's modules, less the start date (only the app moves the programme), plus foods.
     static let rows: [ProfileRow] = [.you, .goal, .hurts, .sleep, .work, .office, .fixed,
@@ -59,6 +60,11 @@ struct PreferencesView: View {
                     Text("Changes start tomorrow.")
                         .accessibilityIdentifier("prefs.fromTomorrow")
                 }
+                Section {
+                    // N7: optional, off by default (Advisor 5). Applies on the next photo day.
+                    Toggle("Waist on photo day", isOn: $waistOn)
+                        .accessibilityIdentifier("prefs.waist")
+                }
             }
             .listStyle(.insetGrouped)
             .navigationTitle("Preferences")
@@ -70,6 +76,7 @@ struct PreferencesView: View {
                 }
             }
             .onChange(of: draft.preferences) { _, edited in onChange(edited) }
+            .onChange(of: waistOn) { _, on in WaistStore.shared.isOn = on }
         }
     }
 

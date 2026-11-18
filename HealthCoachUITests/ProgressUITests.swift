@@ -49,6 +49,7 @@ final class ProgressUITests: XCTestCase {
         XCTAssertTrue(save.waitForExistence(timeout: 8), "no review screen after both poses")
         XCTAssertEqual(app.buttons["photo.retake.front"].label, "Retake")
         XCTAssertEqual(app.buttons["photo.retake.side"].label, "Retake")
+        XCTAssertFalse(app.descendants(matching: .any)["photo.waist"].exists, "waist is off by default")
         attach(app, "photo-day")
         save.tap()
 
@@ -56,6 +57,44 @@ final class ProgressUITests: XCTestCase {
         XCTAssertTrue(app.descendants(matching: .any)["progress.nextPhotos"].waitForExistence(timeout: 5))
         XCTAssertFalse(photoDay.exists)
         attach(app, "progress-after-photos")
+    }
+
+    /// N7: with the waist turned on in Preferences, the review has a stepper
+    /// pre-filled at 90 cm, in 0.5 cm steps, with the measuring line; no typing.
+    @MainActor
+    func testWaistStepperOnPhotoDay() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uitest", "-now", "2026-11-23T07:00:00Z", "-fixture", "week1-monday"]
+        app.launch()
+        XCTAssertTrue(app.staticTexts["today.title"].waitForExistence(timeout: 15))
+        app.buttons["today.more"].tap()
+        app.buttons["today.settings"].tap()
+        let toggle = app.switches["prefs.waist"]
+        for _ in 0..<4 where !(toggle.waitForExistence(timeout: 1) && toggle.isHittable) { app.swipeUp() }
+        XCTAssertEqual(toggle.value as? String, "0", "waist is off by default")
+        toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.5)).tap()
+        XCTAssertEqual(toggle.value as? String, "1")
+        app.buttons["prefs.done"].tap()
+
+        app.tabBars.buttons["Progress"].tap()
+        let photoDay = app.buttons["progress.photoDay"]
+        XCTAssertTrue(photoDay.waitForExistence(timeout: 5))
+        photoDay.tap()
+        XCTAssertTrue(app.buttons["photo.take.front"].waitForExistence(timeout: 5))
+        app.buttons["photo.take.front"].tap()
+        let side = app.buttons["photo.take.side"]
+        XCTAssertTrue(side.waitForExistence(timeout: 8))
+        side.tap()
+        let waist = app.descendants(matching: .any)["photo.waist"]
+        XCTAssertTrue(waist.waitForExistence(timeout: 8), "no waist row with the waist on")
+        XCTAssertTrue(app.staticTexts["At the navel, after breathing out"].exists)
+        XCTAssertEqual(waist.value as? String, "90.0 cm")
+        app.steppers["photo.waist"].buttons.element(boundBy: 1).tap()
+        XCTAssertEqual(waist.value as? String, "90.5 cm")
+        XCTAssertEqual(app.keyboards.count, 0, "no typing (E4)")
+        attach(app, "photo-waist")
+        app.buttons["photo.save"].tap()
+        XCTAssertTrue(app.descendants(matching: .any)["progress.nextPhotos"].waitForExistence(timeout: 5))
     }
 
     /// N7: Photos opens straight onto a compare of the latest set against

@@ -19,6 +19,8 @@ struct PhotoDayView: View {
     /// The pose being shot; nil shows the review.
     @State private var shooting: ProgressStore.Pose? = .front
     @State private var error: String?
+    /// N7: the waist row, only when turned on in Preferences; pre-filled with the last value.
+    @State private var waistCm = WaistStore.shared.last?.cm ?? WaistStore.firstGuessCm
 
     private var store: ProgressStore { .shared }
 
@@ -69,6 +71,9 @@ struct PhotoDayView: View {
                         .frame(maxWidth: .infinity)
                     }
                 }
+                if WaistStore.shared.isOn {
+                    waistRow
+                }
                 if let error {
                     Text(error).foregroundStyle(.orange).accessibilityIdentifier("photo.error")
                 }
@@ -93,10 +98,33 @@ struct PhotoDayView: View {
         }
     }
 
+    /// A stepper in 0.5 cm steps, so no typing (E4), with the one measuring rule.
+    private var waistRow: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Stepper(value: $waistCm, in: WaistStore.range, step: WaistStore.stepCm) {
+                HStack {
+                    Text("Waist")
+                    Spacer()
+                    Text(WaistStore.text(waistCm)).monospacedDigit()
+                }
+            }
+            .accessibilityValue(WaistStore.text(waistCm))
+            .accessibilityIdentifier("photo.waist")
+            Text("At the navel, after breathing out")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+        }
+        .padding(16)
+        .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 14))
+    }
+
     private func save() {
         do {
             for (pose, image) in images {
                 try store.save(image, pose: pose, on: date, calendar: calendar)
+            }
+            if WaistStore.shared.isOn {
+                WaistStore.shared.save(waistCm, on: date, calendar: calendar)
             }
             dismiss()
         } catch {
