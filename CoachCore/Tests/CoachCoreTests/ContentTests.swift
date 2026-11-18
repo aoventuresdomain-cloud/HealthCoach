@@ -45,6 +45,28 @@ let contentRoot = URL(fileURLWithPath: #filePath)
         #expect(phase1.problems(against: library.exercises).isEmpty)
         #expect(phase1.schedule.allSatisfy { $0.days.count == 7 })
     }
+
+    /// Board C5: Phases 2 and 3 validate, keep the main-lift ids so loads carry over (C6),
+    /// and keep Wednesday for basketball only.
+    @Test(arguments: [("phase-2", 8), ("phase-3", 6)])
+    func laterPhasesLoadAndValidate(id: String, weeks: Int) throws {
+        let library = try ContentLibrary.load(from: contentRoot)
+        let programme = try #require(library.programmes[id])
+        #expect(programme.weeks == weeks)
+        #expect(programme.dumbbellLimitKg == 24)
+        #expect(programme.problems().isEmpty)
+        #expect(programme.problems(against: library.exercises).isEmpty)
+        #expect(programme.schedule.allSatisfy { $0.days.count == 7 && $0.days[.wednesday] == .some("basketball") })
+        let phase1 = try #require(library.programmes["phase-1"])
+        for session in ["upper-a", "upper-b", "full-body"] {
+            func mainLift(_ p: Programme) -> String? {
+                guard case .strength(let s)? = p.sessions[session] else { return nil }
+                return s.blocks.first?.items.first?.exercise
+            }
+            #expect(mainLift(programme) != nil)
+            #expect(mainLift(programme) == mainLift(phase1), "\(id) \(session) main lift changed")
+        }
+    }
 }
 
 @Suite struct VersionedDecodingTests {
