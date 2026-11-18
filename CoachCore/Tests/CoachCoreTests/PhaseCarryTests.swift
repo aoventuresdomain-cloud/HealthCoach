@@ -168,3 +168,44 @@ extension StrengthItem {
         programme.strengthItems.first { $0.exercise == exercise }!
     }
 }
+
+/// HoE: the alarm horizon plans each day from the phase in force that day, so
+/// the Sunday of week 6 sets Monday of week 7 (and on) from Phase 2.
+@Suite struct PhaseAlarmTests {
+    private var calendar: Calendar {
+        var c = Calendar(identifier: .gregorian)
+        c.timeZone = TimeZone(identifier: "Europe/London")!
+        return c
+    }
+
+    private func at(_ y: Int, _ m: Int, _ d: Int, _ h: Int = 0) -> Date {
+        calendar.date(from: DateComponents(year: y, month: m, day: d, hour: h))!
+    }
+
+    @Test func sundayOfWeek6PlansMondayOfWeek7FromPhase2() throws {
+        let lib = try ContentLibrary.load(from: contentRoot)
+        var profile = Profile()
+        profile.confirmed = true
+        profile.programme.startDate = at(2026, 11, 16)          // plan week 1
+        profile.programme.confirmedOn = at(2026, 11, 15, 18)
+        let now = at(2026, 12, 27, 18)                           // Sunday of week 6
+        let p1 = try #require(lib.programme(for: profile, on: now, calendar: calendar))
+        #expect(p1.id == "phase-1")
+        let p2 = try #require(lib.programmes["phase-2"])
+        let alarms = AlarmSchedule.make(now: now, programme: p1, profile: profile, answers: { _ in WeekAnswers() },
+                                        programmeOn: { lib.programme(for: profile, on: $0, calendar: calendar) },
+                                        calendar: calendar)
+
+        // Every alarm from Monday 28 Dec is exactly Phase 2's for that day.
+        let monday = at(2026, 12, 28)
+        let phase2Week = WeekPlanner.plan(weekStarting: monday, programme: p2, profile: profile,
+                                          answers: WeekAnswers(), now: now, calendar: calendar)
+        let expected = phase2Week.days.compactMap { AlarmSchedule.alarm(for: $0, programme: p2, calendar: calendar) }
+        let got = alarms.filter { $0.fireDate >= monday && $0.fireDate < at(2027, 1, 4) }
+        #expect(!expected.isEmpty)
+        #expect(got == expected)
+        let mondayAlarm = try #require(got.first { calendar.isDate($0.fireDate, inSameDayAs: monday) })
+        #expect(p2.plannedDay(on: monday, start: profile.programme.startDate!, calendar: calendar).week == 1)
+        #expect(mondayAlarm == expected.first { calendar.isDate($0.fireDate, inSameDayAs: monday) })
+    }
+}

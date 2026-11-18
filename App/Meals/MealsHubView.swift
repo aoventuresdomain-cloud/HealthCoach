@@ -37,9 +37,12 @@ struct MealsHubView: View {
                              lunchOrders: content.lunchOrders.orders, answers: answers, programme: programme,
                              profile: profile, history: (try? SessionLogStore(context: context).all()) ?? [],
                              weights: BodyStats.shared.weightHistory, blocks: CoachBlockStore().all,
+                             // N3: each day's dislikes, so an edit applies from tomorrow.
+                             dislikes: { profile.dislikes(on: $0, calendar: calendar) },
                              calendar: calendar)
         } ?? MealPlan.week(monday: monday, content: content.nutrition, lunchOrders: content.lunchOrders.orders,
-                           answers: answers, programmeID: profile.programme.programmeID, calendar: calendar)
+                           answers: answers, programmeID: profile.programme.programmeID,
+                           dislikes: { profile.dislikes(on: $0, calendar: calendar) }, calendar: calendar)
         VStack(spacing: 0) {
             Picker("Section", selection: $tab) {
                 ForEach(Tab.allCases) { Text($0.rawValue).tag($0) }

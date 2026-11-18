@@ -25,3 +25,7 @@
 - What doesn't fit is absorbed. Nothing carries into next week.
 
 `SocialMeals.count` gives "1 of 2". A third is allowed, and `CoachSummary.text(socialMeals:)` flags it.
+
+## Dislikes (N3, Advisor A4f)
+
+`Profile.food.dislikes` is the owner's list from Settings → Preferences, empty by default. A recipe, extra, snack or office lunch order is never planned when an entry starts a word of its name or of any ingredient's name or id, ignoring case and accents ("mushroom" leaves out chestnut mushrooms). An office day with every lunch order disliked gets a home lunch to take in. The recipe box night is outside the list. Like every Preferences edit, a change applies from the next day: `MealPlan.week(dislikes:)` takes each day's list from `Profile.dislikes(on:)`.

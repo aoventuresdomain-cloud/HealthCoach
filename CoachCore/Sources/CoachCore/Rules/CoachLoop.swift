@@ -13,7 +13,8 @@ extension MealPlan {
     public static func coached(monday: Date, now: Date, content: NutritionContent, lunchOrders: [LunchOrder],
                                answers: WeekAnswers, programme: Programme, profile: Profile,
                                history: [SessionLog], weights: [WeightSample], blocks: [CoachBlock],
-                               boxNights: Set<Weekday>? = nil, calendar: Calendar = .current) -> MealPlan {
+                               boxNights: Set<Weekday>? = nil, dislikes: (Date) -> [String] = { _ in [] },
+                               calendar: Calendar = .current) -> MealPlan {
         let start = calendar.startOfDay(for: monday)
         let next = calendar.date(byAdding: .day, value: 7, to: start) ?? start
         let at = (start..<next).contains(now) ? now : start
@@ -24,7 +25,7 @@ extension MealPlan {
                                             answers: answers, calendar: calendar).trainingDays(programme: programme)
         return week(monday: start, content: content, lunchOrders: lunchOrders, answers: answers,
                     programmeID: programme.id, kcalTarget: kcal, trainingDays: trainingDays,
-                    boxNights: boxNights, calendar: calendar)
+                    boxNights: boxNights, dislikes: dislikes, calendar: calendar)
     }
 }
 
