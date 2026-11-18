@@ -22,6 +22,7 @@ struct MealsHubView: View {
 
     private let calendar = Calendar.coach
     private var ticks: MealTicks { .shared }
+    private var social: SocialMealStore { .shared }
 
     var body: some View {
         let _ = version
@@ -32,7 +33,7 @@ struct MealsHubView: View {
         // C1: the week shown is planned at the coach's target for that week (M4-01,
         // imports included), so next week's meals follow Monday's check;
         // C3: its training days take the extras first. C6: the phase in force that week.
-        let plan = content.programme(for: profile, on: date, calendar: calendar).map { programme in
+        let basePlan = content.programme(for: profile, on: date, calendar: calendar).map { programme in
             MealPlan.coached(monday: monday, now: now, content: content.nutrition,
                              lunchOrders: content.lunchOrders.orders, answers: answers, programme: programme,
                              profile: profile, history: (try? SessionLogStore(context: context).all()) ?? [],
@@ -43,6 +44,8 @@ struct MealsHubView: View {
         } ?? MealPlan.week(monday: monday, content: content.nutrition, lunchOrders: content.lunchOrders.orders,
                            answers: answers, programmeID: profile.programme.programmeID,
                            dislikes: { profile.dislikes(on: $0, calendar: calendar) }, calendar: calendar)
+        // C4: a social meal replaces that day's dinner; the rest of the week trims a little.
+        let plan = basePlan.withSocialMeals(social.dates(calendar: calendar), calendar: calendar)
         VStack(spacing: 0) {
             Picker("Section", selection: $tab) {
                 ForEach(Tab.allCases) { Text($0.rawValue).tag($0) }
@@ -53,7 +56,7 @@ struct MealsHubView: View {
             .accessibilityIdentifier("meals.tabs")
 
             switch tab {
-            case .meals: meals(plan.day(date, calendar: calendar), date: date)
+            case .meals: meals(plan.day(date, calendar: calendar), date: date, monday: monday)
             case .shopping: shopping(plan, monday: monday)
             case .lunch: lunch(plan.day(now, calendar: calendar))
             }
@@ -86,7 +89,7 @@ struct MealsHubView: View {
     // MARK: Meals
 
     @ViewBuilder
-    private func meals(_ day: MealDay?, date: Date) -> some View {
+    private func meals(_ day: MealDay?, date: Date, monday: Date) -> some View {
         List {
             if let day {
                 let eaten = day.meals.filter { ticks.isTicked($0, on: date, calendar: calendar) }
@@ -112,8 +115,35 @@ struct MealsHubView: View {
                         Text("Planned meals count as eaten. Untick anything you skipped.")
                     }
                 }
+                socialRow(date: date, monday: monday, isSocial: day.isSocial)
             } else {
                 Text("No meal plan for this day.").foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    /// C4: one tap for dinner out, with the week's count beside it ("1 of 2").
+    /// A third is allowed; the count turns orange and the coach summary says so.
+    private func socialRow(date: Date, monday: Date, isSocial: Bool) -> some View {
+        let count = SocialMeals.count(social.dates(calendar: calendar), weekOf: monday, calendar: calendar)
+        return Section {
+            HStack {
+                Button {
+                    social.toggle(date, calendar: calendar)
+                    version += 1
+                } label: {
+                    Label(isSocial ? "Undo social meal" : "Social meal",
+                          systemImage: isSocial ? "arrow.uturn.backward" : "fork.knife.circle")
+                        .frame(minHeight: 44)
+                }
+                .buttonStyle(.borderless) // only the button taps, not the whole row
+                .accessibilityHint(isSocial ? "Puts the planned dinner back" : "Dinner out instead of the planned one")
+                .accessibilityIdentifier("meals.social")
+                Spacer()
+                Text("\(count.text) this week")
+                    .font(.subheadline.monospacedDigit())
+                    .foregroundStyle(count.flagged ? Color.caution : Color.secondary)
+                    .accessibilityIdentifier("meals.socialCount")
             }
         }
     }

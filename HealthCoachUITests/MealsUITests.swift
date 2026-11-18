@@ -35,6 +35,46 @@ final class MealsUITests: XCTestCase {
         attach(app, "recipe")
     }
 
+    /// C4: one tap on Friday swaps the planned dinner for a social meal and
+    /// counts it ("1 of 2"); a third that week is allowed and still counted.
+    @MainActor
+    func testSocialMealReplacesDinnerAndCounts() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uitest", "-now", "2026-11-27T07:00:00Z", "-fixture", "week1-monday"]
+        app.launch()
+        XCTAssertTrue(app.staticTexts["today.title"].waitForExistence(timeout: 15))
+        app.tabBars.buttons["Meals"].tap()
+
+        let dinner = app.buttons["meals.row.dinner"]
+        let social = app.buttons["meals.social"]
+        let count = app.staticTexts["meals.socialCount"]
+        func reveal(_ element: XCUIElement) {
+            var swipes = 0
+            while !element.isHittable, swipes < 4 { app.swipeUp(); swipes += 1 }
+        }
+        XCTAssertTrue(dinner.waitForExistence(timeout: 5))
+        XCTAssertFalse(dinner.label.contains("Social meal"), dinner.label)
+        reveal(social)
+        XCTAssertEqual(count.label, "0 of 2 this week")
+
+        social.tap()
+        XCTAssertTrue(dinner.label.contains("Social meal"), "Friday's dinner wasn't replaced: \(dinner.label)")
+        XCTAssertEqual(count.label, "1 of 2 this week")
+        XCTAssertEqual(social.label, "Undo social meal")
+        attach(app, "meals-social")
+
+        // Saturday and Sunday too: the third is allowed and shows "3 of 2".
+        for _ in 0..<2 {
+            app.buttons["meals.nextDay"].tap()
+            reveal(social)
+            social.tap()
+        }
+        XCTAssertEqual(count.label, "3 of 2 this week")
+        // And one tap undoes it.
+        social.tap()
+        XCTAssertEqual(count.label, "2 of 2 this week")
+    }
+
     @MainActor
     func testShoppingTicksAndLunchList() throws {
         let app = openMeals()

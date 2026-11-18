@@ -144,11 +144,13 @@ struct ProgressScreen: View {
                                      answers: WeekAnswersStore.shared.answers(weekStarting: monday, calendar: calendar),
                                      programme: programme, profile: profile, history: history, weights: weights,
                                      blocks: blocks, calendar: calendar)
+                        .withSocialMeals(SocialMealStore.shared.dates(calendar: calendar), calendar: calendar)
                 }, isTicked: { day, meal in MealTicks.shared.isTicked(meal, on: day.date, calendar: calendar) },
                 calendar: calendar)
                 if let summary = CoachSummary.text(programme: programme, profile: profile, history: history,
-                                                   weights: weights, meals: meals, blocks: blocks, now: now,
-                                                   calendar: calendar) {
+                                                   weights: weights, meals: meals, blocks: blocks,
+                                                   socialMeals: SocialMealStore.shared.dates(calendar: calendar),
+                                                   now: now, calendar: calendar) {
                     ShareLink(item: summary) {
                         Label("Ask the coach now", systemImage: "bubble.left.and.text.bubble.right")
                     }
