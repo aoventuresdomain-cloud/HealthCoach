@@ -35,7 +35,8 @@ public struct DayPlan: Equatable, Sendable {
     }
 
     public struct TimelineItem: Equatable, Sendable, Identifiable {
-        public enum Kind: String, Sendable { case wake, session, fixed, leave, windDown }
+        /// `lunch`: N9a, the office lunch order on an office day (`withOfficeLunch`).
+        public enum Kind: String, Sendable { case wake, session, fixed, leave, lunch, windDown }
         public let kind: Kind
         /// nil for a fixed event with only a part of day ("evening").
         public let time: TimeOfDay?

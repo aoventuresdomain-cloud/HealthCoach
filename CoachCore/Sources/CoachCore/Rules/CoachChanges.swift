@@ -125,7 +125,12 @@ public enum CoachChanges {
         guard !areas.isEmpty else { return [] }
         var out: [CoachChange] = []
 
-        if let week = programme.plannedDay(on: now, start: start, calendar: calendar).week {
+        // A Sunday check-in's pain covers the week ahead, so its walk is next week's.
+        let isSunday = Weekday(calendarWeekday: calendar.component(.weekday, from: now)) == .sunday
+        let planDay = isSunday ? (calendar.date(byAdding: .day, value: 1, to: now) ?? now) : now
+        // The phase's last Sunday has no next week here: keep this week's.
+        if let week = programme.plannedDay(on: planDay, start: start, calendar: calendar).week
+            ?? programme.plannedDay(on: now, start: start, calendar: calendar).week {
             let walk = programme.sessions.sorted { $0.key < $1.key }.lazy.compactMap { id, session -> Int? in
                 guard case let .runWalk(run) = session,
                       let plan = RunWalkPlan.briskWalk(sessionID: id, session: run, week: week) else { return nil }

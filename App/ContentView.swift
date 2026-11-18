@@ -60,6 +60,10 @@ private struct RootView: View {
                                     tab = .progress
                                 } onPreferencesChange: { edited in
                                     savePreferences(edited, content: content, programme: programme)
+                                } onLunchWalk: { walk in
+                                    // N4: the same answer path as Meals' question.
+                                    answerFood({ $0.officeLunchMaxWalkMinutes = walk },
+                                               profile: profile, content: content, programme: programme)
                                 }
                             }
                         }
