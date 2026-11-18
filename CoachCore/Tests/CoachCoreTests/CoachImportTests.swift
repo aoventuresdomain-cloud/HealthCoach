@@ -159,6 +159,11 @@ import Testing
         #expect(try rejected(block("\"dailyKcal\": 1700")) == .invalid(["dailyKcal 1700 is outside 1,850–2,200"]))
         #expect(try rejected(block("\"dailyKcal\": 2300")) == .invalid(["dailyKcal 2300 is outside 1,850–2,200"]))
         #expect(try rejected(block("\"proteinG\": 200")) == .invalid(["proteinG 200 is outside 140–180"]))
+        // QA-R3-2: one either side of each edge.
+        #expect(try rejected(block("\"dailyKcal\": 1849")) == .invalid(["dailyKcal 1849 is outside 1,850–2,200"]))
+        #expect(try rejected(block("\"dailyKcal\": 2201")) == .invalid(["dailyKcal 2201 is outside 1,850–2,200"]))
+        #expect(try rejected(block("\"proteinG\": 139")) == .invalid(["proteinG 139 is outside 140–180"]))
+        #expect(try rejected(block("\"proteinG\": 181")) == .invalid(["proteinG 181 is outside 140–180"]))
         #expect(try outcome(block("\"dailyKcal\": 1850, \"proteinG\": 140")).accepted != nil)
         #expect(try outcome(block("\"dailyKcal\": 2200, \"proteinG\": 180")).accepted != nil)
     }
