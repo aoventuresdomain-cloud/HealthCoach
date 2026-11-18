@@ -46,7 +46,9 @@ jobs:
     # Any label but `ready` changes nothing worth a macOS run.
     if: github.event.action != 'labeled' || github.event.label.name == 'ready'
     runs-on: macos-26
-    timeout-minutes: 40
+    # 18 Nov: the UI suite is ~19-23 min on a slow runner and grows with each wave 2 screen;
+    # 40 min was hit on #102. macOS minutes are free on this public repo.
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
         with:
@@ -121,7 +123,7 @@ jobs:
             -derivedDataPath build \
             -only-testing:HealthCoachUITests \
             -resultBundlePath ui-tests.xcresult \
-            | tee uitests.log | grep -E "Test (Case|Suite).*(passed|failed)|error:|\*\* TEST" || true
+            | tee uitests.log | grep -E "Test Case .* started|Test (Case|Suite).*(passed|failed)|Executed [0-9]+ tests?|error:|\*\* TEST" || true
           grep -q "\*\* TEST EXECUTE SUCCEEDED \*\*" uitests.log
 
       - name: Upload UI test results

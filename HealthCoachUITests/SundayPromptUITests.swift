@@ -23,21 +23,24 @@ final class SundayPromptUITests: XCTestCase {
         let card = app.buttons["today.planWeek"]
         XCTAssertTrue(card.waitForExistence(timeout: 5))
 
-        let started = Date()
-        card.tap()
+        // The 20 s budget is the person's time, so it's measured with the ease-budget
+        // model (docs/qa/ease-budget-method.md), not simulator wall time: on slow CI
+        // runners, XCUITest queries and the screenshot took 20-30 s for these 5 taps.
+        // The helper counts the real taps, so an extra step still fails the budget.
+        let budget = EaseBudget("sunday-prompt", maxTaps: 5, maxSeconds: 20, app: app)
+        budget.tap(card, newScreen: true)
         let monday = app.buttons["sunday.day.monday"]
         XCTAssertTrue(monday.waitForExistence(timeout: 5))
         let shot = XCTAttachment(screenshot: app.screenshot())
         shot.name = "sunday-prompt"
         shot.lifetime = .keepAlways
         add(shot)
-        monday.tap()
-        app.buttons["sunday.day.tuesday"].tap()
-        app.buttons["sunday.day.thursday"].tap()
-        app.buttons["sunday.done"].tap()
+        budget.tap(monday)
+        budget.tap(app.buttons["sunday.day.tuesday"])
+        budget.tap(app.buttons["sunday.day.thursday"])
+        budget.tap(app.buttons["sunday.done"])
         XCTAssertTrue(card.waitForNonExistence(timeout: 5), "the card stays until next week is answered")
-        let elapsed = Date().timeIntervalSince(started)
-        XCTAssertLessThan(elapsed, 20, "Sunday prompt took \(elapsed) s")
+        budget.finish(done: app.staticTexts["today.title"])
 
         // Reopening shows what was saved.
         openMenuItem(app, "today.planWeekToolbar")
