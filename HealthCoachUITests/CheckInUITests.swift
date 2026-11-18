@@ -74,6 +74,12 @@ final class CheckInUITests: XCTestCase {
         XCTAssertTrue(app.buttons["sunday.day.monday"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["sunday.day.monday"].isSelected)
         app.buttons["sunday.cancel"].tap()
+
+        // W6 (N2): Progress says what changed, the knee's brisk walk included. 1 tap, 5 s.
+        let budget = EaseBudget("what-changed", maxTaps: 1, maxSeconds: 5, app: app)
+        budget.tap(app.tabBars.buttons["Progress"], newScreen: true, system: true)
+        budget.finish(done: app.descendants(matching: .any)["changes.card"])
+        XCTAssertTrue(app.descendants(matching: .any)["checkin.runWalkLine"].exists)
     }
 
     /// W1, ordinary week: card, Next, Looks good. 3 taps, 60 s, ending on
