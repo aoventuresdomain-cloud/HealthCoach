@@ -124,7 +124,7 @@ struct TodayView: View {
         }
         .sheet(item: $checkInWeek) { week in
             CheckInView(monday: week.monday, programme: programme, profile: profile, history: history,
-                        changes: changes(history: history, now: now),
+                        changes: { changes(history: history, now: now, answering: $0) },
                         initialWeek: WeekAnswersStore.shared.answers(weekStarting: week.monday, calendar: calendar)) { checkIn, answers in
                 CheckInStore.shared.save(checkIn, weekStarting: week.monday, calendar: calendar)
                 save(answers, weekStarting: week.monday)
@@ -228,9 +228,13 @@ struct TodayView: View {
     }
 
     /// N2: what the coach changed this week, for check-in screen 2.
-    private func changes(history: [SessionLog], now: Date) -> [CoachChange] {
-        CoachChanges.make(programme: programme, profile: profile, history: history,
-                          weights: BodyStats.shared.weightHistory, blocks: CoachBlockStore().all, now: now,
+    /// `answering` is the check-in on screen, not saved yet; dated now, its pain counts from today.
+    private func changes(history: [SessionLog], now: Date, answering: CheckIn) -> [CoachChange] {
+        var answered = answering
+        answered.date = now
+        return CoachChanges.make(programme: programme, profile: profile, history: history,
+                          weights: BodyStats.shared.weightHistory, blocks: CoachBlockStore().all,
+                          checkIns: CheckInStore.shared.all + [answered], exercises: content.exercises, now: now,
                           name: { content.exercises.exercise($0)?.name ?? $0 }, calendar: calendar)
     }
 

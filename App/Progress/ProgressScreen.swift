@@ -42,6 +42,7 @@ struct ProgressScreen: View {
             // N2: what changed in the last 7 days, and why; no card when nothing did.
             let changes = CoachChanges.make(programme: programme, profile: profile, history: history,
                                             weights: BodyStats.shared.weightHistory, blocks: CoachBlockStore().all,
+                                            checkIns: CheckInStore.shared.all, exercises: content.exercises,
                                             now: now, name: { content.exercises.exercise($0)?.name ?? $0 },
                                             calendar: calendar)
             if !changes.isEmpty {

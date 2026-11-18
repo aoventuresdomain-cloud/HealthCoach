@@ -11,7 +11,8 @@ struct CheckInView: View {
     let programme: Programme
     let profile: Profile
     let history: [SessionLog]
-    let changes: [CoachChange]
+    /// N2: what changed, rebuilt from the answers on screen 1 (pain swaps, brisk walk).
+    let changes: (CheckIn) -> [CoachChange]
     var onDone: (CheckIn, WeekAnswers) -> Void
 
     @Environment(\.dismiss) private var dismiss
@@ -23,7 +24,7 @@ struct CheckInView: View {
 
     private let calendar = Calendar.coach
 
-    init(monday: Date, programme: Programme, profile: Profile, history: [SessionLog], changes: [CoachChange],
+    init(monday: Date, programme: Programme, profile: Profile, history: [SessionLog], changes: @escaping (CheckIn) -> [CoachChange],
          initialWeek: WeekAnswers, onDone: @escaping (CheckIn, WeekAnswers) -> Void) {
         self.monday = monday
         self.programme = programme
@@ -166,15 +167,7 @@ struct CheckInView: View {
                     .font(.headline)
                 OfficeWeekEditor(answers: $week, showTimes: $showTimes,
                                  workStart: profile.schedule.workStart, workEnd: profile.schedule.workEnd)
-                ChangesCard(changes: changes)
-                // N1 (Advisor c): knee or back pain turns next week's run-walk into a brisk walk.
-                if let line = CheckInFormat.runWalkLine(programme: programme, profile: profile, monday: monday,
-                                                        pain: Set(checkIn.pain), calendar: calendar) {
-                    Label(line, systemImage: "figure.walk")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .accessibilityIdentifier("checkin.runWalkLine")
-                }
+                ChangesCard(changes: changes(checkIn))
                 if let line = CheckInFormat.sessionsLine(programme: programme, profile: profile,
                                                          monday: monday, calendar: calendar) {
                     Text(line)
@@ -219,21 +212,6 @@ enum CheckInFormat {
         }
         if let average = steps?.sevenDayAverage { parts.append("\(average.formatted()) steps a day") }
         return parts.isEmpty ? "A quiet week" : parts.joined(separator: " · ")
-    }
-
-    /// The run-walk line for next week's first run-walk, or nil when it runs as planned.
-    static func runWalkLine(programme: Programme, profile: Profile, monday: Date, pain: Set<PainArea>,
-                            calendar: Calendar) -> String? {
-        guard PainSwaps.walksInsteadOfRunning(pain), let start = profile.programme.startDate else { return nil }
-        for offset in 0..<7 {
-            guard let day = calendar.date(byAdding: .day, value: offset, to: monday) else { continue }
-            let planned = programme.plannedDay(on: day, start: start, calendar: calendar)
-            guard let week = planned.week, case let .session(id, .runWalk(run)) = planned.entry,
-                  let plan = RunWalkPlan.make(sessionID: id, session: run, week: week, painAreas: pain)
-            else { continue }
-            return PainSwaps.runWalkLine(areas: pain, minutes: max(1, plan.totalSeconds / 60))
-        }
-        return nil
     }
 
     /// Sleep offers Fine and Poor (Advisor A1); Good stays in the core for later.

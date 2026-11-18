@@ -16,7 +16,8 @@ struct ChangesCard: View {
                 Text("What changed").font(.headline)
                 let shown = showAll ? changes : Array(changes.prefix(Self.limit))
                 ForEach(Array(shown.enumerated()), id: \.offset) { index, change in
-                    line(change).accessibilityIdentifier("changes.line.\(index)")
+                    // The run-walk line keeps the id the check-in test asserts (N1).
+                    line(change).accessibilityIdentifier(change.kind == .runWalk ? "checkin.runWalkLine" : "changes.line.\(index)")
                 }
                 if !showAll, changes.count > Self.limit {
                     Button("\(changes.count - Self.limit) more ›") { showAll = true }
