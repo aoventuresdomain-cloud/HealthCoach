@@ -166,61 +166,69 @@ private struct PhotoCaptureView: View {
     static let selfTimerSeconds = 3
 
     var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-            viewfinder.ignoresSafeArea()
-            if let ghost {
-                // The first photo of this pose, faint, to line up against.
-                Image(uiImage: ghost)
-                    .resizable()
-                    .scaledToFill()
-                    .scaleEffect(x: camera == nil ? 1 : -1, y: 1) // match the mirrored preview
-                    .opacity(0.3)
-                    .ignoresSafeArea()
-                    .allowsHitTesting(false)
-                    .accessibilityLabel("Outline of your first \(pose.rawValue) photo")
-                    .accessibilityIdentifier("photo.ghost")
-            }
-            VStack(spacing: 12) {
-                HStack {
-                    Button("Not today", systemImage: "xmark", action: onCancel)
-                        .labelStyle(.iconOnly)
+        // The controls set the size; the viewfinder and ghost sit behind them. A scaledToFill
+        // image in the same ZStack would widen it past the screen and push the close button off.
+        VStack(spacing: 12) {
+            HStack {
+                Button(action: onCancel) {
+                    Image(systemName: "xmark")
                         .font(.headline)
                         .frame(width: 44, height: 44)
-                        .glassEffect(.regular.interactive(), in: .circle)
-                        // Its own id: the review screen's "Not today" (photo.cancel) sits off-screen under the camera.
-                        .accessibilityIdentifier("photo.camera.cancel")
-                    Spacer()
-                    Text("\(pose.title) · \(index) of \(ProgressStore.Pose.allCases.count)")
-                        .font(.headline)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 8)
-                        .glassEffect(.regular, in: .capsule)
-                        .accessibilityIdentifier("photo.step")
-                    Spacer()
-                    Color.clear.frame(width: 44, height: 44)
+                        .contentShape(.circle)
                 }
-                if let hint {
-                    Text(hint)
-                        .font(.title3.bold())
-                        .foregroundStyle(Color.caution)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .background(.black.opacity(0.55), in: .capsule)
-                        .accessibilityIdentifier("photo.hint")
-                }
+                .glassEffect(.regular.interactive(), in: .circle)
+                .accessibilityLabel("Not today")
+                // Its own id: the review screen's "Not today" (photo.cancel) sits under the camera.
+                .accessibilityIdentifier("photo.camera.cancel")
                 Spacer()
-                if let countdown {
-                    Text("\(countdown)")
-                        .font(.coachNumber(120))
-                        .foregroundStyle(.white)
-                        .shadow(radius: 8)
-                        .accessibilityIdentifier("photo.countdown")
-                }
+                Text("\(pose.title) · \(index) of \(ProgressStore.Pose.allCases.count)")
+                    .font(.headline)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .glassEffect(.regular, in: .capsule)
+                    .accessibilityIdentifier("photo.step")
                 Spacer()
-                shutter
+                Color.clear.frame(width: 44, height: 44)
             }
-            .padding(16)
+            if let hint {
+                Text(hint)
+                    .font(.title3.bold())
+                    .foregroundStyle(Color.caution)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(.black.opacity(0.55), in: .capsule)
+                    .accessibilityIdentifier("photo.hint")
+            }
+            Spacer()
+            if let countdown {
+                Text("\(countdown)")
+                    .font(.coachNumber(120))
+                    .foregroundStyle(.white)
+                    .shadow(radius: 8)
+                    .accessibilityIdentifier("photo.countdown")
+            }
+            Spacer()
+            shutter
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background {
+            ZStack {
+                Color.black
+                viewfinder
+                if let ghost {
+                    // The first photo of this pose, faint, to line up against.
+                    Image(uiImage: ghost)
+                        .resizable()
+                        .scaledToFill()
+                        .scaleEffect(x: camera == nil ? 1 : -1, y: 1) // match the mirrored preview
+                        .opacity(0.3)
+                        .allowsHitTesting(false)
+                        .accessibilityLabel("Outline of your first \(pose.rawValue) photo")
+                        .accessibilityIdentifier("photo.ghost")
+                }
+            }
+            .ignoresSafeArea()
         }
         .accessibilityElement(children: .contain) // keep the children's own ids
         .accessibilityIdentifier("photo.view")

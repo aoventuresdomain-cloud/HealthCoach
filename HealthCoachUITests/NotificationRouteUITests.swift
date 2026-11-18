@@ -83,7 +83,10 @@ final class NotificationRouteUITests: XCTestCase {
         let shutter = app.buttons["photo.take.front"]
         XCTAssertTrue(shutter.waitForExistence(timeout: 15), "the reminder opens the photo-day camera")
         budget.finish(done: shutter)
-        app.buttons["photo.camera.cancel"].tap()
+        let close = app.buttons["photo.camera.cancel"]
+        XCTAssertTrue(close.isHittable, "the camera's close is on screen: \(close.frame)")
+        XCTAssertGreaterThanOrEqual(min(close.frame.width, close.frame.height), 44, "close is under 44 pt")
+        close.tap()
         XCTAssertTrue(app.tabBars.buttons["Progress"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.tabBars.buttons["Progress"].isSelected, "closing the camera leaves Progress")
     }
