@@ -89,10 +89,33 @@ final class MealsUITests: XCTestCase {
         XCTAssertEqual(count.label, "2 of 2 this week")
     }
 
+    /// Ease W2 (Coach Engineer, #120): the shopping list is one tap from
+    /// anywhere, 5 s. N4's one-off shop question is answered first, outside
+    /// the budget (A2 measures it).
+    @MainActor
+    func testW2ShoppingListIsOneTapAway() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uitest", "-now", "2026-11-23T09:00:00Z", "-fixture", "week1-monday"]
+        app.launch()
+        XCTAssertTrue(app.staticTexts["today.title"].waitForExistence(timeout: 15))
+        app.tabBars.buttons["Shopping"].tap()
+        let ask = app.buttons["ask.shop.done"]
+        if ask.waitForExistence(timeout: 3) { ask.tap() }
+        XCTAssertTrue(app.staticTexts["shopping.header"].waitForExistence(timeout: 5))
+        app.tabBars.buttons["Today"].tap()
+        XCTAssertTrue(app.staticTexts["today.title"].waitForExistence(timeout: 5))
+
+        let budget = EaseBudget("shopping-list", maxTaps: 1, maxSeconds: 5, app: app)
+        budget.tap(app.tabBars.buttons["Shopping"], newScreen: true, system: true)
+        budget.finish(done: app.staticTexts["shopping.header"])
+    }
+
     @MainActor
     func testShoppingTicksAndLunchList() throws {
         let app = openMeals()
-        app.segmentedControls["meals.tabs"].buttons["Shopping"].tap()
+        // N9b (ease budget F2): Shopping is its own tab; Meals keeps Meals and Lunch.
+        XCTAssertFalse(app.segmentedControls["meals.tabs"].buttons["Shopping"].exists)
+        app.tabBars.buttons["Shopping"].tap()
         // N4: the first visit asks once, Waitrose and Sunday morning pre-selected.
         let useThese = app.buttons["ask.shop.done"]
         XCTAssertTrue(useThese.waitForExistence(timeout: 5))
@@ -116,7 +139,10 @@ final class MealsUITests: XCTestCase {
         // UI-12: one header names the shop and counts what's left.
         XCTAssertTrue(app.staticTexts["shopping.header"].label.hasPrefix("Waitrose · "))
 
-        app.segmentedControls["meals.tabs"].buttons["Lunch"].tap()
+        app.tabBars.buttons["Meals"].tap()
+        let lunchSegment = app.segmentedControls["meals.tabs"].buttons["Lunch"]
+        XCTAssertTrue(lunchSegment.waitForExistence(timeout: 5))
+        lunchSegment.tap()
         // UI-12: one suggestion (office day) or one line; the full list is behind "All N orders".
         let all = app.buttons["lunch.all"]
         XCTAssertTrue(all.waitForExistence(timeout: 5))

@@ -56,7 +56,7 @@ final class NotificationRouteUITests: XCTestCase {
         budget.notificationTap()
         let header = app.descendants(matching: .any)["shopping.header"]
         XCTAssertTrue(header.waitForExistence(timeout: 15), "the reminder opens Shopping")
-        XCTAssertTrue(app.tabBars.buttons["Meals"].isSelected)
+        XCTAssertTrue(app.tabBars.buttons["Shopping"].isSelected, "N9b: the Shopping tab, not a Meals segment")
         budget.finish(done: header)
     }
 
