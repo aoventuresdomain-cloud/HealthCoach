@@ -26,6 +26,30 @@ The CEO is training from paper and will not be asked anything until Gate 2. The 
 
 **Deferred to payment (built, not provable until the CEO says when):** S0 pipeline to the phone (M0-03). S1 alarms ringing locked, on Silent and in Focus. S1b alarms surviving an update. S3 lock-screen timer and voice through headphones while locked. Real Health scale data. Backup Clock alarm for the first week on the app. Xcode Cloud GIF fetch in `ci_scripts` (QA-7). Music ducking under voice cues with real music. All need ~45 min of setup and ~15 min of on-phone tests once paid; the Setup Desk checklist already covers them (Parts A–D). **Risk:** alarm and timer code ship unproven on a device; M2's wake alarms depend on it. If the device tests fail later, only the AlarmKit and ActivityKit layer is reworked, because CoachCore is device-independent.
 
+## Next: complete the app (CEO, 18 Nov 07:43)
+
+The CEO will decide when to pay. Everything else gets completed: (1) the coach can adjust the plan end to end, (2) meals are tied to the targets and to training, (3) workouts progress across all three phases. Paid-account items stay built, flagged and deferred. ETA: merged by 17:00 London, a QA round by risk and the Advisor's co-sign by 21:00, pack addendum by 21:30, all on 18 Nov.
+
+| ID | Item | Owner | Areas | Status |
+|---|---|---|---|---|
+| C1 | Coach loop end to end: one scenario test from weights and logs to calorie change, meal plan, import and loads; summary carries meal adherence, social meals and recovery | Coach Engineer | core | todo |
+| C2 | Stall flag, checkpoint-due and dumbbell-limit lines on Today (one line, tap opens Progress) | iOS Interface Engineer | interface | todo |
+| C3 | Meals follow the target: training and rest days split around the weekly target, protein floor, maintenance weeks, shopping list re-derives | Planner Engineer | core | todo |
+| C4 | Social-meal counter brought back (2 a week): logging one replaces that dinner and the week rebalances inside the floors | Planner Engineer (core), iOS Interface Engineer (one tap on Meals) | core, interface | todo |
+| C5 | Phase 2 (weeks 7–14) and Phase 3 (weeks 15–20) programmes as data, with callouts | Researcher (Advisor reviews) | docs | todo |
+| C6 | Progression across phases, and visible: the player shows "last time → today" on each lift | Planner Engineer (core), iOS Interface Engineer | core, interface | todo |
+| QA-R3 | QA round by risk on one build: C1 limits first, then C3/C4 floors, then C5/C6 | Head of QA (Advisor co-signs) | docs | todo |
+
+**Done when**
+**C1** · A CoachCore test runs 4 weeks of fixture weights and logs: the target moves at most 100 kcal a week and never below the floors; next Monday's meal plan uses the new target; an accepted import changes Thursday's load in the workout script; an out-of-limit import leaves calories, meals and loads all unchanged.
+**C2** · With a flat-weight fixture, Today shows one stall line; tapping it opens Progress with "Ask the coach now"; no line when nothing is flagged; ordinary shots unchanged.
+**C3** · Tests at 1,850, 2,000, 2,200 and 2,450 kcal: every planned day within ±150 of target, none below 1,700, protein at least 150 g each day, weekly average within 50 kcal; training days carry more than rest days; box nights Mon–Thu kept; the top-up list changes when the target does.
+**C4** · Logging a social meal on Friday removes Friday's planned dinner, the remaining days stay inside the floors, the counter shows "1 of 2", a third is allowed but flagged in the summary; a UI test covers the tap.
+**C5** · Content validation passes for both files; every exercise has three callouts and a GIF; equipment stays within the 24 kg dumbbells, bench and pull-up bar; never Wednesday; the Advisor signs off.
+**C6** · Fixture histories show loads carried from week 6 into week 7 and week 14 into week 15; a UI test sees the second Upper A open at a higher load after an all-done first, with "last time" shown.
+
+**Still cut:** the evening meal check (meals stay pre-ticked; the coach steers by the scale), the mood check (recovery already comes from session logs) and the photo ghost outline (needs the camera on a phone; returns with the paid account).
+
 ## Current mode: Gate 2 review · all of M1–M4 built (QA round 2 PASS on `6332a80`, 18 Nov; Advisor co-signed; pack in `docs/review/ceo-review-pack.md`)
 
 | ID | Item | Owner | Branch | Areas | Label | Status | 🙋 CEO hands |
