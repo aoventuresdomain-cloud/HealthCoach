@@ -24,7 +24,7 @@ public enum CoachSummary {
     /// Nil before onboarding sets a start date.
     public static func text(reason: Reason? = nil, programme: Programme, profile: Profile,
                             history: [SessionLog], weights: [WeightSample], steps: [StepCount] = [],
-                            meals: MealAdherence? = nil,
+                            meals: MealAdherence? = nil, waist: WaistLog? = nil,
                             blocks: [CoachBlock], socialMeals: [Date] = [], checkIns: [CheckIn] = [], now: Date,
                             calendar: Calendar = .current) -> String? {
         guard let start = profile.programme.startDate,
@@ -58,6 +58,10 @@ public enum CoachSummary {
         let stepSummary = StepsSummary.make(days: steps, today: now, calendar: calendar)
         if let average = stepSummary.sevenDayAverage {
             lines.append("- Steps: \(CoachText.thousands(average)) a day (7-day average)")
+        }
+        // N7: waist only at a checkpoint (Advisor A3: it stays on the phone otherwise).
+        if case .flag(.checkpoint) = reason, let line = waist?.summaryLine(calendar: calendar) {
+            lines.append(line)
         }
         lines.append("")
 
