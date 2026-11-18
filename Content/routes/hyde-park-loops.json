@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "note": "Board N10. Run loops for the `hyde-park` route, each starting and finishing at Victoria Gate (Bayswater Road, north side). Distances are map estimates rounded to 0.1 km (no GPS survey); public guides put the Serpentine circuit at 3–4 km. The player names the loop whose distance is closest to the session's planned distance (RunLoops.closest), and the owner may run any loop. All paths are paved, lit near the gates and open 05:00 to midnight.",
+  "route": "hyde-park",
+  "start": {
+    "name": "Victoria Gate",
+    "latitude": 51.5117,
+    "longitude": -0.1720
+  },
+  "loops": [
+    {
+      "id": "long-water",
+      "name": "Long Water loop",
+      "distanceKm": 2.0,
+      "directions": [
+        "From Victoria Gate, head to the Italian Gardens.",
+        "Run down the east bank of the Long Water to the Serpentine Bridge.",
+        "Cross the bridge and come back up the west bank (Kensington Gardens) past the Peter Pan statue.",
+        "Back through the Italian Gardens to the gate."
+      ]
+    },
+    {
+      "id": "north-ring",
+      "name": "North Ring and Serpentine bank",
+      "distanceKm": 3.0,
+      "directions": [
+        "From Victoria Gate, run east along the path inside Bayswater Road towards Speakers' Corner.",
+        "Before Marble Arch, turn south and follow the path to the east end of the Serpentine.",
+        "Run west along the north bank of the Serpentine to the Serpentine Bridge.",
+        "Turn north up the east bank of the Long Water and back to the gate."
+      ]
+    },
+    {
+      "id": "serpentine-circuit",
+      "name": "Whole lake circuit",
+      "distanceKm": 4.5,
+      "directions": [
+        "From Victoria Gate, head to the Italian Gardens and down the east bank of the Long Water.",
+        "Keep the water on your right along the north bank of the Serpentine to its east end.",
+        "Come back along the south bank past the Lido and the Diana Memorial Fountain.",
+        "Pass under the Serpentine Bridge and up the west bank of the Long Water to the Italian Gardens and the gate."
+      ]
+    },
+    {
+      "id": "lake-and-long-water",
+      "name": "Whole lake circuit plus a Long Water lap",
+      "distanceKm": 5.9,
+      "directions": [
+        "Run the whole lake circuit.",
+        "At the Italian Gardens, add one Long Water loop before returning to the gate."
+      ]
+    }
+  ]
+}

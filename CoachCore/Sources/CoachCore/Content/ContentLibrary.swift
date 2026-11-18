@@ -11,11 +11,14 @@ public struct ContentLibrary: Sendable {
     public let nutrition: NutritionContent
     /// Office-day lunch orders (M3).
     public let lunchOrders: LunchOrders
+    /// Named run loops, keyed by route id ("hyde-park") (N10).
+    public let runLoops: [String: RunLoops]
 
     public static let exercisesPath = "exercises/exercises.json"
     public static let programmesFolder = "programmes"
     public static let recipesPath = "recipes/recipes.json"
     public static let lunchOrdersPath = "lunch-orders.json"
+    public static let routesFolder = "routes"
 
     /// Loads and validates. Throws the first file's error, so a broken file
     /// is named rather than half-loaded.
@@ -42,7 +45,18 @@ public struct ContentLibrary: Sendable {
         try require(nutrition.problems(), file: recipesPath)
         let lunchOrders = try loadFile(LunchOrders.self, root.appendingPathComponent(lunchOrdersPath), name: lunchOrdersPath)
         try require(lunchOrders.problems(), file: lunchOrdersPath)
-        return ContentLibrary(exercises: exercises, programmes: programmes, nutrition: nutrition, lunchOrders: lunchOrders)
+
+        var runLoops: [String: RunLoops] = [:]
+        for url in try jsonFiles(in: root.appendingPathComponent(routesFolder)) {
+            let name = "\(routesFolder)/\(url.lastPathComponent)"
+            let loops = try loadFile(RunLoops.self, url, name: name)
+            var problems = loops.problems()
+            if runLoops[loops.route] != nil { problems.append("another file already has route \(loops.route)") }
+            try require(problems, file: name)
+            runLoops[loops.route] = loops
+        }
+        return ContentLibrary(exercises: exercises, programmes: programmes, nutrition: nutrition, lunchOrders: lunchOrders,
+                              runLoops: runLoops)
     }
 
     static func loadFile<T: VersionedFormat>(_ type: T.Type, _ url: URL, name: String) throws -> T {

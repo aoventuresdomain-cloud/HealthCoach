@@ -59,6 +59,10 @@ Validation (`problems()`): known ingredients and aisles, 2 portions, a method, n
 
 `origin` (`maxWalkMinutes`) and `orders[]`: `id`, `place`, `address`, `walkMinutes`, `order`, `kcal`, `protein`, `priceGBP`, `nutritionSource` ("estimate" when none was published), `goodFor`, `note`. Validation: unique ids, within the walk, kcal and protein present, no raw fish.
 
+## `routes/<route>.json` · `RunLoops`
+
+Board N10. Content owner: the Researcher. `route` (the programme's run `route` id), `start` (`name`, `latitude`, `longitude`: a public park gate, never the owner's home) and `loops[]`: `id`, `name`, `distanceKm` (map estimate), `directions[]`. `closest(toKm:)` gives the loop nearest a session's planned distance. Validation: at least one loop, unique ids, 0.5–15 km, directions present, and one file per route; a CoachCore test checks every programme run route has loops.
+
 ## Profile record · `Profile`
 One record, stored by the app in SwiftData as this JSON (`ProfileRecord.payload`). Any field missing at any depth takes its default, so adding a field never needs a migration.
 

@@ -23,6 +23,7 @@ let contentRoot = URL(fileURLWithPath: #filePath)
                 || path == ContentLibrary.recipesPath || path == ContentLibrary.lunchOrdersPath
                 || (path.hasPrefix(ContentLibrary.programmesFolder + "/")
                     && library.programmes[URL(fileURLWithPath: path).deletingPathExtension().lastPathComponent] != nil)
+                || (path.hasPrefix(ContentLibrary.routesFolder + "/") && !library.runLoops.isEmpty)
             if !known { unknown.append(path) }
         }
         #expect(unknown.isEmpty, "Content files with no schema or validation: \(unknown)")
@@ -66,6 +67,24 @@ let contentRoot = URL(fileURLWithPath: #filePath)
             #expect(mainLift(programme) != nil)
             #expect(mainLift(programme) == mainLift(phase1), "\(id) \(session) main lift changed")
         }
+    }
+}
+
+@Suite struct RunLoopsTests {
+    /// N10: every run route in a programme has loops, and the closest loop
+    /// follows the planned distance.
+    @Test func hydeParkLoopsLoadAndMatchADistance() throws {
+        let library = try ContentLibrary.load(from: contentRoot)
+        for programme in library.programmes.values {
+            for case .runWalk(let run) in programme.sessions.values {
+                #expect(library.runLoops[run.route] != nil, "\(programme.id): no loops for \(run.route)")
+            }
+        }
+        let park = try #require(library.runLoops["hyde-park"])
+        #expect(park.problems().isEmpty)
+        #expect(park.closest(toKm: 1.5)?.id == "long-water")
+        #expect(park.closest(toKm: 4.6)?.id == "serpentine-circuit")
+        #expect(park.closest(toKm: 9)?.id == "lake-and-long-water")
     }
 }
 
