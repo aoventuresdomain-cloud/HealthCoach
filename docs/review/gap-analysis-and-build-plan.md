@@ -192,9 +192,10 @@ C1 coach loop test · C2 Today stall line · C3 meals follow the target · C4 so
 
 **N1 · Sunday check-in**
 - On the profile's check-in day, Today shows one Check-in card; the screen opens with weight average and change, sessions done of planned, and average steps already filled in.
-- Energy, sleep and pain are one tap each with a pre-selected default; a UI test finishes the whole check-in, office days included, in under 60 s of taps.
+- Energy, sleep and pain are one tap each, defaulting to Good, Fine and None; a UI test finishes the whole check-in, office days included, in under 60 s of taps.
 - "Looks good" applies the week's changes; skipping leaves the plan running unchanged (CoachCore test).
-- Answers go into the Claude summary; low energy or pain on two check-ins feeds the existing drop-to-2-sessions rule only as the Advisor sets (A1).
+- Energy Low plus Sleep Poor in the same check-in counts as one low-recovery signal for the existing drop-to-2 rule; either alone goes to the Claude summary only; no subjective answer ever changes calories (CoachCore tests, A1).
+- Pain "Yes" asks one tap for the area (shoulder, elbow, wrist, back, knee, other); every exercise loading that area uses its catalogue `swap` for 7 days and the summary says so; pain in two check-ins running raises "Worth seeing a physio" (CoachCore test).
 
 **N2 · What changed and why**
 - After any calorie, load or session change, Progress and the check-in show one line per change with its reason, e.g. "Calories 2,000 → 1,900: weight flat for 2 weeks".
@@ -204,6 +205,7 @@ C1 coach loop test · C2 Today stall line · C3 meals follow the target · C4 so
 **N3 · Settings → Preferences**
 - A Settings entry in the ⋯ menu lists every onboarding module (A–J), each editable with its current value shown.
 - Saving any change re-plans from tomorrow, never mid-day (CoachCore test), and keeps today's alarms.
+- A food dislike list, empty by default, is always respected by the meal plan (CoachCore test, Advisor A4f).
 - The check-in day and time set here is the one N1 uses (the dead setting goes live).
 
 **N4 · Ask when needed**
@@ -218,17 +220,20 @@ C1 coach loop test · C2 Today stall line · C3 meals follow the target · C4 so
 
 **N6 · Recipe variety**
 - Enough recipes that a 3-week rotation has no repeated dinner; content validation passes.
-- Every new recipe is 2 portions, no raw fish, no batch cooking, with calories and protein; the Advisor signs off.
+- Every new recipe is 2 portions, no raw fish, no batch cooking, with calories and protein; dinners 40 min or less and about 12 ingredients or fewer; 35 g protein or more and two veg portions per serving; all stocked by Waitrose (A4).
+- Each 3-week rotation has cooked fish twice a week (one oily) and red meat at most twice a week, and reuses ingredients across the week so the top-up list stays short (content validation test, A4).
 - The meal-plan tests at 1,850, 2,000, 2,200 and 2,450 kcal still pass.
 
 **N7 · Photos**
 - On photo day, a translucent outline of the first photo of that pose sits over the viewfinder (library-image stand-in in the simulator).
+- An optional waist measurement (at the navel, after breathing out) sits on photo day, off by default until turned on in Preferences (needs a ~£3 tape); skipping changes nothing; it shows on Progress beside the weight trend and stays on the phone (A3).
 - On-device body-pose detection shows one plain hint when the pose or distance is off; no network call is made (test with network disabled).
 - Progress opens a compare view of today against week 0 and against 4 weeks ago, with a slider.
 - A photo-day notification fires every 2 weeks outside quiet hours; the Claude summary still contains no photos.
 
 **N8 · Return after a break**
-- After 10 or more days without a strength session, the next session's loads ease by the amount the Advisor sets (A2), then rebuild over the following sessions (CoachCore test).
+- Days since the last strength session: 10–20 → first session at 90% of last loads, rounded down to the dumbbell step, back to previous loads within 2 sessions per exercise; 21–42 → 80%, one extra rep in reserve for the first week, rebuilt over 3 sessions; over 42 → the current phase's week 1 effort at 70%, flagged in the Claude summary (CoachCore tests, A2).
+- Runs: 10+ days off repeats the previous week's run; 21+ days drops back two weeks. No question is asked.
 - The player shows why ("Easing back in after 12 days off").
 - Normal weeks are unchanged (existing progression tests pass).
 
@@ -249,17 +254,45 @@ C1 coach loop test · C2 Today stall line · C3 meals follow the target · C4 so
 
 ## 6. Advisor review (safety-relevant parts)
 
-Sent to the Advisor on 18 Nov. Each answer will be folded in as accepted, changed or rejected before N1, N7 and N8 start.
+Sent to the Advisor on 18 Nov. Each answer is folded in below.
 
 - **A1 · Check-in questions.** Are energy, sleep and pain the right three? Which answers may change the plan by themselves, and which only go to Claude?
 - **A2 · Return after a break.** Threshold (10 days?) and how much to ease loads, and over how many sessions to rebuild.
 - **A3 · Photo analysis.** Agree to reject a photo body-fat score? Is an optional waist measurement every 2 weeks worth its 20 seconds?
 - **A4 · Recipe variety.** Any constraint beyond the existing floors for the new recipes.
 
-Advisor's answers: *pending*.
+**Advisor's answers (18 Nov, 07:51), folded in:**
+- **A1: accepted, changed N1.** Defaults Good, Fine, None. Low energy plus poor sleep together is one low-recovery signal; either alone goes to Claude only. Pain triggers 7-day exercise swaps and, twice running, a physio flag. Calories move only on the scale.
+- **A2: accepted, changed N8.** Three easing bands (90%, 80%, 70%) and run rules as written in N8.
+- **A3: accepted, changed N7.** Photo score rejected; ghost outline, pose check and compare view built. Optional waist measurement added to photo day, off by default (needs a tape, not in the kit).
+- **A4: accepted, changed N3 and N6.** Recipe rules (a)–(e) in N6; the dislike list (f) in Preferences. One note: (e) "stocked by Waitrose" holds because Waitrose is the default shop; if the CEO picks another shop in N4, search links follow it, and the Researcher flags any recipe item that shop lacks.
 
 ## 7. Open decisions (for the CEO's next review, not asked now)
 
 - Whether to allow attaching photos to a Claude check-in at all (default: the app never does; the CEO can share himself).
 - The taste defaults (accent, always dark, numerals, icon), batched once.
 - Payment for the Apple account still gates every on-phone proof, including the camera parts of N7.
+
+## Appendix: the Advisor's answers, unedited (18 Nov, 07:51)
+
+> A1 Check-in: ACCEPT these three. Defaults: Energy Good, Sleep Fine, Pain None.
+> - Energy Low plus Sleep Poor in the same check-in = one low-recovery signal for the drop-to-2 rule. Either alone goes to the Claude summary only.
+> - Pain "Yes" opens one tap: shoulder, elbow, wrist, back, knee or other. The app swaps every exercise loading that area to its `swap` for 7 days and notes it in the summary. Pain in 2 check-ins running raises a flag: "Worth seeing a physio".
+> - No subjective answer ever changes calories; only the scale does.
+>
+> A2 Return after a break, counted as days since the last strength session:
+> - 10–20 days: first session at 90% of last loads, rounded down to the dumbbell step; back to previous loads within 2 sessions per exercise.
+> - 21–42 days: 80%, one extra rep in reserve for the first week, rebuild over 3 sessions.
+> - Over 42 days: the current phase's week 1 effort at 70%, flagged to the Claude summary.
+> - Runs: 10+ days off repeats the previous week's run; 21+ days drops back two weeks.
+> - No question to him. Today just says "Easing back in".
+>
+> A3 Photos: AGREE. Reject any photo body-fat score, and build the ghost outline, pose check and compare view. The waist measurement is worth its 20 s: optional, on photo day, at the navel after breathing out, kept on the phone. It is the best cheap fat-loss signal next to weight, and skipping it changes nothing. It needs a tape measure (about £3, not in the kit), so it starts off.
+>
+> A4 Recipes, beyond the existing floors:
+> (a) dinners 40 min or less, about 12 ingredients or fewer;
+> (b) 35 g or more protein and two veg portions per serving;
+> (c) cooked fish twice a week, one oily (NHS), and red meat at most twice;
+> (d) ingredients reused across the week, so the top-up list stays short and nothing is wasted;
+> (e) all stocked by Waitrose;
+> (f) a dislike list in Settings, empty by default and always respected.
