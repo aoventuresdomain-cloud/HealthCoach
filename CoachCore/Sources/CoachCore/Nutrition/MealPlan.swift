@@ -69,33 +69,47 @@ public struct MealPlan: Sendable, Equatable {
     /// less, and the week still averages the target);
     /// `kcalTarget` is this week's calorie target when the rules engine has
     /// moved it (`CalorieTarget.kcal`; the band then matches `CalorieTarget.dayBand`);
-    /// `boxNights` defaults to the content's default nights. Deterministic:
-    /// the same week always plans the same meals.
+    /// `boxNights` defaults to the content's default nights. `dislikes(date)`
+    /// gives that day's dislike list (N3: `Profile.dislikes(on:)`, so an edit
+    /// applies from tomorrow); no planned recipe, extra, snack or lunch order
+    /// ever matches it. Deterministic: the same week always plans the same meals.
     public static func week(monday: Date, content: NutritionContent, lunchOrders: [LunchOrder],
                             answers: WeekAnswers, programmeID: String, kcalTarget: Int? = nil,
                             trainingDays: Set<Weekday> = [],
-                            boxNights: Set<Weekday>? = nil, calendar: Calendar = .current) -> MealPlan {
+                            boxNights: Set<Weekday>? = nil,
+                            dislikes: (Date) -> [String] = { _ in [] },
+                            calendar: Calendar = .current) -> MealPlan {
         guard let base = content.dailyTargets[programmeID] ?? content.dailyTargets.values.first else {
             return MealPlan(days: [])
         }
         // The week's target: the rules engine's when it has one, else the content's.
         let target = kcalTarget.map { base.with(kcal: $0) } ?? base
         let box = boxNights ?? Set(content.boxNight.defaultNights)
-        let breakfasts = content.recipes(.breakfast)
-        let lunches = content.recipes(.lunch)
-        let dinners = content.recipes(.dinner)
-        let sundayCook = content.recipes(.sundayCook)
         let start = calendar.startOfDay(for: monday)
         // Rotation offset by week, so consecutive weeks don't repeat day for day.
         let weekIndex = Int((start.timeIntervalSinceReferenceDate / (7 * 86_400)).rounded(.down))
+
+        // Home dinners move on by a whole week's worth each week (N6), so with
+        // 3 × home nights of recipes or more no dinner repeats within 3 weeks.
+        let homeNights = max(1, Weekday.allCases.filter { $0 != .sunday && !box.contains($0) }.count)
 
         // C3: only lean when the caller says which days train; else every day aims at the target.
         let aims = trainingDays.isEmpty ? [:] : dayAims(target: target, trainingDays: trainingDays)
         var planned: [(date: Date, weekday: Weekday, meals: [PlannedMeal], dinnerKind: String, rotation: Int)] = []
         var homeDinnerIndex = 0, officeIndex = 0
+        var weekDislikes: [String] = []
         for (index, weekday) in Weekday.allCases.enumerated() {
             guard let date = calendar.date(byAdding: .day, value: index, to: start) else { continue }
             let rotation = weekIndex + index
+            // N3: the day's content without anything disliked that day.
+            let avoid = dislikes(date)
+            weekDislikes += avoid
+            let content = content.excluding(dislikes: avoid)
+            let lunchOrders = lunchOrders.filter { !$0.isDisliked(by: avoid) }
+            let breakfasts = content.recipes(.breakfast)
+            let lunches = content.recipes(.lunch)
+            let dinners = content.recipes(.dinner)
+            let sundayCook = content.recipes(.sundayCook)
             let isOffice = answers.officeDays.contains(weekday) && weekday != .saturday && weekday != .sunday
 
             // Dinner: fixed by the day.
@@ -106,19 +120,21 @@ public struct MealPlan: Sendable, Equatable {
                 dinner = PlannedMeal(slot: .dinner, recipeID: nil, lunchOrderID: nil, name: content.boxNight.name,
                                      kcal: content.boxNight.perPortion.kcal, protein: content.boxNight.perPortion.protein,
                                      isBoxNight: true, isOfficeLunch: false, time: nil)
-            } else if let home = pick(dinners, weekIndex + homeDinnerIndex) {
+            } else if let home = pick(dinners, weekIndex * homeNights + homeDinnerIndex) {
                 homeDinnerIndex += 1
                 dinner = meal(.dinner, home)
             } else { continue }
 
-            // Lunch candidates: the office list on an office day, else home lunches.
-            let lunchOptions: [PlannedMeal] = isOffice
+            // Lunch candidates: the office list on an office day, else home
+            // lunches. N3: an office day with every order disliked takes a home
+            // lunch to work instead.
+            let lunchOptions: [PlannedMeal] = isOffice && !lunchOrders.isEmpty
                 ? rotated(lunchOrders, weekIndex + officeIndex).map {
                     PlannedMeal(slot: .lunch, recipeID: nil, lunchOrderID: $0.id, name: "\($0.place): \($0.order)",
                                 kcal: $0.kcal, protein: $0.protein, isBoxNight: false, isOfficeLunch: true, time: nil)
                 }
                 : rotated(lunches, rotation).map { meal(.lunch, $0) }
-            if isOffice { officeIndex += 1 }
+            if isOffice && !lunchOrders.isEmpty { officeIndex += 1 }
             let breakfastOptions = rotated(breakfasts, rotation).map { meal(.breakfast, $0) }
 
             // First combination in rotation order close to the target (± 75 kcal),
@@ -147,7 +163,9 @@ public struct MealPlan: Sendable, Equatable {
             planned.append((date, weekday, chosen, dinnerKind, rotation))
         }
         if !aims.isEmpty {
-            balance(&planned, content: content, target: target, trainingDays: trainingDays)
+            // Extras moved between days avoid every dislike of the week.
+            balance(&planned, content: content.excluding(dislikes: weekDislikes), target: target,
+                    trainingDays: trainingDays)
         }
         return MealPlan(days: planned.map { day in
             let month = calendar.component(.month, from: day.date)

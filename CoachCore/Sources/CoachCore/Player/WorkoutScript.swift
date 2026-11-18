@@ -14,6 +14,8 @@ public struct WorkoutScript: Equatable, Sendable {
     public let sets: [SetStep]
     /// Distinct exercises with at least one set this week, in order.
     public let exerciseCount: Int
+    /// Set after a break (N8): the player says why the loads are lighter.
+    public var easing: ReturnEasing? = nil
 
     public struct WarmUpStep: Equatable, Sendable {
         public let exercise: String
@@ -148,7 +150,8 @@ public struct WorkoutScript: Equatable, Sendable {
         let warmUp = session.warmUp.map { WarmUpStep(exercise: $0.exercise, reps: $0.reps, perSide: $0.perSide, kg: $0.startKg) }
         let perMove = warmUp.isEmpty ? 0 : session.warmUpMinutes * 60 / warmUp.count
         return WorkoutScript(sessionID: sessionID, name: session.name, week: week, warmUp: warmUp,
-                             warmUpSecondsPerMove: perMove, sets: steps, exerciseCount: exerciseNumber)
+                             warmUpSecondsPerMove: perMove, sets: steps, exerciseCount: exerciseNumber,
+                             easing: programme.easing(history: history, on: date, calendar: calendar))
     }
 
     /// After the first set at `index` fell short of its swap threshold, the
@@ -163,7 +166,8 @@ public struct WorkoutScript: Equatable, Sendable {
                            restSeconds: step.restSeconds, slowTempo: false, atDumbbellLimit: false, swap: nil)
         }
         return WorkoutScript(sessionID: sessionID, name: name, week: week, warmUp: warmUp,
-                             warmUpSecondsPerMove: warmUpSecondsPerMove, sets: swapped, exerciseCount: exerciseCount)
+                             warmUpSecondsPerMove: warmUpSecondsPerMove, sets: swapped, exerciseCount: exerciseCount,
+                             easing: easing)
     }
 
     static func kind(of item: StrengthItem, prescription: Prescription) -> SetStep.Kind {

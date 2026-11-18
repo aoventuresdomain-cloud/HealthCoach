@@ -134,7 +134,9 @@ final class WakeAlarms {
         // E13: an unlogged session whose time has passed moves (logged this week = done).
         let planned = AlarmSchedule.make(now: now, programme: programme, profile: profile,
                                          answers: { answers.answers(weekStarting: $0) }, dropping: dropping,
-                                         completed: SessionLog.sessionIDs(in: history, weekOf: now))
+                                         completed: SessionLog.sessionIDs(in: history, weekOf: now),
+                                         // C6: each day from its own phase, so a new phase's first alarm is right.
+                                         programmeOn: { content.programme(for: profile, on: $0, calendar: .coach) })
         if seedFakeOnce, let fake = registrar as? FakeAlarmRegistrar {
             seedFakeOnce = false
             await fake.seed(planned)

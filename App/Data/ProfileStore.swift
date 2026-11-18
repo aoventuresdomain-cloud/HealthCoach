@@ -28,9 +28,23 @@ final class ProfileStore {
 
     /// The stored profile, or nil before onboarding has saved one. Throws a
     /// plain message (from CoachCore) if the record is newer or broken.
-    func load() throws -> Profile? {
+    /// A Preferences edit whose day has come is applied (N3); one still
+    /// waiting stays in `pending`, which the planners read day by day.
+    func load(now: Date = AppClock.now()) throws -> Profile? {
         guard let record = try context.fetch(FetchDescriptor<ProfileRecord>()).first else { return nil }
-        return try Profile.decoded(from: record.payload)
+        return try Profile.decoded(from: record.payload).effective(on: now, calendar: .coach)
+    }
+
+    /// N3: saves a Preferences edit. Today keeps its plan and alarms; the
+    /// edit applies from tomorrow, never mid-day (`Profile.scheduling`).
+    /// Reconcile the alarms afterwards, so tomorrow's onwards follow it.
+    /// Returns the stored profile.
+    @discardableResult
+    func save(_ edited: Profile.Preferences, effectiveFrom now: Date = AppClock.now()) throws -> Profile {
+        let current = try load(now: now) ?? Profile()
+        let next = current.scheduling(edited, now: now, calendar: .coach)
+        try save(next)
+        return next
     }
 
     func save(_ profile: Profile) throws {

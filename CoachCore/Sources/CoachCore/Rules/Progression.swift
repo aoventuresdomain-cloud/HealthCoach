@@ -45,6 +45,8 @@ public struct Prescription: Sendable, Equatable {
         case graduated
         /// Set by an imported Claude block (M4-02), at the bottom of the range.
         case coach
+        /// Eased after a break from strength work (N8, Advisor A2).
+        case easing
         /// C6: a new phase with a new range: the carried weight, at the bottom of the new range.
         case carried
     }
