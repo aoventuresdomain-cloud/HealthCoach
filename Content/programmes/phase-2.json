@@ -804,6 +804,37 @@
               "startKg": 10,
               "tempo": "2-0-1",
               "progression": "reps-tempo-load"
+            },
+            {
+              "exercise": "dumbbell-lateral-raise",
+              "sets": [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "repsInReserve": [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "reps": {
+                "min": 12,
+                "max": 20
+              },
+              "perSide": false,
+              "startKg": 6,
+              "tempo": "2-0-1",
+              "progression": "reps-tempo-load"
             }
           ]
         },
@@ -877,14 +908,14 @@
         }
       ],
       "durationMinutes": [
-        41,
-        41,
-        41,
-        41,
-        41,
-        41,
-        41,
-        41
+        44,
+        44,
+        44,
+        44,
+        44,
+        44,
+        44,
+        44
       ],
       "warmUpMinutes": 5
     },

@@ -25,20 +25,20 @@
     {
       "week": 3,
       "mainSets": 3,
-      "repsInReserve": 1,
-      "cue": "Stop with 1 rep left in the tank."
+      "repsInReserve": 2,
+      "cue": "Stop with 2 reps left in the tank."
     },
     {
       "week": 4,
       "mainSets": 3,
-      "repsInReserve": 1,
-      "cue": "Stop with 1 rep left in the tank."
+      "repsInReserve": 2,
+      "cue": "Stop with 2 reps left in the tank."
     },
     {
       "week": 5,
       "mainSets": 3,
-      "repsInReserve": 1,
-      "cue": "Stop with 1 rep left in the tank."
+      "repsInReserve": 2,
+      "cue": "Stop with 2 reps left in the tank."
     },
     {
       "week": 6,
@@ -216,9 +216,9 @@
               "repsInReserve": [
                 2,
                 2,
-                1,
-                1,
-                1,
+                2,
+                2,
+                2,
                 2
               ],
               "reps": {
@@ -243,9 +243,9 @@
               "repsInReserve": [
                 2,
                 2,
-                1,
-                1,
-                1,
+                2,
+                2,
+                2,
                 2
               ],
               "reps": {
@@ -276,9 +276,9 @@
               "repsInReserve": [
                 2,
                 2,
-                1,
-                1,
-                1,
+                2,
+                2,
+                2,
                 2
               ],
               "reps": {
@@ -534,9 +534,9 @@
               "repsInReserve": [
                 2,
                 2,
-                1,
-                1,
-                1,
+                2,
+                2,
+                2,
                 2
               ],
               "reps": {
@@ -561,9 +561,9 @@
               "repsInReserve": [
                 2,
                 2,
-                1,
-                1,
-                1,
+                2,
+                2,
+                2,
                 2
               ],
               "reps": {
@@ -594,9 +594,9 @@
               "repsInReserve": [
                 2,
                 2,
-                1,
-                1,
-                1,
+                2,
+                2,
+                2,
                 2
               ],
               "reps": {
@@ -621,9 +621,9 @@
               "repsInReserve": [
                 2,
                 2,
-                1,
-                1,
-                1,
+                2,
+                2,
+                2,
                 2
               ],
               "reps": {
@@ -706,7 +706,7 @@
               "progression": "reps-tempo-load"
             },
             {
-              "exercise": "dumbbell-fly",
+              "exercise": "dumbbell-lateral-raise",
               "sets": [
                 2,
                 2,
@@ -724,12 +724,12 @@
                 2
               ],
               "reps": {
-                "min": 10,
-                "max": 15
+                "min": 12,
+                "max": 20
               },
               "perSide": false,
-              "startKg": 8,
-              "tempo": "3-0-1",
+              "startKg": 6,
+              "tempo": "2-0-1",
               "progression": "reps-tempo-load"
             }
           ]
@@ -879,9 +879,9 @@
               "repsInReserve": [
                 2,
                 2,
-                1,
-                1,
-                1,
+                2,
+                2,
+                2,
                 2
               ],
               "reps": {
