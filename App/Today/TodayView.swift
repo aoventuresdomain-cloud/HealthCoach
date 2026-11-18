@@ -13,6 +13,8 @@ struct TodayView: View {
     var onStart: (DayPlan.SessionSlot, Int, RecoveryCheck) -> Void
     /// C2: the coach line's tap; Root switches to Progress with Ask in view.
     var onAskCoach: () -> Void = {}
+    /// N3: a Preferences change; Root stores it from tomorrow.
+    var onPreferencesChange: (Profile.Preferences) -> Void = { _ in }
 
     @State private var dayOffset = 0
     @State private var recovery = RecoveryCheck.fine
@@ -22,6 +24,7 @@ struct TodayView: View {
     /// Tomorrow's date while the "Tomorrow changed" sheet is open (M2-06).
     @State private var changingTomorrow: PromptWeek?
     @State private var showSpikeTests = false
+    @State private var showPreferences = false
     /// Bumped after the prompt saves, so the "Plan next week" card re-reads the store.
     @State private var answersVersion = 0
     @Environment(\.modelContext) private var context
@@ -95,11 +98,14 @@ struct TodayView: View {
         .safeAreaInset(edge: .bottom) { actions(plan) }
         .toolbar {
             // UI-12: one ⋯ menu instead of separate chrome icons.
-            if profile.programme.startDate != nil || SpikeTests.showsLink {
-                ToolbarItem(placement: .topBarTrailing) { moreMenu }
-            }
+            ToolbarItem(placement: .topBarTrailing) { moreMenu }
         }
         .navigationDestination(isPresented: $showSpikeTests) { SpikeTestsView() }
+        .sheet(isPresented: $showPreferences) {
+            PreferencesView(profile: profile, programme: programme,
+                            foods: content.nutrition.ingredients.values.map(\.name),
+                            onChange: onPreferencesChange)
+        }
         .task { alarmStatus = await AlarmKitSpike.shared.reconcileStatus() }
         .sheet(item: $promptWeek) { week in
             SundayPromptView(monday: week.monday,
@@ -137,7 +143,7 @@ struct TodayView: View {
 
     // MARK: ⋯ menu (UI-12)
 
-    /// Plan week, Tomorrow changed (M2-06) and, under -spikeAlarms only, Spike tests (M0-11b).
+    /// Plan week, Tomorrow changed (M2-06), Settings (N3) and, under -spikeAlarms only, Spike tests (M0-11b).
     private var moreMenu: some View {
         Menu {
             if profile.programme.startDate != nil {
@@ -152,6 +158,10 @@ struct TodayView: View {
                 } label: { Label("Tomorrow changed", systemImage: "calendar.badge.clock") }
                     .accessibilityIdentifier("today.tomorrowChanged")
             }
+            Button {
+                showPreferences = true
+            } label: { Label("Settings", systemImage: "gearshape") }
+                .accessibilityIdentifier("today.settings")
             if SpikeTests.showsLink {
                 Button {
                     showSpikeTests = true
