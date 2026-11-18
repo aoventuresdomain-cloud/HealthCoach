@@ -213,6 +213,8 @@ struct DislikesEditor: View {
     @Binding var dislikes: [String]
     let options: [String]
     @Binding var search: String
+    /// Closes the host's search once a typed food is added, so the list (and Back) is in view again.
+    @Environment(\.dismissSearch) private var dismissSearch
 
     private var shown: [String] {
         let all = Array(Set(options + dislikes)).sorted()
@@ -242,6 +244,7 @@ struct DislikesEditor: View {
             Button("Add \u{201C}\(term)\u{201D}") {
                 toggle(term)
                 search = ""
+                dismissSearch()
             }
             .accessibilityIdentifier("prefs.dislikeAdd")
         }
