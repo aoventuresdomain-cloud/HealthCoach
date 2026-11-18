@@ -18,15 +18,15 @@ The CEO is training from paper and will not be asked anything until Gate 2. The 
 | **Gate 1** (internal) | A simulated week runs from the app with no paper, judged against the guiding rule | Head of QA + Advisor | 12 Dec |
 | **M3** · Meals | Box nights, breakfasts, Sunday cook, top-up list, office lunch list | Head of Engineering | 18 Dec |
 | **M4** · Coach | Rules engine, stall flag, Claude summary and import, progress, photos, Ask the coach now | Head of Engineering | 23 Dec |
-| **Gate 2 pack** | Full QA round, a release-ready simulator build, a demo walkthrough, the deferred list, and one recommendation on payment | Head of Engineering | 27 Dec (end of week 6) |
-| **Gate 2** | CEO reviews and decides how to move | **CEO** | after 27 Dec |
+| **Gate 2 pack** | Full QA round, a release-ready simulator build, a demo walkthrough, the deferred list, and one recommendation on payment | Head of Engineering | 20:00, 18 Nov (re-plan 17 Nov; was 27 Dec) |
+| **Gate 2** | CEO reviews and decides how to move | **CEO** | from 18 Nov |
 | Run | Phase 2 and 3 programmes as data | Researcher | before weeks 7 and 15 |
 
 **Cut rule:** if any milestone slips more than a week, cut M3 extras first (in-store mode, delivery reminder, lunch swipe), then M4 photos.
 
 **Deferred to payment (built, not provable until the CEO says when):** S0 pipeline to the phone (M0-03). S1 alarms ringing locked, on Silent and in Focus. S1b alarms surviving an update. S3 lock-screen timer and voice through headphones while locked. Real Health scale data. Backup Clock alarm for the first week on the app. Xcode Cloud GIF fetch in `ci_scripts` (QA-7). Music ducking under voice cues with real music. All need ~45 min of setup and ~15 min of on-phone tests once paid; the Setup Desk checklist already covers them (Parts A–D). **Risk:** alarm and timer code ship unproven on a device; M2's wake alarms depend on it. If the device tests fail later, only the AlarmKit and ActivityKit layer is reworked, because CoachCore is device-independent.
 
-## Current mode: build cycle · M1 (Gate 0a passed 2026-11-16: QA round 1 on `be49d2f`, Advisor co-signed; pack in `docs/spikes/gate-0.md`)
+## Current mode: Gate 2 review · all of M1–M4 built (QA round 2 PASS on `6332a80`, 18 Nov; Advisor co-signed; pack in `docs/review/ceo-review-pack.md`)
 
 | ID | Item | Owner | Branch | Areas | Label | Status | 🙋 CEO hands |
 |---|---|---|---|---|---|---|---|
@@ -158,9 +158,11 @@ Device-only Done when lines from plan §7 are rewritten as simulator or UI-test 
 | M4-01 | Rules engine: calories from trend, load from logs, volume from recovery, stall flag | Coach Engineer | core | done (PR #53) |
 | M4-02 | Claude summary and share; clipboard import of a versioned block, rejected safely when bad | Coach Engineer | core | done (PR #53, import button PR #54; A17 plan wiring PR #60) |
 | M4-03 | Progress view, photos every 2 weeks, "Ask the coach now" (ghost outline and mood check cut, re-plan 17 Nov) | iOS Interface Engineer | interface | done (PR #57) |
-| M2-06 | "Tomorrow changed" button on Today: one tap opens tomorrow's answers, saves, and re-plans that one day's alarm and notifications (core `AlarmSchedule.replacingDay`, M2-02) | iOS Interface Engineer | interface | todo (gap found 17 Nov, before the round) |
-| M0-11b | Hide the Spike tests wrench everywhere except the alarm spike test (`-spikeAlarms`) and the spike screenshot modes, so Today and Onboarding shots for the review show no engineering tools | iOS Interface Engineer | interface | todo (gap found 17 Nov, before the round) |
-| G2-01 | Gate 2 pack | Head of Engineering | docs | todo |
+| M2-06 | "Tomorrow changed" button on Today: one tap opens tomorrow's answers, saves, and re-plans that one day's alarm and notifications (core `AlarmSchedule.replacingDay`, M2-02) | iOS Interface Engineer | interface | done (PR #72; moved into the ⋯ menu by UI-12, PR #76; basketball skip is a follow-up for the Planner Engineer) |
+| M0-11b | Hide the Spike tests wrench everywhere except the alarm spike test (`-spikeAlarms`) and the spike screenshot modes, so Today and Onboarding shots for the review show no engineering tools | iOS Interface Engineer | interface | done (PR #72) |
+| UI-12 | Declutter pass: one ⋯ menu on Today, fewer cards, quieter lists (`docs/design/ui-12-declutter.md`) | Product Designer, then iOS Interface Engineer | interface | done (spec PR #74, build PR #76) |
+| QA-R2 | Combined Gate 1 and Gate 2 QA round on one build | Head of QA (Advisor co-signs) | docs | done: PASS on `6332a80` (PRs #73, #75, #77, fixes #78, report #80) |
+| G2-01 | Gate 2 pack (`docs/review/ceo-review-pack.md`) | Head of Engineering | docs | done (ready for the CEO at 20:00, 18 Nov) |
 
 ### Done when (M1–M4)
 
