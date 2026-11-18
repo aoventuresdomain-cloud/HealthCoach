@@ -22,7 +22,7 @@ enum FoodAsk {
     }
 
     /// The slots to show, with `current` added when it isn't one of them.
-    static func slots(including current: Profile.Food.DeliverySlot?) -> [Profile.Food.DeliverySlot] {
+    static func slotChoices(including current: Profile.Food.DeliverySlot?) -> [Profile.Food.DeliverySlot] {
         guard let current, !slots.contains(current) else { return slots }
         return slots + [current]
     }

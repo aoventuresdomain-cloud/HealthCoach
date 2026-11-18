@@ -207,7 +207,7 @@ struct ProfileRowView: View {
                 ForEach(shops) { Text($0.name).tag($0.id) }
             }
             .accessibilityIdentifier("prefs.shop")
-            let slots = FoodAsk.slots(including: profile.food.delivery)
+            let slots = FoodAsk.slotChoices(including: profile.food.delivery)
             Picker("Delivery", selection: Binding(
                 get: { slots.firstIndex(of: profile.food.delivery ?? Profile.Food.DeliverySlot()) ?? 0 },
                 set: { profile.food.delivery = slots[$0] }
