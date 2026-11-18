@@ -127,7 +127,8 @@ struct MealsHubView: View {
     private func meals(_ day: MealDay?, date: Date, monday: Date) -> some View {
         List {
             if let day {
-                let eaten = day.meals.filter { ticks.isTicked($0, on: date, calendar: calendar) }
+                // QA-R3-3: a social meal has no real numbers, so it's named, not counted.
+                let eaten = day.meals.filter { !$0.isSocial && ticks.isTicked($0, on: date, calendar: calendar) }
                 let kcal = eaten.map(\.kcal).reduce(0, +)
                 let protein = eaten.map(\.protein).reduce(0, +)
                 Section {
@@ -139,7 +140,7 @@ struct MealsHubView: View {
                     }
                 } header: {
                     // UI-12: one quiet line, no targets; the engine steers by the scale.
-                    Text("\(kcal.formatted()) kcal · \(protein) g protein")
+                    Text(MealsFormat.totals(kcal: kcal, protein: protein, social: day.isSocial))
                         .font(.subheadline.monospacedDigit())
                         .foregroundStyle(.secondary)
                         .textCase(nil)
@@ -453,5 +454,15 @@ struct LunchOrderDetail: View {
         }
         .navigationTitle(order.place)
         .accessibilityIdentifier("lunch.detail")
+    }
+}
+
+/// Meals text, kept out of the view.
+enum MealsFormat {
+    /// "2,240 kcal · 108 g protein"; on a social-meal day (Advisor wording,
+    /// QA-R3-3) "1,240 kcal + social meal · 108 g + social meal".
+    static func totals(kcal: Int, protein: Int, social: Bool) -> String {
+        social ? "\(kcal.formatted()) kcal + social meal · \(protein) g + social meal"
+               : "\(kcal.formatted()) kcal · \(protein) g protein"
     }
 }
