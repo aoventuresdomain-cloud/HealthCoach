@@ -162,6 +162,9 @@ public struct NutritionContent: VersionedFormat, Sendable, Equatable {
         public let addsTo: [String]?
         /// Extras only: the meal it swaps out instead of adding to.
         public let replaces: MealSlot?
+        /// Dinners and Sunday cooks: main ingredients and their group (e.g. "salmon",
+        /// "oily-fish"), for a dislike filter in Preferences (Advisor A4).
+        public let mainIngredients: [String]?
 
         public enum Kind: String, Codable, Sendable {
             case breakfast, lunch, dinner, snack

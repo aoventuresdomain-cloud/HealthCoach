@@ -11,11 +11,14 @@ public struct ContentLibrary: Sendable {
     public let nutrition: NutritionContent
     /// Office-day lunch orders (M3).
     public let lunchOrders: LunchOrders
+    /// Named run loops, keyed by route id ("hyde-park") (N10).
+    public let runLoops: [String: RunLoops]
 
     public static let exercisesPath = "exercises/exercises.json"
     public static let programmesFolder = "programmes"
     public static let recipesPath = "recipes/recipes.json"
     public static let lunchOrdersPath = "lunch-orders.json"
+    public static let routesFolder = "routes"
 
     /// Loads and validates. Throws the first file's error, so a broken file
     /// is named rather than half-loaded.
@@ -42,13 +45,24 @@ public struct ContentLibrary: Sendable {
         try require(nutrition.problems(), file: recipesPath)
         let lunchOrders = try loadFile(LunchOrders.self, root.appendingPathComponent(lunchOrdersPath), name: lunchOrdersPath)
         try require(lunchOrders.problems(), file: lunchOrdersPath)
+
+        var runLoops: [String: RunLoops] = [:]
+        for url in try jsonFiles(in: root.appendingPathComponent(routesFolder)) {
+            let name = "\(routesFolder)/\(url.lastPathComponent)"
+            let loops = try loadFile(RunLoops.self, url, name: name)
+            var problems = loops.problems()
+            if runLoops[loops.route] != nil { problems.append("another file already has route \(loops.route)") }
+            try require(problems, file: name)
+            runLoops[loops.route] = loops
+        }
         try require(phaseProblems(Array(programmes.values)), file: programmesFolder)
         // C6: each phase knows the ones before it, so its loads carry on from theirs.
         let ordered = programmes.values.sorted { $0.phase < $1.phase }
         for programme in ordered {
             programmes[programme.id]?.earlierPhases = ordered.filter { $0.phase < programme.phase }
         }
-        return ContentLibrary(exercises: exercises, programmes: programmes, nutrition: nutrition, lunchOrders: lunchOrders)
+        return ContentLibrary(exercises: exercises, programmes: programmes, nutrition: nutrition, lunchOrders: lunchOrders,
+                              runLoops: runLoops)
     }
 
     /// C6: the phases follow on, week for week: phase N + 1 starts the plan
