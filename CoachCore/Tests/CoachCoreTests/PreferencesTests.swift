@@ -280,14 +280,9 @@ import Testing
         }
         let oldNotes = notes(before), newNotes = notes(saved), allNotes = notes(applied)
         #expect(newNotes.filter { isToday($0.fireDate) } == oldNotes.filter { isToday($0.fireDate) })
-        // Known gap, reported to the Head of Engineering: NotificationPlanner.plan
-        // reads the profile as saved, not as it applies on each day, so a pending
-        // edit reaches tomorrow's notifications only after the next re-plan.
-        withKnownIssue("NotificationPlanner ignores a pending Preferences edit for later days") {
-            #expect(newNotes.filter { !isToday($0.fireDate) } == allNotes.filter { !isToday($0.fireDate) })
-            #expect(newNotes.filter { !isToday($0.fireDate) } != oldNotes.filter { !isToday($0.fireDate) },
-                    "the edit moves tomorrow's notifications")
-        }
+        #expect(newNotes.filter { !isToday($0.fireDate) } == allNotes.filter { !isToday($0.fireDate) })
+        #expect(newNotes.filter { !isToday($0.fireDate) } != oldNotes.filter { !isToday($0.fireDate) },
+                "the edit moves tomorrow's notifications")
 
         // Today's meals: identical; the dislike applies from tomorrow.
         let plan = try week(at(11, 23)) { saved.dislikes(on: $0, calendar: calendar) }
@@ -296,5 +291,34 @@ import Testing
         for day in plan.days[(todayIndex + 1)...] {
             #expect(!day.meals.contains { $0.recipeID == dinner.recipeID }, "\(day.weekday)")
         }
+    }
+
+    /// N3 for notifications: an edit saved at 10:30 leaves every notification
+    /// still to fire today exactly as it was, tonight's wind-down included
+    /// (it belongs to tomorrow's lights out but fires today), while
+    /// tomorrow's morning brief follows the edit.
+    @Test func aMidMorningEditLeavesTodaysNotificationsAsTheyWere() throws {
+        let now = at(11, 23, 10, 30)
+        let before = profile()
+        let programme = try phase1()
+        var edited = before.preferences
+        edited.schedule.wakeBufferMinutes = 30
+        edited.schedule.latestBedtime = TimeOfDay(hour: 22, minute: 45)
+        let saved = before.scheduling(edited, now: now, calendar: calendar)
+        let plan = { (p: Profile) in
+            NotificationPlanner.plan(now: now, programme: programme, profile: p, answers: answers, calendar: calendar)
+        }
+        let isToday = { (d: Date) in calendar.isDate(d, inSameDayAs: now) }
+        let old = plan(before), new = plan(saved)
+        let todayOld = old.filter { isToday($0.fireDate) }
+        #expect(!todayOld.isEmpty)
+        #expect(todayOld.contains { $0.kind == .windDown }, "tonight's wind-down is today's to keep")
+        #expect(new.filter { isToday($0.fireDate) } == todayOld)
+
+        let brief = { (notes: [CoachNotification]) in
+            notes.first { $0.kind == .morningBrief && calendar.isDate($0.fireDate, inSameDayAs: at(11, 24)) }?.fireDate
+        }
+        let oldBrief = try #require(brief(old)), newBrief = try #require(brief(new))
+        #expect(newBrief < oldBrief, "tomorrow's brief follows the earlier wake")
     }
 }
