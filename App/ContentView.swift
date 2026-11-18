@@ -93,7 +93,7 @@ private struct RootView: View {
         do {
             let content = try BundledContent.load()
             let profile = try ProfileStore(context: context).load() ?? Profile()
-            guard let programme = content.programmes[profile.programme.programmeID] else {
+            guard let programme = content.programme(for: profile, on: AppClock.now(), calendar: .coach) else {
                 state = .failed("No programme called \(profile.programme.programmeID) in this build.")
                 return
             }

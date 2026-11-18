@@ -29,14 +29,16 @@ public struct PlannedDay: Equatable, Sendable {
 
 extension Programme {
     /// The plan for `date`, counting 7-day weeks from `start` (the Monday of
-    /// week 1, `Profile.programme.startDate`), in the owner's calendar.
+    /// plan week 1, `Profile.programme.startDate`), in the owner's calendar.
+    /// `week` is this programme's own week: plan week 7 is Phase 2's week 1 (C6).
     public func plannedDay(on date: Date, start: Date, calendar: Calendar = .current) -> PlannedDay {
         let weekday = Weekday(calendarWeekday: calendar.component(.weekday, from: date))
         let days = calendar.dateComponents([.day], from: calendar.startOfDay(for: start), to: calendar.startOfDay(for: date)).day ?? 0
-        guard days >= 0 else { return PlannedDay(week: nil, weekday: weekday, entry: .beforeStart) }
+        let ownWeek = days >= 0 ? days / 7 + 1 - planWeekOffset : 0
+        guard ownWeek >= 1 else { return PlannedDay(week: nil, weekday: weekday, entry: .beforeStart) }
         // E13: past the last week, hold at it until the next phase exists.
-        let held = days / 7 + 1 > weeks
-        let week = min(days / 7 + 1, weeks)
+        let held = ownWeek > weeks
+        let week = min(ownWeek, weeks)
         guard let scheduled = schedule.first(where: { $0.week == week }) else {
             return PlannedDay(week: nil, weekday: weekday, entry: .afterEnd)
         }

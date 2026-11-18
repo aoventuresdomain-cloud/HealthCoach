@@ -29,7 +29,7 @@ struct MealsHubView: View {
         let date = calendar.date(byAdding: .day, value: dayOffset, to: now) ?? now
         let monday = AlarmSchedule.mondayOf(date, calendar: calendar)
         // The rules engine's calorie target when it has moved it (M4-01), else the content's.
-        let kcalTarget = content.programmes[profile.programme.programmeID].flatMap { programme in
+        let kcalTarget = content.programme(for: profile, on: date, calendar: calendar).flatMap { programme in
             CoachReview.make(programme: programme, profile: profile,
                              history: (try? SessionLogStore(context: context).all()) ?? [],
                              weights: BodyStats.shared.weightSamples, blocks: CoachBlockStore().all,
@@ -37,7 +37,7 @@ struct MealsHubView: View {
         }
         let answers = WeekAnswersStore.shared.answers(weekStarting: monday, calendar: calendar)
         // C3: training days (sessions and basketball) take the extras first.
-        let trainingDays = content.programmes[profile.programme.programmeID].map { programme in
+        let trainingDays = content.programme(for: profile, on: date, calendar: calendar).map { programme in
             WeekPlanner.plan(weekStarting: monday, programme: programme, profile: profile, answers: answers,
                              calendar: calendar).trainingDays(programme: programme)
         } ?? []
