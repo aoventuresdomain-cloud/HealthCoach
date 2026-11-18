@@ -28,17 +28,17 @@ struct MealsHubView: View {
         let now = AppClock.now()
         let date = calendar.date(byAdding: .day, value: dayOffset, to: now) ?? now
         let monday = AlarmSchedule.mondayOf(date, calendar: calendar)
-        // The rules engine's calorie target when it has moved it (M4-01), else the content's.
-        let kcalTarget = content.programmes[profile.programme.programmeID].flatMap { programme in
-            CoachReview.make(programme: programme, profile: profile,
-                             history: (try? SessionLogStore(context: context).all()) ?? [],
+        let answers = WeekAnswersStore.shared.answers(weekStarting: monday, calendar: calendar)
+        // C1: the week shown is planned at the coach's target for that week (M4-01,
+        // imports included), so next week's meals follow Monday's check.
+        let plan = content.programmes[profile.programme.programmeID].map { programme in
+            MealPlan.coached(monday: monday, now: now, content: content.nutrition,
+                             lunchOrders: content.lunchOrders.orders, answers: answers, programme: programme,
+                             profile: profile, history: (try? SessionLogStore(context: context).all()) ?? [],
                              weights: BodyStats.shared.weightSamples, blocks: CoachBlockStore().all,
-                             now: now, calendar: calendar)?.calories.kcal
-        }
-        let plan = MealPlan.week(monday: monday, content: content.nutrition, lunchOrders: content.lunchOrders.orders,
-                                 answers: WeekAnswersStore.shared.answers(weekStarting: monday, calendar: calendar),
-                                 programmeID: profile.programme.programmeID, kcalTarget: kcalTarget,
-                                 calendar: calendar)
+                             calendar: calendar)
+        } ?? MealPlan.week(monday: monday, content: content.nutrition, lunchOrders: content.lunchOrders.orders,
+                           answers: answers, programmeID: profile.programme.programmeID, calendar: calendar)
         VStack(spacing: 0) {
             Picker("Section", selection: $tab) {
                 ForEach(Tab.allCases) { Text($0.rawValue).tag($0) }
