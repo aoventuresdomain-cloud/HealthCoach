@@ -159,11 +159,20 @@ private struct SetScreen: View {
         VStack(alignment: .leading, spacing: 14) {
             ExerciseMediaView(exercise: model.exercise(step.exercise))
                 .frame(minHeight: 140, idealHeight: 220, maxHeight: 220)
-            Text(model.name(step.exercise))
-                .font(.title.bold())
-                .lineLimit(2)
-                .minimumScaleFactor(0.8)
-                .accessibilityIdentifier("player.exerciseName")
+            VStack(alignment: .leading, spacing: 2) {
+                Text(model.name(step.exercise))
+                    .font(.title.bold())
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.8)
+                    .accessibilityIdentifier("player.exerciseName")
+                // C6: progression shown where it happens; part of the name block, not a new item.
+                if let lastTime = model.lastTime[step.exercise] {
+                    Text(lastTime)
+                        .font(.subheadline.monospacedDigit())
+                        .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("player.lastTime")
+                }
+            }
             numbers
             if let note = step.note {
                 Text(note).font(.headline).foregroundStyle(.go)

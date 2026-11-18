@@ -30,6 +30,7 @@ struct SessionLaunch: Identifiable {
             return SessionLaunch(player: .strength(WorkoutPlayerModel(
                 script: script, catalogue: content.exercises, programmeID: programme.id,
                 recovery: recovery, voiceCues: strengthVoice, now: now,
+                lastTime: LastTime.lines(for: script, history: history),
                 nextTime: { log in
                     NextTime.lines(sessionID: slot.id, programme: programme, week: week, history: history + [log])
                 })))

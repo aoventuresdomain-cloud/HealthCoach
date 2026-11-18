@@ -54,7 +54,7 @@ struct UITestStatus: View {
         // QA-17: past the programme's last week the plan holds at it (E13).
         var held = "0"
         if let stored = try? ProfileStore(context: context).load(), let start = stored.programme.startDate,
-           let programme = (try? BundledContent.load())?.programmes[stored.programme.programmeID],
+           let programme = (try? BundledContent.load())?.programme(for: stored, on: AppClock.now(), calendar: .coach),
            programme.plannedDay(on: AppClock.now(), start: start, calendar: .coach).heldAtLastWeek {
             held = "1"
         }

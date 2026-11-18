@@ -30,12 +30,13 @@ struct MealsHubView: View {
         let monday = AlarmSchedule.mondayOf(date, calendar: calendar)
         let answers = WeekAnswersStore.shared.answers(weekStarting: monday, calendar: calendar)
         // C1: the week shown is planned at the coach's target for that week (M4-01,
-        // imports included), so next week's meals follow Monday's check.
-        let plan = content.programmes[profile.programme.programmeID].map { programme in
+        // imports included), so next week's meals follow Monday's check;
+        // C3: its training days take the extras first. C6: the phase in force that week.
+        let plan = content.programme(for: profile, on: date, calendar: calendar).map { programme in
             MealPlan.coached(monday: monday, now: now, content: content.nutrition,
                              lunchOrders: content.lunchOrders.orders, answers: answers, programme: programme,
                              profile: profile, history: (try? SessionLogStore(context: context).all()) ?? [],
-                             weights: BodyStats.shared.weightSamples, blocks: CoachBlockStore().all,
+                             weights: BodyStats.shared.weightHistory, blocks: CoachBlockStore().all,
                              calendar: calendar)
         } ?? MealPlan.week(monday: monday, content: content.nutrition, lunchOrders: content.lunchOrders.orders,
                            answers: answers, programmeID: profile.programme.programmeID, calendar: calendar)

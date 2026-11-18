@@ -120,7 +120,7 @@ final class WakeAlarms {
             return .noAlarms
         }
         guard let content = try? BundledContent.load(),
-              let programme = content.programmes[profile.programme.programmeID] else {
+              let programme = content.programme(for: profile, on: now, calendar: .coach) else {
             // Never reconcile against a plan that didn't load (empty-plan guard).
             lastError = "The training plan couldn't be read, so alarms were left as they were."
             coverage = .noAlarms

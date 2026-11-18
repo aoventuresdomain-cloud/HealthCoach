@@ -25,7 +25,8 @@ public enum CoachSummary {
     public static func text(reason: Reason? = nil, programme: Programme, profile: Profile,
                             history: [SessionLog], weights: [WeightSample], steps: [StepCount] = [],
                             meals: MealAdherence? = nil,
-                            blocks: [CoachBlock], now: Date, calendar: Calendar = .current) -> String? {
+                            blocks: [CoachBlock], socialMeals: [Date] = [], now: Date,
+                            calendar: Calendar = .current) -> String? {
         guard let start = profile.programme.startDate,
               let review = CoachReview.make(programme: programme, profile: profile, history: history,
                                             weights: weights, blocks: blocks, now: now, calendar: calendar)
@@ -65,6 +66,13 @@ public enum CoachSummary {
             lines.append(contentsOf: meals.lines)
         } else {
             lines.append("- Meals are planned and pre-ticked; unticked or swapped meals are adjusted in the app.")
+        }
+        // C4: this week's social meals; over the allowance is flagged for Claude.
+        // One line only: the adherence block's count wins when it has one.
+        let social = SocialMeals.count(socialMeals, weekOf: AlarmSchedule.mondayOf(now, calendar: calendar), calendar: calendar)
+        if social.used > 0, meals?.socialMeals == nil {
+            lines.append("- Social meals this week: \(social.text)" + (social.flagged ? " (over the allowance, flagged)" : "")
+                         + ", counted as \(CoachText.thousands(SocialMeals.kcal)) kcal each, untracked")
         }
         lines.append("")
 

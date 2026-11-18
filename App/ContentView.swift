@@ -24,6 +24,11 @@ private struct RootView: View {
     @Environment(\.modelContext) private var context
     @State private var state = LoadState.loading
     @State private var playing: SessionLaunch?
+    /// C2: Today's coach line switches tabs and asks Progress to show "Ask the coach now".
+    @State private var tab = RootTab.today
+    @State private var showAskCoach = false
+
+    private enum RootTab: Hashable { case today, meals, progress }
 
     private enum LoadState {
         case loading
@@ -43,24 +48,28 @@ private struct RootView: View {
                 if profile.confirmed {
                     // UI-6: Today, Meals and Progress as tabs. Always opens on Today;
                     // sessions stay full-screen covers, so no tab bar mid-session.
-                    TabView {
-                        Tab("Today", systemImage: "sun.max") {
+                    TabView(selection: $tab) {
+                        Tab("Today", systemImage: "sun.max", value: RootTab.today) {
                             NavigationStack {
                                 TodayView(content: content, programme: programme, profile: profile) { slot, week, recovery in
                                     playing = SessionLaunch.make(slot: slot, week: week, recovery: recovery,
                                                                  content: content, programme: programme, profile: profile,
                                                                  history: (try? SessionLogStore(context: context).all()) ?? [])
+                                } onAskCoach: {
+                                    showAskCoach = true
+                                    tab = .progress
                                 }
                             }
                         }
-                        Tab("Meals", systemImage: "fork.knife") {
+                        Tab("Meals", systemImage: "fork.knife", value: RootTab.meals) {
                             NavigationStack {
                                 MealsHubView(content: content, profile: profile)
                             }
                         }
-                        Tab("Progress", systemImage: "chart.line.uptrend.xyaxis") {
+                        Tab("Progress", systemImage: "chart.line.uptrend.xyaxis", value: RootTab.progress) {
                             NavigationStack {
-                                ProgressScreen(content: content, programme: programme, profile: profile)
+                                ProgressScreen(content: content, programme: programme, profile: profile,
+                                               showAskCoach: $showAskCoach)
                             }
                         }
                     }
@@ -93,7 +102,7 @@ private struct RootView: View {
         do {
             let content = try BundledContent.load()
             let profile = try ProfileStore(context: context).load() ?? Profile()
-            guard let programme = content.programmes[profile.programme.programmeID] else {
+            guard let programme = content.programme(for: profile, on: AppClock.now(), calendar: .coach) else {
                 state = .failed("No programme called \(profile.programme.programmeID) in this build.")
                 return
             }

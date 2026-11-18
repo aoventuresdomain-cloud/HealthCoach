@@ -4,6 +4,7 @@
   "id": "phase-1",
   "phase": 1,
   "name": "Cut and rebuild",
+  "firstPlanWeek": 1,
   "weeks": 6,
   "maxSessionMinutes": 45,
   "warmUpMinutes": 5,

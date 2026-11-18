@@ -123,6 +123,19 @@ public struct CoachReview: Sendable, Equatable {
     }
 }
 
+extension CoachReview {
+    /// C2: Today's one coach line, or nil when nothing needs the coach. A stall
+    /// or checkpoint flag comes first; otherwise the dumbbell limit. `name`
+    /// turns an exercise id into its display name.
+    public func todayLine(name: (String) -> String) -> String? {
+        if let flag = flags.first { return flag.line }
+        guard let first = dumbbellLimit.first else { return nil }
+        let others = dumbbellLimit.count - 1
+        let who = others == 0 ? "\(name(first)) is" : "\(name(first)) and \(others) more are"
+        return "\(who) at your heaviest dumbbell. Ask the coach."
+    }
+}
+
 extension Programme {
     /// Every strength item across sessions, once per exercise.
     var strengthItems: [StrengthItem] {
