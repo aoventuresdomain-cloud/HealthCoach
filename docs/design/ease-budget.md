@@ -15,7 +15,7 @@ Each rule is checked inside `EaseBudget`, so a job can't pass by being clever.
 | E1 | **Taps** never exceed the job's budget, on the default path and on the "change one answer" path | `finish` asserts `taps <= maxTaps` (QA method) |
 | E2 | **Time** (model seconds) never exceeds the job's budget | `finish` asserts `modelSeconds <= maxSeconds` (QA method; 1.1 s a tap, 1.5 s a screen, 1.0 s a scroll, 0.3 s a character, 2.0 s an alert) |
 | E3 | **No scrolling** in any job marked daily or weekly. A control you have to scroll to is a design bug, not a slow job | Proposed helper addition: `maxScrolls: Int = 0`, asserted in `finish` |
-| E4 | **No typing** in daily or weekly jobs. Only Preferences numbers and the optional waist measurement take characters | Proposed: `maxChars: Int = 0`, asserted in `finish`; also `app.keyboards.count == 0` at `finish` |
+| E4 | **No typing** in daily or weekly jobs. Only Preferences numbers take characters; the optional waist uses a stepper (Advisor 5) | Proposed: `maxChars: Int = 0`, asserted in `finish`; also `app.keyboards.count == 0` at `finish` |
 | E5 | **No confirmation alerts.** The only "are you sure?" in the app is ending a session early. System permission alerts are allowed once, and counted | Alerts are counted (QA method); the job's alert budget is in the table |
 | E6 | **Every tapped control is at least 44 × 44 pt** | Proposed: `tap` asserts `e.frame.width >= 44 && e.frame.height >= 44` |
 
@@ -42,6 +42,8 @@ Default path = the CEO accepts every pre-selected answer. Change path = he chang
 | D9 | Another lunch order | Launch → new suggestion | 2 | 10 s | Lunch row → `lunch.another` |
 | D10 | See a coach line (C2 stall, N8 "Easing back in", N2 change) | Launch → line on Today | 0 / 1 to open | 5 s | One line, never more than one on Today |
 | D11 | Weigh in, wake up, weather swap | — | 0 | — | Scale via Health, system alarm, swap is automatic; "Run anyway" is 1 |
+| D12 | Easing back in after a break (N8) | Launch → player opens at eased loads, one line says why (`player.easing`) | 0 extra (Start only) | — | No question asked; the line reads "Easing back in after 12 days off" (Advisor) |
+| D13 | Social-meal rebalance (C4) | — | 0 | — | Never shown as a task or a number to manage; the week rebalances silently inside the floors (Advisor) |
 
 ### Weekly
 
@@ -58,7 +60,7 @@ Default path = the CEO accepts every pre-selected answer. Change path = he chang
 
 | ID | Job | Start → done state | Taps default / change | Time | Notes |
 |---|---|---|---|---|---|
-| F1 | **Photo day** (N7) | Notification → both poses saved, Progress shows them | **4** / 6 + 4 chars | **60 s** (10.4) | Waist on: tap field, type "84.5", Done. The model doesn't count the seconds spent stepping into pose; the 3 s self-timer and hints cover that, and 60 s leaves room |
+| F1 | **Photo day** (N7) | Notification → both poses saved, Progress shows them | **4** / 6 | **60 s** (10.4) | Waist on: a stepper pre-filled with the last value, 0.5 cm steps, usually 1–2 taps; typing is the fallback (Advisor 5). The model doesn't count the seconds spent stepping into pose; the 3 s self-timer and hints cover that, and 60 s leaves room |
 | F1b | Photo day without the notification | Launch → same | 5 | 60 s | Progress → photo-day card |
 | F2 | Compare photos (N7) | Launch → `compare.view` today vs week 0 | 2 / 3 | 10 s | Change = "4 weeks ago" |
 | K1 | Ask the coach now | Launch → share sheet open with the summary | 2 | 10 s | Picking Claude in the share sheet is the system's |
@@ -77,7 +79,7 @@ Each screen follows the UI-12 rules. New identifiers are listed so the tests abo
 
 Two screens, no scrolling. The card on Today reads "Check in · 1 min ›" (`today.checkIn`, keeps the weekend slot of `today.planWeek`).
 
-**Screen 1 · "Your week"** (`checkin.week`): ① weight hero, "82.4 kg · −0.6 kg" (7-day average and change) ② one line, "4 of 4 sessions · 8,900 steps a day" ③ Energy: Good · OK · Low (`checkin.energy`) ④ Sleep: Fine · Poor (`checkin.sleep`) ⑤ Any pain: None · Yes (`checkin.pain`). Primary **Next** (`checkin.next`). Defaults Good, Fine, None (Advisor A1). Pain Yes reveals one row of six areas in place (`checkin.painArea.*`); nothing else moves.
+**Screen 1 · "Your week"** (`checkin.week`): ① weight hero, "82.4 kg · −1.1 kg since start" (7-day average; never week on week, which is mostly water; Advisor 1) ② one line, "4 of 4 sessions · 8,900 steps a day", information only: no ring, target or colour (Advisor 6) ③ Energy: Good · OK · Low (`checkin.energy`) ④ Sleep: Fine · Poor (`checkin.sleep`) ⑤ Any pain: None · Yes (`checkin.pain`). Primary **Next** (`checkin.next`). Defaults Good, Fine, None (Advisor A1). Pain Yes reveals the areas in place, two rows of three: Shoulder, Elbow, Wrist, Back, Knee, Other (`checkin.painArea.*`); no typing; nothing else moves. The pick swaps that area's exercises to their catalogue `swap` for 7 days, adds a What-changed line, and isn't asked again that week (Advisor 2). Energy Low **and** Sleep Poor together are one low-recovery signal for the existing drop-to-2 rule; either alone is noted for the Claude summary and changes nothing (Advisor 3).
 
 **Screen 2 · "Next week"** (`checkin.plan`): ① office day pills, pre-filled from last week (`sunday.day.*`, unchanged ids) ② "Early start or late finish?" folded (`sunday.times`) ③ What changed, at most 4 lines (`changes.card`, N2) ④ the week's sessions in one line. Primary **Looks good** (`checkin.done`). Back returns to screen 1 without losing answers.
 
@@ -85,7 +87,7 @@ Skipping: the card stays until Monday, then goes. The plan runs unchanged (N1 Do
 
 ### N2 · What changed and why
 
-One card (`changes.card`), one line per change (`changes.line.*`), at most 4, then "N more ›". Format: **what, old → new: why**, under 10 words, e.g. "Calories 2,000 → 1,900: weight flat 2 weeks". Load rises green ↑; held or eased loads grey, never red (direction.md). Shown in check-in screen 2 and at the top of Progress for 7 days after a change. No card when nothing changed.
+One card (`changes.card`), one line per change (`changes.line.*`), at most 4, then "N more ›". Format: **what, old → new: why**, under 10 words, e.g. "Calories 2,000 → 1,900: loss slowed over 2 weeks"; a calorie line always gives the 2-week reason (Advisor 4). Load rises green ↑; held or eased loads grey, never red (direction.md). Shown in check-in screen 2 and at the top of Progress for 7 days after a change. No card when nothing changed.
 
 ### N3 · Settings → Preferences
 
@@ -105,7 +107,7 @@ No new screen. The budget it must keep: a recipe still opens in one tap from its
 
 ### N7 · Photos
 
-**Photo day** (`photo.view`), full-screen camera: ① ghost outline of the first photo of this pose (`photo.ghost`) ② one hint line, four words at most, "Step back a little" (`photo.hint`), or nothing when the pose is right ③ "Front · 1 of 2" ④ shutter, primary (`photo.take.front`, `photo.take.side`, unchanged). The shutter starts a 3 s self-timer with a tick haptic and sound, so the phone can sit on a shelf. Then one review screen: both shots side by side, the waist row only if turned on (`photo.waist`), primary **Save** (`photo.save`).
+**Photo day** (`photo.view`), full-screen camera: ① ghost outline of the first photo of this pose (`photo.ghost`) ② one hint line, four words at most, "Step back a little" (`photo.hint`), or nothing when the pose is right ③ "Front · 1 of 2" ④ shutter, primary (`photo.take.front`, `photo.take.side`, unchanged). The shutter starts a 3 s self-timer with a tick haptic and sound, so the phone can sit on a shelf. Then one review screen: both shots side by side, the waist row only if turned on (`photo.waist`): a stepper pre-filled with the last value in 0.5 cm steps, with one line "At the navel, after breathing out"; primary **Save** (`photo.save`).
 
 **Compare** (`compare.view`): Progress → "Photos · next Mon 7 Dec ›" (`progress.photos`) opens straight onto today against week 0, with a slider (`compare.slider`) and a two-way switch, Week 0 · 4 weeks ago (`compare.against`). Weight trend and waist (when on) sit under the photos as one line.
 
@@ -153,7 +155,25 @@ Build: an Icon Composer `.icon` with two layers (black background, green glyph),
 
 Empty. Anything that can't meet its budget by 18:00 on 19 Nov goes here with its reason, and the Head of Engineering decides whether it ships.
 
-## 8. Open taste decisions (for the CEO's pack, not asked)
+## 8. Advisor review
+
+Round 1, 18 Nov. Critique: `/mnt/project-files/advisor/n9-ease-budget-critique.md`. Verdict: signed off once points 1–3 are in; admin check passes.
+
+| # | Advisor point | Answer | Where |
+|---|---|---|---|
+| 1 | Check-in weight hero is the 7-day average with change since start (or over 2 weeks), never week on week | **Accepted**: "since start", matching the Progress hero | §3 N1 |
+| 2 | Pain Yes: one area row (Knee, Shoulder, Back, Other), no typing, 7-day swaps, What-changed line, not asked again that week | **Changed**: all accepted except the list. It keeps the six areas from your A1 answer (Shoulder, Elbow, Wrist, Back, Knee, Other), which are in the merged N1 Done-when that QA tests, laid out as two rows of three | §3 N1 |
+| 3 | Energy Low plus Sleep Poor = one low-recovery signal for the drop rule; one alone changes nothing | **Accepted** (same as N1 Done-when) | §3 N1 |
+| 4 | N2 wording and 7 days on Progress; calorie lines give the 2-week reason; eased loads grey | **Accepted** | §3 N2 |
+| 5 | Waist: stepper pre-filled, 0.5 cm steps, typing as fallback; one-line measuring rule | **Accepted** | E4, F1, §3 N7 |
+| 6 | Steps information only, no ring or target colour | **Accepted** | §3 N1 |
+| — | Lunch row on Today, office days only | **Accepted** (already the fix) | §4 |
+| — | Shopping tab; "In the shop" as primary | **Accepted** | §4, §3 N5 |
+| — | Add D12 Easing back in, 0 taps, one line | **Changed**: added, but the threshold stays at 10 days, from your A2 answer and the merged N8 Done-when, so the spec and the engine agree. Move it to 7 through N8 if you want it changed | §2 D12 |
+| — | Social-meal rebalance stays invisible, 0 taps | **Accepted** | §2 D13 |
+| — | Cut nothing | **Accepted** | |
+
+## 9. Open taste decisions (for the CEO's pack, not asked)
 
 1. App icon: green dumbbell on black (default) or another mark.
 2. Shopping as its own tab (default) or the Meals tab opening on Shopping on shop day.
