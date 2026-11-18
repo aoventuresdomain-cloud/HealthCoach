@@ -188,7 +188,8 @@ private struct PhotoCaptureView: View {
                         .font(.headline)
                         .frame(width: 44, height: 44)
                         .glassEffect(.regular.interactive(), in: .circle)
-                        .accessibilityIdentifier("photo.cancel")
+                        // Its own id: the review screen's "Not today" (photo.cancel) sits off-screen under the camera.
+                        .accessibilityIdentifier("photo.camera.cancel")
                     Spacer()
                     Text("\(pose.title) · \(index) of \(ProgressStore.Pose.allCases.count)")
                         .font(.headline)
