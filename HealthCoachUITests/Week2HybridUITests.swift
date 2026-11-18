@@ -53,17 +53,21 @@ final class Week2HybridUITests: XCTestCase {
     @MainActor
     func testA1SundayPromptThenTheWeeksPlan() throws {
         let app = launch("2026-11-22T18:00:00Z", fixture: "week2-hybrid-sunday")
-        let card = app.buttons["today.planWeek"]
+        let card = app.buttons["today.checkIn"]
         XCTAssertTrue(card.waitForExistence(timeout: 5))
         let started = Date()
         card.tap()
+        // N1: the weekend card is the check-in; screen 2 holds the office days.
+        let next = app.buttons["checkin.next"]
+        XCTAssertTrue(next.waitForExistence(timeout: 5))
+        next.tap()
         let monday = app.buttons["sunday.day.monday"]
         XCTAssertTrue(monday.waitForExistence(timeout: 5))
         shot(app, "a1-sunday-prompt")
         monday.tap()
         app.buttons["sunday.day.tuesday"].tap()
         app.buttons["sunday.day.thursday"].tap()
-        app.buttons["sunday.done"].tap()
+        app.buttons["checkin.done"].tap()
         XCTAssertTrue(card.waitForNonExistence(timeout: 5), "the plan shows straight after")
         let elapsed = Date().timeIntervalSince(started)
         XCTAssertLessThan(elapsed, 20, "Sunday prompt took \(elapsed) s")

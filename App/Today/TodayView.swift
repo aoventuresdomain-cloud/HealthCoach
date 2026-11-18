@@ -21,6 +21,8 @@ struct TodayView: View {
     @State private var alarmStatus = AlarmReconcileStatus.notYetRun
     /// The Monday the Sunday prompt sheet is open for; nil when closed.
     @State private var promptWeek: PromptWeek?
+    /// N1: the Monday the check-in is open for; nil when closed.
+    @State private var checkInWeek: PromptWeek?
     /// Tomorrow's date while the "Tomorrow changed" sheet is open (M2-06).
     @State private var changingTomorrow: PromptWeek?
     @State private var showSpikeTests = false
@@ -64,6 +66,12 @@ struct TodayView: View {
                     .buttonStyle(.plain)
                     .accessibilityHint("Opens Progress, with Ask the coach now")
                     .accessibilityIdentifier("today.coachLine")
+                } else if dayOffset == 0, let line = easingLine(plan: plan, history: history, now: now) {
+                    // N8: back after 10+ days off, the same slot says how hard today is.
+                    Label(line, systemImage: "arrow.up.right")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("today.easingLine")
                 }
                 if let notice = TodayFormat.storeNotice(AppStore.recovery) {
                     Label(notice, systemImage: "exclamationmark.triangle.fill")
@@ -77,7 +85,13 @@ struct TodayView: View {
                 // UI-12: the weight line moved to Progress (progress.weight); the
                 // weather swap is the card's meta line plus "I'll run anyway" below.
                 if dayOffset == 0, let monday = promptDue(now: now) {
-                    planWeekCard(monday)
+                    checkInCard(monday)
+                } else if dayOffset == 0, let line = checkedInLine(now: now) {
+                    // W1's end state: the week is applied; one quiet line until Monday.
+                    Label(line, systemImage: "checkmark.circle")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("checkin.applied")
                 }
                 if let plan {
                     // UI-12: no card on a no-session day; the title and timeline say it.
@@ -112,13 +126,21 @@ struct TodayView: View {
             guard NotificationTaps.shared.pending == .sundayPrompt else { return }
             NotificationTaps.shared.pending = nil
             if profile.programme.startDate != nil {
-                promptWeek = PromptWeek(monday: SundayPrompt.monday(for: AppClock.now(), calendar: calendar))
+                checkInWeek = PromptWeek(monday: SundayPrompt.monday(for: AppClock.now(), calendar: calendar))
             }
         }
         .sheet(item: $promptWeek) { week in
             SundayPromptView(monday: week.monday,
                              initial: WeekAnswersStore.shared.answers(weekStarting: week.monday, calendar: calendar),
                              workStart: profile.schedule.workStart, workEnd: profile.schedule.workEnd) { answers in
+                save(answers, weekStarting: week.monday)
+            }
+        }
+        .sheet(item: $checkInWeek) { week in
+            CheckInView(monday: week.monday, programme: programme, profile: profile, history: history,
+                        changes: { changes(history: history, now: now, answering: $0) },
+                        initialWeek: WeekAnswersStore.shared.answers(weekStarting: week.monday, calendar: calendar)) { checkIn, answers in
+                CheckInStore.shared.save(checkIn, weekStarting: week.monday, calendar: calendar)
                 save(answers, weekStarting: week.monday)
             }
         }
@@ -190,22 +212,34 @@ struct TodayView: View {
         var id: Date { monday }
     }
 
-    /// Next week's Monday from Saturday until it is answered; nil otherwise.
+    /// Next week's Monday from Saturday until the check-in is done; nil otherwise.
+    /// Skipped, the card goes on Monday and the plan runs unchanged (N1).
+    /// "Next week is set · 4 sessions", from the check-in until Monday.
+    private func checkedInLine(now: Date) -> String? {
+        _ = answersVersion
+        guard profile.programme.startDate != nil, SundayPrompt.isDue(on: now, calendar: calendar) else { return nil }
+        let monday = SundayPrompt.monday(for: now, calendar: calendar)
+        guard CheckInStore.shared.hasCheckedIn(weekStarting: monday, calendar: calendar) else { return nil }
+        let sessions = CheckInFormat.sessionsLine(programme: programme, profile: profile, monday: monday, calendar: calendar)
+        let count = sessions?.components(separatedBy: " · ").count ?? 0
+        return count > 0 ? "Next week is set · \(count) sessions" : "Next week is set"
+    }
+
     private func promptDue(now: Date) -> Date? {
         _ = answersVersion
         guard profile.programme.startDate != nil, SundayPrompt.isDue(on: now, calendar: calendar) else { return nil }
         let monday = SundayPrompt.monday(for: now, calendar: calendar)
-        return WeekAnswersStore.shared.hasAnswers(weekStarting: monday, calendar: calendar) ? nil : monday
+        return CheckInStore.shared.hasCheckedIn(weekStarting: monday, calendar: calendar) ? nil : monday
     }
 
-    private func planWeekCard(_ monday: Date) -> some View {
+    /// N1: "Check in · 1 min ›", in the weekend slot the Plan next week card had.
+    private func checkInCard(_ monday: Date) -> some View {
         Button {
-            promptWeek = PromptWeek(monday: monday)
+            checkInWeek = PromptWeek(monday: monday)
         } label: {
-            // UI-12: one line.
             HStack(spacing: 12) {
-                Text("Plan next week").font(.headline)
-                Text("· 20 s").foregroundStyle(.secondary)
+                Text("Check in").font(.headline)
+                Text("· 1 min").foregroundStyle(.secondary)
                 Spacer(minLength: 0)
                 Image(systemName: "chevron.right").foregroundStyle(.tertiary)
             }
@@ -215,7 +249,18 @@ struct TodayView: View {
             .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 20))
         }
         .buttonStyle(.plain)
-        .accessibilityIdentifier("today.planWeek")
+        .accessibilityIdentifier("today.checkIn")
+    }
+
+    /// N2: what the coach changed this week, for check-in screen 2.
+    /// `answering` is the check-in on screen, not saved yet; dated now, its pain counts from today.
+    private func changes(history: [SessionLog], now: Date, answering: CheckIn) -> [CoachChange] {
+        var answered = answering
+        answered.date = now
+        return CoachChanges.make(programme: programme, profile: profile, history: history,
+                          weights: BodyStats.shared.weightHistory, blocks: CoachBlockStore().all,
+                          checkIns: CheckInStore.shared.all + [answered], exercises: content.exercises, now: now,
+                          name: { content.exercises.exercise($0)?.name ?? $0 }, calendar: calendar)
     }
 
     /// Saves the answers, then re-plans alarms and notifications at once
@@ -239,8 +284,16 @@ struct TodayView: View {
     private func coachLine(history: [SessionLog], now: Date) -> String? {
         CoachReview.make(programme: programme, profile: profile, history: history,
                          weights: BodyStats.shared.weightHistory, blocks: CoachBlockStore().all,
-                         now: now, calendar: calendar)?
+                         checkIns: CheckInStore.shared.all, now: now, calendar: calendar)?
             .todayLine { content.exercises.exercise($0)?.name ?? $0 }
+    }
+
+    /// N8: "Easing back in: 80% today", on a strength day while the rebuild runs.
+    private func easingLine(plan: DayPlan?, history: [SessionLog], now: Date) -> String? {
+        guard case .strength = plan?.session?.session,
+              let step = programme.easingStep(history: history, checkIns: CheckInStore.shared.all,
+                                                        on: now, calendar: calendar) else { return nil }
+        return step.easing.todayLine(atSession: step.session)
     }
 
     // MARK: Header

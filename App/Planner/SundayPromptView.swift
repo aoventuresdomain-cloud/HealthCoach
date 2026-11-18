@@ -33,25 +33,8 @@ struct SundayPromptView: View {
                     Text("Office days, week of \(monday.formatted(.dateTime.day().month(.abbreviated)))?")
                         .font(.title2.bold())
                         .accessibilityIdentifier("sunday.question")
-                    HStack(spacing: 8) {
-                        ForEach(Self.workdays, id: \.self) { day in
-                            dayButton(day)
-                        }
-                    }
-                    Button(showTimes ? "Hide early starts and late finishes" : "Early start or late finish?") {
-                        withAnimation { showTimes.toggle() }
-                    }
-                    .font(.subheadline.weight(.semibold))
-                    .accessibilityIdentifier("sunday.times")
-                    if showTimes {
-                        VStack(spacing: 0) {
-                            ForEach(Self.workdays, id: \.self) { day in
-                                timesRow(day)
-                                if day != .friday { Divider().padding(.leading, 16) }
-                            }
-                        }
-                        .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 20))
-                    }
+                    OfficeWeekEditor(answers: $answers, showTimes: $showTimes,
+                                     workStart: workStart, workEnd: workEnd)
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
@@ -68,12 +51,45 @@ struct SundayPromptView: View {
             .safeAreaInset(edge: .bottom) {
                 ActionBar {
                     Button("Done") {
-                        onDone(cleaned(answers))
+                        onDone(OfficeWeekEditor.cleaned(answers, workStart: workStart, workEnd: workEnd))
                         dismiss()
                     }
                     .buttonStyle(PrimaryActionStyle())
                     .accessibilityIdentifier("sunday.done")
                 }
+            }
+        }
+    }
+}
+
+/// Office day pills and the folded early start / late finish rows, shared by
+/// the Sunday prompt and check-in screen 2 (N1). The ids are unchanged.
+struct OfficeWeekEditor: View {
+    @Binding var answers: WeekAnswers
+    @Binding var showTimes: Bool
+    let workStart: TimeOfDay
+    let workEnd: TimeOfDay
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            HStack(spacing: 8) {
+                ForEach(SundayPromptView.workdays, id: \.self) { day in
+                    dayButton(day)
+                }
+            }
+            Button(showTimes ? "Hide early starts and late finishes" : "Early start or late finish?") {
+                withAnimation { showTimes.toggle() }
+            }
+            .font(.subheadline.weight(.semibold))
+            .accessibilityIdentifier("sunday.times")
+            if showTimes {
+                VStack(spacing: 0) {
+                    ForEach(SundayPromptView.workdays, id: \.self) { day in
+                        timesRow(day)
+                        if day != .friday { Divider().padding(.leading, 16) }
+                    }
+                }
+                .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 20))
             }
         }
     }
@@ -127,7 +143,7 @@ struct SundayPromptView: View {
     }
 
     /// Drops times that match the normal working day, which mean nothing.
-    private func cleaned(_ answers: WeekAnswers) -> WeekAnswers {
+    static func cleaned(_ answers: WeekAnswers, workStart: TimeOfDay, workEnd: TimeOfDay) -> WeekAnswers {
         var out = answers
         out.earlyStarts = out.earlyStarts.filter { $0.value < workStart }
         out.lateFinishes = out.lateFinishes.filter { $0.value > workEnd }
