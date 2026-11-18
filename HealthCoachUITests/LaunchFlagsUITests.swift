@@ -48,9 +48,11 @@ final class LaunchFlagsUITests: XCTestCase {
 
     @MainActor
     func testPastTheLastWeekThePlanHolds() throws {
-        // QA-17 (E13): Monday 11 Jan 2027 is week 8 of a 6-week programme
-        // started 23 Nov, so the plan holds at week 6 and says so.
-        let app = launch(now: "2027-01-11T07:00:00Z", fixture: "week1-monday")
+        // QA-17 (E13): with Phases 1–3 chained (C6) the plan runs 20 weeks from
+        // 23 Nov. Monday 19 Apr 2027 is plan week 22, past Phase 3's last week,
+        // so the plan holds at it and says so. (11 Jan, the old date, is now
+        // Phase 2 week 2: nothing to hold.)
+        let app = launch(now: "2027-04-19T06:00:00Z", fixture: "week1-monday")
         let status = app.staticTexts["debug.launch"]
         XCTAssertTrue(status.waitForExistence(timeout: 10))
         XCTAssertTrue(status.label.contains("held=1"), status.label)
