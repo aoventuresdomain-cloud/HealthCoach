@@ -62,7 +62,8 @@ final class CheckInUITests: XCTestCase {
         // Knee pain: next week's run-walk is a brisk walk, said in What changed (Advisor c).
         let more = app.buttons["changes.more"]
         if more.exists { more.tap() }
-        XCTAssertTrue(app.descendants(matching: .any)["changes.card"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["changes.card"].waitForExistence(timeout: 3),
+                      "week 1's knee answer still shows What changed")
         XCTAssertTrue(app.descendants(matching: .any)["checkin.runWalkLine"].waitForExistence(timeout: 3))
         attachShot(app, "checkin-plan")
         app.buttons["checkin.done"].tap()
