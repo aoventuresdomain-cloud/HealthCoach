@@ -35,23 +35,9 @@ struct MealsHubView: View {
         let now = AppClock.now()
         let date = calendar.date(byAdding: .day, value: dayOffset, to: now) ?? now
         let monday = AlarmSchedule.mondayOf(date, calendar: calendar)
-        let answers = WeekAnswersStore.shared.answers(weekStarting: monday, calendar: calendar)
-        // C1: the week shown is planned at the coach's target for that week (M4-01,
-        // imports included), so next week's meals follow Monday's check;
-        // C3: its training days take the extras first. C6: the phase in force that week.
-        let basePlan = content.programme(for: profile, on: date, calendar: calendar).map { programme in
-            MealPlan.coached(monday: monday, now: now, content: content.nutrition,
-                             lunchOrders: profile.food.lunchOrders(content.lunchOrders), answers: answers, programme: programme,
-                             profile: profile, history: (try? SessionLogStore(context: context).all()) ?? [],
-                             weights: BodyStats.shared.weightHistory, blocks: CoachBlockStore().all,
-                             // N3: each day's dislikes, so an edit applies from tomorrow.
-                             dislikes: { profile.dislikes(on: $0, calendar: calendar) },
-                             calendar: calendar)
-        } ?? MealPlan.week(monday: monday, content: content.nutrition, lunchOrders: profile.food.lunchOrders(content.lunchOrders),
-                           answers: answers, programmeID: profile.programme.programmeID,
-                           dislikes: { profile.dislikes(on: $0, calendar: calendar) }, calendar: calendar)
-        // C4: a social meal replaces that day's dinner; the rest of the week trims a little.
-        let plan = basePlan.withSocialMeals(social.dates(calendar: calendar), calendar: calendar)
+        // N9a: one helper, so Today's lunch row and the Lunch tab name the same order.
+        let plan = WeekMeals.plan(for: date, now: now, content: content, profile: profile, context: context,
+                                  calendar: calendar)
         VStack(spacing: 0) {
             Picker("Section", selection: $tab) {
                 ForEach(Tab.allCases) { Text($0.rawValue).tag($0) }

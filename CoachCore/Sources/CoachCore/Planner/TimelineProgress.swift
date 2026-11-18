@@ -17,7 +17,7 @@ extension DayPlan {
             switch item.kind {
             case .session: return (session?.end ?? time) <= now
             case .windDown: return (lightsOut > time ? lightsOut : time) <= now
-            case .wake, .leave, .fixed: return time < now
+            case .wake, .leave, .fixed, .lunch: return time < now
             }
         }
         let over = timeline.indices.map { index in
