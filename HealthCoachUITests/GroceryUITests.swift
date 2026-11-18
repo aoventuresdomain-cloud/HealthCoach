@@ -132,8 +132,10 @@ final class GroceryUITests: XCTestCase {
             XCTAssertTrue(app.buttons[id].waitForNonExistence(timeout: 5), "\(id) still shown")
         }
         budget.finish(done: app.navigationBars.staticTexts["\(toGet - 5) to get"], note: note)
-        // In-store hides the shop's search links.
-        XCTAssertFalse(app.descendants(matching: .any)
+        // In-store hides the shop's search links. Scoped to the in-store view:
+        // the list underneath the full-screen cover still has its own links.
+        let inStore = app.descendants(matching: .any)["instore.view"]
+        XCTAssertFalse(inStore.descendants(matching: .any)
             .matching(NSPredicate(format: "identifier BEGINSWITH 'shopping.search.'")).firstMatch.exists)
 
         // Back on the list, the five are ticked.
