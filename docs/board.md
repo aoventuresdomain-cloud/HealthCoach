@@ -64,7 +64,7 @@ The CEO said the app isn't close to the brief. Advisor questions A1–A4 are ans
 | N8 | Easing back after a break | Coach Engineer (moved 18 Nov) | C1 | core done (#98); line ships on the N1 screen |
 | N9 | Ease budget: tap and time budget per job, UI tests, app icon | Product Designer (spec), iOS Interface Engineer, Head of QA | — | spec (#93) and EaseBudget helper (#104) done; each screen PR carries its job tests |
 | N10 | Checkpoint notification and Hyde Park run loops | Planner Engineer, Researcher (loops) | — | loops (#97) and checkpoint notification (#107) done; tap routing in #106 |
-| N9a | Office lunch row on Today's timeline (new TimelineItem `.lunch`) | Planner Engineer (core), iOS Interface Engineer | N9 spec | todo (iOS) |
+| N9a | Office lunch row on Today's timeline (new TimelineItem `.lunch`) | Coach Engineer (end to end) | N9 spec | in review |
 | N9b | Shopping becomes its own tab (MealsUITests move from the segment) | iOS Interface Engineer | after C4, N4, N5 | todo (iOS) |
 | N11 | Amazon basket spike (staples only; cut first if anything slips) | Planner Engineer, Researcher | N5 | staples list done (#97); basket deferred (#108: needs an Associates tag on a deprecated API) |
 | N12 | Notification taps open the right screen (W1, W5, F1, K3, delivery, checkpoint, photo day) | Coach Engineer | — | in progress (#106 draft; photo day after N7) |

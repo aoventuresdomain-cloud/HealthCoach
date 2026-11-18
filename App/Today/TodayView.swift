@@ -13,6 +13,8 @@ struct TodayView: View {
     var onStart: (DayPlan.SessionSlot, Int, RecoveryCheck) -> Void
     /// C2: the coach line's tap; Root switches to Progress with Ask in view.
     var onAskCoach: () -> Void = {}
+    /// N4 via N9a: the office lunch walk answered from the lunch card.
+    var onLunchWalk: (Int) -> Void = { _ in }
 
     @State private var dayOffset = 0
     @State private var recovery = RecoveryCheck.fine
@@ -22,6 +24,8 @@ struct TodayView: View {
     /// Tomorrow's date while the "Tomorrow changed" sheet is open (M2-06).
     @State private var changingTomorrow: PromptWeek?
     @State private var showSpikeTests = false
+    /// N9a: the lunch card, opened from the timeline's lunch row.
+    @State private var showLunch = false
     /// Bumped after the prompt saves, so the "Plan next week" card re-reads the store.
     @State private var answersVersion = 0
     @Environment(\.modelContext) private var context
@@ -44,6 +48,9 @@ struct TodayView: View {
                                 dropping: CoachBlockStore().droppedSessions(programme: dayProgramme, history: history,
                                                                             profile: profile, on: date, calendar: calendar),
                                 now: now, completed: done, calendar: calendar)
+        let lunch = (meals: WeekMeals.plan(for: date, now: now, content: content, profile: profile, context: context,
+                                           calendar: calendar).day(date, calendar: calendar),
+                     orders: profile.food.lunchOrders(content.lunchOrders))
 
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
@@ -82,10 +89,13 @@ struct TodayView: View {
                         card(plan)
                     }
                     // QA-20: the session row follows a weather swap, like the header.
+                    // N9a: the office lunch order on office days, the same order Meals plans.
                     let shown = plan.swapped(by: dayOffset == 0 ? weatherSwap : nil, programme: programme)
+                        .withOfficeLunch(lunch.meals, orders: lunch.orders)
                     // QA-28: the current row is the first one not over yet (CoachCore).
                     TimelineCard(items: shown.timeline,
-                                 current: dayOffset == 0 ? shown.timelineProgress(at: TodayFormat.timeOfDay(now, calendar)) : nil)
+                                 current: dayOffset == 0 ? shown.timelineProgress(at: TodayFormat.timeOfDay(now, calendar)) : nil,
+                                 onLunch: { showLunch = true })
                 }
             }
             .padding(.horizontal, 16)
@@ -108,6 +118,10 @@ struct TodayView: View {
             if profile.programme.startDate != nil {
                 promptWeek = PromptWeek(monday: SundayPrompt.monday(for: AppClock.now(), calendar: calendar))
             }
+        }
+        .sheet(isPresented: $showLunch) {
+            TodayLunchCard(meals: lunch.meals, orders: lunch.orders, food: profile.food,
+                           defaultWalk: content.lunchOrders.origin.maxWalkMinutes, onWalk: onLunchWalk)
         }
         .sheet(item: $promptWeek) { week in
             SundayPromptView(monday: week.monday,
@@ -422,38 +436,55 @@ struct TimelineCard: View {
     /// The current row from `DayPlan.timelineProgress(at:)`; rows before it are past.
     /// nil when showing another day: nothing is past or current.
     let current: Int?
+    /// N9a: the lunch row opens the lunch card; the other rows aren't buttons.
+    var onLunch: () -> Void = {}
 
     var body: some View {
         VStack(spacing: 0) {
             ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
-                let isPast = current.map { index < $0 } ?? false
-                let isCurrent = current == index
-                HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    Text(item.time?.description ?? "–")
-                        .font(.body.monospacedDigit())
-                        .frame(width: 56, alignment: .leading)
-                    Circle()
-                        .fill(isCurrent ? Color.green : Color(.systemGray))
-                        .frame(width: isCurrent ? 12 : 9, height: isCurrent ? 12 : 9)
-                        .frame(width: 14)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(item.title).font(.headline)
-                        // UI-12: "Alarm" under Wake and "Done by" under the session repeat what's visible.
-                        if let detail = item.detail, item.kind != .wake, item.kind != .session {
-                            Text(detail).font(.subheadline).foregroundStyle(.secondary)
-                        }
-                    }
-                    Spacer(minLength: 0)
+                if item.kind == .lunch {
+                    Button(action: onLunch) { row(item, index: index) }
+                        .buttonStyle(.plain)
+                        .accessibilityHint("Opens today's lunch order")
+                        .accessibilityIdentifier("today.timeline.\(item.id)")
+                } else {
+                    row(item, index: index)
+                        .accessibilityIdentifier("today.timeline.\(item.id)")
                 }
-                .padding(.vertical, 12)
-                .padding(.horizontal, 16)
-                .opacity(isPast ? 0.45 : 1)
-                .accessibilityElement(children: .combine)
-                .accessibilityIdentifier("today.timeline.\(item.id)")
                 if index < items.count - 1 { Divider().padding(.leading, 16) }
             }
         }
         .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 20))
+    }
+
+    private func row(_ item: DayPlan.TimelineItem, index: Int) -> some View {
+        let isPast = current.map { index < $0 } ?? false
+        let isCurrent = current == index
+        return HStack(alignment: .firstTextBaseline, spacing: 12) {
+            Text(item.time?.description ?? "–")
+                .font(.body.monospacedDigit())
+                .frame(width: 56, alignment: .leading)
+            Circle()
+                .fill(isCurrent ? Color.green : Color(.systemGray))
+                .frame(width: isCurrent ? 12 : 9, height: isCurrent ? 12 : 9)
+                .frame(width: 14)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(item.title).font(.headline)
+                // UI-12: "Alarm" under Wake and "Done by" under the session repeat what's visible.
+                if let detail = item.detail, item.kind != .wake, item.kind != .session {
+                    Text(detail).font(.subheadline).foregroundStyle(.secondary)
+                }
+            }
+            Spacer(minLength: 0)
+            if item.kind == .lunch {
+                Image(systemName: "chevron.right").foregroundStyle(.secondary)
+            }
+        }
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
+        .opacity(isPast ? 0.45 : 1)
+        .contentShape(.rect)
+        .accessibilityElement(children: .combine)
     }
 }
 

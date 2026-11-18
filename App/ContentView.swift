@@ -58,6 +58,11 @@ private struct RootView: View {
                                 } onAskCoach: {
                                     showAskCoach = true
                                     tab = .progress
+                                } onLunchWalk: { walk in
+                                    // N4: answered at once, kept through any pending Preferences edit.
+                                    var answered = profile
+                                    answered.answerFoodQuestion { $0.officeLunchMaxWalkMinutes = walk }
+                                    save(answered, content: content, programme: programme)
                                 }
                             }
                         }
