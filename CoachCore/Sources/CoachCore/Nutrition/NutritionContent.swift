@@ -19,7 +19,7 @@ public struct NutritionContent: VersionedFormat, Sendable, Equatable {
     public let extraRules: ExtraRules
     /// Keyed by ingredient id.
     public let ingredients: [String: Ingredient]
-    public let recipes: [Recipe]
+    public internal(set) var recipes: [Recipe]
 
     public struct Shop: Codable, Sendable, Equatable {
         /// "waitrose" (decision E5).

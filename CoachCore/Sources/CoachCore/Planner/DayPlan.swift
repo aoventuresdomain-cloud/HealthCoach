@@ -54,6 +54,8 @@ public struct DayPlan: Equatable, Sendable {
                             dropping: Set<String> = [],
                             now: Date? = nil, completed: Set<String> = [],
                             calendar: Calendar = .current) -> DayPlan? {
+        // N3: the day's own profile, so a Preferences edit shows from tomorrow.
+        let profile = profile.effective(on: date, calendar: calendar)
         guard let start = profile.programme.startDate else { return nil }
         let planned = programme.plannedDay(on: date, start: start, calendar: calendar)
         let schedule = profile.schedule
