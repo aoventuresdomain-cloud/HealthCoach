@@ -38,6 +38,15 @@ import Testing
         #expect(!PhotoSchedule.isDue(on: date(2026, 11, 17), start: nil, taken: [], calendar: calendar))
     }
 
+    /// N7: compare the latest set with week 0, or with the newest set at least 4 weeks older.
+    @Test func compareBaselines() {
+        let sets = [date(2026, 11, 16), date(2026, 11, 30), date(2026, 12, 14), date(2026, 12, 28)]
+        #expect(PhotoCompare.baseline(sets, against: .weekZero, calendar: calendar) == 0)
+        #expect(PhotoCompare.baseline(sets, against: .fourWeeksAgo, calendar: calendar) == 1) // 30 Nov, 28 days before
+        #expect(PhotoCompare.baseline(Array(sets.prefix(2)), against: .fourWeeksAgo, calendar: calendar) == 0)
+        #expect(PhotoCompare.baseline([date(2026, 11, 16)], against: .weekZero, calendar: calendar) == nil)
+    }
+
     @Test func photoBlocksSurviveTheClockChange() {
         // Blocks of 14 calendar days across the last Sunday of March 2027.
         let spring = calendar.date(from: DateComponents(year: 2027, month: 3, day: 22))!

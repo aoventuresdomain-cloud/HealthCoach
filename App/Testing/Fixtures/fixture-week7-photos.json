@@ -1,0 +1,17 @@
+{
+  "profile": {
+    "schemaVersion": 1,
+    "confirmed": true,
+    "programme": {
+      "programmeID": "phase-1",
+      "startDate": "2026-11-23T00:00:00Z",
+      "confirmedOn": "2026-11-22T18:00:00Z"
+    }
+  },
+  "photoDays": [
+    "2026-11-23T07:00:00Z",
+    "2026-12-07T07:00:00Z",
+    "2026-12-21T07:00:00Z",
+    "2027-01-04T07:00:00Z"
+  ]
+}

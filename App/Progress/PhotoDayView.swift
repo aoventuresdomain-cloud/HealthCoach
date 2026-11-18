@@ -104,12 +104,13 @@ struct PhotoDayView: View {
         }
     }
 
-    static func testImage(_ pose: ProgressStore.Pose) -> UIImage {
+    /// A drawn figure for UI tests; `widen` makes later sets look different in a compare.
+    static func testImage(_ pose: ProgressStore.Pose, widen: CGFloat = 0) -> UIImage {
         UIGraphicsImageRenderer(size: CGSize(width: 300, height: 400)).image { context in
             UIColor.systemGray5.setFill()
             context.fill(CGRect(x: 0, y: 0, width: 300, height: 400))
             UIColor.systemGray.setFill()
-            let width: CGFloat = pose == .front ? 120 : 70
+            let width: CGFloat = (pose == .front ? 120 : 70) + widen
             context.cgContext.fillEllipse(in: CGRect(x: 150 - 30, y: 40, width: 60, height: 60))
             context.fill(CGRect(x: 150 - width / 2, y: 110, width: width, height: 250))
         }

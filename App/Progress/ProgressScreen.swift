@@ -123,7 +123,10 @@ struct ProgressScreen: View {
                     PhotoSchedule.nextPhotoDay(after: now, start: $0, calendar: calendar)
                 }
                 if next != nil || !sets.isEmpty {
-                    NavigationLink { PhotoSetsView(sets: Array(sets.reversed())) } label: {
+                    // N7: straight onto the compare view; every set is one more tap.
+                    NavigationLink {
+                        PhotoCompareView(sets: sets, start: profile.programme.startDate, calendar: calendar)
+                    } label: {
                         Text(next.map { "Photos · next \($0.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated)))" } ?? "Photos")
                     }
                     .accessibilityIdentifier("progress.nextPhotos")
@@ -191,14 +194,19 @@ struct ProgressScreen: View {
         }
         }
         .navigationTitle("Progress")
+        .task(id: NotificationRouter.shared.openPhotoDay) {
+            guard NotificationRouter.shared.openPhotoDay else { return }
+            NotificationRouter.shared.openPhotoDay = false
+            photoDay = true
+        }
         .fullScreenCover(isPresented: $photoDay, onDismiss: { version += 1 }) {
             PhotoDayView(date: now, calendar: calendar)
         }
     }
 }
 
-/// Photos every 2 weeks (UI-12: behind one row on Progress).
-private struct PhotoSetsView: View {
+/// Photos every 2 weeks, newest first (behind Compare, N7).
+struct PhotoSetsView: View {
     let sets: [ProgressStore.PhotoSet]
     private var store: ProgressStore { .shared }
     private static let importRow = "coach.importRow"

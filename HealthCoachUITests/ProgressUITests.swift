@@ -58,6 +58,32 @@ final class ProgressUITests: XCTestCase {
         attach(app, "progress-after-photos")
     }
 
+    /// N7: Photos opens straight onto a compare of the latest set against
+    /// week 0, with a slider; the switch moves it to 4 weeks ago.
+    @MainActor
+    func testCompareAgainstWeekZeroAndFourWeeksAgo() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uitest", "-now", "2027-01-04T09:00:00Z", "-fixture", "week7-photos"]
+        app.launch()
+        XCTAssertTrue(app.staticTexts["today.title"].waitForExistence(timeout: 15))
+        app.tabBars.buttons["Progress"].tap()
+        let photos = app.descendants(matching: .any)["progress.nextPhotos"]
+        for _ in 0..<4 where !(photos.waitForExistence(timeout: 1) && photos.isHittable) { app.swipeUp() }
+        photos.tap()
+
+        XCTAssertTrue(app.descendants(matching: .any)["compare.photos"].waitForExistence(timeout: 5))
+        let slider = app.sliders["compare.slider"]
+        XCTAssertTrue(slider.exists)
+        let then = { (label: String) in app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", label)).firstMatch }
+        XCTAssertTrue(then("Week 0 ·").exists, "not comparing with week 0 first")
+        slider.adjust(toNormalizedSliderPosition: 0.3)
+        attach(app, "compare-week0")
+
+        app.buttons["4 weeks ago"].tap()
+        XCTAssertTrue(then("4 weeks ago ·").waitForExistence(timeout: 3), "the switch didn't move to 4 weeks ago")
+        attach(app, "compare-4-weeks")
+    }
+
     @MainActor
     func testAskTheCoachOpensTheShareSheet() throws {
         let app = openProgress(now: "2026-11-23T07:00:00Z")
