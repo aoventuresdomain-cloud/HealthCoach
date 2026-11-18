@@ -18,7 +18,8 @@ final class PlayerLinesUITests: XCTestCase {
 
     /// N8 (D12): week 1 on track, last strength session Thu 26 Nov, then
     /// nothing until Mon 7 Dec: 11 days off, the 90% band. Start costs one
-    /// tap and the player says why the loads are lighter; nothing is asked.
+    /// tap; past the warm-up, the first set says why the loads are lighter.
+    /// Nothing is asked.
     @MainActor
     func testEasingBackInIsExplainedOnTheFirstSet() throws {
         let app = XCUIApplication()
@@ -28,9 +29,20 @@ final class PlayerLinesUITests: XCTestCase {
         let start = app.buttons["today.start"]
         XCTAssertTrue(start.waitForExistence(timeout: 15))
         start.tap()
+        // A strength session: the player opens on the warm-up.
+        XCTAssertTrue(app.buttons["player.end"].waitForExistence(timeout: 10), "not a strength session")
+
+        // The line sits on each exercise's first set, after the warm-up (as player.lastTime does).
+        let next = app.buttons["player.next"]
+        let done = app.buttons["player.done"]
+        var taps = 0
+        while !(done.exists && done.isHittable) {
+            XCTAssertLessThan(taps, 40, "never reached the first set")
+            if next.exists, next.isHittable { next.tap(); taps += 1 } else { _ = done.waitForExistence(timeout: 1) }
+        }
 
         let easing = app.staticTexts["player.easing"]
-        let shown = easing.waitForExistence(timeout: 10)
+        let shown = easing.waitForExistence(timeout: 5)
         attach(app, "player-easing")
         XCTAssertTrue(shown, "no easing line on the first set")
         XCTAssertTrue(easing.label.hasPrefix("Easing back in after "), easing.label)
