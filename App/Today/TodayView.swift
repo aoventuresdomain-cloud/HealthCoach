@@ -26,6 +26,10 @@ struct TodayView: View {
     @State private var showSpikeTests = false
     /// N9a: the lunch card, opened from the timeline's lunch row.
     @State private var showLunch = false
+    /// N9a: the day's office lunch, planned once per day and answer (`lunchKey`),
+    /// not on every render: the meal plan replays the coach, and Today redraws
+    /// while a session plays.
+    @State private var lunch = TodayLunch.none
     /// Bumped after the prompt saves, so the "Plan next week" card re-reads the store.
     @State private var answersVersion = 0
     @Environment(\.modelContext) private var context
@@ -48,9 +52,6 @@ struct TodayView: View {
                                 dropping: CoachBlockStore().droppedSessions(programme: dayProgramme, history: history,
                                                                             profile: profile, on: date, calendar: calendar),
                                 now: now, completed: done, calendar: calendar)
-        let lunch = (meals: WeekMeals.plan(for: date, now: now, content: content, profile: profile, context: context,
-                                           calendar: calendar).day(date, calendar: calendar),
-                     orders: profile.food.lunchOrders(content.lunchOrders))
 
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
@@ -119,6 +120,7 @@ struct TodayView: View {
                 promptWeek = PromptWeek(monday: SundayPrompt.monday(for: AppClock.now(), calendar: calendar))
             }
         }
+        .task(id: lunchKey(date)) { lunch = officeLunch(on: date, now: now) }
         .sheet(isPresented: $showLunch) {
             TodayLunchCard(meals: lunch.meals, orders: lunch.orders, food: profile.food,
                            defaultWalk: content.lunchOrders.origin.maxWalkMinutes, onWalk: onLunchWalk)
@@ -141,6 +143,26 @@ struct TodayView: View {
                 dayOffset = 1
             }
         }
+    }
+
+    // MARK: Office lunch (N9a)
+
+    /// Changes when the day, the N4/N3 answers or the week's office days do.
+    private func lunchKey(_ date: Date) -> String {
+        let day = calendar.startOfDay(for: date).timeIntervalSinceReferenceDate
+        let food = profile.food
+        return "\(day)|\(food.officeLunchMaxWalkMinutes ?? -1)|\(food.dislikes)|\(answersVersion)"
+    }
+
+    /// The meal plan's lunch for `date`, planned only on an office day.
+    private func officeLunch(on date: Date, now: Date) -> TodayLunch {
+        let monday = AlarmSchedule.mondayOf(date, calendar: calendar)
+        let weekday = Weekday(calendarWeekday: calendar.component(.weekday, from: date))
+        guard WeekAnswersStore.shared.answers(weekStarting: monday, calendar: calendar).officeDays.contains(weekday)
+        else { return .none }
+        let plan = WeekMeals.plan(for: date, now: now, content: content, profile: profile, context: context,
+                                  calendar: calendar)
+        return TodayLunch(meals: plan.day(date, calendar: calendar), orders: profile.food.lunchOrders(content.lunchOrders))
     }
 
     // MARK: Weather (M2-03)
@@ -429,6 +451,13 @@ private struct Banner: View {
         .onAppear { shown = true }
         .sensoryFeedback(trigger: shown) { _, new in warns && new ? .warning : nil }
     }
+}
+
+/// N9a: the day's meals and the orders within the owner's walk.
+struct TodayLunch {
+    var meals: MealDay?
+    var orders: [LunchOrder]
+    static let none = TodayLunch(meals: nil, orders: [])
 }
 
 struct TimelineCard: View {

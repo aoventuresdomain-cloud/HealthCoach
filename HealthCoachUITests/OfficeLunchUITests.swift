@@ -60,7 +60,8 @@ final class OfficeLunchUITests: XCTestCase {
         budget.tap(walk)
         let five = app.buttons["Walk up to 5 min"]
         XCTAssertTrue(five.waitForExistence(timeout: 5))
-        budget.tap(five)
+        // The menu's rows are drawn by iOS (42 pt high), not by the app: a system tap (E6 exempt).
+        budget.tap(five, system: true)
         budget.finish(done: app.buttons["lunch.suggestion"])
         XCTAssertTrue(app.descendants(matching: .any)["ask.lunch"].waitForNonExistence(timeout: 5),
                       "answered: the question goes")
