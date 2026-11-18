@@ -37,7 +37,9 @@ struct SessionLaunch: Identifiable {
         case let .runWalk(run):
             // N8: after 10+ days without a run, repeat the previous week's (two back after 21+).
             let runWeek = programme.runWeek(week, history: history, on: now, calendar: .coach)
-            guard let plan = RunWalkPlan.make(sessionID: slot.id, session: run, week: runWeek) else { return nil }
+            // N10: named after the route's loop closest to the session's distance.
+            guard let plan = RunWalkPlan.make(sessionID: slot.id, session: run, week: runWeek)?
+                .naming(content.runLoops[run.route]) else { return nil }
             return SessionLaunch(player: .runWalk(RunWalkModel(
                 plan: plan, programmeID: programme.id, voiceCues: voiceCues, now: now)))
         case .walk, .circuit:

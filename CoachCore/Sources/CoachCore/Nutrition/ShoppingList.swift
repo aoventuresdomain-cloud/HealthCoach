@@ -11,7 +11,7 @@ public struct ShoppingItem: Sendable, Equatable, Identifiable {
     /// Pantry staples are ticked once and stay ticked (M3-03).
     public let isStaple: Bool
     public let ticked: Bool
-    /// The default shop's search for this item (decision E5); nil if the URL won't form.
+    /// The chosen shop's search for this item (E5, N4); nil if the URL won't form.
     public let searchURL: URL?
 }
 
@@ -20,8 +20,10 @@ public struct ShoppingItem: Sendable, Equatable, Identifiable {
 /// staples the owner has ticked stay ticked. Box nights and office lunches add
 /// nothing; supplements are staples.
 public enum ShoppingList {
+    /// `shopID` is the owner's shop (N4, `Profile.food.shop`); nil uses the default.
     public static func week(_ plan: MealPlan, content: NutritionContent,
-                            tickedStaples: Set<String> = []) -> [ShoppingItem] {
+                            tickedStaples: Set<String> = [], shopID: String? = nil) -> [ShoppingItem] {
+        let template = content.shop.searchUrl(for: shopID)
         var totals: [String: Double] = [:]
         for day in plan.days {
             for meal in day.meals {
@@ -40,7 +42,7 @@ public enum ShoppingList {
                                 quantityText: NutritionContent.quantity(qty, unit: ingredient.unit),
                                 aisle: ingredient.aisle, isStaple: ingredient.staple,
                                 ticked: ingredient.staple && tickedStaples.contains(id),
-                                searchURL: searchURL(content.shop.searchUrl, term: ingredient.search))
+                                searchURL: searchURL(template, term: ingredient.search))
         }
         .sorted {
             let a = aisleRank[$0.aisle] ?? Int.max, b = aisleRank[$1.aisle] ?? Int.max

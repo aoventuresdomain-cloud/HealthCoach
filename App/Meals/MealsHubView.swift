@@ -35,13 +35,13 @@ struct MealsHubView: View {
         // C3: its training days take the extras first. C6: the phase in force that week.
         let basePlan = content.programme(for: profile, on: date, calendar: calendar).map { programme in
             MealPlan.coached(monday: monday, now: now, content: content.nutrition,
-                             lunchOrders: content.lunchOrders.orders, answers: answers, programme: programme,
+                             lunchOrders: profile.food.lunchOrders(content.lunchOrders), answers: answers, programme: programme,
                              profile: profile, history: (try? SessionLogStore(context: context).all()) ?? [],
                              weights: BodyStats.shared.weightHistory, blocks: CoachBlockStore().all,
                              // N3: each day's dislikes, so an edit applies from tomorrow.
                              dislikes: { profile.dislikes(on: $0, calendar: calendar) },
                              calendar: calendar)
-        } ?? MealPlan.week(monday: monday, content: content.nutrition, lunchOrders: content.lunchOrders.orders,
+        } ?? MealPlan.week(monday: monday, content: content.nutrition, lunchOrders: profile.food.lunchOrders(content.lunchOrders),
                            answers: answers, programmeID: profile.programme.programmeID,
                            dislikes: { profile.dislikes(on: $0, calendar: calendar) }, calendar: calendar)
         // C4: a social meal replaces that day's dinner; the rest of the week trims a little.
@@ -195,7 +195,8 @@ struct MealsHubView: View {
     // MARK: Shopping
 
     private func shopping(_ plan: MealPlan, monday: Date) -> some View {
-        let items = ShoppingList.week(plan, content: content.nutrition, tickedStaples: ticks.tickedStaples)
+        let items = ShoppingList.week(plan, content: content.nutrition, tickedStaples: ticks.tickedStaples,
+                                      shopID: profile.food.shop)
         let aisles = items.reduce(into: [String]()) { if !$0.contains($1.aisle) { $0.append($1.aisle) } }
         let toGet = items.filter { !ticks.isTicked($0, week: monday, calendar: calendar) }.count
         return List {
@@ -268,14 +269,18 @@ struct MealsHubView: View {
         .accessibilityIdentifier("shopping.row.\(item.id)")
     }
 
-    private var shopName: String { content.nutrition.shop.default.capitalized }
+    private var shopName: String {
+        let shop = content.nutrition.shop
+        return shop.choices.first { $0.id == (profile.food.shop ?? shop.default) }?.name ?? shop.default.capitalized
+    }
 
     // MARK: Lunch
 
     /// UI-12: on an office day one order, large, with "Another"; otherwise one
     /// line. The full list is one tap away either way.
     private func lunch(_ today: MealDay?) -> some View {
-        let orders = content.lunchOrders.orders
+        // N4: only orders within the owner's walk.
+        let orders = profile.food.lunchOrders(content.lunchOrders)
         let suggested = today?.meals.first(where: \.isOfficeLunch)?.lunchOrderID
         let first = orders.firstIndex { $0.id == suggested }
         let shown = first.map { orders[($0 + lunchStep) % max(orders.count, 1)] }
