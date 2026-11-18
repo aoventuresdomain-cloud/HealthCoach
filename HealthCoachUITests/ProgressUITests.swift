@@ -25,6 +25,25 @@ final class ProgressUITests: XCTestCase {
         return app
     }
 
+    /// R4 (N7): the pose hint is worked out on the phone (Vision), so it shows
+    /// with the network off. `-weather offline` is the app's no-network launch.
+    @MainActor
+    func testPoseHintWithTheNetworkOff() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uitest", "-now", "2026-11-23T07:00:00Z", "-fixture", "week1-monday", "-weather", "offline"]
+        app.launch()
+        XCTAssertTrue(app.staticTexts["today.title"].waitForExistence(timeout: 15))
+        app.tabBars.buttons["Progress"].tap()
+        let photoDay = app.buttons["progress.photoDay"]
+        XCTAssertTrue(photoDay.waitForExistence(timeout: 5))
+        photoDay.tap()
+        XCTAssertTrue(app.buttons["photo.take.front"].waitForExistence(timeout: 5))
+        let hint = app.staticTexts["photo.hint"]
+        XCTAssertTrue(hint.waitForExistence(timeout: 5), "no pose hint offline")
+        XCTAssertFalse(hint.label.isEmpty)
+        XCTAssertFalse(app.descendants(matching: .any)["photo.error"].exists, "the camera needs no network")
+    }
+
     @MainActor
     func testPhotoDaySavesBothPosesAndIsThenDone() throws {
         // Monday 23 Nov 2026: the first day of week 1's 2-week block.
