@@ -272,3 +272,27 @@ Sent to the Advisor on 18 Nov. Each answer is folded in below.
 - Whether to allow attaching photos to a Claude check-in at all (default: the app never does; the CEO can share himself).
 - The taste defaults (accent, always dark, numerals, icon), batched once.
 - Payment for the Apple account still gates every on-phone proof, including the camera parts of N7.
+
+## Appendix: the Advisor's answers, unedited (18 Nov, 07:51)
+
+> A1 Check-in: ACCEPT these three. Defaults: Energy Good, Sleep Fine, Pain None.
+> - Energy Low plus Sleep Poor in the same check-in = one low-recovery signal for the drop-to-2 rule. Either alone goes to the Claude summary only.
+> - Pain "Yes" opens one tap: shoulder, elbow, wrist, back, knee or other. The app swaps every exercise loading that area to its `swap` for 7 days and notes it in the summary. Pain in 2 check-ins running raises a flag: "Worth seeing a physio".
+> - No subjective answer ever changes calories; only the scale does.
+>
+> A2 Return after a break, counted as days since the last strength session:
+> - 10–20 days: first session at 90% of last loads, rounded down to the dumbbell step; back to previous loads within 2 sessions per exercise.
+> - 21–42 days: 80%, one extra rep in reserve for the first week, rebuild over 3 sessions.
+> - Over 42 days: the current phase's week 1 effort at 70%, flagged to the Claude summary.
+> - Runs: 10+ days off repeats the previous week's run; 21+ days drops back two weeks.
+> - No question to him. Today just says "Easing back in".
+>
+> A3 Photos: AGREE. Reject any photo body-fat score, and build the ghost outline, pose check and compare view. The waist measurement is worth its 20 s: optional, on photo day, at the navel after breathing out, kept on the phone. It is the best cheap fat-loss signal next to weight, and skipping it changes nothing. It needs a tape measure (about £3, not in the kit), so it starts off.
+>
+> A4 Recipes, beyond the existing floors:
+> (a) dinners 40 min or less, about 12 ingredients or fewer;
+> (b) 35 g or more protein and two veg portions per serving;
+> (c) cooked fish twice a week, one oily (NHS), and red meat at most twice;
+> (d) ingredients reused across the week, so the top-up list stays short and nothing is wasted;
+> (e) all stocked by Waitrose;
+> (f) a dislike list in Settings, empty by default and always respected.
