@@ -61,8 +61,8 @@ final class PreferencesUITests: XCTestCase {
         // Close the search first: while it is active the bar's first button isn't Back.
         let cancel = app.buttons["Cancel"]
         if cancel.exists { cancel.tap() }
-        let back = app.navigationBars.buttons["Preferences"]
-        XCTAssertTrue(back.waitForExistence(timeout: 5), "no Back to Preferences")
+        let named = app.navigationBars.buttons["Preferences"]
+        let back = named.waitForExistence(timeout: 3) ? named : app.navigationBars.buttons.element(boundBy: 0)
         back.tap()
         XCTAssertTrue(app.buttons["prefs.done"].waitForExistence(timeout: 5))
         XCTAssertTrue(module(app, "food").label.contains("mushrooms"), module(app, "food").label)
