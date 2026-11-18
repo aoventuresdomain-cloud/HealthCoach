@@ -109,3 +109,60 @@ import Testing
                                   now: f.day(16), calendar: f.calendar).isEmpty)
     }
 }
+
+/// Board N1: pain from the check-in shows in What changed (Advisor conditions).
+@Suite struct CoachChangesPainTests {
+    let f = CoachFixture()
+    let loop = CoachLoopTests()
+
+    func changes(_ checkIns: [CheckIn], at now: Date) throws -> [CoachChange] {
+        let p = try f.phase1()
+        let lib = try ContentLibrary.load(from: contentRoot)
+        return CoachChanges.make(programme: p, profile: f.profile(), history: try loop.fourWeeks(p),
+                                 weights: f.losing(0.5, to: 29), blocks: [], checkIns: checkIns,
+                                 exercises: lib.exercises, now: now,
+                                 name: { lib.exercises.exercise($0)?.name ?? $0 }, calendar: f.calendar)
+    }
+
+    @Test func kneePainGivesOneWalkLineAndASwapLine() throws {
+        let now = f.day(29, hour: 12)
+        // Still being answered: dated now, it counts from now.
+        let c = try changes([CheckIn(date: now, pain: [.knee])], at: now)
+        let walk = c.filter { $0.kind == .runWalk }
+        #expect(walk.count == 1)
+        #expect(walk.first?.line.hasPrefix("Run-walk is a brisk ") == true, "\(walk)")
+        #expect(walk.first?.line.hasSuffix("-minute walk this week: easier on the knee.") == true, "\(walk)")
+        #expect(c.contains(CoachChange(kind: .painSwap, line: "Goblet squat → Glute bridge this week: easier on the knee")),
+                "\(c.map(\.line))")
+        // Order: after sessions, before loads.
+        let kinds = c.map(\.kind)
+        if let lastPain = kinds.lastIndex(where: { $0 == .runWalk || $0 == .painSwap }),
+           let firstLoad = kinds.firstIndex(of: .load) {
+            #expect(lastPain < firstLoad)
+        }
+        #expect(kinds.firstIndex(of: .runWalk)! < kinds.firstIndex(of: .painSwap)!)
+    }
+
+    @Test func noCheckInOrOnlyOtherAddsNothing() throws {
+        let now = f.day(29, hour: 12)
+        let none = try changes([], at: now)
+        #expect(!none.contains { $0.kind == .runWalk || $0.kind == .painSwap })
+        let other = try changes([CheckIn(date: now, pain: [.other])], at: now)
+        #expect(other == none, "Other never shows")
+        let noPain = try changes([CheckIn(date: now)], at: now)
+        #expect(noPain == none)
+        // A week on, the knee answer is over.
+        let later = try changes([CheckIn(date: f.day(21, hour: 12), pain: [.knee])], at: now)
+        #expect(!later.contains { $0.kind == .runWalk || $0.kind == .painSwap })
+    }
+
+    @Test func shoulderPainSwapsWithoutAWalkLine() throws {
+        let now = f.day(29, hour: 12)
+        let c = try changes([CheckIn(date: now, pain: [.shoulder])], at: now)
+        #expect(!c.contains { $0.kind == .runWalk })
+        let swaps = c.filter { $0.kind == .painSwap }
+        #expect(!swaps.isEmpty)
+        #expect(swaps.allSatisfy { $0.line.hasSuffix("easier on the shoulder") }, "\(swaps.map(\.line))")
+        #expect(Set(swaps.map(\.line)).count == swaps.count, "one line per exercise")
+    }
+}
