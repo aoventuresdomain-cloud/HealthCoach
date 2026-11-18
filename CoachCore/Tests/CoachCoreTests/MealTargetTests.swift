@@ -46,8 +46,49 @@ import Testing
                     #expect(day.kcal >= 1700, "\(where_)")
                     #expect(day.protein >= 150, "\(where_)")
                 }
+                // QA-R3-1: never under the Advisor's 1,850 weekly floor, even at a 1,850 target.
                 let average = Double(plan.days.map(\.kcal).reduce(0, +)) / 7
-                #expect(abs(average - Double(target)) <= 50, "\(target) \(name) w\(weekOffset): average \(average)")
+                let low = Double(max(target - 50, MealTargetTests.weeklyFloor)), high = Double(target + 50)
+                #expect(average >= low && average <= high, "\(target) \(name) w\(weekOffset): average \(average)")
+            }
+        }
+    }
+
+    /// The Advisor's floors: a 1,850 kcal weekly average and 1,700 on any day.
+    static let weeklyFloor = 1850, dailyFloor = 1700
+
+    /// QA-R3-1: a plain week at the lowest target averages 1,850–1,900.
+    @Test func aPlainEighteenFiftyWeekAveragesInsideTheFloorBand() throws {
+        for (name, answers) in Self.weeks {
+            for weekOffset in 0..<4 {
+                let plan = try week(1850, answers, weekOffset: weekOffset)
+                let average = Double(plan.days.map(\.kcal).reduce(0, +)) / 7
+                #expect(average >= 1850 && average <= 1900, "\(name) w\(weekOffset): average \(average)")
+                #expect(plan.days.allSatisfy { $0.kcal >= Self.dailyFloor }, "\(name) w\(weekOffset)")
+            }
+        }
+    }
+
+    /// QA-R3-1: at 1,850 with two social meals (Fri and Sat, each counted at
+    /// 1,000 kcal), the whole week still averages 1,850 or more and every
+    /// other day keeps 1,700.
+    @Test func anEighteenFiftyWeekWithTwoSocialMealsKeepsBothFloors() throws {
+        for (name, answers) in Self.weeks {
+            for weekOffset in 0..<4 {
+                let plan = try week(1850, answers, weekOffset: weekOffset)
+                let friday = try #require(calendar.date(byAdding: .day, value: 4, to: plan.days[0].date))
+                let saturday = try #require(calendar.date(byAdding: .day, value: 5, to: plan.days[0].date))
+                let social = plan.withSocialMeals([friday, saturday], calendar: calendar)
+                let socialDays = social.days.filter(\.isSocial)
+                #expect(socialDays.count == 2, "\(name) w\(weekOffset)")
+                for day in socialDays {
+                    #expect(day.meals.filter(\.isSocial).map(\.kcal) == [1000], "\(name) w\(weekOffset) \(day.weekday)")
+                }
+                let average = Double(social.days.map(\.kcal).reduce(0, +)) / 7
+                #expect(average >= Double(Self.weeklyFloor), "\(name) w\(weekOffset): average \(average)")
+                for day in social.days where !day.isSocial {
+                    #expect(day.kcal >= Self.dailyFloor, "\(name) w\(weekOffset) \(day.weekday): \(day.kcal)")
+                }
             }
         }
     }
