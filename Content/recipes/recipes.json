@@ -98,7 +98,7 @@
       "max": 4
     },
     "shopping": false,
-    "note": "One fixed entry per box night, recorded at these per-portion values. Pick the box's high-protein or calorie-smart recipes when choosing. No raw fish recipes. The box brings its own ingredients, so box nights add nothing to the top-up list.",
+    "note": "One fixed entry per box night, recorded at these per-portion values. Pick the box's high-protein or calorie-smart recipes when choosing. No raw fish recipes. The box brings its own ingredients, so box nights add nothing to the top-up list. Each week pick one fish recipe from the box (home dinners already bring an oily fish), and at most one red-meat recipe.",
     "defaultNights": [
       "monday",
       "tuesday",
@@ -703,6 +703,244 @@
       "unit": "each",
       "gramsEach": 150,
       "search": "ripe avocados"
+    },
+    "turkey-mince": {
+      "name": "Turkey breast mince (2% fat)",
+      "aisle": "meat-and-fish",
+      "staple": false,
+      "per100": {
+        "kcal": 105,
+        "protein": 23
+      },
+      "unit": "g",
+      "search": "turkey breast mince"
+    },
+    "kidney-beans": {
+      "name": "Red kidney beans (tin)",
+      "aisle": "tins-and-jars",
+      "staple": true,
+      "per100": {
+        "kcal": 100,
+        "protein": 7
+      },
+      "unit": "each",
+      "gramsEach": 240,
+      "search": "red kidney beans in water"
+    },
+    "chopped-tomatoes": {
+      "name": "Chopped tomatoes (tin)",
+      "aisle": "tins-and-jars",
+      "staple": true,
+      "per100": {
+        "kcal": 22,
+        "protein": 1.2
+      },
+      "unit": "each",
+      "gramsEach": 400,
+      "search": "chopped tomatoes 400g"
+    },
+    "peppers": {
+      "name": "Mixed peppers",
+      "aisle": "produce",
+      "staple": false,
+      "per100": {
+        "kcal": 26,
+        "protein": 1
+      },
+      "unit": "each",
+      "gramsEach": 160,
+      "search": "mixed peppers 3 pack"
+    },
+    "chilli-powder": {
+      "name": "Mild chilli powder",
+      "aisle": "oils-sauces-and-spices",
+      "staple": true,
+      "per100": {
+        "kcal": 0,
+        "protein": 0
+      },
+      "unit": "g",
+      "search": "mild chilli powder"
+    },
+    "smoked-paprika": {
+      "name": "Smoked paprika",
+      "aisle": "oils-sauces-and-spices",
+      "staple": true,
+      "per100": {
+        "kcal": 0,
+        "protein": 0
+      },
+      "unit": "g",
+      "search": "smoked paprika"
+    },
+    "trout": {
+      "name": "Rainbow trout fillets",
+      "aisle": "meat-and-fish",
+      "staple": false,
+      "per100": {
+        "kcal": 135,
+        "protein": 20
+      },
+      "unit": "g",
+      "search": "rainbow trout fillets"
+    },
+    "green-beans": {
+      "name": "Fine green beans",
+      "aisle": "produce",
+      "staple": false,
+      "per100": {
+        "kcal": 25,
+        "protein": 1.8
+      },
+      "unit": "g",
+      "search": "fine green beans"
+    },
+    "pesto": {
+      "name": "Green pesto",
+      "aisle": "tins-and-jars",
+      "staple": true,
+      "per100": {
+        "kcal": 450,
+        "protein": 5
+      },
+      "unit": "g",
+      "search": "green pesto"
+    },
+    "linguine": {
+      "name": "Linguine (dried)",
+      "aisle": "rice-pasta-grains",
+      "staple": true,
+      "per100": {
+        "kcal": 355,
+        "protein": 12.5
+      },
+      "unit": "g",
+      "search": "linguine"
+    },
+    "mackerel": {
+      "name": "Mackerel fillets",
+      "aisle": "meat-and-fish",
+      "staple": false,
+      "per100": {
+        "kcal": 205,
+        "protein": 19
+      },
+      "unit": "g",
+      "search": "mackerel fillets"
+    },
+    "puy-lentils": {
+      "name": "Ready-to-eat Puy lentils (pouch)",
+      "aisle": "rice-pasta-grains",
+      "staple": true,
+      "per100": {
+        "kcal": 143,
+        "protein": 9.6
+      },
+      "unit": "each",
+      "gramsEach": 250,
+      "search": "ready to eat puy lentils"
+    },
+    "fajita-seasoning": {
+      "name": "Fajita seasoning",
+      "aisle": "oils-sauces-and-spices",
+      "staple": true,
+      "per100": {
+        "kcal": 300,
+        "protein": 8
+      },
+      "unit": "g",
+      "search": "fajita seasoning"
+    },
+    "lime": {
+      "name": "Limes",
+      "aisle": "produce",
+      "staple": false,
+      "per100": {
+        "kcal": 0,
+        "protein": 0
+      },
+      "unit": "each",
+      "gramsEach": 70,
+      "search": "limes"
+    },
+    "tikka-paste": {
+      "name": "Tikka curry paste",
+      "aisle": "tins-and-jars",
+      "staple": true,
+      "per100": {
+        "kcal": 200,
+        "protein": 3
+      },
+      "unit": "g",
+      "search": "tikka curry paste"
+    },
+    "cod": {
+      "name": "Skinless cod fillets",
+      "aisle": "meat-and-fish",
+      "staple": false,
+      "per100": {
+        "kcal": 80,
+        "protein": 18
+      },
+      "unit": "g",
+      "search": "skinless cod fillets"
+    },
+    "butter-beans": {
+      "name": "Butter beans (tin)",
+      "aisle": "tins-and-jars",
+      "staple": true,
+      "per100": {
+        "kcal": 80,
+        "protein": 6
+      },
+      "unit": "each",
+      "gramsEach": 235,
+      "search": "butter beans in water"
+    },
+    "pork-tenderloin": {
+      "name": "Pork tenderloin",
+      "aisle": "meat-and-fish",
+      "staple": false,
+      "per100": {
+        "kcal": 120,
+        "protein": 22
+      },
+      "unit": "g",
+      "search": "pork tenderloin"
+    },
+    "potatoes": {
+      "name": "Maris Piper potatoes",
+      "aisle": "produce",
+      "staple": false,
+      "per100": {
+        "kcal": 77,
+        "protein": 2
+      },
+      "unit": "g",
+      "search": "maris piper potatoes"
+    },
+    "leeks": {
+      "name": "Leeks",
+      "aisle": "produce",
+      "staple": false,
+      "per100": {
+        "kcal": 25,
+        "protein": 1.6
+      },
+      "unit": "each",
+      "gramsEach": 200,
+      "search": "leeks"
+    },
+    "cornflour": {
+      "name": "Cornflour",
+      "aisle": "oils-sauces-and-spices",
+      "staple": true,
+      "per100": {
+        "kcal": 350,
+        "protein": 0.5
+      },
+      "unit": "g",
+      "search": "cornflour"
     }
   },
   "recipes": [
@@ -1005,14 +1243,67 @@
       "note": "Prawns are bought cooked and heated through until piping hot."
     },
     {
+      "id": "salmon-potatoes",
+      "name": "Baked salmon, new potatoes and greens",
+      "kind": "dinner",
+      "portions": 2,
+      "minutes": 30,
+      "perPortion": {
+        "kcal": 580,
+        "protein": 44
+      },
+      "ingredients": [
+        {
+          "ingredient": "salmon",
+          "qty": 300
+        },
+        {
+          "ingredient": "new-potatoes",
+          "qty": 400
+        },
+        {
+          "ingredient": "tenderstem",
+          "qty": 320
+        },
+        {
+          "ingredient": "olive-oil",
+          "qty": 10
+        },
+        {
+          "ingredient": "lemon",
+          "qty": 1
+        },
+        {
+          "ingredient": "greek-yogurt-0",
+          "qty": 100
+        },
+        {
+          "ingredient": "dill",
+          "qty": 5
+        }
+      ],
+      "method": [
+        "Boil the potatoes for 15–20 minutes.",
+        "Bake the salmon at 200 °C for 12–15 minutes until it flakes and is opaque all the way through.",
+        "Steam or boil the tenderstem for 4 minutes.",
+        "Stir dill and lemon juice into the yogurt for the sauce."
+      ],
+      "note": "Salmon is fully cooked; no raw fish.",
+      "mainIngredients": [
+        "salmon",
+        "oily-fish",
+        "potatoes"
+      ]
+    },
+    {
       "id": "chicken-stir-fry",
       "name": "Chicken and vegetable noodle stir-fry",
       "kind": "dinner",
       "portions": 2,
       "minutes": 25,
       "perPortion": {
-        "kcal": 540,
-        "protein": 55
+        "kcal": 570,
+        "protein": 56
       },
       "ingredients": [
         {
@@ -1021,7 +1312,7 @@
         },
         {
           "ingredient": "egg-noodles",
-          "qty": 125
+          "qty": 140
         },
         {
           "ingredient": "stir-fry-veg",
@@ -1050,30 +1341,168 @@
         "Add garlic, ginger and vegetables; stir-fry 3 minutes.",
         "Toss in the noodles and soy sauce."
       ],
-      "note": "For a night the box does not cover."
+      "note": "For a night the box does not cover.",
+      "mainIngredients": [
+        "chicken",
+        "poultry",
+        "noodles"
+      ]
     },
     {
-      "id": "salmon-potatoes",
-      "name": "Baked salmon, new potatoes and greens",
+      "id": "teriyaki-salmon",
+      "name": "Sticky soy-glazed salmon, rice and greens",
       "kind": "dinner",
       "portions": 2,
-      "minutes": 30,
+      "minutes": 25,
       "perPortion": {
-        "kcal": 560,
+        "kcal": 630,
         "protein": 42
       },
       "ingredients": [
         {
           "ingredient": "salmon",
-          "qty": 300
+          "qty": 280
         },
         {
-          "ingredient": "new-potatoes",
-          "qty": 400
+          "ingredient": "rice-pouch",
+          "qty": 1
         },
         {
           "ingredient": "tenderstem",
           "qty": 200
+        },
+        {
+          "ingredient": "peas",
+          "qty": 150
+        },
+        {
+          "ingredient": "spring-onions",
+          "qty": 3
+        },
+        {
+          "ingredient": "soy-sauce",
+          "qty": 30
+        },
+        {
+          "ingredient": "honey",
+          "qty": 15
+        },
+        {
+          "ingredient": "garlic",
+          "qty": 2
+        },
+        {
+          "ingredient": "ginger",
+          "qty": 10
+        },
+        {
+          "ingredient": "sesame-oil",
+          "qty": 5
+        }
+      ],
+      "method": [
+        "Heat the oven to 200 °C. Mix the soy sauce, honey, grated garlic and ginger.",
+        "Put the salmon on a lined tray, spoon over half the glaze and bake 12–15 minutes until it flakes and is opaque all the way through.",
+        "Boil the broccoli and peas for 4 minutes; heat the rice as the pack says.",
+        "Toss the greens in the sesame oil and the rest of the glaze; top with sliced spring onions."
+      ],
+      "mainIngredients": [
+        "salmon",
+        "oily-fish",
+        "rice"
+      ]
+    },
+    {
+      "id": "turkey-chilli",
+      "name": "Turkey and bean chilli with rice",
+      "kind": "dinner",
+      "portions": 2,
+      "minutes": 35,
+      "perPortion": {
+        "kcal": 640,
+        "protein": 58
+      },
+      "ingredients": [
+        {
+          "ingredient": "turkey-mince",
+          "qty": 350
+        },
+        {
+          "ingredient": "kidney-beans",
+          "qty": 1
+        },
+        {
+          "ingredient": "chopped-tomatoes",
+          "qty": 1
+        },
+        {
+          "ingredient": "peppers",
+          "qty": 2
+        },
+        {
+          "ingredient": "red-onion",
+          "qty": 1
+        },
+        {
+          "ingredient": "garlic",
+          "qty": 2
+        },
+        {
+          "ingredient": "chilli-powder",
+          "qty": 5
+        },
+        {
+          "ingredient": "olive-oil",
+          "qty": 5
+        },
+        {
+          "ingredient": "rice-pouch",
+          "qty": 1
+        }
+      ],
+      "method": [
+        "Soften the chopped onion and peppers in the oil for 5 minutes.",
+        "Add the mince and garlic; cook 6–8 minutes, breaking it up, until no pink remains.",
+        "Stir in the chilli powder, tomatoes and drained beans; simmer 15 minutes.",
+        "Heat the rice and serve."
+      ],
+      "mainIngredients": [
+        "turkey",
+        "poultry",
+        "beans",
+        "rice"
+      ]
+    },
+    {
+      "id": "trout-pesto",
+      "name": "Pesto trout, crushed potatoes and green beans",
+      "kind": "dinner",
+      "portions": 2,
+      "minutes": 30,
+      "perPortion": {
+        "kcal": 580,
+        "protein": 40
+      },
+      "ingredients": [
+        {
+          "ingredient": "trout",
+          "qty": 320
+        },
+        {
+          "ingredient": "new-potatoes",
+          "qty": 500
+        },
+        {
+          "ingredient": "green-beans",
+          "qty": 200
+        },
+        {
+          "ingredient": "cherry-tomatoes",
+          "qty": 200
+        },
+        {
+          "ingredient": "pesto",
+          "qty": 40
         },
         {
           "ingredient": "olive-oil",
@@ -1082,23 +1511,363 @@
         {
           "ingredient": "lemon",
           "qty": 1
+        }
+      ],
+      "method": [
+        "Boil the potatoes for 15–20 minutes; add the beans for the last 4.",
+        "Heat the grill. Spread the pesto over the trout and grill with the tomatoes for 8–10 minutes until the fish flakes and is opaque all the way through.",
+        "Drain the potatoes and crush lightly with the oil and a squeeze of lemon."
+      ],
+      "mainIngredients": [
+        "trout",
+        "oily-fish",
+        "potatoes"
+      ]
+    },
+    {
+      "id": "prawn-linguine",
+      "name": "Garlic prawn linguine with tomatoes and spinach",
+      "kind": "dinner",
+      "portions": 2,
+      "minutes": 20,
+      "perPortion": {
+        "kcal": 590,
+        "protein": 46
+      },
+      "ingredients": [
+        {
+          "ingredient": "linguine",
+          "qty": 180
+        },
+        {
+          "ingredient": "cooked-prawns",
+          "qty": 360
+        },
+        {
+          "ingredient": "cherry-tomatoes",
+          "qty": 250
+        },
+        {
+          "ingredient": "spinach",
+          "qty": 150
+        },
+        {
+          "ingredient": "peas",
+          "qty": 100
+        },
+        {
+          "ingredient": "garlic",
+          "qty": 3
+        },
+        {
+          "ingredient": "olive-oil",
+          "qty": 15
+        },
+        {
+          "ingredient": "lemon",
+          "qty": 1
+        }
+      ],
+      "method": [
+        "Cook the linguine as the pack says; add the peas for the last 3 minutes.",
+        "Meanwhile warm the oil and sliced garlic in a large pan, add the halved tomatoes and cook 4 minutes.",
+        "Add the prawns and spinach; stir until the prawns are piping hot and the spinach wilts.",
+        "Toss in the drained pasta with a squeeze of lemon."
+      ],
+      "mainIngredients": [
+        "prawns",
+        "shellfish",
+        "pasta"
+      ]
+    },
+    {
+      "id": "mackerel-lentils",
+      "name": "Grilled mackerel with warm lentils and tomatoes",
+      "kind": "dinner",
+      "portions": 2,
+      "minutes": 20,
+      "perPortion": {
+        "kcal": 560,
+        "protein": 41
+      },
+      "ingredients": [
+        {
+          "ingredient": "mackerel",
+          "qty": 260
+        },
+        {
+          "ingredient": "puy-lentils",
+          "qty": 1
+        },
+        {
+          "ingredient": "cherry-tomatoes",
+          "qty": 250
+        },
+        {
+          "ingredient": "spinach",
+          "qty": 150
+        },
+        {
+          "ingredient": "red-onion",
+          "qty": 1
+        },
+        {
+          "ingredient": "olive-oil",
+          "qty": 10
+        },
+        {
+          "ingredient": "lemon",
+          "qty": 1
+        }
+      ],
+      "method": [
+        "Heat the grill. Grill the mackerel skin side up for 6–8 minutes until it flakes and is opaque all the way through.",
+        "Meanwhile soften the sliced onion in the oil for 5 minutes; add the halved tomatoes and lentils and warm through.",
+        "Stir in the spinach to wilt, add a squeeze of lemon and serve the fish on top."
+      ],
+      "mainIngredients": [
+        "mackerel",
+        "oily-fish",
+        "lentils"
+      ]
+    },
+    {
+      "id": "chicken-fajitas",
+      "name": "Chicken fajitas with peppers and yogurt",
+      "kind": "dinner",
+      "portions": 2,
+      "minutes": 25,
+      "perPortion": {
+        "kcal": 630,
+        "protein": 60
+      },
+      "ingredients": [
+        {
+          "ingredient": "chicken-breast",
+          "qty": 350
+        },
+        {
+          "ingredient": "peppers",
+          "qty": 2
+        },
+        {
+          "ingredient": "red-onion",
+          "qty": 1
+        },
+        {
+          "ingredient": "tortilla",
+          "qty": 3
+        },
+        {
+          "ingredient": "fajita-seasoning",
+          "qty": 30
         },
         {
           "ingredient": "greek-yogurt-0",
           "qty": 100
         },
         {
-          "ingredient": "dill",
+          "ingredient": "salad-leaves",
+          "qty": 100
+        },
+        {
+          "ingredient": "olive-oil",
           "qty": 5
+        },
+        {
+          "ingredient": "lime",
+          "qty": 1
         }
       ],
       "method": [
-        "Boil the potatoes for 15–20 minutes.",
-        "Bake the salmon at 200 °C for 12–15 minutes until it flakes and is opaque all the way through.",
-        "Steam or boil the broccoli for 4 minutes.",
-        "Stir dill and lemon juice into the yogurt for the sauce."
+        "Slice the chicken, peppers and onion; toss with the seasoning and oil.",
+        "Fry on a high heat for 10–12 minutes until the chicken is cooked through.",
+        "Warm the wraps; fill with the chicken, leaves, yogurt and a squeeze of lime."
       ],
-      "note": "Salmon is fully cooked; no raw fish."
+      "mainIngredients": [
+        "chicken",
+        "poultry",
+        "wraps"
+      ]
+    },
+    {
+      "id": "salmon-tikka",
+      "name": "Salmon tikka with spinach, peas and rice",
+      "kind": "dinner",
+      "portions": 2,
+      "minutes": 25,
+      "perPortion": {
+        "kcal": 650,
+        "protein": 46
+      },
+      "ingredients": [
+        {
+          "ingredient": "salmon",
+          "qty": 280
+        },
+        {
+          "ingredient": "tikka-paste",
+          "qty": 40
+        },
+        {
+          "ingredient": "greek-yogurt-0",
+          "qty": 100
+        },
+        {
+          "ingredient": "rice-pouch",
+          "qty": 1
+        },
+        {
+          "ingredient": "spinach",
+          "qty": 200
+        },
+        {
+          "ingredient": "peas",
+          "qty": 150
+        },
+        {
+          "ingredient": "red-onion",
+          "qty": 1
+        },
+        {
+          "ingredient": "lemon",
+          "qty": 1
+        }
+      ],
+      "method": [
+        "Heat the oven to 200 °C. Mix half the yogurt with the paste and coat the salmon.",
+        "Bake 12–15 minutes until it flakes and is opaque all the way through.",
+        "Meanwhile soften the sliced onion in a dry non-stick pan, add the peas and spinach and cook until wilted and hot.",
+        "Heat the rice; serve with the rest of the yogurt and a squeeze of lemon."
+      ],
+      "mainIngredients": [
+        "salmon",
+        "oily-fish",
+        "rice"
+      ]
+    },
+    {
+      "id": "cod-butter-beans",
+      "name": "Cod with smoky butter beans, tomatoes and spinach",
+      "kind": "dinner",
+      "portions": 2,
+      "minutes": 25,
+      "perPortion": {
+        "kcal": 580,
+        "protein": 52
+      },
+      "ingredients": [
+        {
+          "ingredient": "cod",
+          "qty": 300
+        },
+        {
+          "ingredient": "butter-beans",
+          "qty": 2
+        },
+        {
+          "ingredient": "chopped-tomatoes",
+          "qty": 1
+        },
+        {
+          "ingredient": "spinach",
+          "qty": 150
+        },
+        {
+          "ingredient": "garlic",
+          "qty": 2
+        },
+        {
+          "ingredient": "smoked-paprika",
+          "qty": 5
+        },
+        {
+          "ingredient": "olive-oil",
+          "qty": 15
+        },
+        {
+          "ingredient": "wholemeal-bread",
+          "qty": 120
+        },
+        {
+          "ingredient": "lemon",
+          "qty": 1
+        }
+      ],
+      "method": [
+        "Warm the oil, garlic and paprika in a wide pan; add the tomatoes and drained beans and simmer 10 minutes.",
+        "Sit the cod on top, cover and cook 8–10 minutes until it flakes and is opaque all the way through.",
+        "Stir the spinach in around the fish to wilt; serve with the bread and lemon."
+      ],
+      "mainIngredients": [
+        "cod",
+        "white-fish",
+        "beans"
+      ]
+    },
+    {
+      "id": "pork-tenderloin",
+      "name": "Roast pork tenderloin with apples, roots and greens",
+      "kind": "sunday-cook",
+      "portions": 2,
+      "minutes": 50,
+      "perPortion": {
+        "kcal": 710,
+        "protein": 60
+      },
+      "ingredients": [
+        {
+          "ingredient": "pork-tenderloin",
+          "qty": 450
+        },
+        {
+          "ingredient": "new-potatoes",
+          "qty": 500
+        },
+        {
+          "ingredient": "carrots",
+          "qty": 250
+        },
+        {
+          "ingredient": "apple",
+          "qty": 1
+        },
+        {
+          "ingredient": "red-onion",
+          "qty": 1
+        },
+        {
+          "ingredient": "broccoli",
+          "qty": 200
+        },
+        {
+          "ingredient": "olive-oil",
+          "qty": 15
+        },
+        {
+          "ingredient": "rosemary",
+          "qty": 5
+        },
+        {
+          "ingredient": "garlic",
+          "qty": 3
+        },
+        {
+          "ingredient": "gravy",
+          "qty": 20
+        }
+      ],
+      "method": [
+        "Heat the oven to 200 °C. Halve the potatoes, cut the carrots, apple and onion into wedges; toss with oil, garlic and rosemary and roast 20 minutes.",
+        "Brown the pork in a hot pan, add to the tray and roast 20–25 minutes until cooked through (no pink in the middle).",
+        "Rest the pork 5 minutes. Boil the broccoli for 4 minutes and make the gravy with boiling water."
+      ],
+      "mainIngredients": [
+        "pork",
+        "red-meat",
+        "potatoes"
+      ],
+      "note": "Sized for two exactly; nothing left over."
     },
     {
       "id": "sunday-traybake",
@@ -1153,6 +1922,82 @@
         "Halve the potatoes, cut the carrots into batons and the onion into wedges; toss with oil, garlic and rosemary in a large tray. Roast 20 minutes.",
         "Add the chicken thighs to the tray; roast 25–30 minutes until the chicken is cooked through and the juices run clear.",
         "Boil the broccoli for 4 minutes; make the gravy with boiling water."
+      ],
+      "note": "Sized for two exactly; nothing left over.",
+      "mainIngredients": [
+        "chicken",
+        "poultry",
+        "potatoes"
+      ]
+    },
+    {
+      "id": "fish-pie",
+      "name": "Cod and prawn fish pie with a cheesy mash top",
+      "kind": "sunday-cook",
+      "portions": 2,
+      "minutes": 60,
+      "perPortion": {
+        "kcal": 690,
+        "protein": 62
+      },
+      "ingredients": [
+        {
+          "ingredient": "cod",
+          "qty": 300
+        },
+        {
+          "ingredient": "cooked-prawns",
+          "qty": 150
+        },
+        {
+          "ingredient": "potatoes",
+          "qty": 600
+        },
+        {
+          "ingredient": "milk",
+          "qty": 300
+        },
+        {
+          "ingredient": "leeks",
+          "qty": 1
+        },
+        {
+          "ingredient": "peas",
+          "qty": 150
+        },
+        {
+          "ingredient": "spinach",
+          "qty": 150
+        },
+        {
+          "ingredient": "light-cheddar",
+          "qty": 30
+        },
+        {
+          "ingredient": "butter",
+          "qty": 10
+        },
+        {
+          "ingredient": "cornflour",
+          "qty": 20
+        },
+        {
+          "ingredient": "dill",
+          "qty": 5
+        }
+      ],
+      "method": [
+        "Heat the oven to 200 °C. Boil the peeled, chopped potatoes for 15–20 minutes; mash with the butter and a splash of the milk.",
+        "Soften the sliced leek in a pan with a splash of water, add the rest of the milk and bring to a simmer; thicken with the cornflour mixed with a little cold water.",
+        "Stir in the cod in chunks, the prawns, peas, spinach and dill; tip into a small dish.",
+        "Top with the mash and cheese and bake 25 minutes until golden and the fish is opaque all the way through."
+      ],
+      "mainIngredients": [
+        "cod",
+        "prawns",
+        "white-fish",
+        "shellfish",
+        "potatoes"
       ],
       "note": "Sized for two exactly; nothing left over."
     },

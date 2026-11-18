@@ -66,6 +66,12 @@ struct TodayView: View {
                     .buttonStyle(.plain)
                     .accessibilityHint("Opens Progress, with Ask the coach now")
                     .accessibilityIdentifier("today.coachLine")
+                } else if dayOffset == 0, let line = easingLine(plan: plan, history: history, now: now) {
+                    // N8: back after 10+ days off, the same slot says how hard today is.
+                    Label(line, systemImage: "arrow.up.right")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("today.easingLine")
                 }
                 if let notice = TodayFormat.storeNotice(AppStore.recovery) {
                     Label(notice, systemImage: "exclamationmark.triangle.fill")
@@ -251,6 +257,13 @@ struct TodayView: View {
                          weights: BodyStats.shared.weightHistory, blocks: CoachBlockStore().all,
                          now: now, calendar: calendar)?
             .todayLine { content.exercises.exercise($0)?.name ?? $0 }
+    }
+
+    /// N8: "Easing back in: 80% today", on a strength day while the rebuild runs.
+    private func easingLine(plan: DayPlan?, history: [SessionLog], now: Date) -> String? {
+        guard case .strength = plan?.session?.session,
+              let step = programme.easingStep(history: history, on: now, calendar: calendar) else { return nil }
+        return step.easing.todayLine(atSession: step.session)
     }
 
     // MARK: Header

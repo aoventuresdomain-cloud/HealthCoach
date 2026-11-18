@@ -89,6 +89,10 @@ public struct MealPlan: Sendable, Equatable {
         // Rotation offset by week, so consecutive weeks don't repeat day for day.
         let weekIndex = Int((start.timeIntervalSinceReferenceDate / (7 * 86_400)).rounded(.down))
 
+        // Home dinners move on by a whole week's worth each week (N6), so with
+        // 3 × home nights of recipes or more no dinner repeats within 3 weeks.
+        let homeNights = max(1, Weekday.allCases.filter { $0 != .sunday && !box.contains($0) }.count)
+
         // C3: only lean when the caller says which days train; else every day aims at the target.
         let aims = trainingDays.isEmpty ? [:] : dayAims(target: target, trainingDays: trainingDays)
         var planned: [(date: Date, weekday: Weekday, meals: [PlannedMeal], dinnerKind: String, rotation: Int)] = []
@@ -116,7 +120,7 @@ public struct MealPlan: Sendable, Equatable {
                 dinner = PlannedMeal(slot: .dinner, recipeID: nil, lunchOrderID: nil, name: content.boxNight.name,
                                      kcal: content.boxNight.perPortion.kcal, protein: content.boxNight.perPortion.protein,
                                      isBoxNight: true, isOfficeLunch: false, time: nil)
-            } else if let home = pick(dinners, weekIndex + homeDinnerIndex) {
+            } else if let home = pick(dinners, weekIndex * homeNights + homeDinnerIndex) {
                 homeDinnerIndex += 1
                 dinner = meal(.dinner, home)
             } else { continue }
