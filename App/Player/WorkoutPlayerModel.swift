@@ -42,12 +42,16 @@ final class WorkoutPlayerModel {
 
     /// The done screen's "Next time" lines for a finished log (QA-13).
     @ObservationIgnored let nextTime: (SessionLog) -> [NextTime.Line]
+    /// C6: "Last time … → today …" by exercise id, for the set screen.
+    @ObservationIgnored let lastTime: [String: String]
 
     init(script: WorkoutScript, catalogue: ExerciseCatalogue, programmeID: String,
          recovery: RecoveryCheck, voiceCues: Bool, now: Date,
+         lastTime: [String: String] = [:],
          nextTime: @escaping (SessionLog) -> [NextTime.Line] = { _ in [] }) {
         self.script = script
         self.nextTime = nextTime
+        self.lastTime = lastTime
         self.catalogue = catalogue
         var voice: VoiceCuePlayer? = voiceCues ? VoiceCuePlayer() : nil
         do { try voice?.beginHolding() } catch {
