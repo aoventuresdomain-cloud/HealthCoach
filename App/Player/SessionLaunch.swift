@@ -34,7 +34,9 @@ struct SessionLaunch: Identifiable {
                     NextTime.lines(sessionID: slot.id, programme: programme, week: week, history: history + [log])
                 })))
         case let .runWalk(run):
-            guard let plan = RunWalkPlan.make(sessionID: slot.id, session: run, week: week) else { return nil }
+            // N8: after 10+ days without a run, repeat the previous week's (two back after 21+).
+            let runWeek = programme.runWeek(week, history: history, on: now, calendar: .coach)
+            guard let plan = RunWalkPlan.make(sessionID: slot.id, session: run, week: runWeek) else { return nil }
             return SessionLaunch(player: .runWalk(RunWalkModel(
                 plan: plan, programmeID: programme.id, voiceCues: voiceCues, now: now)))
         case .walk, .circuit:

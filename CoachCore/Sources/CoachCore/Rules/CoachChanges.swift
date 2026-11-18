@@ -89,6 +89,7 @@ public enum CoachChanges {
                 else { continue }
                 let reason = switch new.step {
                 case .coach: "set by Claude's reply"
+                case .easing: "easing back in after a break"
                 case .addLoad: newKg > oldKg ? "top of the range done last time, so one step up" : "back to the bottom of the range"
                 default: newKg > oldKg ? "progressing on your logs" : "eased back on your logs"
                 }
