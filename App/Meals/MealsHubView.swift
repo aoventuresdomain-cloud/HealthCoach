@@ -32,7 +32,7 @@ struct MealsHubView: View {
         let kcalTarget = content.programmes[profile.programme.programmeID].flatMap { programme in
             CoachReview.make(programme: programme, profile: profile,
                              history: (try? SessionLogStore(context: context).all()) ?? [],
-                             weights: BodyStats.shared.weightSamples, blocks: CoachBlockStore().all,
+                             weights: BodyStats.shared.weightHistory, blocks: CoachBlockStore().all,
                              now: now, calendar: calendar)?.calories.kcal
         }
         let plan = MealPlan.week(monday: monday, content: content.nutrition, lunchOrders: content.lunchOrders.orders,

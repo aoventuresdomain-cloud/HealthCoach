@@ -111,6 +111,19 @@ import Testing
         #expect(r.dumbbellLimit == ["farmers-carry"])
     }
 
+    /// C2: one line on Today, flags first, then the dumbbell limit; none on a normal week.
+    @Test func todayLineShowsOneReasonOrNothing() throws {
+        let names = { (id: String) in id == "farmers-carry" ? "Farmer's carry" : id }
+        #expect(try review(at: f.day(3)).todayLine(name: names) == nil)
+        let flat = f.weights(to: 40) { _ in 82 }
+        #expect(try review(at: f.monday(4), weights: flat).todayLine(name: names)
+                == "Your weight has been flat for 2 weeks. Ask the coach.")
+        #expect(try review(at: f.day(40, hour: 9)).todayLine(name: names) == "Checkpoint 1: time for your coach review.")
+        let blocks = [f.block(on: 1, loads: [.init(exercise: "farmers-carry", kg: 24)])]
+        #expect(try review(at: f.day(3), blocks: blocks).todayLine(name: names)
+                == "Farmer's carry is at your heaviest dumbbell. Ask the coach.")
+    }
+
     @Test func nilBeforeOnboarding() throws {
         var profile = f.profile()
         profile.programme.startDate = nil
