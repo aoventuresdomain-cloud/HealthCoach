@@ -9,7 +9,7 @@ final class PreferencesUITests: XCTestCase {
     }
 
     private let modules = ["you", "goal", "hurts", "sleep", "work", "office", "fixed",
-                           "kit", "longest", "cues", "checkIn", "food"]
+                           "kit", "longest", "cues", "checkIn", "food", "shop", "officeLunch"]
 
     @MainActor
     private func openPreferences(_ app: XCUIApplication) {
@@ -45,6 +45,9 @@ final class PreferencesUITests: XCTestCase {
         }
         XCTAssertTrue(app.staticTexts["prefs.fromTomorrow"].exists, "no 'Changes start tomorrow.'")
         XCTAssertTrue(module(app, "food").label.contains("None"), module(app, "food").label)
+        // N4: unanswered, the shop says when it's asked; the office walk shows the default.
+        XCTAssertTrue(module(app, "shop").label.contains("Asked before your first list"), module(app, "shop").label)
+        XCTAssertTrue(module(app, "officeLunch").label.contains("Walk up to"), module(app, "officeLunch").label)
 
         module(app, "food").tap()
         let search = app.searchFields.firstMatch

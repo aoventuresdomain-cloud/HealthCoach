@@ -8,6 +8,8 @@ struct MealsHubView: View {
     @Environment(\.modelContext) private var context
     let content: ContentLibrary
     let profile: Profile
+    /// N4: stores an answer to the shop or office-lunch question at once.
+    var onAnswerFood: ((inout Profile.Food) -> Void) -> Void = { _ in }
 
     enum Tab: String, CaseIterable, Identifiable {
         case meals = "Meals", shopping = "Shopping", lunch = "Lunch"
@@ -19,6 +21,9 @@ struct MealsHubView: View {
     @State private var version = 0
     /// Lunch: "Another" steps through the other orders from today's suggestion.
     @State private var lunchStep = 0
+    /// N4: the shop question, once, on the first visit to Shopping.
+    @State private var askShop = false
+    @State private var answeredShop = false
 
     private let calendar = Calendar.coach
     private var ticks: MealTicks { .shared }
@@ -62,6 +67,23 @@ struct MealsHubView: View {
             }
         }
         .background(Color.canvas)
+        .onAppear { askShopIfNeeded() }
+        .onChange(of: tab) { askShopIfNeeded() }
+        .sheet(isPresented: $askShop, onDismiss: {
+            // Swiped away: the defaults (Waitrose, Sunday morning) apply, and it isn't asked again.
+            guard !answeredShop else { return }
+            let shop = content.nutrition.shop.default
+            onAnswerFood { $0.skipShopQuestion(defaultShop: shop) }
+        }) {
+            AskShopView(shops: content.nutrition.shop.choices) { shop, slot in
+                answeredShop = true
+                onAnswerFood { food in
+                    food.shop = shop
+                    food.delivery = slot
+                }
+            }
+            .presentationDetents([.large])
+        }
         // UI-12: the tab bar already says Meals. On the Meals tab the nav bar
         // carries the day, with ‹ › either side; the other tabs have no title.
         .navigationBarTitleDisplayMode(.inline)
@@ -84,6 +106,10 @@ struct MealsHubView: View {
                 }
             }
         }
+    }
+
+    private func askShopIfNeeded() {
+        if tab == .shopping, profile.food.needsShopQuestion, !answeredShop { askShop = true }
     }
 
     // MARK: Meals
@@ -300,6 +326,13 @@ struct MealsHubView: View {
                     }
                     .buttonStyle(.plain)
                     .accessibilityIdentifier("lunch.suggestion")
+                    // N4: the office food question, once, on the first office day.
+                    if profile.food.needsOfficeLunchQuestion(isOfficeDay: suggested != nil) {
+                        AskLunchRow(defaultWalk: content.lunchOrders.origin.maxWalkMinutes,
+                                    dislikes: profile.food.dislikes) { walk in
+                            onAnswerFood { $0.officeLunchMaxWalkMinutes = walk }
+                        }
+                    }
                     if orders.count > 1 {
                         Button("Another") { lunchStep += 1 }
                             .buttonStyle(SecondaryActionStyle())

@@ -112,6 +112,8 @@ struct TodayView: View {
         .sheet(isPresented: $showPreferences) {
             PreferencesView(profile: profile, programme: programme,
                             foods: content.nutrition.ingredients.values.map(\.name),
+                            shops: content.nutrition.shop.choices,
+                            defaultLunchWalk: content.lunchOrders.origin.maxWalkMinutes,
                             onChange: onPreferencesChange)
         }
         .task { alarmStatus = await AlarmKitSpike.shared.reconcileStatus() }

@@ -10,6 +10,9 @@ struct PreferencesView: View {
     let programme: Programme
     /// Ingredient names, to pick dislikes from.
     let foods: [String]
+    /// N4: the shops offered and the office walk that applies until answered.
+    var shops: [NutritionContent.Shop.Option] = []
+    var defaultLunchWalk = 10
     /// Called with every change; the caller stores it from tomorrow.
     var onChange: (Profile.Preferences) -> Void
 
@@ -18,10 +21,13 @@ struct PreferencesView: View {
 
     /// Onboarding's modules, less the start date (only the app moves the programme), plus foods.
     static let rows: [ProfileRow] = [.you, .goal, .hurts, .sleep, .work, .office, .fixed,
-                                     .kit, .longest, .cues, .checkIn, .food]
+                                     .kit, .longest, .cues, .checkIn, .food, .shop, .officeLunch]
 
     init(profile: Profile, programme: Programme, foods: [String],
+         shops: [NutritionContent.Shop.Option] = [], defaultLunchWalk: Int = 10,
          onChange: @escaping (Profile.Preferences) -> Void) {
+        self.shops = shops
+        self.defaultLunchWalk = defaultLunchWalk
         var draft = profile
         draft.preferences = profile.latestPreferences // an edit already waiting for tomorrow
         _draft = State(initialValue: draft)
@@ -69,7 +75,8 @@ struct PreferencesView: View {
 
     private func helper(_ row: ProfileRow) -> ProfileRowView {
         ProfileRowView(profile: $draft, programme: programme, row: row, editing: .constant(nil),
-                       idPrefix: "prefs", showsGuess: false, dislikeOptions: foods)
+                       idPrefix: "prefs", showsGuess: false, dislikeOptions: foods,
+                       shops: shops, defaultLunchWalk: defaultLunchWalk)
     }
 
     private func subtitleRow(_ rows: ProfileRowView, _ row: ProfileRow) -> some View {

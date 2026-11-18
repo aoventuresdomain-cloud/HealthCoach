@@ -79,6 +79,12 @@ final class MealsUITests: XCTestCase {
     func testShoppingTicksAndLunchList() throws {
         let app = openMeals()
         app.segmentedControls["meals.tabs"].buttons["Shopping"].tap()
+        // N4: the first visit asks once, Waitrose and Sunday morning pre-selected.
+        let useThese = app.buttons["ask.shop.done"]
+        XCTAssertTrue(useThese.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["ask.shop.option.waitrose"].isSelected)
+        XCTAssertTrue(app.buttons["ask.shop.slot.sunday-10"].isSelected)
+        useThese.tap()
         let tick = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'shopping.tick.'")).firstMatch
         let found = tick.waitForExistence(timeout: 5)
         if !found { attach(app, "shopping-no-tick") }
