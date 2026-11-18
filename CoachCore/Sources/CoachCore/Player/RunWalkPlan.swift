@@ -10,7 +10,7 @@ public struct RunWalkPlan: Equatable, Sendable {
     public let segments: [Segment]
 
     public struct Segment: Equatable, Sendable {
-        public enum Kind: String, Sendable { case warmUp, jog, walk, coolDown }
+        public enum Kind: String, Sendable { case warmUp, jog, walk, coolDown, briskWalk }
         public let kind: Kind
         public let seconds: Int
         /// 1-based jog number for intervals; nil for warm-up and cool-down.
@@ -43,6 +43,28 @@ public struct RunWalkPlan: Equatable, Sendable {
         return RunWalkPlan(sessionID: sessionID, name: session.name, week: week, segments: segments)
     }
 
+    /// Brisk-walk length bounds (Advisor N1 condition c).
+    public static let briskWalkMinutes = 20...30
+
+    /// N1 condition (c): the week's run-walk as one brisk walk, its planned
+    /// length held to 20-30 minutes, for knee or back pain. nil when the
+    /// session doesn't run in `week`.
+    public static func briskWalk(sessionID: String, session: RunWalkSession, week: Int) -> RunWalkPlan? {
+        guard let w = session.weeks.first(where: { $0.week == week }) else { return nil }
+        let minutes = min(max(w.durationMinutes, briskWalkMinutes.lowerBound), briskWalkMinutes.upperBound)
+        return RunWalkPlan(sessionID: sessionID, name: "Brisk walk", week: week,
+                           segments: [Segment(kind: .briskWalk, seconds: minutes * 60, interval: nil)])
+    }
+
+    /// The run-walk for `week` under the pain areas in force: a brisk walk
+    /// for knee or back, otherwise as planned.
+    public static func make(sessionID: String, session: RunWalkSession, week: Int,
+                            painAreas: Set<PainArea>) -> RunWalkPlan? {
+        PainSwaps.walksInsteadOfRunning(painAreas)
+            ? briskWalk(sessionID: sessionID, session: session, week: week)
+            : make(sessionID: sessionID, session: session, week: week)
+    }
+
     /// What the voice says as segment `index` starts.
     public func cue(at index: Int) -> String {
         guard segments.indices.contains(index) else { return "Done. Well walked." }
@@ -53,6 +75,7 @@ public struct RunWalkPlan: Equatable, Sendable {
         case .jog: return index <= 1 ? "Jog for \(length). \(Self.effortLine)" : "Jog for \(length)"
         case .walk: return "Walk for \(length)"
         case .coolDown: return "Last one. Cool-down walk for \(length)"
+        case .briskWalk: return "Brisk walk for \(length). Walk tall, quick steps, no jogging."
         }
     }
 
