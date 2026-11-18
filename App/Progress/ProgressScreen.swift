@@ -16,6 +16,8 @@ struct ProgressScreen: View {
 
     @Environment(\.modelContext) private var context
     @State private var photoDay = false
+    /// The summary shown in full before sharing, when it carries the waist.
+    @State private var previewSummary: String?
     @State private var version = 0
     /// Bumped when an import result appears, to scroll it clear of the tab bar (QA-32).
     @State private var importResults = 0
@@ -163,13 +165,22 @@ struct ProgressScreen: View {
                         .withSocialMeals(SocialMealStore.shared.dates(calendar: calendar), calendar: calendar)
                 }, isTicked: { day, meal in MealTicks.shared.isTicked(meal, on: day.date, calendar: calendar) },
                 calendar: calendar)
-                if let summary = CoachSummary.text(programme: programme, profile: profile, history: history,
-                                                   weights: weights, meals: meals,
-                                                   waist: WaistStore.shared.shownLog, blocks: blocks,
-                                                   socialMeals: SocialMealStore.shared.dates(calendar: calendar),
-                                                   checkIns: CheckInStore.shared.all, now: now, calendar: calendar) {
-                    ShareLink(item: summary) {
-                        Label("Ask the coach now", systemImage: "bubble.left.and.text.bubble.right")
+                let summaryText = { (waist: WaistLog?) in
+                    CoachSummary.text(programme: programme, profile: profile, history: history,
+                                      weights: weights, meals: meals, waist: waist, blocks: blocks,
+                                      socialMeals: SocialMealStore.shared.dates(calendar: calendar),
+                                      checkIns: CheckInStore.shared.all, now: now, calendar: calendar)
+                }
+                if let summary = summaryText(WaistStore.shared.shownLog) {
+                    // Advisor (N7): a summary carrying the waist is shown in full before it
+                    // can be shared. Otherwise straight to the share sheet (K1, 2 taps).
+                    let hasWaist = WaistStore.shared.shownLog != nil && summary != summaryText(nil)
+                    Group {
+                        if hasWaist {
+                            Button { previewSummary = summary } label: { askLabel }
+                        } else {
+                            ShareLink(item: summary) { askLabel }
+                        }
                     }
                     .accessibilityIdentifier("progress.askCoach")
                     .id(Self.askRow)
@@ -197,6 +208,10 @@ struct ProgressScreen: View {
         }
         }
         .navigationTitle("Progress")
+        .sheet(item: Binding(get: { previewSummary.map(SummaryPreview.Item.init) },
+                             set: { previewSummary = $0?.value })) { text in
+            SummaryPreview(summary: text.value)
+        }
         .task(id: NotificationRouter.shared.openPhotoDay) {
             guard NotificationRouter.shared.openPhotoDay else { return }
             NotificationRouter.shared.openPhotoDay = false
@@ -285,6 +300,51 @@ private struct WeightHero: View {
             .frame(height: 160)
             .accessibilityLabel("Weight, 7-day average over the last 4 weeks")
             .accessibilityIdentifier("progress.weightChart")
+        }
+    }
+}
+
+extension ProgressScreen {
+    fileprivate var askLabel: some View {
+        Label("Ask the coach now", systemImage: "bubble.left.and.text.bubble.right")
+    }
+}
+
+/// The full Claude summary, read before it is shared (`coach.preview`).
+struct SummaryPreview: View {
+    struct Item: Identifiable {
+        let value: String
+        var id: String { value }
+    }
+
+    let summary: String
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                SwiftUI.Text(summary)
+                    .font(.footnote.monospaced())
+                    .textSelection(.enabled)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(16)
+                    .accessibilityIdentifier("coach.previewText")
+            }
+            .navigationTitle("What Claude will see")
+            .navigationBarTitleDisplayMode(.inline)
+            .accessibilityIdentifier("coach.preview")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }.accessibilityIdentifier("coach.previewCancel")
+                }
+            }
+            .safeAreaInset(edge: .bottom) {
+                ActionBar {
+                    ShareLink(item: summary) { SwiftUI.Text("Share").frame(maxWidth: .infinity) }
+                        .buttonStyle(PrimaryActionStyle())
+                        .accessibilityIdentifier("coach.previewShare")
+                }
+            }
         }
     }
 }
