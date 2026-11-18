@@ -37,9 +37,11 @@ struct TodayView: View {
         // slot has passed moves (logged this week = done).
         let history = (try? SessionLogStore(context: context).all()) ?? []
         let done = SessionLog.sessionIDs(in: history, weekOf: now, calendar: calendar)
-        let plan = DayPlan.make(for: date, programme: programme, profile: profile,
+        // The phase in force on the day shown, so "See tomorrow" before a new phase shows the new one.
+        let dayProgramme = content.programme(for: profile, on: date, calendar: calendar) ?? programme
+        let plan = DayPlan.make(for: date, programme: dayProgramme, profile: profile,
                                 answers: { WeekAnswersStore.shared.answers(weekStarting: $0, calendar: calendar) },
-                                dropping: CoachBlockStore().droppedSessions(programme: programme, history: history,
+                                dropping: CoachBlockStore().droppedSessions(programme: dayProgramme, history: history,
                                                                             profile: profile, on: date, calendar: calendar),
                                 now: now, completed: done, calendar: calendar)
 
