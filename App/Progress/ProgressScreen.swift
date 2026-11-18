@@ -151,7 +151,8 @@ struct ProgressScreen: View {
                                      lunchOrders: content.lunchOrders.orders,
                                      answers: WeekAnswersStore.shared.answers(weekStarting: monday, calendar: calendar),
                                      programme: programme, profile: profile, history: history, weights: weights,
-                                     blocks: blocks, calendar: calendar)
+                                     blocks: blocks, dislikes: { profile.dislikes(on: $0, calendar: calendar) },
+                                     calendar: calendar)
                         .withSocialMeals(SocialMealStore.shared.dates(calendar: calendar), calendar: calendar)
                 }, isTicked: { day, meal in MealTicks.shared.isTicked(meal, on: day.date, calendar: calendar) },
                 calendar: calendar)
