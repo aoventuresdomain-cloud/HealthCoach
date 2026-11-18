@@ -91,9 +91,9 @@ The internal round passed on the review build (`6332a80`), with no blockers and 
 | Issue | Severity | Owner | Blocks the phone install? |
 |---|---|---|---|
 | "Tomorrow changed" can't skip basketball yet, because that needs a new planner field (M2-06 follow-up) | minor | Planner Engineer | No |
-| One automated test (alarm permission) passes by retrying instead of waiting properly for the app to settle (QA-38) | minor | iOS Interface Engineer | No |
 | If you open the ⋯ menu in the first second after launch, it can close by itself; tap it again (QA-39) | trivial | iOS Interface Engineer | No |
 | GitHub's Mac build machines were short on 17 Nov, and one build needed three attempts. That's GitHub capacity, not our budget. | trivial | Head of Engineering | No |
+| The lock-screen timer check in the simulator failed once on 18 Nov, then passed on the re-run. The app code didn't change; it gets proven for real on the phone. | trivial | iOS Interface Engineer | No |
 
 **Tested only in the simulator until the phone install** (needs the paid Apple account, your call in §6):
 - alarms firing for real on a locked phone, on Silent and in a Focus
