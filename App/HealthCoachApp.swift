@@ -28,6 +28,13 @@ struct HealthCoachApp: App {
                 // The store the app reads: under -uitest that is the cleared test suite, not
                 // .standard, so a fixture's answers must go there or Today never sees them.
                 try fixture.applyWeekAnswers(to: .shared, calendar: .coach)
+                // N7: drawn stand-in photo sets, never real photos.
+                for (n, day) in fixture.photoDays.enumerated() {
+                    for pose in ProgressStore.Pose.allCases {
+                        try ProgressStore.shared.save(PhotoDayView.testImage(pose, widen: CGFloat(n) * 12),
+                                                      pose: pose, on: day, calendar: .coach)
+                    }
+                }
             } catch {
                 fatalError("UI test fixture \(name) failed: \(error.localizedDescription)")
             }

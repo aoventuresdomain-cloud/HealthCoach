@@ -75,6 +75,26 @@ public enum NotificationPlanner {
     public static func plan(now: Date, programme: Programme, profile: Profile,
                             answers: (Date) -> WeekAnswers, dropping: Set<String> = [],
                             calendar: Calendar = .current) -> [CoachNotification] {
+        // N3: each notification from the profile in force on the day it fires,
+        // as the alarms are, so a Preferences edit saved today moves
+        // notifications from tomorrow and today's (tonight's wind-down too)
+        // stay as they were.
+        guard let pending = profile.pending else {
+            return plan(now: now, programme: programme, asOf: profile, answers: answers,
+                        dropping: dropping, calendar: calendar)
+        }
+        let from = pending.effectiveFrom
+        let before = plan(now: now, programme: programme, asOf: profile, answers: answers,
+                          dropping: dropping, calendar: calendar).filter { $0.fireDate < from }
+        let after = plan(now: now, programme: programme, asOf: profile.effective(on: from, calendar: calendar),
+                         answers: answers, dropping: dropping, calendar: calendar).filter { $0.fireDate >= from }
+        return Array((before + after).sorted { $0.fireDate < $1.fireDate }.prefix(pendingLimit))
+    }
+
+    /// The 14 days planned from one profile throughout.
+    private static func plan(now: Date, programme: Programme, asOf profile: Profile,
+                             answers: (Date) -> WeekAnswers, dropping: Set<String>,
+                             calendar: Calendar) -> [CoachNotification] {
         guard profile.programme.startDate != nil else { return [] }
         let today = calendar.startOfDay(for: now)
         let last = calendar.date(byAdding: .day, value: AlarmSchedule.horizonDays - 1, to: today)!
