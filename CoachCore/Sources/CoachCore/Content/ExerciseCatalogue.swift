@@ -34,6 +34,9 @@ public struct Exercise: Codable, Sendable, Equatable, Identifiable {
     public let substitute: String?
     /// What to do instead on pain or a kit problem.
     public let swap: String?
+    /// N1: the pain areas it puts weight through. A check-in pain answer
+    /// swaps it out for 7 days (`PainSwaps`). nil reads as none.
+    public let loads: [PainArea]?
     public let callouts: Callouts
 
     public enum Group: String, Codable, Sendable, CaseIterable {

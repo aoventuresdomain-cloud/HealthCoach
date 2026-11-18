@@ -74,9 +74,10 @@ struct RunWalkView: View {
         let times = model.elapsedAndRemaining(at: date)
         VStack(spacing: 12) {
             if model.finished {
-                Text("Run-walk done").font(.largeTitle.bold()).padding(.top, 48)
+                Text(model.plan.repeats == 0 ? "Walk done" : "Run-walk done").font(.largeTitle.bold()).padding(.top, 48)
                     .accessibilityIdentifier("run.doneTitle")
-                Text("\(PlayerFormat.clock(model.plan.totalSeconds)) · \(model.plan.repeats) jogs")
+                Text(model.plan.repeats == 0 ? PlayerFormat.clock(model.plan.totalSeconds)
+                     : "\(PlayerFormat.clock(model.plan.totalSeconds)) · \(model.plan.repeats) jogs")
                     .font(.title3).foregroundStyle(.secondary)
             } else if let segment = model.segment {
                 Text(RunWalkFormat.label(segment.kind))
