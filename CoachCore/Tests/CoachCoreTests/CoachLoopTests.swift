@@ -265,6 +265,30 @@ import Testing
     @Test(arguments: refused.indices)
     func aReplyOutsideAnyLimitChangesNothing(_ index: Int) throws {
         let (name, week, fields) = Self.refused[index]
+        try expectNothingChanges(name: name, week: week, text: reply(fields))
+    }
+
+    /// QA-R3-2: a reply the importer can't read at all (an unknown field, a
+    /// newer or older format, another app's block) leaves the plan alone too.
+    static let unreadable: [(name: String, text: String)] = [
+        ("unknown field", block("\"dailykcal\": 1900")),
+        ("newer format", block("\"dailyKcal\": 1900", version: 2)),
+        ("older format", block("\"dailyKcal\": 1900", version: 0)),
+        ("another format", "\(CoachImport.beginMarker)\n{\"format\": \"healthcoach-meal-plan\", \"schemaVersion\": 1}\n\(CoachImport.endMarker)"),
+    ]
+
+    static func block(_ fields: String, version: Int = 1) -> String {
+        "Good four weeks.\n\(CoachImport.beginMarker)\n"
+            + "{\"format\": \"healthcoach-coach-block\", \"schemaVersion\": \(version), \(fields)}\n\(CoachImport.endMarker)"
+    }
+
+    @Test(arguments: unreadable.indices)
+    func anUnreadableReplyChangesNothing(_ index: Int) throws {
+        let (name, text) = Self.unreadable[index]
+        try expectNothingChanges(name: name, week: 5, text: text)
+    }
+
+    private func expectNothingChanges(name: String, week: Int, text: String) throws {
         let p = try f.phase1()
         let profile = f.profile()
         let history = try fourWeeks(p)
@@ -275,7 +299,7 @@ import Testing
         let baseline = try shown(p, history: history, weights: weights, blocks: [], at: monday,
                                  monday: monday, thursday: thursday)
 
-        let outcome = CoachImport.importing(reply(fields), into: [], programme: p, profile: profile,
+        let outcome = CoachImport.importing(text, into: [], programme: p, profile: profile,
                                             now: importedAt, calendar: f.calendar)
         #expect(outcome.accepted == nil, "\(name)")
         #expect(outcome.blocks.isEmpty, "\(name)")

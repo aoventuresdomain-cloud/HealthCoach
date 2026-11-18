@@ -21,12 +21,18 @@ struct SessionLaunch: Identifiable {
         // Strength UI tests run without speech so the warm-up and holds keep a
         // steady pace; run-walk keeps its cues (a failed audio route turns them off).
         let strengthVoice = voiceCues && !LaunchOptions.current.isUITest
+        // N1: a pain answer swaps exercises (or the run-walk) out for 7 days.
+        let checkIns = CheckInStore.shared.all
+        let painAreas = CheckIn.painAreas(checkIns, on: now, calendar: .coach)
         switch slot.session {
         case .strength:
             // Imported loads (M4-02) hold until that exercise is next logged.
             guard let script = WorkoutScript.make(sessionID: slot.id, programme: programme, week: week, history: history,
                                                   blocks: CoachBlockStore().all, on: now,
-                                                  calendar: .coach) else { return nil }
+                                                  painSwaps: PainSwaps.make(areas: painAreas,
+                                                                            exercises: PainSwaps.exercises(in: programme),
+                                                                            catalogue: content.exercises),
+                                                  checkIns: checkIns, calendar: .coach) else { return nil }
             return SessionLaunch(player: .strength(WorkoutPlayerModel(
                 script: script, catalogue: content.exercises, programmeID: programme.id,
                 recovery: recovery, voiceCues: strengthVoice, now: now,
@@ -38,7 +44,8 @@ struct SessionLaunch: Identifiable {
             // N8: after 10+ days without a run, repeat the previous week's (two back after 21+).
             let runWeek = programme.runWeek(week, history: history, on: now, calendar: .coach)
             // N10: named after the route's loop closest to the session's distance.
-            guard let plan = RunWalkPlan.make(sessionID: slot.id, session: run, week: runWeek)?
+            guard let plan = RunWalkPlan.make(sessionID: slot.id, session: run, week: runWeek,
+                                              painAreas: painAreas)?
                 .naming(content.runLoops[run.route]) else { return nil }
             return SessionLaunch(player: .runWalk(RunWalkModel(
                 plan: plan, programmeID: programme.id, voiceCues: voiceCues, now: now)))

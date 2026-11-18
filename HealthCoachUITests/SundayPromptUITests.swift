@@ -20,15 +20,19 @@ final class SundayPromptUITests: XCTestCase {
     @MainActor
     func testSundayPromptTakesUnderTwentySeconds() throws {
         let app = launch()
-        let card = app.buttons["today.planWeek"]
+        let card = app.buttons["today.checkIn"]
         XCTAssertTrue(card.waitForExistence(timeout: 5))
 
         // The 20 s budget is the person's time, so it's measured with the ease-budget
         // model (docs/qa/ease-budget-method.md), not simulator wall time: on slow CI
-        // runners, XCUITest queries and the screenshot took 20-30 s for these 5 taps.
-        // The helper counts the real taps, so an extra step still fails the budget.
-        let budget = EaseBudget("sunday-prompt", maxTaps: 5, maxSeconds: 20, app: app)
+        // runners, XCUITest queries and the screenshot took 20-30 s for these taps.
+        // N1: the weekend card is the check-in (W1 allows 8 taps / 60 s with changes);
+        // this path is exactly 6 taps (card, Next, 3 days, Looks good), so any extra step fails.
+        let budget = EaseBudget("sunday-prompt", maxTaps: 6, maxSeconds: 20, app: app)
         budget.tap(card, newScreen: true)
+        let next = app.buttons["checkin.next"]
+        XCTAssertTrue(next.waitForExistence(timeout: 5))
+        budget.tap(next, newScreen: true)
         let monday = app.buttons["sunday.day.monday"]
         XCTAssertTrue(monday.waitForExistence(timeout: 5))
         let shot = XCTAttachment(screenshot: app.screenshot())
@@ -38,7 +42,7 @@ final class SundayPromptUITests: XCTestCase {
         budget.tap(monday)
         budget.tap(app.buttons["sunday.day.tuesday"])
         budget.tap(app.buttons["sunday.day.thursday"])
-        budget.tap(app.buttons["sunday.done"])
+        budget.tap(app.buttons["checkin.done"])
         XCTAssertTrue(card.waitForNonExistence(timeout: 5), "the card stays until next week is answered")
         budget.finish(done: app.staticTexts["today.title"])
 

@@ -39,6 +39,15 @@ struct ProgressScreen: View {
         let sets = store.sets(calendar: calendar)
         ScrollViewReader { proxy in
         List {
+            // N2: what changed in the last 7 days, and why; no card when nothing did.
+            let changes = CoachChanges.make(programme: programme, profile: profile, history: history,
+                                            weights: BodyStats.shared.weightHistory, blocks: CoachBlockStore().all,
+                                            checkIns: CheckInStore.shared.all, exercises: content.exercises,
+                                            now: now, name: { content.exercises.exercise($0)?.name ?? $0 },
+                                            calendar: calendar)
+            if !changes.isEmpty {
+                Section { ChangesCard(changes: changes) }
+            }
             // UI-12: no section headers; the content says what it is. Phase lines
             // frame the screen, then one hero number, its chart, and steps.
             Section {
@@ -126,7 +135,8 @@ struct ProgressScreen: View {
                 let blocks = CoachBlockStore().all
                 let weights = BodyStats.shared.weightHistory
                 if let review = CoachReview.make(programme: programme, profile: profile, history: history,
-                                                 weights: weights, blocks: blocks, now: now, calendar: calendar) {
+                                                 weights: weights, blocks: blocks, checkIns: CheckInStore.shared.all,
+                                                 now: now, calendar: calendar) {
                     ForEach(Array(review.flags.enumerated()), id: \.offset) { index, flag in
                         Label(flag.line, systemImage: "flag")
                             .foregroundStyle(.caution)
@@ -143,14 +153,15 @@ struct ProgressScreen: View {
                                      lunchOrders: content.lunchOrders.orders,
                                      answers: WeekAnswersStore.shared.answers(weekStarting: monday, calendar: calendar),
                                      programme: programme, profile: profile, history: history, weights: weights,
-                                     blocks: blocks, calendar: calendar)
+                                     blocks: blocks, dislikes: { profile.dislikes(on: $0, calendar: calendar) },
+                                     calendar: calendar)
                         .withSocialMeals(SocialMealStore.shared.dates(calendar: calendar), calendar: calendar)
                 }, isTicked: { day, meal in MealTicks.shared.isTicked(meal, on: day.date, calendar: calendar) },
                 calendar: calendar)
                 if let summary = CoachSummary.text(programme: programme, profile: profile, history: history,
                                                    weights: weights, meals: meals, blocks: blocks,
                                                    socialMeals: SocialMealStore.shared.dates(calendar: calendar),
-                                                   now: now, calendar: calendar) {
+                                                   checkIns: CheckInStore.shared.all, now: now, calendar: calendar) {
                     ShareLink(item: summary) {
                         Label("Ask the coach now", systemImage: "bubble.left.and.text.bubble.right")
                     }

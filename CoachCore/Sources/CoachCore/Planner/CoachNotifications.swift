@@ -38,7 +38,7 @@ public enum QuietHours {
 /// One local notification the app should have pending (plan §4.7).
 public struct CoachNotification: Sendable, Equatable, Codable {
     public enum Kind: String, Sendable, Codable, CaseIterable {
-        case morningBrief, leaveNow, windDown, sundayPrompt, deliveryReminder, checkpoint
+        case morningBrief, leaveNow, windDown, sundayPrompt, deliveryReminder, checkpoint, photoDay
     }
 
     /// Stable per kind and day, so a re-plan replaces rather than duplicates.
@@ -66,6 +66,9 @@ public enum NotificationPlanner {
     public static let deliveryReminderTime = TimeOfDay(hour: 19, minute: 0)
     /// N10: the evening a checkpoint falls due (the Saturday of week 6, 14, 20).
     public static let checkpointTime = TimeOfDay(hour: 19, minute: 0)
+    /// N7: the morning of each photo day (`PhotoSchedule`, every 2 weeks from the
+    /// start), before breakfast, when the light and the body are most alike week to week.
+    public static let photoDayTime = TimeOfDay(hour: 7, minute: 0)
 
     /// The notifications for the same 14 days the wake alarms cover
     /// (`AlarmSchedule.horizonDays`), planned the way the alarms are.
@@ -87,6 +90,7 @@ public enum NotificationPlanner {
                          now: now, calendar: calendar)
         let extra = deliveryReminders(slot: profile.food.delivery, now: now, through: last, calendar: calendar)
             + checkpoints(start: profile.programme.startDate, now: now, through: last, calendar: calendar)
+            + photoDays(start: profile.programme.startDate, now: now, through: last, calendar: calendar)
         return Array((daily + extra).sorted { $0.fireDate < $1.fireDate }.prefix(pendingLimit))
     }
 
@@ -137,6 +141,31 @@ public enum NotificationPlanner {
         }
     }
 
+    /// N7: the morning of each photo day from `now` to `through`. Inside quiet
+    /// hours it waits until they end, as the morning brief does. Only the
+    /// reminder: no photo or measurement is in it. Tapping it opens the camera
+    /// (N12, the app's notification route).
+    public static func photoDays(start: Date?, now: Date, through last: Date,
+                                 calendar: Calendar = .current) -> [CoachNotification] {
+        guard let start else { return [] }
+        var out: [CoachNotification] = []
+        var day = calendar.startOfDay(for: start)
+        while day <= last {
+            var fire = photoDayTime.on(day, calendar: calendar)
+            if QuietHours.contains(fire, calendar: calendar) {
+                fire = QuietHours.nextAllowed(after: fire, calendar: calendar)
+            }
+            if fire > now {
+                out.append(CoachNotification(id: "\(CoachNotification.Kind.photoDay.rawValue)-\(key(day, calendar: calendar))",
+                                             kind: .photoDay, fireDate: fire, title: "Photo day",
+                                             body: "Front and side photos today, about a minute. They stay on your iPhone."))
+            }
+            guard let next = calendar.date(byAdding: .day, value: PhotoSchedule.intervalDays, to: day) else { break }
+            day = next
+        }
+        return out
+    }
+
     public static func plan(days: [WeekPlan.Day], sessionName: (String) -> String,
                             now: Date, calendar: Calendar = .current) -> [CoachNotification] {
         var out: [CoachNotification] = []
@@ -146,7 +175,7 @@ public enum NotificationPlanner {
             var fire = planned
             if QuietHours.contains(fire, calendar: calendar) {
                 switch kind {
-                case .morningBrief, .sundayPrompt: fire = QuietHours.nextAllowed(after: fire, calendar: calendar)
+                case .morningBrief, .sundayPrompt, .photoDay: fire = QuietHours.nextAllowed(after: fire, calendar: calendar)
                 case .windDown, .deliveryReminder, .checkpoint:
                     fire = QuietHours.lastAllowed(before: fire, calendar: calendar)
                 case .leaveNow: return
