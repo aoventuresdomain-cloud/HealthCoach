@@ -187,6 +187,38 @@ import Testing
         }
     }
 
+    /// Advisor review of #103: shoulder chains used to end on scapular push-up.
+    @Test func shoulderPainNeverLeavesScapularPushUpInASession() throws {
+        let lib = try library()
+        let swaps = PainSwaps.make(areas: [.shoulder], exercises: lib.exercises.exercises.map(\.id),
+                                   catalogue: lib.exercises)
+        let safe = !swaps.values.contains { $0.to == "scapular-push-up" }
+        #expect(safe)
+        for programme in lib.phases {
+            let swaps = PainSwaps.make(areas: [.shoulder], exercises: PainSwaps.exercises(in: programme),
+                                       catalogue: lib.exercises)
+            for week in programme.effort.map(\.week) {
+                for (id, session) in programme.sessions {
+                    guard case .strength = session,
+                          let script = WorkoutScript.make(sessionID: id, programme: programme, week: week,
+                                                          painSwaps: swaps, calendar: calendar) else { continue }
+                    let clear = !script.sets.contains { $0.exercise == "scapular-push-up" }
+                    #expect(clear, "\(programme.id) \(id) week \(week)")
+                }
+            }
+        }
+    }
+
+    /// Advisor review of #103: the chest-supported row is the back-pain swap for the one-arm row.
+    @Test func backPainSwapsTheOneArmRowForTheInclineRow() throws {
+        let lib = try library()
+        let swaps = PainSwaps.make(areas: [.back], exercises: ["dumbbell-one-arm-row"], catalogue: lib.exercises)
+        #expect(swaps["dumbbell-one-arm-row"]?.to == "dumbbell-incline-row")
+        let elbow = PainSwaps.make(areas: [.elbow], exercises: ["farmers-carry", "hanging-knee-raise"],
+                                   catalogue: lib.exercises)
+        #expect(elbow.keys.sorted() == ["farmers-carry", "hanging-knee-raise"])
+    }
+
     @Test func conditionB_aDroppedExerciseIsNeverReplaced() throws {
         let lib = try library(), p1 = try phase1()
         var swaps = PainSwaps.make(areas: [.shoulder], exercises: PainSwaps.exercises(in: p1), catalogue: lib.exercises)

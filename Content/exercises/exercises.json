@@ -435,7 +435,7 @@
       },
       "substitute": null,
       "swap": "scapular-push-up",
-      "loads": ["shoulder"],
+      "loads": ["shoulder", "elbow"],
       "callouts": {
         "setup": "Hang from the bar with straight arms.",
         "movement": "Pull shoulders down and back to lift slightly, then relax.",
@@ -485,7 +485,7 @@
       },
       "substitute": null,
       "swap": "dumbbell-one-arm-row",
-      "loads": ["shoulder", "elbow", "back"],
+      "loads": ["shoulder", "elbow"],
       "callouts": {
         "setup": "Lie chest-down on the bench set to 30 degrees.",
         "movement": "Pull dumbbells to your ribs, squeezing shoulder blades together.",
@@ -963,7 +963,7 @@
       },
       "substitute": null,
       "swap": "reverse-crunch",
-      "loads": ["shoulder", "wrist"],
+      "loads": ["shoulder", "elbow", "wrist"],
       "callouts": {
         "setup": "Hang from the bar, shoulders pulled down.",
         "movement": "Raise knees to your chest, then lower slowly.",
@@ -987,7 +987,7 @@
       },
       "substitute": null,
       "swap": "hanging-knee-raise",
-      "loads": ["shoulder", "wrist", "back"],
+      "loads": ["shoulder", "elbow", "wrist", "back"],
       "callouts": {
         "setup": "Hang from the bar, shoulders pulled down, legs straight.",
         "movement": "Raise straight legs to hip height, then lower slowly.",
@@ -1011,7 +1011,7 @@
       },
       "substitute": null,
       "swap": "plank",
-      "loads": ["wrist", "back"],
+      "loads": ["elbow", "wrist", "back"],
       "callouts": {
         "setup": "Pick up heavy dumbbells, stand tall, shoulders back.",
         "movement": "Walk with short, steady steps for the time.",
@@ -1059,7 +1059,7 @@
       },
       "substitute": null,
       "swap": "scapular-pull-up",
-      "loads": ["wrist"],
+      "loads": ["shoulder", "wrist"],
       "callouts": {
         "setup": "Start in a push-up position, arms straight.",
         "movement": "Let your chest sink between shoulders, then push it away.",
