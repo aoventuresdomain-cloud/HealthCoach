@@ -27,6 +27,29 @@ public struct NutritionContent: VersionedFormat, Sendable, Equatable {
         /// Contains `{search}`, replaced by the ingredient's search term.
         public let searchUrl: String
         public let decision: String?
+        /// N4: the shops offered before the first list, the default first.
+        /// Absent: only the default.
+        public let options: [Option]?
+
+        public struct Option: Codable, Sendable, Equatable, Identifiable {
+            public let id: String
+            public let name: String
+            /// Contains `{search}`.
+            public let searchUrl: String
+        }
+
+        /// The shops to offer, the default first.
+        public var choices: [Option] {
+            let all = options ?? []
+            let fallback = Option(id: self.default, name: self.default.capitalized, searchUrl: searchUrl)
+            let first = all.first { $0.id == self.default } ?? fallback
+            return [first] + all.filter { $0.id != first.id }
+        }
+
+        /// The search template for `shopID`, or the default's.
+        public func searchUrl(for shopID: String?) -> String {
+            shopID.flatMap { id in choices.first { $0.id == id }?.searchUrl } ?? searchUrl
+        }
     }
 
     /// Advisor rule: each planned day is within `kcal` ± `kcalBandPlusMinus`,
@@ -210,6 +233,9 @@ public struct NutritionContent: VersionedFormat, Sendable, Equatable {
     public func problems() -> [String] {
         var out: [String] = []
         if !shop.searchUrl.contains("{search}") { out.append("shop.searchUrl has no {search}") }
+        for option in shop.options ?? [] where !option.searchUrl.contains("{search}") {
+            out.append("shop option \(option.id): searchUrl has no {search}")
+        }
         for (id, ingredient) in ingredients.sorted(by: { $0.key < $1.key }) {
             if !aisleOrder.contains(ingredient.aisle) { out.append("ingredient \(id): aisle \(ingredient.aisle) not in aisleOrder") }
         }

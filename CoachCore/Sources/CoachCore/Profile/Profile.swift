@@ -31,7 +31,46 @@ public struct Profile: VersionedFormat, Codable, Sendable, Equatable {
     public struct Food: Codable, Sendable, Equatable {
         /// Foods the meal plan never uses, as the owner wrote them (`Dislikes`). Empty by default.
         public var dislikes: [String] = []
+        /// N4: the shop for search links (`NutritionContent.Shop.Option.id`).
+        /// nil until asked before the first list; skipping sets the default.
+        public var shop: String?
+        /// N4: the weekly delivery slot, asked with the shop. nil until asked.
+        public var delivery: DeliverySlot?
+        /// N4: the longest walk for an office lunch, asked on the first office
+        /// day. nil until asked (the content's limit applies meanwhile).
+        public var officeLunchMaxWalkMinutes: Int?
         public init() {}
+
+        public struct DeliverySlot: Codable, Sendable, Equatable {
+            public var day: Weekday
+            public var time: TimeOfDay
+            public init(day: Weekday = .sunday, time: TimeOfDay = TimeOfDay(hour: 10, minute: 0)) {
+                self.day = day
+                self.time = time
+            }
+        }
+
+        /// True until the shop question has been answered or skipped.
+        public var needsShopQuestion: Bool { shop == nil }
+
+        /// The answers to use when the shop question is skipped: Waitrose (the
+        /// content's default) and Sunday.
+        public mutating func skipShopQuestion(defaultShop: String) {
+            shop = shop ?? defaultShop
+            delivery = delivery ?? DeliverySlot()
+        }
+
+        /// True on an office day until the lunch question has been answered or skipped.
+        public func needsOfficeLunchQuestion(isOfficeDay: Bool) -> Bool {
+            isOfficeDay && officeLunchMaxWalkMinutes == nil
+        }
+
+        /// The office lunch orders within the owner's walk (the content's own
+        /// limit until asked). Dislikes are applied by the meal plan.
+        public func lunchOrders(_ orders: LunchOrders) -> [LunchOrder] {
+            let limit = officeLunchMaxWalkMinutes ?? orders.origin.maxWalkMinutes
+            return orders.orders.filter { $0.walkMinutes <= limit }
+        }
     }
 
     public struct About: Codable, Sendable, Equatable {
@@ -242,6 +281,17 @@ extension Profile {
         }
         next.pending = Pending(effectiveFrom: tomorrow, preferences: edited)
         return next
+    }
+
+    /// N4: an answer to an ask-when-needed question (shop, delivery, office
+    /// walk) applies at once, not from tomorrow, and is carried into any
+    /// pending Preferences edit so tomorrow doesn't undo it.
+    public mutating func answerFoodQuestion(_ answer: (inout Food) -> Void) {
+        answer(&food)
+        if var pending {
+            answer(&pending.preferences.food)
+            self.pending = pending
+        }
     }
 
     /// The dislike list in force on `date` (`MealPlan.week`'s `dislikes`).

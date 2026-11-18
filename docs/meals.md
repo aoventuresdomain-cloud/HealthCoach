@@ -13,7 +13,7 @@
 
 **Reach of the current recipes.** At the Phase 1 content, a home-lunch day spans about 1,710–2,030 kcal, and a box-night day about 1,820–1,990. A target from 1,850 up to about 2,000 fills every day, as the tests check. A higher weekly target (the engine raising calories, maintenance at ~2,450) is closed with **extras**: `recipes[]` entries with `"kind": "extra"`, filled by `extraRules` (Advisor order, 17 Nov). When planned protein is under 150 g, the chicken boost goes in first. Then come one side (rice, potatoes or bread, rotating by day), the yogurt bowl, the richer breakfast (which replaces the planned breakfast) and cheese on toast last, until the day is in the band. That is at most 2 extras a day (Head of Engineering), one of each kind, and never one that overshoots. Extras are pre-ticked and their ingredients go on the top-up list. Tests check every day in the band at 2,200 and 2,450 for home, office and hybrid weeks. Without a fitting extra, a day is planned as close as it gets and flagged `withinBand = false`; nothing is invented.
 
-**Top-up list (`ShoppingList.week`).** One list for the week. Quantities are merged across every recipe use and sorted by `aisleOrder`, then by name. Box nights and office lunches add nothing, and supplements are staples. A staple the owner has ticked stays ticked (the app stores `tickedStaples`); everything else starts unticked each week. Each line has a search link to the default shop (`shop.searchUrl`, E5).
+**Top-up list (`ShoppingList.week`).** One list for the week. Quantities are merged across every recipe use and sorted by `aisleOrder`, then by name. Box nights and office lunches add nothing, and supplements are staples. A staple the owner has ticked stays ticked (the app stores `tickedStaples`); everything else starts unticked each week. Each line has a search link to the owner's shop (`Profile.food.shop`, N4), or the default (`shop.searchUrl`, E5) until chosen.
 
 **Cut for this round (re-plan, 17 Nov):** the evening "anything different?" prompt and the social-meal counter.
 
@@ -29,3 +29,9 @@
 ## Dislikes (N3, Advisor A4f)
 
 `Profile.food.dislikes` is the owner's list from Settings → Preferences, empty by default. A recipe, extra, snack or office lunch order is never planned when an entry starts a word of its name or of any ingredient's name or id, ignoring case and accents ("mushroom" leaves out chestnut mushrooms). An office day with every lunch order disliked gets a home lunch to take in. The recipe box night is outside the list. Like every Preferences edit, a change applies from the next day: `MealPlan.week(dislikes:)` takes each day's list from `Profile.dislikes(on:)`.
+
+## Ask when needed (N4)
+
+- **Shop and delivery slot**, asked once before the first list. `shop.options` in `recipes.json` lists the shops (Waitrose first, then Ocado, M&S via Ocado, Tesco, Sainsbury's). `ShoppingList.week(_:content:tickedStaples:shopID:)` uses the chosen shop's search link; an unknown id falls back to the default. Skipping (`Food.skipShopQuestion`) stores Waitrose and Sunday 10:00, so the question doesn't come back.
+- **Office lunch walk**, asked once on the first office day (`Food.needsOfficeLunchQuestion`). `Food.lunchOrders(_:)` keeps orders within the answer (the content's `maxWalkMinutes` until asked). If none is that close, the office day gets a home lunch to take in, as with dislikes.
+- Both answers apply at once through `Profile.answerFoodQuestion`, which also carries them into any pending Preferences edit. Changing them later in Preferences applies from tomorrow, like every other edit.
