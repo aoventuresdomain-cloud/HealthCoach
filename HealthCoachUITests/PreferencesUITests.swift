@@ -87,6 +87,29 @@ final class PreferencesUITests: XCTestCase {
         XCTAssertTrue(module(app, "food").label.contains("mushrooms"), module(app, "food").label)
     }
 
+    /// N1/N3: the check-in day lives in Preferences; a change shows at once in its row.
+    @MainActor
+    func testCheckInDayIsEditable() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uitest", "-now", "2026-11-23T06:20:00Z", "-fixture", "week1-monday"]
+        app.launch()
+        openPreferences(app)
+        let row = module(app, "checkIn")
+        XCTAssertTrue(row.label.contains("Sunday"), row.label)
+        row.tap()
+        let day = app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Day'")).firstMatch
+        XCTAssertTrue(day.waitForExistence(timeout: 5))
+        day.tap()
+        let saturday = app.buttons["Saturday"]
+        XCTAssertTrue(saturday.waitForExistence(timeout: 5))
+        saturday.tap()
+        _ = app.navigationBars.buttons.firstMatch.waitForExistence(timeout: 3)
+        let back = ["Preferences", "BackButton", "Back"].map { app.navigationBars.buttons[$0] }.first { $0.exists }
+        (back ?? app.navigationBars.buttons.element(boundBy: 0)).tap()
+        XCTAssertTrue(app.buttons["prefs.done"].waitForExistence(timeout: 5))
+        XCTAssertTrue(module(app, "checkIn").label.contains("Saturday"), module(app, "checkIn").label)
+    }
+
     @MainActor
     private func attachShot(_ app: XCUIApplication, _ name: String) {
         let shot = XCTAttachment(screenshot: app.screenshot())
