@@ -155,7 +155,9 @@ extension Programme {
     /// then on the logged weight is the starting point, as usual.
     public func prescription(for item: StrengthItem, week: Int, history: [SessionLog],
                              blocks: [CoachBlock], on date: Date, calendar: Calendar = .current) -> Prescription? {
-        guard let base = prescription(for: item, week: week, history: history) else { return nil }
+        // N8: after 10+ days without strength work, loads ease and rebuild.
+        guard let base = easedPrescription(for: item, week: week, history: history, on: date, calendar: calendar)
+        else { return nil }
         let lastLogged = history
             .filter { log in log.sets.contains { $0.exercise == base.exercise } }
             .map(\.startedAt).max() ?? .distantPast

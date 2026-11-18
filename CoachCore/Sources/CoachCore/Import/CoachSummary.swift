@@ -84,6 +84,9 @@ public enum CoachSummary {
         if let recovery = RecoverySummary.make(history: history, now: now, calendar: calendar) {
             lines.append(recovery.line)
         }
+        if let easing = programme.easing(history: history, on: now, calendar: calendar) {
+            lines.append(easing.summaryLine)
+        }
         if !review.droppedSessions.isEmpty {
             lines.append("- Left out this week: " + review.droppedSessions.sorted().joined(separator: ", "))
         }
