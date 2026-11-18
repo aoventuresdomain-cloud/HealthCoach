@@ -109,6 +109,36 @@ final class WorkoutPlayerUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["today.title"].waitForExistence(timeout: 10))
     }
 
+    /// C6: after an all-done Upper A in week 1, week 2's Upper A opens a step
+    /// up (double progression adds reps before load), and each lift says so:
+    /// "Last time 8 @ 10 kg → today 9 @ 10 kg".
+    @MainActor
+    func testSecondUpperAShowsLastTimeAndMovesOn() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uitest", "-now", "2026-11-30T06:20:00Z", "-fixture", "week2-upper-a"]
+        app.launch()
+
+        let start = app.buttons["today.start"]
+        XCTAssertTrue(start.waitForExistence(timeout: 15))
+        start.tap()
+
+        // Through the warm-up to the first working set (the bench).
+        let next = app.buttons["player.next"]
+        let done = app.buttons["player.done"]
+        var taps = 0
+        while !(done.exists && done.isHittable) {
+            XCTAssertLessThan(taps, 40, "never reached the first set")
+            if next.exists, next.isHittable { next.tap(); taps += 1 } else { _ = done.waitForExistence(timeout: 1) }
+        }
+
+        let lastTime = app.staticTexts["player.lastTime"]
+        XCTAssertTrue(lastTime.waitForExistence(timeout: 5), "no last-time line on the first lift")
+        let label = lastTime.label
+        attach(app, "player-last-time")
+        XCTAssertTrue(label.hasPrefix("Last time 8 @ 10 kg → today "), label)
+        XCTAssertNotEqual(label, "Last time 8 @ 10 kg → today 8 @ 10 kg", "the bench should move on after an all-done week")
+    }
+
     private func attach(_ app: XCUIApplication, _ name: String) {
         let attachment = XCTAttachment(screenshot: app.screenshot())
         attachment.name = name

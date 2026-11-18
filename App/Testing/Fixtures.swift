@@ -7,7 +7,7 @@ import Foundation
 ///
 /// Shape: `{"profile": { …a Profile record… }, "logs": [{"sessionID", "week",
 /// "startedAt" (ISO 8601)}], "weekAnswers": {"yyyy-MM-dd" (a Monday): WeekAnswers}}`.
-/// `logs` is optional: sessions already done, so the planner (E13) doesn't
+/// `logs` is optional (`"allDone": true` fills every set as prescribed): sessions already done, so the planner (E13) doesn't
 /// move them. A log that starts after `now` (the `-now` clock) is left out, so
 /// one fixture can script a whole week: each launch sees only what is done by then. `weekAnswers` is optional: the Sunday prompt's answers for those
 /// weeks. `health` is optional: fixed weigh-ins and steps (`FixedHealthReader`)
@@ -25,6 +25,9 @@ struct Fixture {
             let sessionID: String
             let week: Int
             let startedAt: Date
+            /// C6: true fills the log with every set done as prescribed, so
+            /// the next session progresses from it.
+            let allDone: Bool?
         }
         let logs: [Entry]?
         let weekAnswers: [String: WeekAnswers]?
@@ -66,9 +69,20 @@ struct Fixture {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         let extras = try decoder.decode(Logs.self, from: Data(contentsOf: url))
-        return Fixture(profile: profile, logs: (extras.logs ?? []).filter { $0.startedAt <= now }.map {
-            SessionLog(programmeID: profile.programme.programmeID, sessionID: $0.sessionID, week: $0.week,
-                       startedAt: $0.startedAt, finishedAt: $0.startedAt.addingTimeInterval(45 * 60))
-        }, weekAnswers: extras.weekAnswers ?? [:], health: extras.health)
+        let entries = (extras.logs ?? []).filter { $0.startedAt <= now }.sorted { $0.startedAt < $1.startedAt }
+        let programme = entries.contains { $0.allDone == true }
+            ? try BundledContent.load(bundle: bundle).programmes[profile.programme.programmeID] : nil
+        var logs: [SessionLog] = []
+        for entry in entries {
+            var log = SessionLog(programmeID: profile.programme.programmeID, sessionID: entry.sessionID, week: entry.week,
+                                 startedAt: entry.startedAt, finishedAt: entry.startedAt.addingTimeInterval(45 * 60))
+            if entry.allDone == true, let programme,
+               let script = WorkoutScript.make(sessionID: entry.sessionID, programme: programme,
+                                               week: entry.week, history: logs) {
+                log.sets = script.sets.map { $0.prescribedLog() }
+            }
+            logs.append(log)
+        }
+        return Fixture(profile: profile, logs: logs, weekAnswers: extras.weekAnswers ?? [:], health: extras.health)
     }
 }
