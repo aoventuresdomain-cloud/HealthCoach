@@ -76,6 +76,52 @@ final class CheckInUITests: XCTestCase {
         app.buttons["sunday.cancel"].tap()
     }
 
+    /// W1, ordinary week: card, Next, Looks good. 3 taps, 60 s, ending on
+    /// Today with the week applied (`checkin.applied`).
+    @MainActor
+    func testOrdinaryWeekIsThreeTaps() throws {
+        let app = launch()
+        let card = app.buttons["today.checkIn"]
+        XCTAssertTrue(card.waitForExistence(timeout: 5))
+        let budget = EaseBudget("checkin", maxTaps: 3, maxSeconds: 60, app: app)
+        budget.tap(card, newScreen: true)
+        let next = app.buttons["checkin.next"]
+        XCTAssertTrue(next.waitForExistence(timeout: 5))
+        budget.tap(next, newScreen: true)
+        let done = app.buttons["checkin.done"]
+        XCTAssertTrue(done.waitForExistence(timeout: 5))
+        budget.tap(done)
+        budget.finish(done: app.descendants(matching: .any)["checkin.applied"])
+    }
+
+    /// W1, changed week: energy Low, pain Yes plus an area, two office days.
+    /// 8 taps, 60 s. Segments are system chrome (E6 `system`).
+    @MainActor
+    func testChangedWeekIsEightTaps() throws {
+        let app = launch()
+        let card = app.buttons["today.checkIn"]
+        XCTAssertTrue(card.waitForExistence(timeout: 5))
+        let budget = EaseBudget("checkin-changed", maxTaps: 8, maxSeconds: 60, app: app)
+        budget.tap(card, newScreen: true)
+        let energy = app.segmentedControls["checkin.energy"]
+        XCTAssertTrue(energy.waitForExistence(timeout: 5))
+        budget.tap(energy.buttons["Low"], system: true)
+        budget.tap(app.segmentedControls["checkin.pain"].buttons["Yes"], system: true)
+        let knee = app.buttons["checkin.painArea.knee"]
+        XCTAssertTrue(knee.waitForExistence(timeout: 3))
+        budget.tap(knee)
+        budget.tap(app.buttons["checkin.next"], newScreen: true)
+        let monday = app.buttons["sunday.day.monday"]
+        XCTAssertTrue(monday.waitForExistence(timeout: 5))
+        // week2-hybrid-sunday starts with no office days answered for next week.
+        for day in ["wednesday", "friday"] {
+            let pill = app.buttons["sunday.day.\(day)"]
+            if !pill.isSelected { budget.tap(pill) }
+        }
+        budget.tap(app.buttons["checkin.done"])
+        budget.finish(done: app.descendants(matching: .any)["checkin.applied"])
+    }
+
     @MainActor
     func testLaterKeepsTheCard() throws {
         let app = launch()
