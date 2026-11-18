@@ -53,13 +53,14 @@ public enum PoseCheck {
         }
     }
 
-    public static let notFound = "Can't see you. Stand back so you're in from head to feet."
-    public static let headToFeet = "Step back so your head and feet are both in."
-    public static let centre = "Move to the middle of the frame."
-    public static let faceCamera = "Face the camera, arms by your sides."
-    public static let sideOn = "Turn side on to the camera."
-    public static let stepBack = "Step back a little, to match the first photo."
-    public static let stepCloser = "Step a little closer, to match the first photo."
+    // Four words at most (ease budget §3 N7).
+    public static let notFound = "Step into the frame"
+    public static let headToFeet = "Head to feet, please"
+    public static let centre = "Move to the middle"
+    public static let faceCamera = "Face the camera"
+    public static let sideOn = "Turn side on"
+    public static let stepBack = "Step back a little"
+    public static let stepCloser = "Step a little closer"
 
     /// Off-centre by more than this share of the width.
     static let centreTolerance = 0.15

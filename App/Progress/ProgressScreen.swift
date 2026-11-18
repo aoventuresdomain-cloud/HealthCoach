@@ -191,7 +191,7 @@ struct ProgressScreen: View {
         }
         }
         .navigationTitle("Progress")
-        .sheet(isPresented: $photoDay, onDismiss: { version += 1 }) {
+        .fullScreenCover(isPresented: $photoDay, onDismiss: { version += 1 }) {
             PhotoDayView(date: now, calendar: calendar)
         }
     }

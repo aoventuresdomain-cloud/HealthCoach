@@ -43,3 +43,12 @@ import Testing
         #expect(PoseCheck.hint(body(top: 0.82, bottom: 0.2), pose: .front, reference: first) == nil)
     }
 }
+
+extension PoseCheckTests {
+    @Test func hintsAreFourWordsAtMost() {
+        for hint in [PoseCheck.notFound, PoseCheck.headToFeet, PoseCheck.centre, PoseCheck.faceCamera,
+                     PoseCheck.sideOn, PoseCheck.stepBack, PoseCheck.stepCloser] {
+            #expect(hint.split(separator: " ").count <= 4, "\(hint)")
+        }
+    }
+}

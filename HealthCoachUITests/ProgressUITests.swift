@@ -32,15 +32,25 @@ final class ProgressUITests: XCTestCase {
         let photoDay = app.buttons["progress.photoDay"]
         XCTAssertTrue(photoDay.waitForExistence(timeout: 5))
         photoDay.tap()
+        // N7: a full-screen camera per pose ("Front · 1 of 2"), one hint line,
+        // and a 3 s self-timer on the shutter; then one review screen.
         XCTAssertTrue(app.buttons["photo.take.front"].waitForExistence(timeout: 5))
+        XCTAssertEqual(app.staticTexts["photo.step"].label, "Front · 1 of 2")
+        // The UI-test stand-in is a drawn figure, so the on-device check finds nobody.
+        XCTAssertTrue(app.staticTexts["photo.hint"].waitForExistence(timeout: 5), "no pose hint")
+        attach(app, "photo-camera")
         app.buttons["photo.take.front"].tap()
-        app.buttons["photo.take.side"].tap()
-        // QA-23: shoot once the side button has settled on "Retake".
-        let settled = NSPredicate(format: "label == 'Retake'")
-        expectation(for: settled, evaluatedWith: app.buttons["photo.take.side"])
-        waitForExpectations(timeout: 5)
+        XCTAssertTrue(app.staticTexts["photo.countdown"].waitForExistence(timeout: 2), "no self-timer")
+        let side = app.buttons["photo.take.side"]
+        XCTAssertTrue(side.waitForExistence(timeout: 8), "the side pose didn't follow the front")
+        XCTAssertEqual(app.staticTexts["photo.step"].label, "Side · 2 of 2")
+        side.tap()
+        let save = app.buttons["photo.save"]
+        XCTAssertTrue(save.waitForExistence(timeout: 8), "no review screen after both poses")
+        XCTAssertEqual(app.buttons["photo.retake.front"].label, "Retake")
+        XCTAssertEqual(app.buttons["photo.retake.side"].label, "Retake")
         attach(app, "photo-day")
-        app.buttons["photo.save"].tap()
+        save.tap()
 
         // UI-12: photos are one disclosure row now (a button), not a text line.
         XCTAssertTrue(app.descendants(matching: .any)["progress.nextPhotos"].waitForExistence(timeout: 5))
