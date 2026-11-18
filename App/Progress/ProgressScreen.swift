@@ -39,6 +39,14 @@ struct ProgressScreen: View {
         let sets = store.sets(calendar: calendar)
         ScrollViewReader { proxy in
         List {
+            // N2: what changed in the last 7 days, and why; no card when nothing did.
+            let changes = CoachChanges.make(programme: programme, profile: profile, history: history,
+                                            weights: BodyStats.shared.weightHistory, blocks: CoachBlockStore().all,
+                                            now: now, name: { content.exercises.exercise($0)?.name ?? $0 },
+                                            calendar: calendar)
+            if !changes.isEmpty {
+                Section { ChangesCard(changes: changes) }
+            }
             // UI-12: no section headers; the content says what it is. Phase lines
             // frame the screen, then one hero number, its chart, and steps.
             Section {

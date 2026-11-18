@@ -20,11 +20,15 @@ final class SundayPromptUITests: XCTestCase {
     @MainActor
     func testSundayPromptTakesUnderTwentySeconds() throws {
         let app = launch()
-        let card = app.buttons["today.planWeek"]
+        let card = app.buttons["today.checkIn"]
         XCTAssertTrue(card.waitForExistence(timeout: 5))
 
         let started = Date()
         card.tap()
+        // N1: the weekend card is the check-in; screen 2 holds the office days.
+        let next = app.buttons["checkin.next"]
+        XCTAssertTrue(next.waitForExistence(timeout: 5))
+        next.tap()
         let monday = app.buttons["sunday.day.monday"]
         XCTAssertTrue(monday.waitForExistence(timeout: 5))
         let shot = XCTAttachment(screenshot: app.screenshot())
@@ -34,7 +38,7 @@ final class SundayPromptUITests: XCTestCase {
         monday.tap()
         app.buttons["sunday.day.tuesday"].tap()
         app.buttons["sunday.day.thursday"].tap()
-        app.buttons["sunday.done"].tap()
+        app.buttons["checkin.done"].tap()
         XCTAssertTrue(card.waitForNonExistence(timeout: 5), "the card stays until next week is answered")
         let elapsed = Date().timeIntervalSince(started)
         XCTAssertLessThan(elapsed, 20, "Sunday prompt took \(elapsed) s")

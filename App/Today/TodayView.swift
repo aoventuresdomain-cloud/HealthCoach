@@ -21,6 +21,8 @@ struct TodayView: View {
     @State private var alarmStatus = AlarmReconcileStatus.notYetRun
     /// The Monday the Sunday prompt sheet is open for; nil when closed.
     @State private var promptWeek: PromptWeek?
+    /// N1: the Monday the check-in is open for; nil when closed.
+    @State private var checkInWeek: PromptWeek?
     /// Tomorrow's date while the "Tomorrow changed" sheet is open (M2-06).
     @State private var changingTomorrow: PromptWeek?
     @State private var showSpikeTests = false
@@ -77,7 +79,7 @@ struct TodayView: View {
                 // UI-12: the weight line moved to Progress (progress.weight); the
                 // weather swap is the card's meta line plus "I'll run anyway" below.
                 if dayOffset == 0, let monday = promptDue(now: now) {
-                    planWeekCard(monday)
+                    checkInCard(monday)
                 }
                 if let plan {
                     // UI-12: no card on a no-session day; the title and timeline say it.
@@ -111,6 +113,14 @@ struct TodayView: View {
             SundayPromptView(monday: week.monday,
                              initial: WeekAnswersStore.shared.answers(weekStarting: week.monday, calendar: calendar),
                              workStart: profile.schedule.workStart, workEnd: profile.schedule.workEnd) { answers in
+                save(answers, weekStarting: week.monday)
+            }
+        }
+        .sheet(item: $checkInWeek) { week in
+            CheckInView(monday: week.monday, programme: programme, profile: profile, history: history,
+                        changes: changes(history: history, now: now),
+                        initialWeek: WeekAnswersStore.shared.answers(weekStarting: week.monday, calendar: calendar)) { checkIn, answers in
+                CheckInStore.shared.save(checkIn, weekStarting: week.monday, calendar: calendar)
                 save(answers, weekStarting: week.monday)
             }
         }
@@ -182,22 +192,23 @@ struct TodayView: View {
         var id: Date { monday }
     }
 
-    /// Next week's Monday from Saturday until it is answered; nil otherwise.
+    /// Next week's Monday from Saturday until the check-in is done; nil otherwise.
+    /// Skipped, the card goes on Monday and the plan runs unchanged (N1).
     private func promptDue(now: Date) -> Date? {
         _ = answersVersion
         guard profile.programme.startDate != nil, SundayPrompt.isDue(on: now, calendar: calendar) else { return nil }
         let monday = SundayPrompt.monday(for: now, calendar: calendar)
-        return WeekAnswersStore.shared.hasAnswers(weekStarting: monday, calendar: calendar) ? nil : monday
+        return CheckInStore.shared.hasCheckedIn(weekStarting: monday, calendar: calendar) ? nil : monday
     }
 
-    private func planWeekCard(_ monday: Date) -> some View {
+    /// N1: "Check in · 1 min ›", in the weekend slot the Plan next week card had.
+    private func checkInCard(_ monday: Date) -> some View {
         Button {
-            promptWeek = PromptWeek(monday: monday)
+            checkInWeek = PromptWeek(monday: monday)
         } label: {
-            // UI-12: one line.
             HStack(spacing: 12) {
-                Text("Plan next week").font(.headline)
-                Text("· 20 s").foregroundStyle(.secondary)
+                Text("Check in").font(.headline)
+                Text("· 1 min").foregroundStyle(.secondary)
                 Spacer(minLength: 0)
                 Image(systemName: "chevron.right").foregroundStyle(.tertiary)
             }
@@ -207,7 +218,14 @@ struct TodayView: View {
             .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 20))
         }
         .buttonStyle(.plain)
-        .accessibilityIdentifier("today.planWeek")
+        .accessibilityIdentifier("today.checkIn")
+    }
+
+    /// N2: what the coach changed this week, for check-in screen 2.
+    private func changes(history: [SessionLog], now: Date) -> [CoachChange] {
+        CoachChanges.make(programme: programme, profile: profile, history: history,
+                          weights: BodyStats.shared.weightHistory, blocks: CoachBlockStore().all, now: now,
+                          name: { content.exercises.exercise($0)?.name ?? $0 }, calendar: calendar)
     }
 
     /// Saves the answers, then re-plans alarms and notifications at once

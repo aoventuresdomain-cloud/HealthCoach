@@ -148,7 +148,7 @@ public enum CoachSummary {
     }
 
     /// Sessions the programme has on days in `from..<to`, leaving out optional walks and swap-only circuits.
-    static func plannedSessions(programme: Programme, start: Date, from: Date, to: Date, calendar: Calendar) -> Int {
+    public static func plannedSessions(programme: Programme, start: Date, from: Date, to: Date, calendar: Calendar) -> Int {
         var count = 0
         var day = calendar.startOfDay(for: from)
         while day < to {
