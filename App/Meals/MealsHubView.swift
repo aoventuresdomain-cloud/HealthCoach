@@ -38,9 +38,12 @@ struct MealsHubView: View {
                              lunchOrders: content.lunchOrders.orders, answers: answers, programme: programme,
                              profile: profile, history: (try? SessionLogStore(context: context).all()) ?? [],
                              weights: BodyStats.shared.weightHistory, blocks: CoachBlockStore().all,
+                             // N3: each day's dislikes, so an edit applies from tomorrow.
+                             dislikes: { profile.dislikes(on: $0, calendar: calendar) },
                              calendar: calendar)
         } ?? MealPlan.week(monday: monday, content: content.nutrition, lunchOrders: content.lunchOrders.orders,
-                           answers: answers, programmeID: profile.programme.programmeID, calendar: calendar)
+                           answers: answers, programmeID: profile.programme.programmeID,
+                           dislikes: { profile.dislikes(on: $0, calendar: calendar) }, calendar: calendar)
         // C4: a social meal replaces that day's dinner; the rest of the week trims a little.
         let plan = basePlan.withSocialMeals(social.dates(calendar: calendar), calendar: calendar)
         VStack(spacing: 0) {

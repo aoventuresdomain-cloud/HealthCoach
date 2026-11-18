@@ -11,24 +11,37 @@ public enum AlarmSchedule {
     /// still in the future. `answers(monday)` gives the Sunday prompt answers
     /// for the week starting that Monday; weeks not yet answered should get
     /// the latest answers (the app's job). Empty when there's no start date.
+    ///
+    /// `programmeOn(date)` gives the phase in force on each planned day
+    /// (C6: `ContentLibrary.programme(for:on:)`), so the Sunday before a new
+    /// phase sets Monday's alarm from the new phase. Without it, or when it
+    /// gives nil, every day uses `programme`.
     public static func make(now: Date, programme: Programme, profile: Profile,
                             answers: (Date) -> WeekAnswers, dropping: Set<String> = [],
                             completed: Set<String> = [],
+                            programmeOn: ((Date) -> Programme?)? = nil,
                             calendar: Calendar = .current) -> [PlannedAlarm] {
         guard profile.programme.startDate != nil else { return [] }
         let today = calendar.startOfDay(for: now)
-        var plans: [Date: WeekPlan] = [:]
+        // N3: each day from that day's profile, so a Preferences edit moves
+        // alarms from tomorrow and today's stays as it was.
+        struct Key: Hashable { let monday: Date; let edited: Bool; let programme: String }
+        var plans: [Key: WeekPlan] = [:]
         var alarms: [PlannedAlarm] = []
         for offset in 0..<horizonDays {
             guard let date = calendar.date(byAdding: .day, value: offset, to: today) else { continue }
             let monday = mondayOf(date, calendar: calendar)
-            if plans[monday] == nil {
-                plans[monday] = WeekPlanner.plan(weekStarting: monday, programme: programme, profile: profile,
-                                                 answers: answers(monday), dropping: dropping,
-                                                 now: now, completed: completed, calendar: calendar)
+            let dayProfile = profile.effective(on: date, calendar: calendar)
+            let dayProgramme = programmeOn?(date) ?? programme
+            let key = Key(monday: monday, edited: dayProfile.pending == nil && profile.pending != nil,
+                          programme: dayProgramme.id)
+            if plans[key] == nil {
+                plans[key] = WeekPlanner.plan(weekStarting: monday, programme: dayProgramme, profile: dayProfile,
+                                              answers: answers(monday), dropping: dropping,
+                                              now: now, completed: completed, calendar: calendar)
             }
-            guard let day = plans[monday]?.days.first(where: { calendar.isDate($0.date, inSameDayAs: date) }),
-                  let alarm = alarm(for: day, programme: programme, calendar: calendar),
+            guard let day = plans[key]?.days.first(where: { calendar.isDate($0.date, inSameDayAs: date) }),
+                  let alarm = alarm(for: day, programme: dayProgramme, calendar: calendar),
                   alarm.fireDate > now else { continue }
             alarms.append(alarm)
         }

@@ -58,6 +58,8 @@ private struct RootView: View {
                                 } onAskCoach: {
                                     showAskCoach = true
                                     tab = .progress
+                                } onPreferencesChange: { edited in
+                                    savePreferences(edited, content: content, programme: programme)
                                 }
                             }
                         }
@@ -109,6 +111,24 @@ private struct RootView: View {
             state = .ready(content, programme, profile)
         } catch {
             state = .failed(error.localizedDescription)
+        }
+    }
+
+    /// N3: stores a Preferences edit from tomorrow, then re-sets the alarms and
+    /// notifications so tomorrow onwards follow it (today's stay as they are).
+    private func savePreferences(_ edited: Profile.Preferences, content: ContentLibrary, programme: Programme) {
+        do {
+            let saved = try ProfileStore(context: context).save(edited)
+            state = .ready(content, programme, saved)
+            let history = (try? SessionLogStore(context: context).all()) ?? []
+            Task {
+                if WakeAlarms.shared.isActive(profile: saved) {
+                    await WakeAlarms.shared.reconcile(profile: saved, history: history)
+                }
+                await CoachNotifier.shared.reschedule(profile: saved, history: history)
+            }
+        } catch {
+            // Nothing stored: the plan runs on as it was, and Preferences shows the stored values next time.
         }
     }
 

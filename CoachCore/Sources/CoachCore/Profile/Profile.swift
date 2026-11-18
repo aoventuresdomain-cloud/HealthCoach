@@ -21,8 +21,18 @@ public struct Profile: VersionedFormat, Codable, Sendable, Equatable {
     public var training = Training()
     public var coach = Coach()
     public var programme = ProgrammeState()
+    public var food = Food()
+    /// N3: an edit saved in Preferences, waiting for tomorrow. nil when none.
+    public var pending: Pending?
 
     public init() {}
+
+    /// Board N3, Advisor A4(f).
+    public struct Food: Codable, Sendable, Equatable {
+        /// Foods the meal plan never uses, as the owner wrote them (`Dislikes`). Empty by default.
+        public var dislikes: [String] = []
+        public init() {}
+    }
 
     public struct About: Codable, Sendable, Equatable {
         public var name: String?
@@ -141,6 +151,14 @@ extension Profile {
             let base = try JSONDecoder().decode(JSONValue.self, from: Profile().encoded())
             var merged = base.merging(stored)
             merged["schemaVersion"] = .number(Double(currentSchemaVersion))
+            // A waiting edit's preferences take defaults for fields added since, like the profile.
+            if case let .object(pending)? = merged["pending"], let stored = pending["preferences"] {
+                let defaults = try JSONDecoder().decode(JSONValue.self,
+                                                        from: JSONEncoder().encode(Profile().preferences))
+                var updated = pending
+                updated["preferences"] = defaults.merging(stored)
+                merged["pending"] = .object(updated)
+            }
             let decoder = JSONDecoder()
             decoder.dateDecodingStrategy = .iso8601
             return try decoder.decode(Profile.self, from: JSONEncoder().encode(merged))
@@ -152,5 +170,82 @@ extension Profile {
     /// One step per breaking version change, oldest first. None yet.
     static func migrate(_ json: JSONValue, from version: Int) throws -> JSONValue {
         json
+    }
+}
+
+// MARK: - N3 · Preferences, re-planned from tomorrow
+
+extension Profile {
+    /// Everything the owner can edit in Settings → Preferences: the
+    /// onboarding modules. Not `confirmed` or `programme`, which only the app
+    /// moves (onboarding, phase changes).
+    public struct Preferences: Codable, Sendable, Equatable {
+        public var about: About
+        public var goal: Goal
+        public var schedule: Schedule
+        public var training: Training
+        public var coach: Coach
+        public var food: Food
+    }
+
+    /// A saved edit and the day it applies from (midnight, owner's calendar).
+    public struct Pending: Codable, Sendable, Equatable {
+        public var effectiveFrom: Date
+        public var preferences: Preferences
+    }
+
+    /// Today's preferences.
+    public var preferences: Preferences {
+        get { Preferences(about: about, goal: goal, schedule: schedule, training: training, coach: coach, food: food) }
+        set {
+            about = newValue.about
+            goal = newValue.goal
+            schedule = newValue.schedule
+            training = newValue.training
+            coach = newValue.coach
+            food = newValue.food
+        }
+    }
+
+    /// What Preferences shows: a saved edit waiting for tomorrow, else today's.
+    public var latestPreferences: Preferences { pending?.preferences ?? preferences }
+
+    /// The profile in force on `date`: with a waiting edit applied once its
+    /// day has come (and nothing left pending), else unchanged. Plans for a
+    /// day ask for that day's profile, so today keeps its plan and alarms
+    /// while tomorrow onwards follow the edit.
+    public func effective(on date: Date, calendar: Calendar = .current) -> Profile {
+        guard let pending, calendar.startOfDay(for: date) >= pending.effectiveFrom else { return self }
+        var applied = self
+        applied.preferences = pending.preferences
+        applied.pending = nil
+        return applied
+    }
+
+    /// The profile to store after the owner saves `edited` at `now`: today
+    /// unchanged, the edit from tomorrow's midnight, never mid-day. A
+    /// second edit the same day replaces the first; an edit back to today's
+    /// values leaves nothing pending. Before onboarding is confirmed there is
+    /// no plan yet, so the edit applies at once.
+    public func scheduling(_ edited: Preferences, now: Date, calendar: Calendar = .current) -> Profile {
+        var next = effective(on: now, calendar: calendar)
+        guard next.confirmed else {
+            next.preferences = edited
+            next.pending = nil
+            return next
+        }
+        let today = calendar.startOfDay(for: now)
+        guard edited != next.preferences,
+              let tomorrow = calendar.date(byAdding: .day, value: 1, to: today) else {
+            next.pending = nil
+            return next
+        }
+        next.pending = Pending(effectiveFrom: tomorrow, preferences: edited)
+        return next
+    }
+
+    /// The dislike list in force on `date` (`MealPlan.week`'s `dislikes`).
+    public func dislikes(on date: Date, calendar: Calendar = .current) -> [String] {
+        effective(on: date, calendar: calendar).food.dislikes
     }
 }
