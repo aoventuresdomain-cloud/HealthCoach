@@ -25,6 +25,7 @@ final class PreferencesUITests: XCTestCase {
     @MainActor
     private func module(_ app: XCUIApplication, _ name: String) -> XCUIElement {
         let row = app.descendants(matching: .any)["prefs.module.\(name)"]
+        _ = row.waitForExistence(timeout: 2)
         var swipes = 0
         while !(row.exists && row.isHittable), swipes < 6 { app.swipeUp(); swipes += 1 }
         return row
@@ -57,7 +58,13 @@ final class PreferencesUITests: XCTestCase {
         shot.name = "preferences-foods"
         shot.lifetime = .keepAlways
         add(shot)
-        app.navigationBars.buttons.element(boundBy: 0).tap() // back to the list
+        // Close the search first: while it is active the bar's first button isn't Back.
+        let cancel = app.buttons["Cancel"]
+        if cancel.exists { cancel.tap() }
+        let back = app.navigationBars.buttons["Preferences"]
+        XCTAssertTrue(back.waitForExistence(timeout: 5), "no Back to Preferences")
+        back.tap()
+        XCTAssertTrue(app.buttons["prefs.done"].waitForExistence(timeout: 5))
         XCTAssertTrue(module(app, "food").label.contains("mushrooms"), module(app, "food").label)
         attachShot(app, "preferences")
         app.buttons["prefs.done"].tap()
