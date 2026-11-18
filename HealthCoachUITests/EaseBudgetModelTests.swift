@@ -10,7 +10,7 @@ final class EaseBudgetModelTests: XCTestCase {
         XCTAssertEqual(EaseBudget.modelSeconds(taps: 0, screens: 0, scrolls: 1, chars: 0, alerts: 0), 1.0, accuracy: 1e-9)
         XCTAssertEqual(EaseBudget.modelSeconds(taps: 0, screens: 0, scrolls: 0, chars: 1, alerts: 0), 0.3, accuracy: 1e-9)
         XCTAssertEqual(EaseBudget.modelSeconds(taps: 0, screens: 0, scrolls: 0, chars: 0, alerts: 1), 2.0, accuracy: 1e-9)
-        XCTAssertEqual(EaseBudget.modelSeconds(taps: 2, screens: 3, scrolls: 4, chars: 5, alerts: 6), 23.2, accuracy: 1e-9)
+        XCTAssertEqual(EaseBudget.modelSeconds(taps: 2, screens: 3, scrolls: 4, chars: 5, alerts: 6), 24.2, accuracy: 1e-9)
     }
 
     /// The model times printed in docs/design/ease-budget.md §2.

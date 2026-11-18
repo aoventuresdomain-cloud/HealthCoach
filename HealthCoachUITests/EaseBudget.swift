@@ -5,7 +5,9 @@ import XCTest
 /// the budgets and rules E1–E6 are docs/design/ease-budget.md.
 ///
 /// Between `init` and `finish` a test touches the app only through this
-/// helper: never `.tap()` directly (QA greps for it in review).
+/// helper: never `.tap()` directly (QA greps for it in review). Tests must set
+/// `continueAfterFailure = false`: a failed `tap` guard doesn't tap, so later
+/// steps would otherwise fail with a confusing message.
 @MainActor
 final class EaseBudget {
     let job: String
