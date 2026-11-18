@@ -62,6 +62,12 @@ struct MealsHubView: View {
             }
         }
         .background(Color.canvas)
+        // N9 (W5): the delivery reminder opens Shopping.
+        .task(id: NotificationTaps.shared.pending) {
+            guard NotificationTaps.shared.pending == .shopping else { return }
+            NotificationTaps.shared.pending = nil
+            tab = .shopping
+        }
         // UI-12: the tab bar already says Meals. On the Meals tab the nav bar
         // carries the day, with ‹ › either side; the other tabs have no title.
         .navigationBarTitleDisplayMode(.inline)
