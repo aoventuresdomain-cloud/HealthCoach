@@ -2,7 +2,7 @@
 
 For review at 20:00 on 18 Nov 2026. Kept by the Head of Engineering (board G2-01).
 
-**Recommendation:** accept this build as ready for your phone. Every feature is in, and the internal QA round passed with no blockers or majors. The Advisor co-signed the safety limits. What's left can only be proven on a real phone, so the next step is your go-ahead on the Apple account (§6.1).
+**Status (updated 18 Nov, after your review):** not complete. You said the app falls short of what you described: check-ins, the coach adjusting the plan, the grocery list, surveys, easy design and photo analysis. A gap analysis against your requirements, with market research, is under way. The build plan comes from that. Work on the coach loop, meals and progression (board C1–C6) continues meanwhile. This pack records the build as it stood at the review; it is not a completion claim.
 
 **Build reviewed:** `6332a80` on `main`, run in the iOS 26 simulator (CI run 44214998274, all unit and UI tests green).
 
