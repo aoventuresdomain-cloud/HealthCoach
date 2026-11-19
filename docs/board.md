@@ -57,18 +57,22 @@ The CEO said the app isn't close to the brief. Advisor questions A1–A4 are ans
 | N1 | Sunday check-in (folds in the Sunday prompt) | Planner Engineer (core), iOS Interface Engineer (screen) | C1 | done: core (#103), screen with pain lines (#114), Sunday check-in uses next week's brisk walk (#118). Known limit: a check-in before the programme start returns an empty card (not the CEO's case) |
 | N2 | "What changed and why" card | Coach Engineer (core), iOS Interface Engineer | C1 | done: core (#98), card on the N1 screen (#114) |
 | N3 | Settings → Preferences: every survey module, re-plan from tomorrow | iOS Interface Engineer, Planner Engineer | — | done: core (#100), Preferences screen (#102); notifications honour a pending edit in #117 |
-| N4 | Ask when needed: shop before the first list, office food on the first office day | Planner Engineer, iOS Interface Engineer | N3 | core done (#107); question screens in CI (#119, with QA-R3-3) |
-| N5 | Grocery: send to Reminders, in-store mode, delivery reminder | iOS Interface Engineer, Planner Engineer | N4 | delivery reminder done (#107); Reminders export and in-store mode in progress (moved to Planner Engineer, 18 Nov) |
+| N4 | Ask when needed: shop before the first list, office food on the first office day | Planner Engineer, iOS Interface Engineer | N3 | done: core (#107), question screens (#119, with QA-R3-3 social-meal header) |
+| N5 | Grocery: send to Reminders, in-store mode, delivery reminder | iOS Interface Engineer, Planner Engineer | N4 | done: delivery reminder (#107), Send to Reminders and in-store mode (#110) |
 | N6 | Recipe variety: no dinner repeats within 3 weeks | Researcher (Advisor reviews) | — | done (#97) |
-| N7 | Photos: ghost outline, on-device alignment check, compare view, photo-day notification | iOS Interface Engineer | — | core done (#101), photo-day notification (#112); views in progress (iOS) |
+| N7 | Photos: ghost outline, on-device alignment check, compare view, photo-day notification | iOS Interface Engineer | — | done: core (#101), photo-day notification (#112), camera, compare, waist and photo-day route (#122, 67/67) |
 | N8 | Easing back after a break | Coach Engineer (moved 18 Nov) | C1 | done: core (#98), line on the N1 screen (#114), UI test (#113) |
-| N9 | Ease budget: tap and time budget per job, UI tests, app icon | Product Designer (spec), Coach Engineer (job tests, icon PNG), iOS Interface Engineer | — | spec (#93), helper (#104) done; job tests D2/D6/W2/F1b plus icon PNG next (Coach Engineer); F1 with the photo-day route. Deferred: Icon Composer `.icon` and four iOS 26 appearances (needs a Mac with Icon Composer) |
+| N9 | Ease budget: tap and time budget per job, UI tests, app icon | Product Designer (spec), Coach Engineer (job tests, icon PNG), iOS Interface Engineer | — | done: spec (#93), helper (#104), D2/D6 and icon PNG (#120), F1b (#122), F1 (#124), W2 and A2 (#123). Deferred: Icon Composer `.icon` and four iOS 26 appearances (needs a Mac with Icon Composer) |
 | N10 | Checkpoint notification and Hyde Park run loops | Planner Engineer, Researcher (loops) | — | done: loops (#97), checkpoint notification (#107), tap routing (#106), UI test (#113) |
 | N9a | Office lunch row on Today's timeline (new TimelineItem `.lunch`) | Planner Engineer (core), Coach Engineer (screen) | N9 spec | done (#111, 55/55 UI tests). Ruling: system Menu rows are exempt from the E6 44 pt floor |
-| N9b | Shopping becomes its own tab (MealsUITests move from the segment) | iOS Interface Engineer | after C4, N4, N5 | todo (iOS) |
+| N9b | Shopping becomes its own tab (MealsUITests move from the segment) | iOS Interface Engineer | after C4, N4, N5 | done (#123, 70/70; delivery reminder opens the Shopping tab) |
 | N11 | Amazon basket spike (staples only; cut first if anything slips) | Planner Engineer, Researcher | N5 | staples list done (#97); basket deferred (#108: needs an Associates tag on a deprecated API) |
-| N12 | Notification taps open the right screen (W1, W5, F1, K3, delivery, checkpoint, photo day) | Coach Engineer | — | done (#106); photo-day tap opens Today until the N7 camera route lands |
-| QA-R4 | Full round on one build, reported from the user's side | Head of QA (Advisor co-signs) | all | tests in CI (#117); round 20 Nov 09:00–15:00 |
+| N12 | Notification taps open the right screen (W1, W5, F1, K3, delivery, checkpoint, photo day) | Coach Engineer | — | done (#106); photo-day tap opens the camera (#122) |
+| QA-R4 | Full round on one build, reported from the user's side | Head of QA (Advisor co-signs) | all | tests in CI (#117, with the N3 pending-edit notification fix); main final at f8435af; round 20 Nov 09:00–15:00 |
+
+**Wave 2 status (19 Nov, 02:00):** every item merged except N11's basket (deferred, #108). Main is final for QA-R4 at `f8435af` (70 UI tests green).
+
+**Known simulator flakes** (each passed on its one allowed re-run, none touched by the PR's diff; iOS investigates if one recurs): AlarmPermissionUITests:137 (SpringBoard alarm alert, #119), WorkoutPlayer Live Activity (#122), Onboarding:50 timing (#122).
 
 **Merge order by screen** (to avoid conflicts; rebase on main before asking for merge): Today: C2 → N1 → N2. Meals: C3/C4 → N4 → N5 → N6 → N11. Progress: N2 → N7. Settings (N3) merges before N4. The Head of Engineering merges one screen's PR at a time.
 
@@ -242,6 +246,7 @@ Device-only Done when lines from plan §7 are rewritten as simulator or UI-test 
 
 ## Done
 
+- 2026-11-19 · Wave 2: N1 (#114, #118) · N2, N8 (#114) · N3 fix (#117) · N4 (#119) · N5 (#110) · N7 (#122) · N9 (#120, #124) · N9a (#111) · N9b (#123) · QA-R3 PASS (#115) · QA-R4 tests (#117)
 - 2026-11-17 · M3-01, M3-02, M3-03 · PR #59 (meal plan, day band ±150 kcal, floor 1,700, protein ≥150 g, extras; top-up list; folds in #44) · M4-03 · PR #57 · M2-05 · PR #38 · QA-18 · PR #56 · M4-01, M4-02 · PR #53, #54 · QA-15/16/17 · PR #48 · Gate 1 §A fixtures · PR #55
 - 2026-11-16 · M1-04, M1-05, M1-06, M1-07 · PR #22 (all M1 screens; QA M1 sanity check passed, PR #31) · M2-02 · PR #30 (14-day wake alarms; AlarmKit burst refusal fixed with retry and backoff; reduced week drops Thursday's alarm)
 - 2026-11-16 · M2-01 · PR #28 (week planner, CoachCore only; decision E10) · M1-08 · PR #27 (progression engine, SwiftData store recovery and SchemaV1, QA-2 alarm XCUITest) · M1-01 · PR #21

@@ -34,7 +34,7 @@ Default path = the CEO accepts every pre-selected answer. Change path = he chang
 | ID | Job | Start → done state (identifier) | Taps default / change | Time | Notes |
 |---|---|---|---|---|---|
 | D1 | See what's next | Launch → `today.title` visible, Today selected | 0 | 5 s (1.5) | No scroll to see title, card and Start |
-| D2 | **Start today's session** | Launch → player on set 1 (`player.done`) | **1** / 2 | 10 s (4.1) | Change = "Still sore" first (`today.recovery`) |
+| D2 | **Start today's session** | Launch → player open on the warm-up (`player.end` visible) | **1** / 2 | 10 s (4.1) | Change = "Still sore" first (`today.recovery`) |
 | D3 | Do a set as prescribed | Set screen → next set screen | 2 per set (Done, Next) | — | Whole session: `2 × sets + 1`; nothing else (existing test, now through the helper) |
 | D4 | Log "something was different" | Done screen → edit saved (`edit.save`) | 3 | 15 s | One value changed |
 | D5 | Run-walk | Launch → `run.doneTitle` | 2 (Start, Finish) | — | 0 taps during the run; clock injected |
