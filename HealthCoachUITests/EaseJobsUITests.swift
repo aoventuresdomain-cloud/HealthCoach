@@ -3,8 +3,8 @@ import XCTest
 /// Board N9 (QA-R4): the gap plan's daily jobs measured against
 /// docs/design/ease-budget.md §2 through `EaseBudget`, like the Sunday prompt
 /// test: D2 start a session, D6 change a meal. W1 is SundayPromptUITests and
-/// NotificationRouteUITests; W2 lands with N9b's Shopping tab and F1/F1b with
-/// N7's photo-day screen, each with the fix that brings it inside budget.
+/// NotificationRouteUITests; W2 lands with N9b's Shopping tab. F1 (from the
+/// photo-day reminder) and F1b (from Progress) run on N7's camera.
 final class EaseJobsUITests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
@@ -91,5 +91,29 @@ final class EaseJobsUITests: XCTestCase {
         XCTAssertTrue(save.waitForExistence(timeout: 8), "no review screen after both poses")
         budget.tap(save, newScreen: true)
         budget.finish(done: app.descendants(matching: .any)["progress.nextPhotos"])
+    }
+
+    // MARK: F1 · Photo day from the notification (4 taps, 60 s)
+
+    /// The photo-day reminder opens the camera (N7, NotificationRoute); then
+    /// front, side, Save. Waist is off by default, so it adds nothing. The two
+    /// 3 s self-timers sit outside the model (ease budget F1): "+6 s timer".
+    @MainActor
+    func testF1PhotoDayFromTheNotificationIsFourTaps() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uitest", "-now", "2026-11-23T07:00:00Z", "-fixture", "week1-monday",
+                               "-openFrom", "notification:photoDay"]
+        app.launch()
+        let budget = EaseBudget("photo-day", maxTaps: 4, maxSeconds: 60, app: app)
+        budget.notificationTap()
+        let front = app.buttons["photo.take.front"], side = app.buttons["photo.take.side"]
+        XCTAssertTrue(front.waitForExistence(timeout: 15), "the reminder opens the photo-day camera")
+        budget.tap(front)
+        XCTAssertTrue(side.waitForExistence(timeout: 8), "the side pose didn't follow the front")
+        budget.tap(side, newScreen: true)
+        let save = app.buttons["photo.save"]
+        XCTAssertTrue(save.waitForExistence(timeout: 8), "no review screen after both poses")
+        budget.tap(save, newScreen: true)
+        budget.finish(done: app.descendants(matching: .any)["progress.nextPhotos"], note: "+6 s timer")
     }
 }
