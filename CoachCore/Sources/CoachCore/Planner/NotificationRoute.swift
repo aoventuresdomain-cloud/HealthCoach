@@ -15,6 +15,8 @@ public enum NotificationDestination: String, Sendable, Equatable {
     case shopping
     /// Progress with "Ask the coach now" in view.
     case askCoach
+    /// Progress with the photo-day camera open (N7, design F1).
+    case photoDay
 }
 
 public enum NotificationRoute {
@@ -25,8 +27,7 @@ public enum NotificationRoute {
         case .sundayPrompt: .sundayPrompt
         case .deliveryReminder: .shopping
         case .checkpoint: .askCoach
-        // N7: Today until N12 (Coach Engineer) adds the camera route (design F1).
-        case .photoDay: .today
+        case .photoDay: .photoDay
         }
     }
 
