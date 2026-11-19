@@ -2,14 +2,22 @@ import CoachCore
 import SwiftData
 import SwiftUI
 
-/// Meals, shopping and lunch (board M3-04, plan §4.3–4.5): one screen, three
-/// tabs. Planned meals are pre-ticked; nothing here asks a question.
+/// Meals, shopping and lunch (board M3-04, plan §4.3–4.5). The Meals tab
+/// shows Meals and Lunch; Shopping is its own tab (N9b, ease budget F2) on
+/// the same plan. Planned meals are pre-ticked; nothing here asks a question.
 struct MealsHubView: View {
     @Environment(\.modelContext) private var context
     let content: ContentLibrary
     let profile: Profile
+    /// Which root tab this is: Meals (with Lunch) or Shopping (N9b).
+    var hub = Hub.meals
     /// N4: stores an answer to the shop or office-lunch question at once.
     var onAnswerFood: ((inout Profile.Food) -> Void) -> Void = { _ in }
+
+    enum Hub { case meals, shopping }
+
+    /// The section on screen: the Shopping tab always shows the list.
+    private var section: Tab { hub == .shopping ? .shopping : tab }
 
     enum Tab: String, CaseIterable, Identifiable {
         case meals = "Meals", shopping = "Shopping", lunch = "Lunch"
@@ -39,15 +47,17 @@ struct MealsHubView: View {
         let plan = WeekMeals.plan(for: date, now: now, content: content, profile: profile, context: context,
                                   calendar: calendar)
         VStack(spacing: 0) {
-            Picker("Section", selection: $tab) {
-                ForEach(Tab.allCases) { Text($0.rawValue).tag($0) }
+            if hub == .meals {
+                Picker("Section", selection: $tab) {
+                    ForEach([Tab.meals, .lunch]) { Text($0.rawValue).tag($0) }
+                }
+                .pickerStyle(.segmented)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .accessibilityIdentifier("meals.tabs")
             }
-            .pickerStyle(.segmented)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
-            .accessibilityIdentifier("meals.tabs")
 
-            switch tab {
+            switch section {
             case .meals: meals(plan.day(date, calendar: calendar), date: date, monday: monday)
             case .shopping: shopping(plan, monday: monday)
             case .lunch: lunch(plan.day(now, calendar: calendar))
@@ -56,11 +66,10 @@ struct MealsHubView: View {
         .background(Color.canvas)
         // N9 (W5): the delivery reminder opens Shopping.
         .task(id: NotificationTaps.shared.pending) {
-            guard NotificationTaps.shared.pending == .shopping else { return }
+            guard hub == .shopping, NotificationTaps.shared.pending == .shopping else { return }
             NotificationTaps.shared.pending = nil
             // The reminder only exists once a slot is chosen, so it never asks the shop question.
             openedFromReminder = true
-            tab = .shopping
         }
         .onAppear { askShopIfNeeded() }
         .onChange(of: tab) { askShopIfNeeded() }
@@ -83,7 +92,7 @@ struct MealsHubView: View {
         // carries the day, with ‹ › either side; the other tabs have no title.
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            if tab == .meals {
+            if hub == .meals && tab == .meals {
                 ToolbarItem(placement: .topBarLeading) {
                     Button { dayOffset -= 1 } label: { Image(systemName: "chevron.left") }
                         .accessibilityLabel("Previous day")
@@ -104,7 +113,9 @@ struct MealsHubView: View {
     }
 
     private func askShopIfNeeded() {
-        if tab == .shopping, profile.food.needsShopQuestion, !answeredShop, !openedFromReminder { askShop = true }
+        // A reminder tap still pending counts as opened from the reminder (it lands before .task runs).
+        let fromReminder = openedFromReminder || NotificationTaps.shared.pending == .shopping
+        if section == .shopping, profile.food.needsShopQuestion, !answeredShop, !fromReminder { askShop = true }
     }
 
     // MARK: Meals

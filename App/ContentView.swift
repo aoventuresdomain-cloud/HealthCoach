@@ -28,7 +28,7 @@ private struct RootView: View {
     @State private var tab = RootTab.today
     @State private var showAskCoach = false
 
-    private enum RootTab: Hashable { case today, meals, progress }
+    private enum RootTab: Hashable { case today, meals, shopping, progress }
 
     private enum LoadState {
         case loading
@@ -74,6 +74,14 @@ private struct RootView: View {
                                 }
                             }
                         }
+                        // N9b (ease budget F2): the shopping list is one tap, every day.
+                        Tab("Shopping", systemImage: "cart", value: RootTab.shopping) {
+                            NavigationStack {
+                                MealsHubView(content: content, profile: profile, hub: .shopping) { answer in
+                                    answerFood(answer, profile: profile, content: content, programme: programme)
+                                }
+                            }
+                        }
                         Tab("Progress", systemImage: "chart.line.uptrend.xyaxis", value: RootTab.progress) {
                             NavigationStack {
                                 ProgressScreen(content: content, programme: programme, profile: profile,
@@ -112,7 +120,7 @@ private struct RootView: View {
         switch NotificationTaps.shared.pending {
         case nil: return
         case .today, .sundayPrompt: tab = .today
-        case .shopping: tab = .meals
+        case .shopping: tab = .shopping
         case .askCoach:
             showAskCoach = true
             tab = .progress

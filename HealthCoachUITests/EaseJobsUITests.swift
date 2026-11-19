@@ -93,6 +93,26 @@ final class EaseJobsUITests: XCTestCase {
         budget.finish(done: app.descendants(matching: .any)["progress.nextPhotos"])
     }
 
+    // MARK: W2 · Find the shopping list (1 tap, 5 s)
+
+    /// Ease W2: the shopping list is one tap from
+    /// anywhere, 5 s. N4's one-off shop question is answered first, outside
+    /// the budget (A2 measures it).
+    @MainActor
+    func testW2ShoppingListIsOneTapAway() throws {
+        let app = launch(now: "2026-11-23T09:00:00Z")
+        app.tabBars.buttons["Shopping"].tap()
+        let ask = app.buttons["ask.shop.done"]
+        if ask.waitForExistence(timeout: 3) { ask.tap() }
+        XCTAssertTrue(app.staticTexts["shopping.header"].waitForExistence(timeout: 5))
+        app.tabBars.buttons["Today"].tap()
+        XCTAssertTrue(app.staticTexts["today.title"].waitForExistence(timeout: 5))
+
+        let budget = EaseBudget("shopping-list", maxTaps: 1, maxSeconds: 5, app: app)
+        budget.tap(app.tabBars.buttons["Shopping"], newScreen: true, system: true)
+        budget.finish(done: app.staticTexts["shopping.header"])
+    }
+
     // MARK: F1 · Photo day from the notification (4 taps, 60 s)
 
     /// The photo-day reminder opens the camera (N7, NotificationRoute); then

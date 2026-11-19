@@ -20,11 +20,36 @@ final class AskWhenNeededUITests: XCTestCase {
         return app
     }
 
+    /// Ease A2: launch → first shopping list. Defaults: Shopping, Use these
+    /// (2 taps, 15 s). Changed: Shopping, a shop, a slot, Use these (4 taps).
+    @MainActor
+    func testA2FirstShoppingListIsTwoTapsOrFourChanged() throws {
+        for changed in [false, true] {
+            let app = XCUIApplication()
+            app.launchArguments = ["-uitest", "-now", "2026-11-23T07:00:00Z", "-fixture", "week2-hybrid"]
+            app.launch()
+            XCTAssertTrue(app.staticTexts["today.title"].waitForExistence(timeout: 15))
+            let budget = EaseBudget(changed ? "first-list-changed" : "first-list", maxTaps: changed ? 4 : 2,
+                                    maxSeconds: 15, app: app)
+            budget.tap(app.tabBars.buttons["Shopping"], newScreen: true, system: true)
+            let done = app.buttons["ask.shop.done"]
+            XCTAssertTrue(done.waitForExistence(timeout: 5))
+            if changed {
+                budget.tap(app.buttons["ask.shop.option.ocado"])
+                budget.tap(app.buttons["ask.shop.slot.saturday-10"])
+            }
+            budget.tap(done, newScreen: true)
+            let header = app.staticTexts["shopping.header"]
+            budget.finish(done: header)
+            if changed { XCTAssertTrue(header.label.hasPrefix("Ocado · "), header.label) }
+            app.terminate()
+        }
+    }
+
     @MainActor
     func testShopAnswerChangesTheListAndIsAskedOnce() throws {
         let app = openMeals()
-        let tabs = app.segmentedControls["meals.tabs"]
-        tabs.buttons["Shopping"].tap()
+        app.tabBars.buttons["Shopping"].tap()
         XCTAssertTrue(app.descendants(matching: .any)["ask.shop"].waitForExistence(timeout: 5))
         app.buttons["ask.shop.option.ocado"].tap()
         XCTAssertTrue(app.buttons["ask.shop.option.ocado"].isSelected)
@@ -42,8 +67,8 @@ final class AskWhenNeededUITests: XCTestCase {
         XCTAssertTrue(search.label.hasPrefix("Search Ocado for "), search.label)
 
         // Asked once: back to Shopping, no sheet.
-        tabs.buttons["Meals"].tap()
-        tabs.buttons["Shopping"].tap()
+        app.tabBars.buttons["Meals"].tap()
+        app.tabBars.buttons["Shopping"].tap()
         XCTAssertTrue(header.waitForExistence(timeout: 5))
         XCTAssertFalse(app.buttons["ask.shop.done"].exists)
     }
@@ -51,16 +76,15 @@ final class AskWhenNeededUITests: XCTestCase {
     @MainActor
     func testSwipingTheShopQuestionAwayKeepsTheDefaults() throws {
         let app = openMeals()
-        let tabs = app.segmentedControls["meals.tabs"]
-        tabs.buttons["Shopping"].tap()
+        app.tabBars.buttons["Shopping"].tap()
         let sheet = app.descendants(matching: .any)["ask.shop"]
         XCTAssertTrue(sheet.waitForExistence(timeout: 5))
         sheet.swipeDown(velocity: .fast)
         let header = app.staticTexts["shopping.header"]
         XCTAssertTrue(header.waitForExistence(timeout: 5))
         XCTAssertTrue(header.label.hasPrefix("Waitrose · "), header.label)
-        tabs.buttons["Meals"].tap()
-        tabs.buttons["Shopping"].tap()
+        app.tabBars.buttons["Meals"].tap()
+        app.tabBars.buttons["Shopping"].tap()
         XCTAssertTrue(header.waitForExistence(timeout: 5))
         XCTAssertFalse(app.buttons["ask.shop.done"].exists, "skipped counts as answered")
     }
