@@ -133,7 +133,7 @@ The status column was "Missing" or "Partial" on 18 Nov (`gap-analysis-and-build-
 | Everything editable later, from tomorrow | Touch | §4 |
 | Measured ease | Touch: 21 jobs in budget | §5 |
 | App icon | Done, proven by a test; no shot | §5 |
-| Taste decisions in one place | Not done. Still open from the Gate 2 pack §6 | — |
+| Taste decisions in one place | Touch: defaults built; all in one place in §10 | §10 |
 | Photo-day notification | Touch | §6 |
 | Ghost outline | Touch (simulator stand-in) | §6 |
 | Compare photos over time | Touch | §6 |
@@ -164,5 +164,30 @@ The status column was "Missing" or "Partial" on 18 Nov (`gap-analysis-and-build-
 | QA-R4-2 | trivial (Advisor: accept as built) | The check-in card on Today says "Check in · 1 min". The filled-in numbers appear one tap in, not on Today itself. | iOS Interface Engineer (optional) |
 | QA-R4-3 | trivial | On Shopping, the floating "Send to Reminders" bar sits over the row beneath it. Scrolling reaches the row, so nothing is lost. | iOS Interface Engineer (optional) |
 
+## 10. Taste calls, in one place
+
+Each one is built with its default, and you see it in every screen above. Tell us only if you want the alternative. Sources: `docs/design/direction.md`, `docs/design/ui-12-declutter.md` and the Gate 2 pack §6.3.
+
+| Call | As built (default) | Where you see it | Alternative you can ask for |
+|---|---|---|---|
+| Accent colour | System green, the one accent; blue only for rest and walk, orange only when you should look | Every Start and primary button, e.g. [a11-sunday-walk](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testA10A11TheWeekend-a11-sunday-walk_0_563B94A3-B088-4683-A50E-87961EFBCDAD.png) | One brand colour of your choice |
+| Look | Always dark | Every screen | Follow the phone's light or dark setting |
+| Numerals | SF Pro Rounded for live numbers, with fixed-width digits so they don't jitter | Weight on Progress, the player's set, reps and kg, the run-walk clock | Standard SF Pro |
+| App icon | The new icon (#120): [app-icon-1024.png](../design/icon/app-icon-1024.png) | Home screen | A different design. The Icon Composer `.icon` version is still deferred (needs a Mac) |
+| Meals totals | One quiet line with no targets, e.g. "1,990 kcal · 162 g protein" | Meals tab | Hidden completely |
+| Shopping search | A quiet magnifier at the end of each row, kept when Shopping became its own tab (#123) | Shopping tab | A swipe action with no icon |
+| Today's date line | "Mon 23 Nov · Week 1" above the title | Today | No date line |
+
 ## §Recommendation
 
+**Recommendation (Head of Engineering)**
+
+**Where it stands.** Every line of your 18 Nov gap list that the simulator can prove is now done and tested. §10 puts the last item, the taste calls, in one place. I'm still not calling the app complete. The phone list in §8 is unproven until it runs on your phone: alarms when locked, on Silent and in a Focus; the lock-screen timer and voice; real scale and Health data; and the camera.
+
+**One decision for you: pay for the Apple Developer account (about £79 a year) now.** The simulator has proven everything it can, and what's left is all on the device, with alarms the most likely to need rework. When you say go, the Setup Desk sends one checklist (about 45 minutes, and no secrets in chat). The team runs an on-phone round within a day of the install. Building never takes a training slot.
+
+**Defaults unless you say otherwise:** the §10 taste calls stay as built, the evening meal and mood checks stay cut until you've used the app for a week, and the Amazon basket stays deferred.
+
+**In hand, nothing needed from you:** the onboarding test fix (QA-R4-1, #126) and the Shopping bar overlap (QA-R4-3).
+
+**Risks I'm watching:** calorie and load "what changed" lines first show with your real data. Phase 2 first appears in week 7, and QA re-walks it before the week 6 checkpoint.
