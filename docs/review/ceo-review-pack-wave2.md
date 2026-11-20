@@ -1,0 +1,193 @@
+# HealthCoach: CEO review pack, wave 2
+
+For review at 20:00 on 20 Nov 2026. Written by the Planner Engineer for the Head of Engineering, who adds the recommendation and the Advisor's co-sign.
+
+On 18 Nov you said the app fell well short of what you described, and named six things: check-ins, the plan adapting, the grocery list, the survey, easy design and photo analysis. This pack is organised around those six. After them comes the gap list from that review (`gap-analysis-and-build-plan.md` §2, PR #87), with each line's status now.
+
+**How to read it.** Every row starts with what you do and what you see. A row is listed as something you can touch only when a screenshot of that screen exists in this set. Some work is in the rules engine with no screen of its own, and it is labelled **engine only**: it is tested, but you won't see it as a feature. Nothing in this pack is called "built" unless you can touch it.
+
+## Build and evidence
+
+- **Build:** `f8435af` is the last app change on `main`. The later commit, `d151f01`, changes the board document only.
+- **Rules engine tests:** 436 of 436 pass on that build (CoachCore, CI run 44440000035).
+- **App UI tests:** 70 of 70 pass on the second attempt of run 44705290082. The first attempt failed one onboarding test, which is finding QA-R4-1 below.
+- **QA round R4:** passed with no blockers and no majors. The Advisor co-signed it at 10:44 UTC on 20 Nov. The full report is [`docs/qa/rounds/2026-11-20-r4.md`](../qa/rounds/2026-11-20-r4.md) (PR #127).
+- **Screenshots:** simulator shots from that run. Every link is pinned to shot commit `78fd282`, so later runs can't change what you see. The simulator uses fixture data and a fixed clock, so dates and weights in the shots are sample values, not yours.
+- **Ease numbers:** "taps" are counted by the test. "Model time" is the test's fixed time model: 1.1 s a tap, 1.5 s a new screen and 2.0 s a system alert (`docs/qa/ease-budget-method.md`). It is not a stopwatch.
+
+## 1. Check-ins
+
+| What you do and see | Shot | Test that proves it | PR |
+|---|---|---|---|
+| **Sunday check-in.** On your check-in day (Sunday 18:00 by default), Today shows one card, "Check in · 1 min". | [a11-sunday-walk](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testA10A11TheWeekend-a11-sunday-walk_0_563B94A3-B088-4683-A50E-87961EFBCDAD.png) | `CheckInUITests.testLaterKeepsTheCard`; `CheckInTests.dueOnTheCheckInDayFromItsTimeOnce` | #103, #114 |
+| Tap it. "Your week" opens already filled in: 7-day average weight, change since start, sessions done of planned, and steps a day. Energy, sleep and pain are one tap each, defaulting to Good, Fine and None. | [checkin-week](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testCheckInWithPainAndOfficeDays-checkin-week_0_689D86C9-6EB3-4921-A7DF-0F787C5E3804.png) | `CheckInTests.theScreenOpensFilledIn`, `defaultsAreGoodFineNone` | #103, #114 |
+| Tap Next. "Next week" asks for office days, shows what changes and why, then **Looks good**. With the defaults, the whole check-in is 3 taps, 7.8 s model time against a 60 s budget. With office days and pain changed, it is 8 taps, 13.3 s. | [checkin-plan](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testCheckInWithPainAndOfficeDays-checkin-plan_0_39B404DB-2496-4A60-AD77-A026D1909D55.png) | `CheckInUITests.testOrdinaryWeekIsThreeTaps`, `testChangedWeekIsEightTaps`, `testCheckInWithPainAndOfficeDays` | #114, #118 |
+| The Sunday notification opens the check-in directly: 3 taps, 7.8 s. | [ease-checkin-from-notification](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testSundayPromptNotificationOpensTheCheckIn-ease-checkin-from-notification_0_EEB96222-7DDC-4524-90D3-17AF1D589B95.png) | `NotificationRouteUITests.testSundayPromptNotificationOpensTheCheckIn` | #106, #114 |
+| **Pain.** Pain "Yes" then one tap for the area. For 7 days, every exercise that loads that area is swapped, and the check-in says so. In the shot, knee pain swaps goblet squat for glute bridge, and the run-walk becomes a brisk walk. | [checkin-plan](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testCheckInWithPainAndOfficeDays-checkin-plan_0_39B404DB-2496-4A60-AD77-A026D1909D55.png) | `CheckInTests.kneePainTakesEveryKneeLoadingLiftOutOfFullBody`, `conditionC_kneeOrBackPainMakesTheRunWalkABriskWalk`, `painSwapsLastSevenDays` | #103, #114 |
+| **Skipping changes nothing.** "Later" keeps the card, and no check-in answer ever changes calories. Only the scale does. | [a11-sunday-walk](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testA10A11TheWeekend-a11-sunday-walk_0_563B94A3-B088-4683-A50E-87961EFBCDAD.png) | `CheckInTests.noAnswerEverChangesCaloriesAndSkippingChangesNothing`; `CheckInUITests.testLaterKeepsTheCard` | #103 |
+| **Low recovery.** *Engine only.* Low energy together with poor sleep counts as one low-recovery signal. Two signals drop the full-body session for the week, as the Advisor set it. You would see this only as a week without a full-body session; this set has no shot of one. | (none) | `CheckInTests.onlyLowEnergyWithPoorSleepIsALowRecoverySignal`, `aLowCheckInCountsWithOneSoreAnswer`; `ProgressionTests.twoSoreChecksDropTheFullBodySession` | #103 |
+| **Pain twice running.** *Engine only.* "Worth seeing a GP or physio" goes into the Claude summary. It is not shown on a screen. | (none) | `CheckInTests.conditionD_sameAreaTwiceRunningAddsTheGPLine` | #103 |
+| **Checkpoints** (weeks 6, 14 and 20): a notification on the evening one falls due. Tapping it opens Progress at "Ask the coach now" (1 tap, 2.6 s). | [ease-checkpoint](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testCheckpointOpensAskTheCoach-ease-checkpoint_0_D3030AE7-5717-41B8-8C28-AC8377F7630A.png) | `NotificationPlannerTests.aCheckpointNotifiesTheEveningItFallsDue`; `NotificationRouteUITests.testCheckpointOpensAskTheCoach` | #107, #106 |
+| **Stall line.** When your weight has been flat for 2 weeks, Today shows one line, "Your weight has been flat for 2 weeks. Ask the coach.", and tapping it opens Progress. | [today-coach-line](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testFlatWeightShowsTheLineAndOpensAsk-today-coach-line_0_3A0B16B8-5EC2-46C9-BF60-7B0F7B0A0C7C.png), [progress-ask-from-today](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testFlatWeightShowsTheLineAndOpensAsk-progress-ask-from-today_0_3B597B5E-C024-41DC-BD28-B26E78987453.png) | `CoachLineUITests.testFlatWeightShowsTheLineAndOpensAsk`, `testNormalWeekShowsNoLine` | #91 |
+
+**Still cut:** the daily mood check (the check-in's energy, sleep and pain replace it) and the evening "anything different today?" check (meals stay pre-ticked, and the coach steers by the scale).
+
+## 2. The plan adapting, and you seeing it
+
+| What you do and see | Shot | Test that proves it | PR |
+|---|---|---|---|
+| **What changed and why.** Progress and the check-in show one line per change, each with its reason. The shot's lines come from a knee-pain week. When nothing has changed, there is no card. | [ease-what-changed](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testCheckInWithPainAndOfficeDays-ease-what-changed_0_D649124B-31D9-413A-B735-3A71187A0332.png), [checkin-plan](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testCheckInWithPainAndOfficeDays-checkin-plan_0_39B404DB-2496-4A60-AD77-A026D1909D55.png) | `CoachChangesTests.noLinesWhenNothingChanged`, `kneePainGivesOneWalkLineAndASwapLine`; `CheckInUITests.testCheckInWithPainAndOfficeDays` (Progress card: 1 tap, 4.1 s) | #98, #114 |
+| A calorie change, a load rise, the 24 kg dumbbell limit and an imported Claude reply each produce their own line. *The lines are proven in the engine; this set has no shot of a calorie or load line on screen.* | (none) | `CoachChangesTests.aCalorieDropSaysWhy`, `aLoadRiseSaysWhy`, `theDumbbellLimitIsFlaggedOnce`, `anImportedBlockGivesALinePerChange` | #98 |
+| **Last time → today.** Each lift in the player shows last time's numbers next to today's. After an all-done session, the next one steps up: "Last time 8 @ 10 kg → today 9 @ 10 kg". | [player-last-time](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testSecondUpperAShowsLastTimeAndMovesOn-player-last-time_0_20BF0371-FF62-486F-90CA-4404AE2F0304.png) | `WorkoutPlayerUITests.testSecondUpperAShowsLastTimeAndMovesOn` | #88, #91 |
+| **Easing back after a break.** After 10 or more days off, the first set says why the loads are lighter: "Easing back in after 11 days off", with the load down to 8 kg. Nothing is asked. | [player-easing](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testEasingBackInIsExplainedOnTheFirstSet-player-easing_0_2A99EF10-080F-4BF1-8710-90AD794E82E0.png) | `PlayerLinesUITests.testEasingBackInIsExplainedOnTheFirstSet`; `ReturnEasingTests.bandsFollowTheAdvisor`, `twoWeeksOffEasesTo90ThenBackWithinTwoSessions`, `normalWeeksAreUnchanged` | #98, #113, #114 |
+| Runs after a break: 10+ days off repeats the previous week's run, and 21+ days drops back two weeks. *Engine only; this set has no shot.* | (none) | `ReturnEasingTests.runsKeepTheirOwnClock` | #98 |
+| **All 20 weeks.** Progress shows your phase and week ("Phase 1 · week 1 of 6"). Phases 2 (weeks 7–14) and 3 (weeks 15–20) are written and load in order. Loads carry over from week 6 into 7 and from 14 into 15, and weeks 13–14 are maintenance. *You first see Phase 2 in week 7; this set has no shot of it.* | [ease-what-changed](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testCheckInWithPainAndOfficeDays-ease-what-changed_0_D649124B-31D9-413A-B735-3A71187A0332.png) | `PhaseCarryTests.thePhasesFollowOnWeekForWeek`, `phase1CarriesIntoPhase2AsItWas`, `maintenanceStaysInWeeks13And14AndTheCountNeverResets`, `sundayOfWeek6PlansMondayOfWeek7FromPhase2` | #86, #88 |
+| **Calories from the weight trend.** *Engine only until it moves.* The target changes on the 2-week trend, inside the Advisor's limits. When it does, you see it as a "What changed" line. | (none) | `CoachLoopTests.anAcceptedImportChangesCaloriesMealsAndThursdaysLoad`, `CalorieRulesTests` | #89 |
+| **Meals follow the target.** The Meals tab shows the day's planned total against the target. In the shot it is 1,990 kcal and 162 g protein on a 2,000 target. | [meals-today](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testMealsArePreTickedAndUntickingChangesTheTotal-meals-today_0_5382925A-008C-4029-A52E-393ACB8F11DA.png) | `MealTargetTests.dayAimsBalanceToTheTarget`, `theTopUpListChangesWithTheTarget` | #88 |
+| **Claude's reply.** Progress → "Import Claude's reply". A good reply applies and shows the next day changed. A reply outside any limit is refused in full, and nothing changes. | [a17-imported](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testA17ValidReplyImportsAndShowsTheNextDay-a17-imported_0_BD2DAD79-7CB4-4D7B-9ABE-1AE3D14A471A.png), [a17-thursday-changed](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testA17ValidReplyImportsAndShowsTheNextDay-a17-thursday-changed_0_59FBAD68-95FF-40DE-9D59-DFAA9FEF53E8.png), [a17-refused](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testA17BadReplyIsRefusedAndNothingChanges-a17-refused_0_87DE6BC4-3913-4C91-8528-9CF4A25BC4CE.png) | `CoachImportUITests.testA17ValidReplyImportsAndShowsTheNextDay`, `testA17BadReplyIsRefusedAndNothingChanges`; `CoachLoopTests.aReplyOutsideAnyLimitChangesNothing` (12 cases), plus the edge values 1,849/2,201 kcal and 139/181 g | #89, #116 |
+
+## 3. The grocery list
+
+| What you do and see | Shot | Test that proves it | PR |
+|---|---|---|---|
+| **Shopping is its own tab**, 1 tap from launch (4.1 s against a 5 s budget). | [ease-shopping-list](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testW2ShoppingListIsOneTapAway-ease-shopping-list_0_E5E87706-0170-47EA-B826-03FB1B4A59B4.png) | `EaseJobsUITests.testW2ShoppingListIsOneTapAway` | #123 |
+| **Your shop, asked once.** Before the first list, one screen asks where you shop (Waitrose, Ocado, M&S via Ocado, Tesco, Sainsbury's) and when your delivery comes. Swiping it away keeps Waitrose and Sunday morning, and the search links follow your choice. The first list takes 2 taps, or 4 if you change an answer. | [ask-shop](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testShopAnswerChangesTheListAndIsAskedOnce-ask-shop_0_FC4C7123-AA49-41C9-B401-5F64AABF5306.png), [ease-first-list](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testA2FirstShoppingListIsTwoTapsOrFourChanged-ease-first-list_0_EB900D45-26A0-45FA-8C47-181C87BDAED2.png) | `AskWhenNeededUITests.testShopAnswerChangesTheListAndIsAskedOnce`, `testSwipingTheShopQuestionAwayKeepsTheDefaults`, `testA2FirstShoppingListIsTwoTapsOrFourChanged`; `AskWhenNeededTests.searchLinksFollowTheChoice` | #107, #119 |
+| **Send to Reminders.** One button writes the week's list, with quantities, into one Reminders list called Shopping. If a list with that name already exists, it is reused, so a list you already share with someone keeps working. Sending again never duplicates items, and your own reminders in that list are left alone. The first send is 3 taps plus the one-time permission alert; after that, it is 2 taps. | [ease-send-to-reminders-first](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testSendToRemindersMakesOneListAndReusesIt-ease-send-to-reminders-first_0_F22BE31F-38A1-4E25-AA8E-A69B9BCFE800.png), [ease-send-to-reminders](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testSendToRemindersMakesOneListAndReusesIt-ease-send-to-reminders_0_FC031CB6-B1D2-4A58-9FF6-888BC0B4D21B.png) | `GroceryUITests.testSendToRemindersMakesOneListAndReusesIt`; `GroceryExportTests.sendingAgainChangesNothing`, `aPersonsOwnRemindersAreNeverTouched` | #110 |
+| **In the shop.** Big rows, aisle order, only what's left to get. Tap an item and it leaves, so the next one is always at the top. Five items took 7 taps with no scrolling (12.2 s against a 20 s budget). The screen is kept awake while it's open; *that is checked in the code only, and the phone check waits on the phone install.* | [ease-shop-in-store](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testInStoreTicksFromTheTopWithNoScrolling-ease-shop-in-store_0_BD303A5C-AF53-4D43-860A-FAF7478A0DD2.png) | `GroceryUITests.testInStoreTicksFromTheTopWithNoScrolling`; `GroceryExportTests.tickedItemsAreNotSentAndInStoreKeepsAisleOrder` | #110 |
+| **Delivery reminder** at 19:00 the evening before your slot, outside quiet hours. Tapping it opens Shopping (1 tap, 2.6 s). | [ease-delivery-reminder](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testDeliveryReminderOpensShopping-ease-delivery-reminder_0_F42A7E7A-5541-495A-99B7-433D8E1FC79C.png) | `NotificationPlannerTests.theDeliveryReminderComesTheEveningBefore`; `NotificationRouteUITests.testDeliveryReminderOpensShopping` | #107, #123 |
+| **More recipes.** There are now 29 recipes, against 19 at your last review: 10 dinners, 3 Sunday cooks, 4 breakfasts, 3 lunches, 2 snacks and 7 extras. No dinner repeats within 3 weeks, and the Advisor has signed off all 13 dinners and Sunday cooks. | [meals-today](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testMealsArePreTickedAndUntickingChangesTheTotal-meals-today_0_5382925A-008C-4029-A52E-393ACB8F11DA.png), [recipe](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testMealsArePreTickedAndUntickingChangesTheTotal-recipe_0_4CAA0BB0-9AE8-4432-8956-202A1D0E5674.png) | `NutritionTests.noDinnerRepeatsWithinThreeWeeks` | #97 |
+| **Social meal.** One tap on Meals replaces that dinner, shows "1 of 2 this week", and the week rebalances inside the floors. | [meals-social](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testSocialMealReplacesDinnerAndCounts-meals-social_0_45128A01-B20E-4F08-B8C9-EDCC687454D2.png) | `MealsUITests.testSocialMealReplacesDinnerAndCounts`; `SocialMealTests.twoSocialMealsInAn1850WeekKeepTheFloor` | #88, #99 |
+| **Office lunch.** On your first office day, Today shows a lunch row, and one tap opens the suggestion (1 tap, 4.1 s). Walk distance and dislikes are asked once. Changing the walk takes 3 taps. | [ease-first-office-day](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testOfficeDayShowsTheLunchRowAndOneTapOpensTheSuggestion-ease-first-office-day_0_E77C01A2-4354-4B48-A9CB-AC4CD0FC6C03.png), [ask-lunch](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testOfficeLunchQuestionOnce-ask-lunch_0_5672519C-CA2B-4B44-8DC2-274B1B5B3AD7.png) | `OfficeLunchUITests.testOfficeDayShowsTheLunchRowAndOneTapOpensTheSuggestion`, `testChangingTheWalkTakesThreeTapsAndIsAskedOnce`; `AskWhenNeededUITests.testOfficeLunchQuestionOnce` | #111, #119 |
+
+**Deferred:** the Amazon basket (N11). Amazon's cart link needs an Associates tag on an API Amazon has deprecated, and fresh delivery to W2 is unconfirmed (`docs/spikes`, PR #108). No basket button or Amazon text appears anywhere in the app.
+
+## 4. The survey: changing your answers later
+
+| What you do and see | Shot | Test that proves it | PR |
+|---|---|---|---|
+| **Today → ⋯ → Settings** opens Preferences. Every onboarding module is listed with its current value: work hours, office days, fixed commitments, kit, longest session, timers and counting, weekly check-in, foods I don't eat, shop and delivery, and office lunch. The footer says "Changes start tomorrow". | [preferences](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testEveryModuleShowsItsValueAndADislikeSavesFromTomorrow-preferences_0_EE0B81B5-7C00-49F1-BE1E-47AD5216491E.png) | `PreferencesUITests.testEveryModuleShowsItsValueAndADislikeSavesFromTomorrow` | #100, #102 |
+| **Foods I don't eat.** Pick from the list (empty by default). The meal plan always leaves them out, from tomorrow. | [preferences-foods](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testEveryModuleShowsItsValueAndADislikeSavesFromTomorrow-preferences-foods_0_F09689C4-2B6B-44EA-BAC0-A8D4E4912F03.png) | `PreferencesUITests.testEveryModuleShowsItsValueAndADislikeSavesFromTomorrow`; `PreferencesTests.aMidMorningEditLeavesTodayIdenticalAndOnlyTomorrowChanges` (meals part) | #100, #102 |
+| **Changes start tomorrow, never mid-day.** After an edit at 10:30, today's plan, alarms, notifications and meals stay exactly as they were. From tomorrow, they all follow the edit. | [preferences](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testEveryModuleShowsItsValueAndADislikeSavesFromTomorrow-preferences_0_EE0B81B5-7C00-49F1-BE1E-47AD5216491E.png) | `PreferencesTests.aMidMorningEditLeavesTodayIdenticalAndOnlyTomorrowChanges`, `aMidMorningEditLeavesTodaysNotificationsAsTheyWere` | #100, #117 |
+| **The check-in day** set here is the one the Sunday check-in uses. The onboarding setting nothing used to read is now live. | [preferences](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testEveryModuleShowsItsValueAndADislikeSavesFromTomorrow-preferences_0_EE0B81B5-7C00-49F1-BE1E-47AD5216491E.png) | `PreferencesUITests.testCheckInDayIsEditable` | #102 |
+| **Shop and office lunch answers** show here and can be edited. | [preferences](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testEveryModuleShowsItsValueAndADislikeSavesFromTomorrow-preferences_0_EE0B81B5-7C00-49F1-BE1E-47AD5216491E.png) | `AskWhenNeededTests.bothAnswersLiveInPreferencesAndOldProfilesStillLoad` | #119 |
+| **Waist on photo day** is a switch at the bottom, off by default. It needs a tape measure, which isn't in your kit. | [preferences](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testEveryModuleShowsItsValueAndADislikeSavesFromTomorrow-preferences_0_EE0B81B5-7C00-49F1-BE1E-47AD5216491E.png) | `ProgressUITests.testWaistStepperOnPhotoDay` | #122 |
+
+## 5. Easy design
+
+Every daily and weekly job now has a tap and time budget (`docs/design/ease-budget.md`, PR #93), and a UI test fails if a job goes over. In this run, **all 21 measured jobs were inside budget, with no scrolling and no typing**. Here is a selection; the full table is in the R4 report.
+
+| Job (what you do) | Taps | Model time / budget | Shot | Test | PR |
+|---|---|---|---|---|---|
+| Start today's session from launch | 1 | 4.1 s / 10 s | [ease-start-session](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testD2StartTodaysSessionIsOneTap-ease-start-session_0_0C8F7030-B448-4A97-854C-7FCC68D9F988.png) | `EaseJobsUITests.testD2StartTodaysSessionIsOneTap` | #120 |
+| Start it when still sore | 2 | 5.2 s / 10 s | [ease-start-session-sore](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testD2StartWhenStillSoreIsTwoTaps-ease-start-session-sore_0_92A9D364-69E8-404C-BB8C-3477C32A9E70.png) | `testD2StartWhenStillSoreIsTwoTaps` | #120 |
+| Untick or change a meal | 2 | 5.2 s / 10 s | [ease-change-meal](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testD6UntickingAMealIsTwoTapsAndAsksNothing-ease-change-meal_0_D92C68E1-8AD0-4A36-A1F7-5D890297C7E3.png) | `testD6UntickingAMealIsTwoTapsAndAsksNothing` | #120 |
+| Open the shopping list | 1 | 4.1 s / 5 s | [ease-shopping-list](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testW2ShoppingListIsOneTapAway-ease-shopping-list_0_E5E87706-0170-47EA-B826-03FB1B4A59B4.png) | `testW2ShoppingListIsOneTapAway` | #123 |
+| Sunday check-in, defaults | 3 | 7.8 s / 60 s | [ease-checkin](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testOrdinaryWeekIsThreeTaps-ease-checkin_0_D10186A2-7073-4094-97F3-E9401AFEC06E.png) | `CheckInUITests.testOrdinaryWeekIsThreeTaps` | #114 |
+| Plan the week (Sunday prompt) | 6 | 11.1 s / 20 s | [ease-sunday-prompt](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testSundayPromptTakesUnderTwentySeconds-ease-sunday-prompt_0_48BC787B-32A3-4F3B-8460-92309FA86123.png) | `SundayPromptUITests.testSundayPromptTakesUnderTwentySeconds` | #105, #114 |
+| Photo day from the notification | 4 | 8.9 s + 6 s timer / 60 s | [ease-photo-day](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testF1PhotoDayFromTheNotificationIsFourTaps-ease-photo-day_0_24D6A6BB-BDAA-4C81-8227-AC9722AC41F7.png) | `EaseJobsUITests.testF1PhotoDayFromTheNotificationIsFourTaps` | #124 |
+| A full workout | Next and Done only | — | [player-done](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testUpperACompletesWithOnlyNextAndDone-player-done_0_21021BCC-58AF-4636-987F-4CA4CE40880D.png) | `WorkoutPlayerUITests.testUpperACompletesWithOnlyNextAndDone` | #22 |
+
+Also new to look at:
+- **Office lunch on Today's timeline**, so you don't have to go to Meals for it (#111).
+- **Shopping as its own tab** (#123).
+- **An app icon** replaces the placeholder (#120). `AppIconCheckTests.testAppIconIsNotThePlaceholder` proves it isn't the placeholder; this set has no shot of the home screen.
+
+The Sunday prompt's tap budget went from 5 to 6, because the check-in became two screens. QA reviewed the change and recorded it as not loosened. The job is still well inside its 20 s model-time budget.
+
+**Deferred:** the Icon Composer `.icon` file and the four iOS 26 icon appearances. They need a Mac with Icon Composer.
+
+## 6. Photo analysis
+
+The Advisor and the team rejected a photo body-fat score (gap plan §4.6, Advisor A3). What you have instead is a consistent way to take the photos, a way to compare them, and an optional waist measurement. Everything stays on the phone.
+
+| What you do and see | Shot | Test that proves it | PR |
+|---|---|---|---|
+| **Photo day** comes every 2 weeks. A 07:00 notification opens the camera (1 tap, 2.6 s), or you can start from the Progress card, "Photo day: front and side, 1 minute". Both poses take 4 taps from the notification, or 5 from Progress. | [ease-photo-day](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testPhotoDayOpensTheCamera-ease-photo-day_0_76B8A7C1-F0EC-4ED1-B007-967D56C37CB9.png), [ease-photo-day-from-progress](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testF1bPhotoDayFromProgressIsFiveTaps-ease-photo-day-from-progress_0_7829DDE1-D955-4CCC-AC09-C84B123BF3BB.png) | `NotificationPlannerTests.aPhotoDayNotifiesEveryTwoWeeksOnTheMorning`; `NotificationRouteUITests.testPhotoDayOpensTheCamera`; `EaseJobsUITests.testF1PhotoDayFromTheNotificationIsFourTaps`, `testF1bPhotoDayFromProgressIsFiveTaps` | #112, #122, #124 |
+| **Line up against your first photo.** An outline of the first photo of that pose sits over the viewfinder ("Front · 1 of 2"). *In the simulator this is a stand-in image; the real camera waits on the phone install.* | [photo-camera](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testPhotoDaySavesBothPosesAndIsThenDone-photo-camera_0_A57A0518-9E65-459F-AB5A-73A04C34D401.png) | `ProgressUITests.testPhotoDaySavesBothPosesAndIsThenDone` | #122 |
+| **Pose hint.** One plain line, such as "Step into the frame", when the pose or distance is off. It runs on the phone with the network off, and no network call is made. | [photo-camera](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testPhotoDaySavesBothPosesAndIsThenDone-photo-camera_0_A57A0518-9E65-459F-AB5A-73A04C34D401.png) | `ProgressUITests.testPoseHintWithTheNetworkOff`; `PoseCheckTests.hintsAreFourWordsAtMost`, `distanceMatchesTheFirstPhoto`; `NetworkScanTests` | #101, #117, #122 |
+| **Compare.** Progress → Photos shows today against week 0 or against 4 weeks ago, with a slider between them, and the weight change underneath. | [compare-week0](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testCompareAgainstWeekZeroAndFourWeeksAgo-compare-week0_0_A3B7A3A3-53F7-4AFB-A687-3BA4D58FAEA4.png), [compare-4-weeks](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testCompareAgainstWeekZeroAndFourWeeksAgo-compare-4-weeks_0_036A577B-EC99-49EE-A6AC-F3AC511DCAC2.png) | `ProgressUITests.testCompareAgainstWeekZeroAndFourWeeksAgo`; `ProgressCompareTests.pairingPicksWeekZeroAndFourWeeksAgo` | #101, #122 |
+| **Waist** (optional, off until you turn it on in Preferences). A stepper on photo day, measured at the navel after breathing out, with no typing. It shows on Progress next to the weight trend, and goes to Claude only at a checkpoint. | [photo-waist](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testWaistStepperOnPhotoDay-photo-waist_0_134C2C98-0BC7-449D-83DB-065EC004AE94.png) | `ProgressUITests.testWaistStepperOnPhotoDay`; `ProgressCompareTests.waistReachesClaudeOnlyAtACheckpoint`, `theLineJoinsWeightAndWaist` | #101, #122 |
+| **Photos never leave the phone.** The Claude summary carries your check-in as words and counts. It has no photo, file, name, waist, raw sample or timestamp. | [ask-the-coach-share](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testAskTheCoachOpensTheShareSheet-ask-the-coach-share_0_16949F9C-D033-4878-8407-7B47041F5835.png) | `CoachSummaryTests.theCheckInGoesAsCountsAndTheExampleStillMovesNothing`; `NetworkScanTests.onlyTheWeatherAndTheShopLinkUseTheNetwork` | #117 |
+
+## 7. The gap list from your last review, line by line
+
+The status column was "Missing" or "Partial" on 18 Nov (`gap-analysis-and-build-plan.md` §2). Lines that were already working then are left out. "Touch" means you can see it on a screen in this set. "Engine only" means it is tested but has no screen.
+
+| Gap on 18 Nov | Now | Where |
+|---|---|---|
+| Weekly check-in (trend, strength, how you felt) | Touch | §1 |
+| Check-in re-asks what may have changed | Touch: office days each week; other answers live in Preferences | §1, §4 |
+| Checkpoint and stall flags only on Progress | Touch: a line on Today, plus a checkpoint notification | §1 |
+| See what changed and why | Touch for pain and session changes; engine only for calorie and load lines (no shot) | §2 |
+| Phases 2 and 3 (weeks 7–20) | Content and engine; first seen in week 7 | §2 |
+| Progression carried across phases | Engine; "last time → today" seen in the player | §2 |
+| One end-to-end test of the whole loop | Done: `CoachLoopTests` (#89) | §2 |
+| Return after a break eases loads | Touch for strength; engine only for runs | §2 |
+| Search link per item to your shop | Touch: you choose the shop | §3 |
+| In-store mode | Touch (screen kept awake: code only until the phone) | §3 |
+| Delivery-slot reminder | Touch | §3 |
+| Share the list | Touch: Send to Reminders | §3 |
+| Enough recipes for 20 weeks | 29 recipes, no dinner repeats within 3 weeks | §3 |
+| Social meals | Touch | §3 |
+| Shop asked before the first list; office food on the first office day | Touch | §3 |
+| Everything editable later, from tomorrow | Touch | §4 |
+| Measured ease | Touch: 21 jobs in budget | §5 |
+| App icon | Done, proven by a test; no shot | §5 |
+| Taste decisions in one place | Touch: defaults built; all in one place in §10 | §10 |
+| Photo-day notification | Touch | §6 |
+| Ghost outline | Touch (simulator stand-in) | §6 |
+| Compare photos over time | Touch | §6 |
+| Any analysis of the photos | Pose hint and waist instead of a score (Advisor A3) | §6 |
+| Hyde Park run loops | Touch: the run-walk names its loop, e.g. "North Ring and Serpentine bank, about 3 km" ([run-walk-loop](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testRunWalkNamesItsLoopAsItSetsOff-run-walk-loop_0_F628EC29-5E23-4F0B-960F-E466B87F54B0.png); `PlayerLinesUITests.testRunWalkNamesItsLoopAsItSetsOff`, `RunLoopNamingTests`; #97, #113) | — |
+| Checkpoint notification | Touch | §1 |
+| Daily mood check, evening meal check | Still cut | §1 |
+
+## 8. Still cut or deferred
+
+- **N11 Amazon basket:** deferred. It needs an Associates tag on a deprecated Amazon API, and fresh delivery to W2 is unconfirmed (#108). The shopping list and Send to Reminders cover the job meanwhile.
+- **Icon Composer `.icon`** and the four iOS 26 icon appearances: deferred, because they need a Mac.
+- **Evening meal check** and **mood check:** still cut. Meals count as planned unless you untick them, and the check-in's energy, sleep and pain replace the mood check.
+- **Anything on the phone, waiting on your payment decision.** None of this is proven until the paid Apple account and the TestFlight install:
+  - alarms ringing locked, on Silent and in a Focus, and surviving an update
+  - the lock-screen timer and voice through headphones, with music ducking
+  - real scale and Apple Health data
+  - notifications on a real device
+  - the backup Clock alarm for your first week
+  - the real camera for photo day
+  - the in-store screen staying awake on a device
+
+## 9. QA-R4 findings and owners
+
+| ID | Severity | Finding | Owner |
+|---|---|---|---|
+| QA-R4-1 | minor (test reliability) | The onboarding UI test failed on its first attempt, because the permissions screen didn't appear in time. It failed once before as well (#122), and passed on the re-run. It doesn't affect what you see, but each recurrence costs a full macOS run. | iOS Interface Engineer (root cause on a branch) |
+| QA-R4-2 | trivial (Advisor: accept as built) | The check-in card on Today says "Check in · 1 min". The filled-in numbers appear one tap in, not on Today itself. | iOS Interface Engineer (optional) |
+| QA-R4-3 | trivial | On Shopping, the floating "Send to Reminders" bar sits over the row beneath it. Scrolling reaches the row, so nothing is lost. | iOS Interface Engineer (optional) |
+
+## 10. Taste calls, in one place
+
+Each one is built with its default, and you see it in every screen above. Tell us only if you want the alternative. Sources: `docs/design/direction.md`, `docs/design/ui-12-declutter.md` and the Gate 2 pack §6.3.
+
+| Call | As built (default) | Where you see it | Alternative you can ask for |
+|---|---|---|---|
+| Accent colour | System green, the one accent; blue only for rest and walk, orange only when you should look | Every Start and primary button, e.g. [a11-sunday-walk](https://github.com/aoventuresdomain-cloud/HealthCoach/blob/78fd2822d7710abc857de59f1dffbb15b60a39d8/screenshots/ui-tests/testA10A11TheWeekend-a11-sunday-walk_0_563B94A3-B088-4683-A50E-87961EFBCDAD.png) | One brand colour of your choice |
+| Look | Always dark | Every screen | Follow the phone's light or dark setting |
+| Numerals | SF Pro Rounded for live numbers, with fixed-width digits so they don't jitter | Weight on Progress, the player's set, reps and kg, the run-walk clock | Standard SF Pro |
+| App icon | The new icon (#120): [app-icon-1024.png](../design/icon/app-icon-1024.png) | Home screen | A different design. The Icon Composer `.icon` version is still deferred (needs a Mac) |
+| Meals totals | One quiet line with no targets, e.g. "1,990 kcal · 162 g protein" | Meals tab | Hidden completely |
+| Shopping search | A quiet magnifier at the end of each row, kept when Shopping became its own tab (#123) | Shopping tab | A swipe action with no icon |
+| Today's date line | "Mon 23 Nov · Week 1" above the title | Today | No date line |
+
+## §Recommendation
+
+**Recommendation (Head of Engineering)**
+
+**Where it stands.** Every line of your 18 Nov gap list that the simulator can prove is now done and tested. §10 puts the last item, the taste calls, in one place. I'm still not calling the app complete. The phone list in §8 is unproven until it runs on your phone: alarms when locked, on Silent and in a Focus; the lock-screen timer and voice; real scale and Health data; and the camera.
+
+**One decision for you: pay for the Apple Developer account (about £79 a year) now.** The simulator has proven everything it can, and what's left is all on the device, with alarms the most likely to need rework. When you say go, the Setup Desk sends one checklist (about 45 minutes, and no secrets in chat). The team runs an on-phone round within a day of the install. Building never takes a training slot.
+
+**Defaults unless you say otherwise:** the §10 taste calls stay as built, the evening meal and mood checks stay cut until you've used the app for a week, and the Amazon basket stays deferred.
+
+**In hand, nothing needed from you:** the onboarding test fix (QA-R4-1, #126) and the Shopping bar overlap (QA-R4-3).
+
+**Risks I'm watching:** calorie and load "what changed" lines first show with your real data. Phase 2 first appears in week 7, and QA re-walks it before the week 6 checkpoint.
