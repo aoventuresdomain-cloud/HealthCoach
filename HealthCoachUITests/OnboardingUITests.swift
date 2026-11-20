@@ -52,10 +52,26 @@ final class OnboardingUITests: XCTestCase {
         }
         attach(app, "onboarding-confirm-more")
 
+        // "Looks right" sits in the bottom bar, never in the list: no scrolling to reach it.
+        // Tap it only once the screen is still and nothing covers it, and if the
+        // permissions screen doesn't follow, record what was on screen instead of guessing.
         let confirm = app.buttons["onboarding.confirm"]
-        for _ in 0..<6 where !(confirm.exists && confirm.isHittable) { app.swipeUp() }
+        XCTAssertTrue(confirm.waitForExistence(timeout: 5), "no Looks right button")
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        XCTAssertFalse(springboard.alerts.firstMatch.exists,
+                       "a system alert covers onboarding: \(springboard.alerts.firstMatch.label)")
+        XCTAssertTrue(confirm.isHittable, "Looks right is covered: \(confirm.frame)")
         confirm.tap()
-        XCTAssertTrue(app.staticTexts["permissions.title"].waitForExistence(timeout: 5))
+        let permissions = app.staticTexts["permissions.title"]
+        if !permissions.waitForExistence(timeout: 5) {
+            attach(app, "onboarding-after-confirm")
+            let tree = XCTAttachment(string: app.debugDescription)
+            tree.name = "onboarding-after-confirm-tree"
+            tree.lifetime = .keepAlways
+            add(tree)
+            XCTFail("Looks right didn't open the permissions screen; still on onboarding: \(app.staticTexts["onboarding.title"].exists)")
+            return
+        }
         attach(app, "onboarding-permissions")
         app.buttons["permissions.continue"].tap()
 
@@ -91,11 +107,34 @@ final class OnboardingUITests: XCTestCase {
         XCTAssertTrue(app.buttons["onboarding.confirm"].exists)
     }
 
-    /// Swipes up until `element` is on screen, then down if it was passed.
+    /// Scrolls until `element` is on screen and hittable. When the row is already built,
+    /// its frame says which way to go; otherwise it lies below (lists build lazily
+    /// downwards), then above. Each step is a slow quarter-screen drag held at the end, so
+    /// there is no momentum: a row can't fly past the visible part of the list between
+    /// checks, and the list is still when the next check (or a tap) happens. `app.swipeUp()`
+    /// flicks with momentum, which skipped rows and cost up to 200 s of swiping.
     @MainActor
     private func scrollIntoView(_ element: XCUIElement, in app: XCUIApplication) {
-        for _ in 0..<8 where !(element.waitForExistence(timeout: 1) && element.isHittable) { app.swipeUp() }
-        for _ in 0..<8 where !(element.waitForExistence(timeout: 1) && element.isHittable) { app.swipeDown() }
+        let window = app.windows.firstMatch.frame
+        var downwards = true // reveal rows further down the list first
+        for step in 0..<24 {
+            if element.waitForExistence(timeout: 0.5), element.isHittable { return }
+            if element.exists, !element.frame.isEmpty {
+                downwards = element.frame.midY > window.midY
+            } else if step == 12 {
+                downwards = false // not below: look above
+            }
+            drag(app, revealingBelow: downwards)
+        }
+    }
+
+    /// One slow drag of a quarter of the screen, held so the list stops where the finger does.
+    @MainActor
+    private func drag(_ app: XCUIApplication, revealingBelow: Bool) {
+        let low = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.6))
+        let high = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.35))
+        let (from, to) = revealingBelow ? (low, high) : (high, low)
+        from.press(forDuration: 0.05, thenDragTo: to, withVelocity: .slow, thenHoldForDuration: 0.2)
     }
 
     @MainActor
